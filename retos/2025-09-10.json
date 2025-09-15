@@ -1,0 +1,14 @@
+{
+  "fecha": "2025-09-10",
+  "titulo": "Relojes 3 y 5 → 4",
+  "objetivo": "Mide 4 min",
+  "icono_url": "assets/icono-generico.svg",
+  "tipo": "relojes-arena",
+  "data": {
+    "relojes": [
+      3,
+      5
+    ],
+    "objetivo": 4
+  }
+}

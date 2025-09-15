@@ -1,0 +1,14 @@
+{
+  "fecha": "2025-09-11",
+  "titulo": "Jarras exactas 3 y 5 → 4L",
+  "objetivo": "Obtén 4 L",
+  "icono_url": "assets/icono-generico.svg",
+  "tipo": "jarras-exactas",
+  "data": {
+    "jarras": [
+      3,
+      5
+    ],
+    "objetivo": 4
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "fecha": "2025-09-09",
+  "titulo": "Plantas · Riegos secuenciados",
+  "objetivo": "Planifica riegos",
+  "icono_url": "assets/icono-generico.svg",
+  "tipo": "plantas",
+  "data": {
+    "json_url": "data/plantas_2025-09-09.json"
+  }
+}

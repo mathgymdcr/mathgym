@@ -1,0 +1,51 @@
+{
+  "houses": 4,
+  "categories": {
+    "Persona": [
+      "Andrés",
+      "Beatriz",
+      "Carlos",
+      "Diana"
+    ],
+    "Color": [
+      "Roja",
+      "Verde",
+      "Azul",
+      "Amarilla"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo"
+    ]
+  },
+  "constraints": [
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Persona",
+        "val": "Andrés"
+      },
+      "b": {
+        "cat": "Color",
+        "val": "Roja"
+      }
+    },
+    {
+      "type": "left_of",
+      "a": {
+        "cat": "Color",
+        "val": "Verde"
+      },
+      "b": {
+        "cat": "Color",
+        "val": "Azul"
+      }
+    }
+  ],
+  "clues": [
+    "Andrés vive en la casa roja.",
+    "La casa verde está a la izquierda de la azul."
+  ]
+}

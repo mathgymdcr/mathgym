@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "fecha": "2025-09-09",
+    "titulo": "Plantas · Riegos secuenciados"
+  },
+  {
+    "fecha": "2025-09-10",
+    "titulo": "Relojes 3 y 5 → 4"
+  },
+  {
+    "fecha": "2025-09-11",
+    "titulo": "Jarras exactas 3 y 5 → 4L"
+  },
+  {
+    "fecha": "2025-09-12",
+    "titulo": "Relojes 7 y 11 → 15"
+  }
+]
