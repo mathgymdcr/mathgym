@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MathGym — Reto del día</title>
+  <meta name="description" content="Entrena tu razonamiento con un reto corto cada día.">
+  <meta property="og:title" content="MathGym — Reto del día">
+  <meta property="og:description" content="Entrena tu razonamiento con un reto corto cada día.">
+  <meta property="og:image" content="assets/og-mathgym.jpg">
+  <link rel="icon" href="assets/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" href="assets/favicon-16x16.png" sizes="16x16">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <span aria-hidden="true" class="brand-glow"></span>
+      <img src="assets/logo-mathgym.png" alt="MathGym" class="brand-logo" />
+      <div class="brand-title">
+        <h1>MathGym</h1>
+        <p>Un reto corto cada día</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="coach">
+    <div class="coach-avatar">
+      <span aria-hidden="true" class="coach-glow"></span>
+      <img src="assets/deceerre.png" alt="Deceerre" class="coach-img" />
+    </div>
+    <div class="coach-bubble" id="deceerre-bubble" role="status" aria-live="polite">
+      <strong>¡Vamos!</strong>
+      <span>Prepárate para el reto de hoy.</span>
+    </div>
+  </section>
+
+  <main class="contenedor-reto">
+    <section class="card reto-header">
+      <div>
+        <h2 id="titulo-reto">Cargando…</h2>
+        <p class="sub" id="sub-reto">Esto tardará un momento</p>
+      </div>
+      <img id="imagen-reto" class="icono-reto" src="assets/icono-generico.svg" alt="Icono del reto" />
+    </section>
+
+    <section class="card reto-objetivo">
+      <h3>Objetivo</h3>
+      <div id="objetivo-reto">
+        <div class="skeleton skel-line" style="width: 80%; margin-bottom:10px;"></div>
+        <div class="skeleton skel-line" style="width: 60%;"></div>
+      </div>
+    </section>
+
+    <section id="reto-interactivo" class="card reto-interactivo" hidden>
+      <h3>Interactivo</h3>
+      <div id="contenedor-interactivo">
+        <div class="skeleton" style="height:140px;border-radius:12px"></div>
+      </div>
+    </section>
+
+    <section class="reto-metricas">
+      <div id="contador-visitas">👁️ —</div>
+      <div id="valoracion-reto">⭐ —/5</div>
+    </section>
+
+    <section class="card reto-valoracion">
+      <h3>¿Te ha gustado el reto? ¡Vótalo!</h3>
+      <div class="estrellas" id="sistema-valoracion" aria-label="Valorar reto"></div>
+    </section>
+
+    <section class="card reto-compartir">
+      <h3>¡Compártelo!</h3>
+      <div class="botones-compartir">
+        <a class="btn" id="share-twitter" href="#" rel="noopener">Twitter / X</a>
+        <a class="btn" id="share-whatsapp" href="#" rel="noopener">WhatsApp</a>
+      </div>
+    </section>
+
+    <nav class="navegacion-secundaria">
+      <a href="archivo.html">🗂 Ver retos anteriores</a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">© <span id="year"></span> MathGym</footer>
+  <script src="script.js"></script>
+  <script type="module" src="plantillas/base.js"></script>
+</body>
+</html>

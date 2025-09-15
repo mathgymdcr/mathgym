@@ -1,0 +1,59 @@
+
+:root{
+  --bg:#0b1220; --bg-2:#0f1a2e; --card:rgba(255,255,255,.06); --card-b:rgba(255,255,255,.12);
+  --fg:#e9eef8; --muted:#aab3c5; --brand:#6c5ce7; --brand2:#1084c7; --accent:#ffd23b;
+  --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:radial-gradient(1200px 800px at 10% 10%, #0e2745 0%, var(--bg) 45%, #09101c 100%);color:var(--fg);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+.site-header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg, rgba(11,18,32,.9), rgba(11,18,32,.5) 60%, transparent)}
+.brand{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:14px 18px;position:relative}
+.brand-logo{width:60px;height:auto;position:relative;z-index:2;filter:drop-shadow(0 2px 10px rgba(0,0,0,.35))}
+.brand-title h1{margin:0;font-weight:800;letter-spacing:.25px;background:linear-gradient(90deg,#ffd54d,#ffe98a);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:1.6rem}
+.brand-title p{margin:2px 0 0 0;color:#b9c4da}
+.brand-glow{position:absolute;left:10px;top:10px;width:72px;height:72px;border-radius:50%;background:radial-gradient(closest-side, rgba(255,210,59,.35), rgba(255,210,59,0));filter:blur(6px);animation:breathe 3.6s ease-in-out infinite}
+
+.coach{max-width:980px;margin:14px auto 0;padding:0 18px;display:flex;align-items:flex-start;gap:14px}
+.coach-avatar{position:relative}
+.coach-img{width:88px;height:auto;border-radius:10px;box-shadow:var(--shadow)}
+.coach-glow{position:absolute;inset:-18%;border-radius:50%;background:radial-gradient(closest-side, rgba(108,92,231,.35), rgba(108,92,231,0));filter:blur(10px);animation:breathe 3.8s ease-in-out infinite}
+.coach-bubble{background:var(--card);border:1px solid var(--card-b);border-radius:12px;padding:12px 16px;backdrop-filter:blur(10px);box-shadow:var(--shadow);max-width:520px}
+.coach-bubble strong{display:block;margin-bottom:4px}
+
+.contenedor-reto{max-width:980px;margin:22px auto 48px;padding:0 18px}
+.card{background:var(--card);border:1px solid var(--card-b);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.reto-header{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.reto-header h2{margin:0;font-weight:800;font-size:1.5rem}
+.icono-reto{width:64px;height:64px;object-fit:contain}
+.reto-objetivo h3,.reto-valoracion h3,.reto-compartir h3,.reto-interactivo h3{margin:0 0 8px 0}
+.reto-metricas{display:flex;gap:14px;margin:10px 0;color:var(--muted)}
+
+.estrellas{display:inline-flex;gap:8px;font-size:28px}
+.estrellas button{background:none;border:0;color:#cdd7f0;cursor:pointer;transition:transform .12s ease, color .2s ease}
+.estrellas button:hover,.estrellas button[aria-pressed="true"]{color:#ffd54d;transform:scale(1.12)}
+.estrellas button:focus-visible{outline:2px solid var(--brand2);border-radius:6px}
+
+.botones-compartir{display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--card-b);background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.06));color:var(--fg);padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:600;transition:transform .08s ease, background .2s ease, border-color .2s ease}
+.btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.22)}
+
+.navegacion-secundaria{display:flex;gap:12px;margin-top:16px}
+.navegacion-secundaria a{color:#00c2ff;text-decoration:none}
+.navegacion-secundaria a:hover{text-decoration:underline}
+
+.skeleton{position:relative;overflow:hidden;border-radius:8px;background:rgba(255,255,255,.06)}
+.skeleton::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);animation:shimmer 1.2s ease-in-out infinite}
+.skel-line{height:16px}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes breathe{0%,100%{transform:scale(.96);opacity:.78}50%{transform:scale(1.06);opacity:1}}
+
+/* Templates basics */
+.template-box{background:rgba(255,255,255,.04);border:1px solid var(--card-b);border-radius:12px;padding:12px}
+.template-actions{display:flex;gap:8px;margin-top:10px}
+.template-success{border:1px solid rgba(46, 204, 113, .6); box-shadow:0 0 0 2px rgba(46, 204, 113, .2) inset}
+.badge{display:inline-block;background:rgba(255,255,255,.08);border:1px solid var(--card-b);border-radius:999px;padding:4px 8px;margin-bottom:8px;font-size:.85rem;color:#b9c4da}
+
+.site-footer{max-width:980px;margin:32px auto;padding:0 18px;color:var(--muted)}
+
+@media (max-width:680px){.brand-logo{width:52px}.coach-img{width:76px}.icono-reto{width:56px;height:56px}}
+@media (prefers-reduced-motion:reduce){.brand-glow,.coach-glow{animation:none}}

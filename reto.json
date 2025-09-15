@@ -1,0 +1,18 @@
+{
+  "fecha": "2025-09-15",
+  "titulo": "¿Cuál es la opción correcta?",
+  "objetivo": "Selecciona la única respuesta válida según las pistas.",
+  "icono_url": "assets/icono-generico.svg",
+  "tipo": "multiple",
+  "data": {
+    "pregunta": "Un número entre 10 y 20, múltiplo de 3, no primo:",
+    "opciones": [
+      "11",
+      "12",
+      "15",
+      "18"
+    ],
+    "correcta": 1,
+    "pista": "Si la suma de sus dígitos es múltiplo de 3…"
+  }
+}
