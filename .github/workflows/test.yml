@@ -9,4 +9,4 @@ jobs:
         with:
           node-version: '20'
       - run: npm ci || npm i
-      - run: npm test -- --run
+      - run: npm test
