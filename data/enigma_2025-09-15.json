@@ -13,11 +13,23 @@
       "Azul",
       "Amarilla"
     ],
+    "Profesión": [
+      "Profesor",
+      "Médico",
+      "Panadero",
+      "Ingeniero"
+    ],
     "Bebida": [
       "Café",
       "Té",
       "Agua",
       "Zumo"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Tortuga"
     ]
   },
   "constraints": [
@@ -33,6 +45,17 @@
       }
     },
     {
+      "type": "eq",
+      "a": {
+        "cat": "Profesión",
+        "val": "Médico"
+      },
+      "b": {
+        "cat": "Mascota",
+        "val": "Pez"
+      }
+    },
+    {
       "type": "left_of",
       "a": {
         "cat": "Color",
@@ -42,10 +65,95 @@
         "cat": "Color",
         "val": "Azul"
       }
+    },
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Persona",
+        "val": "Diana"
+      },
+      "b": {
+        "cat": "Bebida",
+        "val": "Té"
+      }
+    },
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Profesión",
+        "val": "Panadero"
+      },
+      "b": {
+        "cat": "Color",
+        "val": "Amarilla"
+      }
+    },
+    {
+      "type": "next_to",
+      "a": {
+        "cat": "Mascota",
+        "val": "Perro"
+      },
+      "b": {
+        "cat": "Bebida",
+        "val": "Agua"
+      }
+    },
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Profesión",
+        "val": "Ingeniero"
+      },
+      "b": {
+        "cat": "Color",
+        "val": "Azul"
+      }
+    },
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Persona",
+        "val": "Carlos"
+      },
+      "b": {
+        "cat": "Mascota",
+        "val": "Tortuga"
+      }
+    },
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Mascota",
+        "val": "Gato"
+      },
+      "b": {
+        "cat": "Bebida",
+        "val": "Zumo"
+      }
+    },
+    {
+      "type": "neq",
+      "a": {
+        "cat": "Persona",
+        "val": "Beatriz"
+      },
+      "b": {
+        "cat": "Color",
+        "val": "Verde"
+      }
     }
   ],
   "clues": [
     "Andrés vive en la casa roja.",
-    "La casa verde está a la izquierda de la azul."
+    "El médico tiene un pez.",
+    "La casa verde está a la izquierda de la casa azul.",
+    "Diana bebe té.",
+    "El panadero vive en la casa amarilla.",
+    "El vecino que tiene el perro vive junto al que bebe agua.",
+    "El ingeniero vive en la casa azul.",
+    "Carlos tiene una tortuga.",
+    "El vecino que tiene el gato vive en la casa donde se bebe zumo.",
+    "Beatriz no vive en la casa verde."
   ]
 }
