@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Demo Enigma 4×4</title>
+</head><body>
+  <h1>Demo Enigma 4×4 (carga directa)</h1>
+  <div id="host" style="padding:12px;border:1px solid #ccc;border-radius:8px"></div>
+  <script type="module">
+    import './plantillas/base.js';
+    const host=document.getElementById('host');
+    window.Templates.render('enigma-einstein', { json_url: 'data/enigma_2025-09-15.json' }, host, {}).catch(console.error);
+  </script>
+</body></html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Diagnóstico MathGym</title>
+<style>
+  body{font:15px/1.5 system-ui;max-width:920px;margin:24px auto;padding:0 16px;background:#0b1220;color:#e9eef8}
+  h1 small{font-weight:400;color:#aab3c5}
+  ul{list-style:none;padding:0}
+  li{padding:6px 10px;margin:6px 0;border-radius:8px;background:rgba(255,255,255,.06)}
+  li.ok{border:1px solid #2c8f4e}
+  li.ko{border:1px solid #cc5b3e}
+  .demo{margin-top:18px;padding:12px;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.04)}
+  .box{padding:10px;border:1px dashed rgba(255,255,255,.3);border-radius:8px}
+  a{color:#ffd23b}
+</style>
+</head><body>
+  <h1>Diagnóstico MathGym <small id="baseurl"></small></h1>
+  <p>Esta página verifica que los ficheros clave existan (200) y prueba a renderizar <strong>Enigma 4×4</strong> directamente, sin router ni reto.json.</p>
+  <h2>Checks</h2>
+  <ul id="checks"></ul>
+
+  <h2>Demo Enigma directa</h2>
+  <div id="demo" class="demo">(aquí debería cargarse la demo del Enigma si todo está bien)</div>
+
+  <script type="module" src="diag.js"></script>
+</body></html>
