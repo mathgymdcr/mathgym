@@ -1,22 +1,55 @@
-<!DOCTYPE html><html lang="es"><head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>MathGym — Reto del día</title>
-<link rel="stylesheet" href="style.css"/>
-</head><body>
-<header class="site-header"><div class="brand">
-  <img src="assets/logo-placeholder.svg" alt="MathGym" class="brand-logo" onerror="this.style.display='none'"/>
-  <div class="brand-title"><h1>MathGym</h1><p>Entrena tu razonamiento</p></div>
-  <div class="brand-actions"><a class="btn" href="archivo.html">Archivo</a></div>
-</div></header>
-<main class="contenedor-reto">
-  <section class="card reto-header"><h2 id="titulo-reto">Cargando...</h2><p id="objetivo-reto"></p></section>
-  <section class="card" id="estado-card"><div id="estado-carga"></div></section>
-  <section class="card" id="reto-interactivo" hidden>
-    <h3>Interactivo</h3>
-    <div id="contenedor-interactivo" aria-live="polite"></div>
-  </section>
-</main>
-<footer class="site-footer">© <span id="year"></span> MathGym</footer>
-<script type="module" src="script.js"></script>
-</body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MathGym — Enigma 4×4 · Play</title>
+  <meta name="theme-color" content="#0b1220" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Overrides compactos y orden Pistas→Tablero→Tarjetas (opcional) -->
+  <link rel="stylesheet" href="styles_enigma_overrides.css" />
+  <style>
+    /* Mensaje si no carga nada */
+    .noscript {max-width:1100px;margin:12px auto;padding:12px 16px;border-radius:12px;background:#3a2e2e;color:#fff}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <img src="assets/logo-placeholder.svg" alt="MathGym" class="brand-logo" onerror="this.style.display='none'" />
+      <div class="brand-title"><h1>MathGym</h1><p>Entrena tu razonamiento</p></div>
+      <div class="brand-actions"><a class="btn" href="archivo.html">🗂 Archivo</a></div>
+    </div>
+  </header>
+
+  <noscript>
+    <div class="noscript">Necesitas habilitar JavaScript para jugar. Si ves esta nota, prueba a recargar la página.</div>
+  </noscript>
+
+  <main class="contenedor-reto">
+    <!-- Cabecera del reto -->
+    <section class="card reto-header">
+      <h2 id="titulo-reto">Enigma 4×4 · Play</h2>
+      <p id="objetivo-reto">Coloca las tarjetas como candidatos en el tablero. Puedes poner <strong>varias por celda</strong> y quitarlas volviendo a pulsar.</p>
+    </section>
+
+    <!-- Estado / mensajes -->
+    <section class="card" id="estado-card">
+      <div id="estado-carga"></div>
+    </section>
+
+    <!-- Interactivo -->
+    <section class="card" id="reto-interactivo" hidden>
+      <h3 class="sr-only" aria-hidden="true">Interactivo</h3>
+      <div id="contenedor-interactivo" aria-live="polite">
+        <div class="skeleton">Cargando…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">© <span id="year"></span> MathGym</footer>
+
+  <!-- App (Mini‑SPA) -->
+  <script type="module" src="script.js"></script>
+</body>
+</html>
