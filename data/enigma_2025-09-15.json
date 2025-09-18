@@ -38,5 +38,27 @@
     "Cora no bebe cafe.",
     "Damian no bebe cafe."
   ],
+  "solution": {
+    "Ana": {
+      "Camiseta": "Verde",
+      "Bebida": "Cafe",
+      "Mascota": "Pez"
+    },
+    "Beto": {
+      "Camiseta": "Amarilla",
+      "Bebida": "Zumo",
+      "Mascota": "Perro"
+    },
+    "Cora": {
+      "Camiseta": "Roja",
+      "Bebida": "Te",
+      "Mascota": "Gato"
+    },
+    "Damian": {
+      "Camiseta": "Azul",
+      "Bebida": "Agua",
+      "Mascota": "Tortuga"
+    }
+  },
   "notes": "Puzzle 4x4 sin posiciones; pistas en texto natural. Solución única verificada."
 }
