@@ -1,11 +1,11 @@
 {
-  "houses": 4,
+  "level": "medio",
   "categories": {
     "Persona": [
       "Ana",
       "Beto",
       "Cora",
-      "Damián"
+      "Damian"
     ],
     "Color": [
       "Roja",
@@ -14,8 +14,8 @@
       "Amarilla"
     ],
     "Bebida": [
-      "Café",
-      "Té",
+      "Cafe",
+      "Te",
       "Agua",
       "Zumo"
     ],
@@ -31,6 +31,61 @@
       "type": "eq",
       "a": {
         "cat": "Persona",
+        "val": "Damian"
+      },
+      "b": {
+        "cat": "Mascota",
+        "val": "Tortuga"
+      }
+    },
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Color",
+        "val": "Azul"
+      },
+      "b": {
+        "cat": "Mascota",
+        "val": "Tortuga"
+      }
+    },
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Color",
+        "val": "Amarilla"
+      },
+      "b": {
+        "cat": "Mascota",
+        "val": "Perro"
+      }
+    },
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Bebida",
+        "val": "Te"
+      },
+      "b": {
+        "cat": "Mascota",
+        "val": "Gato"
+      }
+    },
+    {
+      "type": "eq",
+      "a": {
+        "cat": "Bebida",
+        "val": "Zumo"
+      },
+      "b": {
+        "cat": "Mascota",
+        "val": "Perro"
+      }
+    },
+    {
+      "type": "neq",
+      "a": {
+        "cat": "Persona",
         "val": "Ana"
       },
       "b": {
@@ -39,49 +94,50 @@
       }
     },
     {
-      "type": "left_of",
+      "type": "neq",
       "a": {
-        "cat": "Color",
-        "val": "Verde"
-      },
-      "b": {
-        "cat": "Color",
-        "val": "Azul"
-      }
-    },
-    {
-      "type": "eq",
-      "a": {
-        "cat": "Bebida",
-        "val": "Té"
-      },
-      "b": {
         "cat": "Persona",
-        "val": "Damián"
+        "val": "Beto"
+      },
+      "b": {
+        "cat": "Color",
+        "val": "Roja"
       }
     },
     {
-      "type": "eq",
+      "type": "neq",
       "a": {
-        "cat": "Mascota",
-        "val": "Pez"
+        "cat": "Persona",
+        "val": "Beto"
       },
       "b": {
+        "cat": "Bebida",
+        "val": "Cafe"
+      }
+    },
+    {
+      "type": "neq",
+      "a": {
         "cat": "Persona",
         "val": "Cora"
+      },
+      "b": {
+        "cat": "Bebida",
+        "val": "Cafe"
+      }
+    },
+    {
+      "type": "neq",
+      "a": {
+        "cat": "Persona",
+        "val": "Damian"
+      },
+      "b": {
+        "cat": "Bebida",
+        "val": "Cafe"
       }
     }
   ],
-  "clues": [
-    "Ana vive en la casa roja.",
-    "La casa verde está a la izquierda de la casa azul.",
-    "Damián bebe té.",
-    "Cora tiene un pez.",
-    "Beto no tiene tortuga.",
-    "Quien bebe agua no vive en la casa amarilla.",
-    "El dueño del perro no bebe café.",
-    "La persona de la casa 1 no bebe zumo.",
-    "La casa 4 no es roja.",
-    "El que tiene gato vive junto al que bebe agua."
-  ]
+  "notes": "Puzzle 4x4 sin posiciones; solución única garantizada."
+}
 }
