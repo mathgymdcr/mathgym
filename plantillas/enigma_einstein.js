@@ -209,15 +209,15 @@ export async function render(root, data, hooks) {
   function setupEventListeners(ui, state, categories, boardSize) {
     if (ui.btnValidate) {
       ui.btnValidate.addEventListener('click', () => {
-        if (!config.solution) {
+        if (!config || !config.solution) {
           setStatus(ui.result, 'No hay solución en el JSON (campo "solution").', 'ko');
           return;
         }
-    
-        const out = checkAgainstSolutionFlexible(gameState, categories, config.solution);
+        const out = checkAgainstSolutionIgnoreOrder(gameState, categories, config.solution);
         setStatus(ui.result, out.ok ? '¡Correcto!' : out.msg, out.ok ? 'ok' : 'ko');
       });
     }
+    
     
     
 
@@ -479,3 +479,81 @@ function checkAgainstSolutionFlexible(state, categories, solution) {
   // 3) Si todas las personas están asignadas sin conflictos, es correcto
   return { ok: true, msg: '¡Correcto!' };
 }
+
+function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
+  const SIZE = 4;
+
+  // Las categorías a chequear se toman de la solución (no exigimos "Persona" como chip)
+  const personas = Object.keys(solution);
+  if (personas.length !== SIZE) {
+    return { ok: false, msg: 'La solución no tiene 4 personas.' };
+  }
+  // Suponemos que todas las personas tienen las mismas claves (p. ej., Camiseta/Bebida/Mascota)
+  const catsToCheck = Object.keys(solution[personas[0]]); // p.ej. ["Camiseta","Bebida","Mascota"]
+
+  // 1) Recolectar lo que el usuario ha puesto en cada columna (1 valor exacto por categoría a chequear)
+  const picksByCol = []; // [{Camiseta:'Azul',Bebida:'Agua',Mascota:'Tortuga'}, ...]
+  for (let col = 0; col < SIZE; col++) {
+    const picks = {};
+    for (const cat of catsToCheck) {
+      const set = state.board[col]?.[cat] || new Set();
+      if (set.size !== 1) {
+        return { ok: false, msg: `En la columna ${col + 1}, en "${cat}" debe haber exactamente 1 selección.` };
+      }
+      picks[cat] = [...set][0];
+    }
+    picksByCol.push(picks);
+  }
+
+  // 2) Construir candidatos: para cada columna, qué persona(s) de la solución encajan exactamente
+  const candidatesByCol = picksByCol.map(picks => {
+    return personas.filter(p => {
+      const sol = solution[p];
+      return catsToCheck.every(cat => sol[cat] === picks[cat]);
+    });
+  });
+
+  // Si alguna columna no encaja con nadie, error claro
+  for (let i = 0; i < SIZE; i++) {
+    if (candidatesByCol[i].length === 0) {
+      // Intentar dar una pista del primer mismatch
+      const det = [];
+      for (const p of personas) {
+        const sol = solution[p];
+        const mis = catsToCheck.find(cat => sol[cat] !== picksByCol[i][cat]);
+        if (mis) det.push(`${p}: ${mis} debería ser "${sol[mis]}"`);
+      }
+      return {
+        ok: false,
+        msg: `La columna ${i + 1} no coincide con ninguna persona. ` + (det[0] ? `Ej.: ${det[0]}.` : '')
+      };
+    }
+  }
+
+  // 3) Resolver asignación persona↔columna ignorando orden (backtracking sobre 4! = 24)
+  const used = new Set();
+  const assign = new Array(SIZE); // assign[col] = persona
+
+  function bt(col) {
+    if (col === SIZE) return true;
+    for (const p of candidatesByCol[col]) {
+      if (used.has(p)) continue;
+      used.add(p);
+      assign[col] = p;
+      if (bt(col + 1)) return true;
+      used.delete(p);
+    }
+    return false;
+  }
+
+  const ok = bt(0);
+  if (!ok) {
+    // Si no hay asignación global única con las selecciones actuales
+    // puede ser porque haya ambigüedad o conflicto cruzado.
+    return { ok: false, msg: 'Las selecciones no forman una asignación válida persona↔columna.' };
+  }
+
+  // 4) Si llegamos aquí, hay una asignación válida: ¡Correcto!
+  return { ok: true, msg: '¡Correcto!' };
+}
+
