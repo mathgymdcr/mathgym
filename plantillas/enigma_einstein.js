@@ -209,33 +209,39 @@ export async function render(root, data, hooks) {
   function setupEventListeners(ui, state, categories, boardSize) {
     if (ui.btnValidate) {
       ui.btnValidate.addEventListener('click', () => {
-        // 1) Si te pasan un hook externo, úsalo (opcional)
-        if (hooks && typeof hooks.onValidate === 'function') {
-          hooks.onValidate(state, categories, (msg, kind) => setStatus(ui.result, msg, kind));
-          return;
-        }
-    
-        // 2) Validación interna usando config.solution
         if (!config.solution) {
           setStatus(ui.result, 'No hay solución en el JSON (campo "solution").', 'ko');
           return;
         }
     
-        const out = checkAgainstSolution(state, categories, config.solution);
+        const out = checkAgainstSolutionFlexible(gameState, categories, config.solution);
         setStatus(ui.result, out.ok ? '¡Correcto!' : out.msg, out.ok ? 'ok' : 'ko');
       });
     }
     
+    
 
-  function clearBoard(container, state, categories, size) {
-    for (let i = 0; i < size; i++) {
-      state.board[i] = {};
+    function clearBoard(container, state, categories, size) {
+      for (let i = 0; i < size; i++) {
+        state.board[i] = {};
+      }
+      // Quitar chips del DOM
+      container.querySelectorAll('.cell').forEach(cell => {
+        cell.innerHTML = '';
+      });
     }
-
-    container.querySelectorAll('.cell').forEach(cell => {
-      cell.innerHTML = '';
-    });
-  }
+    if (ui.btnClear) {
+      ui.btnClear.addEventListener('click', () => {
+        clearBoard(ui.board, gameState, categories, BOARD_SIZE);
+        gameState.selected = null;
+        // Quitar resaltado en la paleta
+        ui.palette.querySelectorAll('.card.is-selected').forEach(el => el.classList.remove('is-selected'));
+        // Mensaje
+        setStatus(ui.result, 'Tablero limpiado', 'ok');
+      });
+    }
+    
+    
 }
 function checkAgainstSolution(state, categories, solution) {
   // Asumimos que cada columna representa una "entidad" y que la fila "Persona"
@@ -406,4 +412,70 @@ function setStatus(element, text, type = '') {
   if (type) {
     element.classList.add(type);
   }
+}
+function checkAgainstSolutionFlexible(state, categories, solution) {
+  const categoryKeys = Object.keys(categories);
+  const SIZE = 4;
+
+  // 1) Construir, por columna, el mapa {cat: valor}
+  const picksByCol = [];
+  for (let col = 0; col < SIZE; col++) {
+    const picks = {};
+    for (const cat of categoryKeys) {
+      const set = state.board[col]?.[cat] || new Set();
+      if (set.size !== 1) {
+        return { ok: false, msg: `En la columna ${col + 1}, debes elegir exactamente 1 valor de "${cat}".` };
+      }
+      picks[cat] = [...set][0];
+    }
+    picksByCol.push(picks);
+  }
+
+  // 2) Para cada columna, buscar qué persona(s) de la solución encajan con todos los pares seleccionados
+  const personas = Object.keys(solution);
+  const used = new Set();
+  const assignment = {}; // persona -> col
+
+  for (let col = 0; col < SIZE; col++) {
+    const picks = picksByCol[col];
+
+    // Candidatos: personas cuyo registro coincide en TODOS los cat!=Persona
+    const candidates = personas.filter(p => {
+      const sol = solution[p];
+      return Object.keys(sol).every(cat => sol[cat] === picks[cat]);
+    });
+
+    if (candidates.length === 0) {
+      // Buscar el primer conflicto para mensaje más claro
+      const details = [];
+      for (const p of personas) {
+        const sol = solution[p];
+        const mismatch = Object.keys(sol).find(cat => sol[cat] !== picks[cat]);
+        if (mismatch) details.push(`${p}: ${mismatch} debería ser "${sol[mismatch]}"`);
+      }
+      return {
+        ok: false,
+        msg: `La columna ${col + 1} no coincide con ninguna persona de la solución. ` +
+             (details.length ? `Ej.: ${details[0]}.` : '')
+      };
+    }
+
+    if (candidates.length > 1) {
+      return {
+        ok: false,
+        msg: `La columna ${col + 1} es ambigua (encaja con ${candidates.join(', ')}). ` +
+             `Asegúrate de seleccionar 1 valor por categoría y que sean los correctos.`
+      };
+    }
+
+    const person = candidates[0];
+    if (used.has(person)) {
+      return { ok: false, msg: `La persona "${person}" aparece duplicada en más de una columna.` };
+    }
+    used.add(person);
+    assignment[person] = col;
+  }
+
+  // 3) Si todas las personas están asignadas sin conflictos, es correcto
+  return { ok: true, msg: '¡Correcto!' };
 }
