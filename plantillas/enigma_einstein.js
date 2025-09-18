@@ -209,17 +209,23 @@ export async function render(root, data, hooks) {
   function setupEventListeners(ui, state, categories, boardSize) {
     if (ui.btnValidate) {
       ui.btnValidate.addEventListener('click', () => {
-        setStatus(ui.result, 'Progreso guardado!', 'ok');
+        // 1) Si te pasan un hook externo, úsalo (opcional)
+        if (hooks && typeof hooks.onValidate === 'function') {
+          hooks.onValidate(state, categories, (msg, kind) => setStatus(ui.result, msg, kind));
+          return;
+        }
+    
+        // 2) Validación interna usando config.solution
+        if (!config.solution) {
+          setStatus(ui.result, 'No hay solución en el JSON (campo "solution").', 'ko');
+          return;
+        }
+    
+        const out = checkAgainstSolution(state, categories, config.solution);
+        setStatus(ui.result, out.ok ? '¡Correcto!' : out.msg, out.ok ? 'ok' : 'ko');
       });
     }
-
-    if (ui.btnClear) {
-      ui.btnClear.addEventListener('click', () => {
-        clearBoard(ui.board, state, categories, boardSize);
-        setStatus(ui.result, 'Tablero limpiado', 'ok');
-      });
-    }
-  }
+    
 
   function clearBoard(container, state, categories, size) {
     for (let i = 0; i < size; i++) {
@@ -231,6 +237,63 @@ export async function render(root, data, hooks) {
     });
   }
 }
+function checkAgainstSolution(state, categories, solution) {
+  // Asumimos que cada columna representa una "entidad" y que la fila "Persona"
+  // tendrá exactamente 1 nombre por columna. Con eso identificamos a la persona.
+  const categoryKeys = Object.keys(categories);
+  const personaKey = categoryKeys.find(k => k.toLowerCase() === 'persona');
+  if (!personaKey) {
+    return { ok: false, msg: 'No existe la categoría "Persona" en el puzzle.' };
+  }
+
+  const size = 4;
+  const seenPersonas = new Set();
+  const user = {}; // user[persona] = { Cat1: val1, Cat2: val2, ... }
+
+  for (let col = 0; col < size; col++) {
+    // 1) Persona en la columna
+    const pSet = state.board[col]?.[personaKey] || new Set();
+    if (pSet.size !== 1) {
+      return { ok: false, msg: `Falta seleccionar 1 Persona (exacta) en la columna ${col + 1}.` };
+    }
+    const persona = [...pSet][0];
+    if (seenPersonas.has(persona)) {
+      return { ok: false, msg: `La Persona "${persona}" está repetida en varias columnas.` };
+    }
+    seenPersonas.add(persona);
+    user[persona] = {};
+
+    // 2) Cada categoría debe tener exactamente 1 valor en la columna
+    for (const cat of categoryKeys) {
+      if (cat === personaKey) continue;
+      const set = state.board[col]?.[cat] || new Set();
+      if (set.size !== 1) {
+        return { ok: false, msg: `En "${cat}" (columna ${col + 1}) debes elegir exactamente 1 valor.` };
+      }
+      user[persona][cat] = [...set][0];
+    }
+  }
+
+  // 3) Comparar con la solución esperada
+  for (const persona of Object.keys(solution)) {
+    const sol = solution[persona];
+    const ans = user[persona];
+    if (!ans) {
+      return { ok: false, msg: `Falta la Persona "${persona}" en el tablero.` };
+    }
+    for (const cat of Object.keys(sol)) {
+      if (ans[cat] !== sol[cat]) {
+        return {
+          ok: false,
+          msg: `Error en ${persona}: "${cat}" debería ser "${sol[cat]}", no "${ans[cat]}".`
+        };
+      }
+    }
+  }
+
+  return { ok: true, msg: '¡Correcto!' };
+}
+
 
 // FUNCIONES DE UTILIDAD para enigma_einstein.js
 function buildShell() {
