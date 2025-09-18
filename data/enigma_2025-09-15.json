@@ -7,7 +7,7 @@
       "Cora",
       "Damian"
     ],
-    "Color": [
+    "Camiseta": [
       "Roja",
       "Verde",
       "Azul",
@@ -26,117 +26,17 @@
       "Tortuga"
     ]
   },
-  "constraints": [
-    {
-      "type": "eq",
-      "a": {
-        "cat": "Persona",
-        "val": "Damian"
-      },
-      "b": {
-        "cat": "Mascota",
-        "val": "Tortuga"
-      }
-    },
-    {
-      "type": "eq",
-      "a": {
-        "cat": "Color",
-        "val": "Azul"
-      },
-      "b": {
-        "cat": "Mascota",
-        "val": "Tortuga"
-      }
-    },
-    {
-      "type": "eq",
-      "a": {
-        "cat": "Color",
-        "val": "Amarilla"
-      },
-      "b": {
-        "cat": "Mascota",
-        "val": "Perro"
-      }
-    },
-    {
-      "type": "eq",
-      "a": {
-        "cat": "Bebida",
-        "val": "Te"
-      },
-      "b": {
-        "cat": "Mascota",
-        "val": "Gato"
-      }
-    },
-    {
-      "type": "eq",
-      "a": {
-        "cat": "Bebida",
-        "val": "Zumo"
-      },
-      "b": {
-        "cat": "Mascota",
-        "val": "Perro"
-      }
-    },
-    {
-      "type": "neq",
-      "a": {
-        "cat": "Persona",
-        "val": "Ana"
-      },
-      "b": {
-        "cat": "Color",
-        "val": "Roja"
-      }
-    },
-    {
-      "type": "neq",
-      "a": {
-        "cat": "Persona",
-        "val": "Beto"
-      },
-      "b": {
-        "cat": "Color",
-        "val": "Roja"
-      }
-    },
-    {
-      "type": "neq",
-      "a": {
-        "cat": "Persona",
-        "val": "Beto"
-      },
-      "b": {
-        "cat": "Bebida",
-        "val": "Cafe"
-      }
-    },
-    {
-      "type": "neq",
-      "a": {
-        "cat": "Persona",
-        "val": "Cora"
-      },
-      "b": {
-        "cat": "Bebida",
-        "val": "Cafe"
-      }
-    },
-    {
-      "type": "neq",
-      "a": {
-        "cat": "Persona",
-        "val": "Damian"
-      },
-      "b": {
-        "cat": "Bebida",
-        "val": "Cafe"
-      }
-    }
+  "clues": [
+    "Damian tiene tortuga.",
+    "Quien viste camiseta azul tiene tortuga.",
+    "Quien viste camiseta amarilla tiene perro.",
+    "Quien bebe te tiene gato.",
+    "Quien bebe zumo tiene perro.",
+    "Ana no viste camiseta roja.",
+    "Beto no viste camiseta roja.",
+    "Beto no bebe cafe.",
+    "Cora no bebe cafe.",
+    "Damian no bebe cafe."
   ],
-  "notes": "Puzzle 4x4 sin posiciones; solución única garantizada."
+  "notes": "Puzzle 4x4 sin posiciones; pistas en texto natural. Solución única verificada."
 }

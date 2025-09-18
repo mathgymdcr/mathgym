@@ -1,17 +1,40 @@
-<!DOCTYPE html><html lang="es"><head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>MathGym — Archivo</title>
-<link rel="stylesheet" href="style.css"/>
-</head><body>
-<header class="site-header"><div class="brand">
-  <img src="assets/logo-placeholder.svg" alt="MathGym" class="brand-logo" onerror="this.style.display='none'"/>
-  <div class="brand-title"><h1>Archivo</h1><p>Retos anteriores</p></div>
-  <div class="brand-actions"><a class="btn" href="index.html">Reto del día</a></div>
-</div></header>
-<main class="contenedor-reto">
-  <section class="card"><h2>Retos publicados</h2><div id="lista-retos"><p>Cargando...</p></div></section>
-</main>
-<footer class="site-footer">© <span id="year"></span> MathGym</footer>
-<script src="archivo.js"></script>
-</body></html>
+<!-- ===== archivo.html (CORREGIDO) ===== -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MathGym — Archivo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand">
+            <img src="assets/logo-placeholder.svg" alt="MathGym" class="brand-logo" 
+                 onerror="this.style.display='none'">
+            <div class="brand-title">
+                <h1>Archivo</h1>
+                <p>Retos anteriores</p>
+            </div>
+            <div class="brand-actions">
+                <a class="btn" href="index.html">🏠 Reto del día</a>
+            </div>
+        </div>
+    </header>
+    
+    <main class="contenedor-reto">
+        <section class="card">
+            <h2>Retos publicados</h2>
+            <div id="lista-retos">
+                <p>Cargando…</p>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="site-footer">
+        © <span id="year"></span> MathGym
+    </footer>
+    
+    <script src="archivo.js"></script>
+</body>
+</html>
