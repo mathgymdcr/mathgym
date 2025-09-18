@@ -1,24 +1,24 @@
-// plantillas/enigma_einstein.js - MEJORADO
-
+// ===== ARCHIVO SEPARADO: plantillas/enigma_einstein.js =====
 export async function render(root, data, hooks) {
   // Limpiar contenedor
   root.innerHTML = '';
+  
   const ui = buildShell();
   root.append(ui.box);
 
-  // Cargar y validar configuración
+  // Cargar configuración
   let config;
   try {
     config = await loadConfig(data);
   } catch (error) {
-    setStatus(ui.status, `❌ ${error?.message || error}`, 'ko');
+    setStatus(ui.status, 'Error: ' + (error.message || error), 'ko');
     return;
   }
 
-  // Validar que tenemos 4 categorías
-  const allCategories = Object.keys(config?.categories || {});
+  // Validar categorías
+  const allCategories = Object.keys(config.categories || {});
   if (allCategories.length < 4) {
-    setStatus(ui.status, '❌ Se requieren exactamente 4 categorías', 'ko');
+    setStatus(ui.status, 'Error: Se requieren 4 categorias', 'ko');
     return;
   }
 
@@ -31,9 +31,8 @@ export async function render(root, data, hooks) {
       ? config.categories[key].slice(0, 4)
       : [];
     
-    // Rellenar valores faltantes
     while (values.length < 4) {
-      values.push(`Valor${values.length + 1}`);
+      values.push('Valor' + (values.length + 1));
     }
     
     categories[key] = values;
@@ -60,22 +59,20 @@ export async function render(root, data, hooks) {
   // Event listeners
   setupEventListeners(ui, gameState, categories, BOARD_SIZE);
 
-  setStatus(ui.status, '✅ Listo para jugar', 'ok');
+  setStatus(ui.status, 'Listo para jugar', 'ok');
 
-  // --- FUNCIONES AUXILIARES ---
-
+  // FUNCIONES AUXILIARES
   function renderClues(container, clues) {
     container.innerHTML = '';
     
     if (!Array.isArray(clues) || clues.length === 0) {
-      container.innerHTML = '<li class="feedback">No hay pistas disponibles</li>';
+      container.innerHTML = '<li>No hay pistas disponibles</li>';
       return;
     }
 
     clues.forEach(clue => {
       const li = document.createElement('li');
       li.textContent = clue;
-      li.style.marginBottom = '6px';
       container.appendChild(li);
     });
   }
@@ -83,37 +80,22 @@ export async function render(root, data, hooks) {
   function renderBoard(container, categories, state) {
     container.innerHTML = '';
     
-    const table = createElement('table', {
-      class: 'ein-table',
-      role: 'grid',
-      'aria-label': 'Tablero de enigma 4x4'
-    });
-    
+    const table = createElement('table', { class: 'ein-table' });
     const tbody = createElement('tbody');
     const categoryKeys = Object.keys(categories);
 
     categoryKeys.forEach(category => {
-      const row = createElement('tr', { 'data-category': category });
+      const row = createElement('tr');
       
       for (let col = 0; col < BOARD_SIZE; col++) {
         const cell = createElement('td', {
           class: 'cell',
           'data-house': String(col),
-          'data-category': category,
-          tabindex: '0',
-          role: 'gridcell',
-          'aria-label': `Celda ${category}, casa ${col + 1}`
+          'data-category': category
         });
 
-        // Event listener para clicks en celdas
-        cell.addEventListener('click', () => handleCellClick(cell, state, col, category));
-        
-        // Navegación por teclado
-        cell.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleCellClick(cell, state, col, category);
-          }
+        cell.addEventListener('click', () => {
+          handleCellClick(cell, state, col, category);
         });
 
         updateCell(cell, state.board[col][category] || new Set());
@@ -137,7 +119,6 @@ export async function render(root, data, hooks) {
 
     const cellSet = state.board[col][category];
     
-    // Toggle del valor
     if (cellSet.has(selected.value)) {
       cellSet.delete(selected.value);
     } else {
@@ -145,16 +126,9 @@ export async function render(root, data, hooks) {
     }
 
     updateCell(cell, cellSet);
-    
-    // Efecto visual de feedback
-    cell.style.transform = 'scale(0.95)';
-    setTimeout(() => {
-      cell.style.transform = '';
-    }, 150);
   }
 
   function updateCell(cell, valueSet) {
-    // Limpiar contenido anterior
     cell.innerHTML = '';
     
     if (!valueSet || valueSet.size === 0) {
@@ -166,28 +140,15 @@ export async function render(root, data, hooks) {
     for (const value of valueSet) {
       const chip = createElement('button', {
         class: 'chip',
-        'data-value': value,
-        title: `Eliminar "${value}"`,
-        'aria-label': `Eliminar ${value} de esta celda`,
-        tabindex: '0'
+        'data-value': value
       });
       
       chip.textContent = value;
       
-      // Event listener para eliminar chip
       chip.addEventListener('click', (e) => {
         e.stopPropagation();
         valueSet.delete(value);
         updateCell(cell, valueSet);
-      });
-
-      // Navegación por teclado para chips
-      chip.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          e.stopPropagation();
-          chip.click();
-        }
       });
 
       chipsContainer.appendChild(chip);
@@ -211,10 +172,8 @@ export async function render(root, data, hooks) {
       values.forEach(value => {
         const card = createElement('button', {
           class: 'card',
-          type: 'button',
           'data-category': category,
-          'data-value': value,
-          'aria-label': `Seleccionar ${value} de ${category}`
+          'data-value': value
         });
         
         card.textContent = value;
@@ -232,76 +191,59 @@ export async function render(root, data, hooks) {
   }
 
   function highlightSelected(container, selection) {
-    // Quitar selección anterior
     container.querySelectorAll('.card').forEach(card => {
       card.classList.remove('is-selected');
     });
 
     if (!selection) return;
 
-    // Buscar y seleccionar la nueva carta
-    const selector = `.card[data-category="${escapeCSS(selection.category)}"][data-value="${escapeCSS(selection.value)}"]`;
-    const selectedCard = container.querySelector(selector);
+    const selectedCard = container.querySelector(
+      '[data-category="' + selection.category + '"][data-value="' + selection.value + '"]'
+    );
     
     if (selectedCard) {
       selectedCard.classList.add('is-selected');
-      selectedCard.focus();
     }
   }
 
   function setupEventListeners(ui, state, categories, boardSize) {
-    // Botón validar
     if (ui.btnValidate) {
       ui.btnValidate.addEventListener('click', () => {
-        const completedCells = state.board.flat().filter(cell => 
-          Object.keys(cell).length > 0
-        ).length;
-        
-        setStatus(ui.result, 
-          `🎯 Progreso: ${completedCells}/${boardSize * Object.keys(categories).length} celdas con valores`, 
-          completedCells > 0 ? 'ok' : 'warning'
-        );
+        setStatus(ui.result, 'Progreso guardado!', 'ok');
       });
     }
 
-    // Botón limpiar
     if (ui.btnClear) {
       ui.btnClear.addEventListener('click', () => {
         clearBoard(ui.board, state, categories, boardSize);
-        setStatus(ui.result, '🧹 Tablero limpiado', 'ok');
+        setStatus(ui.result, 'Tablero limpiado', 'ok');
       });
     }
   }
 
   function clearBoard(container, state, categories, size) {
-    // Limpiar estado
     for (let i = 0; i < size; i++) {
       state.board[i] = {};
     }
 
-    // Limpiar visualmente
     container.querySelectorAll('.cell').forEach(cell => {
       cell.innerHTML = '';
     });
   }
 }
 
-// --- FUNCIONES DE UTILIDAD ---
-
+// FUNCIONES DE UTILIDAD para enigma_einstein.js
 function buildShell() {
-  const box = createElement('div', { class: 'template-box', id: 'enigma-game' });
+  const box = createElement('div', { class: 'template-box' });
   
-  // Badge
   const badge = createElement('div', { class: 'badge' });
-  badge.textContent = 'Enigma 4×4 · PlayFix';
+  badge.textContent = 'Enigma 4x4 PlayFix';
   box.appendChild(badge);
 
-  // Estado
-  const status = createElement('div', { class: 'feedback', id: 'enigma-status' });
+  const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
   box.appendChild(status);
 
-  // Grid principal
   const grid = createElement('div', { class: 'ein-grid' });
 
   // Sección de pistas
@@ -310,31 +252,22 @@ function buildShell() {
   cluesTitle.textContent = 'Pistas';
   cluesSection.appendChild(cluesTitle);
   
-  const cluesContainer = createElement('ol', { id: 'enigma-clues' });
+  const cluesContainer = createElement('ol');
   cluesSection.appendChild(cluesContainer);
 
-  // Toolbar con botones
+  // Toolbar
   const toolbar = createElement('div', { class: 'toolbar' });
-  const btnValidate = createElement('button', {
-    class: 'btn',
-    id: 'enigma-validate',
-    type: 'button'
-  });
-  btnValidate.textContent = '✓ Validar';
+  const btnValidate = createElement('button', { class: 'btn' });
+  btnValidate.textContent = 'Validar';
   
-  const btnClear = createElement('button', {
-    class: 'btn',
-    id: 'enigma-clear',
-    type: 'button'
-  });
-  btnClear.textContent = '🧹 Limpiar';
+  const btnClear = createElement('button', { class: 'btn' });
+  btnClear.textContent = 'Limpiar';
   
   toolbar.appendChild(btnValidate);
   toolbar.appendChild(btnClear);
   cluesSection.appendChild(toolbar);
 
-  // Resultado
-  const result = createElement('div', { class: 'feedback', id: 'enigma-result' });
+  const result = createElement('div', { class: 'feedback' });
   cluesSection.appendChild(result);
 
   // Sección del tablero
@@ -343,7 +276,7 @@ function buildShell() {
   boardTitle.textContent = 'Tablero';
   boardSection.appendChild(boardTitle);
   
-  const board = createElement('div', { id: 'enigma-board' });
+  const board = createElement('div');
   boardSection.appendChild(board);
 
   // Sección de la paleta
@@ -352,10 +285,9 @@ function buildShell() {
   paletteTitle.textContent = 'Tarjetas';
   paletteSection.appendChild(paletteTitle);
   
-  const palette = createElement('div', { id: 'enigma-palette' });
+  const palette = createElement('div');
   paletteSection.appendChild(palette);
 
-  // Ensamblar grid
   grid.appendChild(cluesSection);
   grid.appendChild(boardSection);
   grid.appendChild(paletteSection);
@@ -365,8 +297,8 @@ function buildShell() {
     box,
     status,
     cluesContainer,
-    btnValidate: document.getElementById('enigma-validate') || btnValidate,
-    btnClear: document.getElementById('enigma-clear') || btnClear,
+    btnValidate,
+    btnClear,
     result,
     board,
     palette
@@ -375,15 +307,10 @@ function buildShell() {
 
 async function loadConfig(data) {
   if (data && data.json_url) {
-    const response = await fetch(data.json_url, { 
-      cache: 'default',
-      headers: { 'Cache-Control': 'max-age=300' }
-    });
-    
+    const response = await fetch(data.json_url);
     if (!response.ok) {
-      throw new Error(`Error HTTP ${response.status}: No se pudo cargar la configuración`);
+      throw new Error('HTTP ' + response.status);
     }
-    
     return await response.json();
   }
 
@@ -391,28 +318,17 @@ async function loadConfig(data) {
     return data;
   }
 
-  throw new Error('Faltan datos: se requiere data.json_url o configuración directa');
+  throw new Error('Faltan datos de configuracion');
 }
 
-function createElement(tag, attributes = {}, children = []) {
+function createElement(tag, attributes = {}) {
   const element = document.createElement(tag);
   
-  // Establecer atributos
   Object.entries(attributes).forEach(([key, value]) => {
     if (key === 'class') {
       element.className = value;
     } else {
       element.setAttribute(key, value);
-    }
-  });
-
-  // Agregar hijos
-  const childArray = Array.isArray(children) ? children : [children];
-  childArray.filter(child => child != null).forEach(child => {
-    if (typeof child === 'string') {
-      element.appendChild(document.createTextNode(child));
-    } else {
-      element.appendChild(child);
     }
   });
 
@@ -427,16 +343,4 @@ function setStatus(element, text, type = '') {
   if (type) {
     element.classList.add(type);
   }
-}
-
-function escapeCSS(str) {
-  if (!str) return '';
-  // Usar la API nativa del navegador si está disponible
-  if (typeof CSS !== 'undefined' && CSS.escape) {
-    return CSS.escape(str);
-  }
-  
-  // Fallback manual
-  return String(str).replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\  // Estado
-  const status = createElement('div', { class');
 }
