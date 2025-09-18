@@ -293,7 +293,7 @@ function checkAgainstSolution(state, categories, solution) {
 
   return { ok: true, msg: '¡Correcto!' };
 }
-
+}
 
 // FUNCIONES DE UTILIDAD para enigma_einstein.js
 function buildShell() {
