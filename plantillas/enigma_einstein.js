@@ -344,10 +344,8 @@ function validateSolution(state, categories, solution) {
     combo: solution[person]
   }));
 
-  // 2) Determinar qué categorías validar (todas excepto "Persona" si existe)
-  const categoriesToValidate = Object.keys(categories).filter(cat => 
-    cat.toLowerCase() !== 'persona'
-  );
+  // 2) Determinar qué categorías validar (TODAS las categorías)
+  const categoriesToValidate = Object.keys(categories);
 
   // 3) Extraer lo que puso el usuario en cada columna
   const userColumns = [];
@@ -409,6 +407,11 @@ function validateSolution(state, categories, solution) {
     // Buscar qué persona tiene exactamente esta combinación
     for (const correct of correctCombos) {
       const isMatch = categoriesToValidate.every(category => {
+        // Para la categoría "Persona", comparar directamente
+        if (category === 'Persona') {
+          return correct.person === userCombo[category];
+        }
+        // Para otras categorías, comparar con la solución
         return correct.combo[category] === userCombo[category];
       });
       
@@ -424,14 +427,21 @@ function validateSolution(state, categories, solution) {
       let minErrors = 999;
       
       for (const correct of correctCombos) {
-        const errors = categoriesToValidate.filter(cat => 
-          correct.combo[cat] !== userCombo[cat]
-        );
+        const errors = categoriesToValidate.filter(cat => {
+          if (cat === 'Persona') {
+            return correct.person !== userCombo[cat];
+          }
+          return correct.combo[cat] !== userCombo[cat];
+        });
         
         if (errors.length < minErrors && errors.length > 0) {
           minErrors = errors.length;
           const wrongCategory = errors[0];
-          bestHint = `${correct.person} necesita "${correct.combo[wrongCategory]}" en ${wrongCategory}`;
+          if (wrongCategory === 'Persona') {
+            bestHint = `Esta combinación pertenece a ${correct.person}`;
+          } else {
+            bestHint = `${correct.person} necesita "${correct.combo[wrongCategory]}" en ${wrongCategory}`;
+          }
         }
       }
       
