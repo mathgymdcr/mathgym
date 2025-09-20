@@ -56,19 +56,10 @@ export async function render(root, data, hooks) {
     highlightSelected(ui.palette, selection);
   });
 
-  // Event listeners
-  // En la función render(), al final:
-setupEventListeners(ui, gameState, categories, BOARD_SIZE, config);
+  // Event listeners - CORREGIDO
+  setupEventListeners(ui, gameState, categories, BOARD_SIZE, config);
 
-// Y en setupEventListeners, añade el parámetro config:
-function setupEventListeners(ui, state, categories, boardSize, config) {
-  // ... código existente ...
-  
-  // Reemplaza la validación existente con:
-  setupValidation(ui, state, categories, config);
-  
-  // ... resto del código ...
-}
+  setStatus(ui.status, 'Listo para jugar', 'ok');
 
   // FUNCIONES AUXILIARES
   function renderClues(container, clues) {
@@ -216,24 +207,35 @@ function setupEventListeners(ui, state, categories, boardSize, config) {
   }
 
   function setupEventListeners(ui, state, categories, boardSize, config) {
+    // Validación
     if (ui.btnValidate) {
       ui.btnValidate.addEventListener('click', () => {
         if (!config || !config.solution) {
-          setStatus(ui.result, 'No hay solucion en el JSON (campo "solution").', 'ko');
+          setStatus(ui.result, 'No hay solución en el JSON (campo "solution").', 'ko');
           return;
         }
-        const out = checkAgainstSolutionIgnoreOrder(state, categories, config.solution);
-        setStatus(ui.result, out.ok ? 'Correcto!' : out.msg, out.ok ? 'ok' : 'ko');
+        
+        console.log('🔍 Iniciando validación...');
+        console.log('Estado del juego:', state);
+        console.log('Solución esperada:', config.solution);
+        
+        const result = checkAgainstSolutionFlexibleRows(state, categories, config.solution);
+        setStatus(ui.result, result.msg, result.ok ? 'ok' : 'ko');
+        
+        if (result.ok) {
+          console.log('✅ ¡Solución correcta!');
+        } else {
+          console.log('❌ Solución incorrecta:', result.msg);
+        }
       });
     }
 
+    // Limpiar tablero
     if (ui.btnClear) {
       ui.btnClear.addEventListener('click', () => {
         clearBoard(ui.board, state, categories, boardSize);
         state.selected = null;
-        // Quitar resaltado en la paleta
         ui.palette.querySelectorAll('.card.is-selected').forEach(el => el.classList.remove('is-selected'));
-        // Mensaje
         setStatus(ui.result, 'Tablero limpiado', 'ok');
       });
     }
@@ -243,37 +245,24 @@ function setupEventListeners(ui, state, categories, boardSize, config) {
     for (let i = 0; i < size; i++) {
       state.board[i] = {};
     }
-    // Quitar chips del DOM
     container.querySelectorAll('.cell').forEach(cell => {
       cell.innerHTML = '';
     });
   }
 }
 
-// FUNCIONES DE UTILIDAD - buildShell() CORREGIDA Y UNIFICADA
-// En plantillas/enigma_einstein.js - Modificar la función buildShell()
-
+// FUNCIONES DE UTILIDAD
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
-  // Header con Einstein integrado
-  const header = createElement('div', { class: 'enigma-header' });
-  header.innerHTML = `
-    <div class="einstein-container">
-      <img src="assets/einstein-caricature.png" alt="Einstein" class="einstein-avatar">
-      <div class="header-content">
-        <h2 class="enigma-title">Resuelve el enigma</h2>
-        <p class="enigma-subtitle">Coloca las tarjetas cumpliendo las pistas</p>
-      </div>
-    </div>
-  `;
-  box.appendChild(header);
+  const badge = createElement('div', { class: 'badge' });
+  badge.textContent = 'Enigma 4x4 PlayFix';
+  box.appendChild(badge);
 
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
   box.appendChild(status);
 
-  // ... resto del código igual
   const grid = createElement('div', { class: 'ein-grid' });
 
   // Sección de pistas
@@ -375,10 +364,7 @@ function setStatus(element, text, type = '') {
   }
 }
 
-// Función para validar solución - Versión final optimizada
-// FUNCIÓN DE VALIDACIÓN CORREGIDA para enigma_einstein.js
-// Reemplaza las funciones de validación existentes
-
+// VALIDADOR FLEXIBLE - Función principal
 function checkAgainstSolutionFlexibleRows(state, categories, solution) {
   const SIZE = 4;
   
@@ -425,11 +411,9 @@ function checkAgainstSolutionFlexibleRows(state, categories, solution) {
   console.log('Datos por columna:', columnData);
 
   // 2) Para cada columna, generar todas las combinaciones posibles
-  //    (una selección por cada categoría esperada)
   const columnCombinations = columnData.map((colData, colIndex) => {
     const combinations = [];
     
-    // Generar todas las combinaciones posibles seleccionando 1 valor de cada categoría esperada
     function generateCombos(catIndex, currentCombo) {
       if (catIndex >= expectedCategories.length) {
         combinations.push({...currentCombo});
@@ -440,7 +424,6 @@ function checkAgainstSolutionFlexibleRows(state, categories, solution) {
       const availableValues = colData[category] || [];
       
       if (availableValues.length === 0) {
-        // No hay valores para esta categoría en esta columna
         return;
       }
 
@@ -471,11 +454,9 @@ function checkAgainstSolutionFlexibleRows(state, categories, solution) {
     const candidates = [];
     
     for (const combo of combos) {
-      // Ver qué persona de la solución coincide con esta combinación
       for (const persona of personas) {
         const solData = solution[persona];
         
-        // Verificar si esta combinación coincide exactamente con esta persona
         const matches = expectedCategories.every(cat => {
           return solData[cat] === combo[cat];
         });
@@ -519,14 +500,14 @@ function checkAgainstSolutionFlexibleRows(state, categories, solution) {
 
   function backtrack(col) {
     if (col >= SIZE) {
-      return true; // Asignación completa encontrada
+      return true;
     }
 
     for (const candidate of candidatesByColumn[col]) {
       const persona = candidate.persona;
       
       if (usedPersonas.has(persona)) {
-        continue; // Esta persona ya está asignada
+        continue;
       }
 
       usedPersonas.add(persona);
@@ -536,7 +517,6 @@ function checkAgainstSolutionFlexibleRows(state, categories, solution) {
         return true;
       }
 
-      // Backtrack
       usedPersonas.delete(persona);
       finalAssignment[col] = null;
     }
@@ -561,52 +541,5 @@ function checkAgainstSolutionFlexibleRows(state, categories, solution) {
     ok: true, 
     msg: `¡Perfecto! Asignación encontrada: ${finalAssignment.map((a, i) => `Col${i+1}=${a.persona}`).join(', ')}`
   };
-}
-
-// FUNCIÓN PRINCIPAL DE VALIDACIÓN - Reemplaza la existente en setupEventListeners
-function setupValidation(ui, gameState, categories, config) {
-  if (ui.btnValidate) {
-    ui.btnValidate.addEventListener('click', () => {
-      if (!config || !config.solution) {
-        setStatus(ui.result, 'No hay solución en el JSON (campo "solution").', 'ko');
-        return;
-      }
-      
-      console.log('🔍 Iniciando validación...');
-      console.log('Estado del juego:', gameState);
-      console.log('Solución esperada:', config.solution);
-      
-      const result = checkAgainstSolutionFlexibleRows(gameState, categories, config.solution);
-      setStatus(ui.result, result.msg, result.ok ? 'ok' : 'ko');
-      
-      if (result.ok) {
-        console.log('✅ ¡Solución correcta!');
-      } else {
-        console.log('❌ Solución incorrecta:', result.msg);
-      }
-    });
-  }
-}
-// Función auxiliar para debug - puedes usarla para diagnosticar problemas
-function debugGameState(state, categories) {
-  console.log('=== DEBUG: Estado actual del juego ===');
-  
-  const categoryKeys = Object.keys(categories);
-  const SIZE = 4;
-
-  for (let col = 0; col < SIZE; col++) {
-    console.log(`Columna ${col + 1}:`);
-    
-    for (const cat of categoryKeys) {
-      const cellData = state.board[col]?.[cat];
-      
-      if (!cellData || cellData.size === 0) {
-        console.log(`  ${cat}: (vacío)`);
-      } else {
-        const values = Array.from(cellData);
-        console.log(`  ${cat}: [${values.join(', ')}]`);
-      }
-    }
-  }
 }
 
