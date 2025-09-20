@@ -1,4 +1,3 @@
-// ===== ARCHIVO SEPARADO: plantillas/enigma_einstein.js =====
 export async function render(root, data, hooks) {
   // Limpiar contenedor
   root.innerHTML = '';
@@ -6,7 +5,7 @@ export async function render(root, data, hooks) {
   const ui = buildShell();
   root.append(ui.box);
 
-  // Cargar configuración
+  // Cargar configuracion
   let config;
   try {
     config = await loadConfig(data);
@@ -15,7 +14,7 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  // Validar categorías
+  // Validar categorias
   const allCategories = Object.keys(config.categories || {});
   if (allCategories.length < 4) {
     setStatus(ui.status, 'Error: Se requieren 4 categorias', 'ko');
@@ -57,7 +56,7 @@ export async function render(root, data, hooks) {
   });
 
   // Event listeners
-  setupEventListeners(ui, gameState, categories, BOARD_SIZE);
+  setupEventListeners(ui, gameState, categories, BOARD_SIZE, config);
 
   setStatus(ui.status, 'Listo para jugar', 'ok');
 
@@ -206,113 +205,60 @@ export async function render(root, data, hooks) {
     }
   }
 
-  function setupEventListeners(ui, state, categories, boardSize) {
+  function setupEventListeners(ui, state, categories, boardSize, config) {
     if (ui.btnValidate) {
       ui.btnValidate.addEventListener('click', () => {
         if (!config || !config.solution) {
-          setStatus(ui.result, 'No hay solución en el JSON (campo "solution").', 'ko');
+          setStatus(ui.result, 'No hay solucion en el JSON (campo "solution").', 'ko');
           return;
         }
-        const out = checkAgainstSolutionIgnoreOrder(gameState, categories, config.solution);
-        setStatus(ui.result, out.ok ? '¡Correcto!' : out.msg, out.ok ? 'ok' : 'ko');
+        const out = checkAgainstSolutionIgnoreOrder(state, categories, config.solution);
+        setStatus(ui.result, out.ok ? 'Correcto!' : out.msg, out.ok ? 'ok' : 'ko');
       });
     }
-    
-    
-    
 
-    function clearBoard(container, state, categories, size) {
-      for (let i = 0; i < size; i++) {
-        state.board[i] = {};
-      }
-      // Quitar chips del DOM
-      container.querySelectorAll('.cell').forEach(cell => {
-        cell.innerHTML = '';
-      });
-    }
     if (ui.btnClear) {
       ui.btnClear.addEventListener('click', () => {
-        clearBoard(ui.board, gameState, categories, BOARD_SIZE);
-        gameState.selected = null;
+        clearBoard(ui.board, state, categories, boardSize);
+        state.selected = null;
         // Quitar resaltado en la paleta
         ui.palette.querySelectorAll('.card.is-selected').forEach(el => el.classList.remove('is-selected'));
         // Mensaje
         setStatus(ui.result, 'Tablero limpiado', 'ok');
       });
     }
-    
-    
-}
-function checkAgainstSolution(state, categories, solution) {
-  // Asumimos que cada columna representa una "entidad" y que la fila "Persona"
-  // tendrá exactamente 1 nombre por columna. Con eso identificamos a la persona.
-  const categoryKeys = Object.keys(categories);
-  const personaKey = categoryKeys.find(k => k.toLowerCase() === 'persona');
-  if (!personaKey) {
-    return { ok: false, msg: 'No existe la categoría "Persona" en el puzzle.' };
   }
 
-  const size = 4;
-  const seenPersonas = new Set();
-  const user = {}; // user[persona] = { Cat1: val1, Cat2: val2, ... }
-
-  for (let col = 0; col < size; col++) {
-    // 1) Persona en la columna
-    const pSet = state.board[col]?.[personaKey] || new Set();
-    if (pSet.size !== 1) {
-      return { ok: false, msg: `Falta seleccionar 1 Persona (exacta) en la columna ${col + 1}.` };
+  function clearBoard(container, state, categories, size) {
+    for (let i = 0; i < size; i++) {
+      state.board[i] = {};
     }
-    const persona = [...pSet][0];
-    if (seenPersonas.has(persona)) {
-      return { ok: false, msg: `La Persona "${persona}" está repetida en varias columnas.` };
-    }
-    seenPersonas.add(persona);
-    user[persona] = {};
-
-    // 2) Cada categoría debe tener exactamente 1 valor en la columna
-    for (const cat of categoryKeys) {
-      if (cat === personaKey) continue;
-      const set = state.board[col]?.[cat] || new Set();
-      if (set.size !== 1) {
-        return { ok: false, msg: `En "${cat}" (columna ${col + 1}) debes elegir exactamente 1 valor.` };
-      }
-      user[persona][cat] = [...set][0];
-    }
+    // Quitar chips del DOM
+    container.querySelectorAll('.cell').forEach(cell => {
+      cell.innerHTML = '';
+    });
   }
-
-  // 3) Comparar con la solución esperada
-  for (const persona of Object.keys(solution)) {
-    const sol = solution[persona];
-    const ans = user[persona];
-    if (!ans) {
-      return { ok: false, msg: `Falta la Persona "${persona}" en el tablero.` };
-    }
-    for (const cat of Object.keys(sol)) {
-      if (ans[cat] !== sol[cat]) {
-        return {
-          ok: false,
-          msg: `Error en ${persona}: "${cat}" debería ser "${sol[cat]}", no "${ans[cat]}".`
-        };
-      }
-    }
-  }
-
-  return { ok: true, msg: '¡Correcto!' };
-}
 }
 
-// FUNCIONES DE UTILIDAD para enigma_einstein.js
+// FUNCIONES DE UTILIDAD
+// En plantillas/enigma_einstein.js - Modificar la función buildShell()
+
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
-  const badge = createElement('div', { class: 'badge' });
-  badge.textContent = 'Enigma 4x4 PlayFix';
+  // Badge con Einstein
+  const badge = createElement('div', { class: 'badge einstein-badge' });
+  badge.innerHTML = `
+    <img src="assets/einstein-caricature.png" alt="Einstein" class="einstein-icon">
+    <span>Resuelve el enigma</span>
+  `;
   box.appendChild(badge);
 
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
   box.appendChild(status);
 
+  // ... resto del código igual
   const grid = createElement('div', { class: 'ein-grid' });
 
   // Sección de pistas
@@ -349,6 +295,65 @@ function buildShell() {
   boardSection.appendChild(board);
 
   // Sección de la paleta
+  const paletteSection = createElement('section', { class: 'ein-palette' });
+  const paletteTitle = createElement('h2');
+  paletteTitle.textContent = 'Tarjetas';
+  paletteSection.appendChild(paletteTitle);
+  
+  const palette = createElement('div');
+  paletteSection.appendChild(palette);
+
+  grid.appendChild(cluesSection);
+  grid.appendChild(boardSection);
+  grid.appendChild(paletteSection);
+  box.appendChild(grid);
+
+  return {
+    box,
+    status,
+    cluesContainer,
+    btnValidate,
+    btnClear,
+    result,
+    board,
+    palette
+  };
+}
+
+  // Seccion de pistas
+  const cluesSection = createElement('section', { class: 'ein-clues' });
+  const cluesTitle = createElement('h2');
+  cluesTitle.textContent = 'Pistas';
+  cluesSection.appendChild(cluesTitle);
+  
+  const cluesContainer = createElement('ol');
+  cluesSection.appendChild(cluesContainer);
+
+  // Toolbar
+  const toolbar = createElement('div', { class: 'toolbar' });
+  const btnValidate = createElement('button', { class: 'btn' });
+  btnValidate.textContent = 'Validar';
+  
+  const btnClear = createElement('button', { class: 'btn' });
+  btnClear.textContent = 'Limpiar';
+  
+  toolbar.appendChild(btnValidate);
+  toolbar.appendChild(btnClear);
+  cluesSection.appendChild(toolbar);
+
+  const result = createElement('div', { class: 'feedback' });
+  cluesSection.appendChild(result);
+
+  // Seccion del tablero
+  const boardSection = createElement('section', { class: 'ein-board' });
+  const boardTitle = createElement('h2');
+  boardTitle.textContent = 'Tablero';
+  boardSection.appendChild(boardTitle);
+  
+  const board = createElement('div');
+  boardSection.appendChild(board);
+
+  // Seccion de la paleta
   const paletteSection = createElement('section', { class: 'ein-palette' });
   const paletteTitle = createElement('h2');
   paletteTitle.textContent = 'Tarjetas';
@@ -413,99 +418,35 @@ function setStatus(element, text, type = '') {
     element.classList.add(type);
   }
 }
-function checkAgainstSolutionFlexible(state, categories, solution) {
-  const categoryKeys = Object.keys(categories);
-  const SIZE = 4;
 
-  // 1) Construir, por columna, el mapa {cat: valor}
-  const picksByCol = [];
-  for (let col = 0; col < SIZE; col++) {
-    const picks = {};
-    for (const cat of categoryKeys) {
-      const set = state.board[col]?.[cat] || new Set();
-      if (set.size !== 1) {
-        return { ok: false, msg: `En la columna ${col + 1}, debes elegir exactamente 1 valor de "${cat}".` };
-      }
-      picks[cat] = [...set][0];
-    }
-    picksByCol.push(picks);
-  }
-
-  // 2) Para cada columna, buscar qué persona(s) de la solución encajan con todos los pares seleccionados
-  const personas = Object.keys(solution);
-  const used = new Set();
-  const assignment = {}; // persona -> col
-
-  for (let col = 0; col < SIZE; col++) {
-    const picks = picksByCol[col];
-
-    // Candidatos: personas cuyo registro coincide en TODOS los cat!=Persona
-    const candidates = personas.filter(p => {
-      const sol = solution[p];
-      return Object.keys(sol).every(cat => sol[cat] === picks[cat]);
-    });
-
-    if (candidates.length === 0) {
-      // Buscar el primer conflicto para mensaje más claro
-      const details = [];
-      for (const p of personas) {
-        const sol = solution[p];
-        const mismatch = Object.keys(sol).find(cat => sol[cat] !== picks[cat]);
-        if (mismatch) details.push(`${p}: ${mismatch} debería ser "${sol[mismatch]}"`);
-      }
-      return {
-        ok: false,
-        msg: `La columna ${col + 1} no coincide con ninguna persona de la solución. ` +
-             (details.length ? `Ej.: ${details[0]}.` : '')
-      };
-    }
-
-    if (candidates.length > 1) {
-      return {
-        ok: false,
-        msg: `La columna ${col + 1} es ambigua (encaja con ${candidates.join(', ')}). ` +
-             `Asegúrate de seleccionar 1 valor por categoría y que sean los correctos.`
-      };
-    }
-
-    const person = candidates[0];
-    if (used.has(person)) {
-      return { ok: false, msg: `La persona "${person}" aparece duplicada en más de una columna.` };
-    }
-    used.add(person);
-    assignment[person] = col;
-  }
-
-  // 3) Si todas las personas están asignadas sin conflictos, es correcto
-  return { ok: true, msg: '¡Correcto!' };
-}
-
+// Funcion para validar solucion - Version final optimizada
 function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
   const SIZE = 4;
 
-  // Las categorías a chequear se toman de la solución (no exigimos "Persona" como chip)
+  // Las categorias a chequear se toman de la solucion
   const personas = Object.keys(solution);
   if (personas.length !== SIZE) {
-    return { ok: false, msg: 'La solución no tiene 4 personas.' };
+    return { ok: false, msg: 'La solucion no tiene 4 personas.' };
   }
-  // Suponemos que todas las personas tienen las mismas claves (p. ej., Camiseta/Bebida/Mascota)
-  const catsToCheck = Object.keys(solution[personas[0]]); // p.ej. ["Camiseta","Bebida","Mascota"]
+  
+  // Suponemos que todas las personas tienen las mismas claves
+  const catsToCheck = Object.keys(solution[personas[0]]);
 
-  // 1) Recolectar lo que el usuario ha puesto en cada columna (1 valor exacto por categoría a chequear)
-  const picksByCol = []; // [{Camiseta:'Azul',Bebida:'Agua',Mascota:'Tortuga'}, ...]
+  // 1) Recolectar lo que el usuario ha puesto en cada columna
+  const picksByCol = [];
   for (let col = 0; col < SIZE; col++) {
     const picks = {};
     for (const cat of catsToCheck) {
       const set = state.board[col]?.[cat] || new Set();
       if (set.size !== 1) {
-        return { ok: false, msg: `En la columna ${col + 1}, en "${cat}" debe haber exactamente 1 selección.` };
+        return { ok: false, msg: `En la columna ${col + 1}, en "${cat}" debe haber exactamente 1 seleccion.` };
       }
       picks[cat] = [...set][0];
     }
     picksByCol.push(picks);
   }
 
-  // 2) Construir candidatos: para cada columna, qué persona(s) de la solución encajan exactamente
+  // 2) Construir candidatos por columna
   const candidatesByCol = picksByCol.map(picks => {
     return personas.filter(p => {
       const sol = solution[p];
@@ -513,15 +454,14 @@ function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
     });
   });
 
-  // Si alguna columna no encaja con nadie, error claro
+  // Si alguna columna no encaja con nadie
   for (let i = 0; i < SIZE; i++) {
     if (candidatesByCol[i].length === 0) {
-      // Intentar dar una pista del primer mismatch
       const det = [];
       for (const p of personas) {
         const sol = solution[p];
         const mis = catsToCheck.find(cat => sol[cat] !== picksByCol[i][cat]);
-        if (mis) det.push(`${p}: ${mis} debería ser "${sol[mis]}"`);
+        if (mis) det.push(`${p}: ${mis} deberia ser "${sol[mis]}"`);
       }
       return {
         ok: false,
@@ -530,9 +470,9 @@ function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
     }
   }
 
-  // 3) Resolver asignación persona↔columna ignorando orden (backtracking sobre 4! = 24)
+  // 3) Resolver asignacion persona↔columna (backtracking)
   const used = new Set();
-  const assign = new Array(SIZE); // assign[col] = persona
+  const assign = new Array(SIZE);
 
   function bt(col) {
     if (col === SIZE) return true;
@@ -548,12 +488,9 @@ function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
 
   const ok = bt(0);
   if (!ok) {
-    // Si no hay asignación global única con las selecciones actuales
-    // puede ser porque haya ambigüedad o conflicto cruzado.
-    return { ok: false, msg: 'Las selecciones no forman una asignación válida persona↔columna.' };
+    return { ok: false, msg: 'Las selecciones no forman una asignacion valida persona↔columna.' };
   }
 
-  // 4) Si llegamos aquí, hay una asignación válida: ¡Correcto!
-  return { ok: true, msg: '¡Correcto!' };
+  return { ok: true, msg: 'Correcto!' };
 }
 
