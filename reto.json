@@ -1,7 +1,7 @@
 {
   "fecha": "2025-09-15",
   "titulo": "Enigma de Einstein",
-  "objetivo": "Coloca las tarjetas cumpliendo las pistas (datos por JSON).",
+  "objetivo": "Coloca las tarjetas cumpliendo las pistas.",
   "icono_url": "assets/icono-generico.svg",
   "tipo": "enigma-einstein",
   "data": {

@@ -247,7 +247,7 @@ function buildShell() {
   
   // Badge
   const badge = createElement('div', { class: 'badge' });
-  badge.textContent = 'Enigma 4x4 PlayFix';
+  badge.textContent = 'Enigma de Einstein';
   box.appendChild(badge);
 
   const status = createElement('div', { class: 'feedback' });
