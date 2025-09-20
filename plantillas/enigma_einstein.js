@@ -342,7 +342,7 @@ function setStatus(element, text, type = '') {
   }
 }
 
-// VALIDADOR SIMPLE - Ordenar alfabéticamente y comparar
+// VALIDADOR SIMPLE - Contar coincidencias
 function validateSolution(state, categories, solution) {
   const SIZE = 4;
   
@@ -351,7 +351,6 @@ function validateSolution(state, categories, solution) {
   
   for (let col = 0; col < SIZE; col++) {
     const combination = {};
-    let isComplete = true;
     
     // Revisar cada categoría
     for (const [category, values] of Object.entries(categories)) {
@@ -367,7 +366,7 @@ function validateSolution(state, categories, solution) {
       if (cellData.size > 1) {
         return { 
           ok: false, 
-          msg: `😅 Tienes ${cellData.size} opciones en la columna ${col + 1}. Elige solo una por categoría.` 
+          msg: `😅 Tienes demasiadas opciones en la columna ${col + 1}` 
         };
       }
       
@@ -377,38 +376,49 @@ function validateSolution(state, categories, solution) {
     userCombinations.push(combination);
   }
 
-  // 2) Extraer combinaciones de la solución
-  const solutionCombinations = [];
+  // 2) Crear matriz 4x4 de la solución (vectores columna)
+  const solutionVectors = [];
   for (const [person, combo] of Object.entries(solution)) {
-    solutionCombinations.push({
+    const vector = {
       Persona: person,
       ...combo
-    });
+    };
+    solutionVectors.push(vector);
   }
 
-  // 3) Ordenar ambas listas alfabéticamente por Persona
-  userCombinations.sort((a, b) => a.Persona.localeCompare(b.Persona));
-  solutionCombinations.sort((a, b) => a.Persona.localeCompare(b.Persona));
-
-  // 4) Comparar las dos listas ordenadas
-  for (let i = 0; i < SIZE; i++) {
-    const userCombo = userCombinations[i];
-    const correctCombo = solutionCombinations[i];
-    
-    // Comparar cada categoría
-    for (const category of Object.keys(categories)) {
-      if (userCombo[category] !== correctCombo[category]) {
-        return {
-          ok: false,
-          msg: `🤨 ${correctCombo.Persona} necesita "${correctCombo[category]}" en ${category}, no "${userCombo[category]}".`
-        };
+  // 3) Contar coincidencias
+  let matches = 0;
+  
+  for (const userCombo of userCombinations) {
+    // Ver si esta combinación coincide con algún vector de la solución
+    for (const solutionVector of solutionVectors) {
+      let isMatch = true;
+      
+      // Comparar todas las categorías
+      for (const category of Object.keys(categories)) {
+        if (userCombo[category] !== solutionVector[category]) {
+          isMatch = false;
+          break;
+        }
+      }
+      
+      if (isMatch) {
+        matches++;
+        break; // No seguir buscando para esta combinación
       }
     }
   }
 
-  // 5) ¡Todo correcto!
-  return {
-    ok: true,
-    msg: `🎉 ¡INCREÍBLE! Lo resolviste perfectamente. Eres un genio como Einstein! 🧠✨`
-  };
+  // 4) Resultado final
+  if (matches === 4) {
+    return {
+      ok: true,
+      msg: `🎉 ¡INCREÍBLE! Lo resolviste perfectamente!`
+    };
+  } else {
+    return {
+      ok: false,
+      msg: `🤨 Hay un error. Revisa las pistas.`
+    };
+  }
 }
