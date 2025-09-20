@@ -245,9 +245,12 @@ export async function render(root, data, hooks) {
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
-  // Badge
+  // Badge con Einstein
   const badge = createElement('div', { class: 'badge' });
-  badge.textContent = 'Enigma de Einstein';
+  badge.innerHTML = `
+    <img src="assets/einstein-caricature.png" alt="Einstein" style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;">
+    <span>Enigma de Einstein</span>
+  `;
   box.appendChild(badge);
 
   const status = createElement('div', { class: 'feedback' });
