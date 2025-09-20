@@ -57,9 +57,18 @@ export async function render(root, data, hooks) {
   });
 
   // Event listeners
-  setupEventListeners(ui, gameState, categories, BOARD_SIZE, config);
+  // En la función render(), al final:
+setupEventListeners(ui, gameState, categories, BOARD_SIZE, config);
 
-  setStatus(ui.status, 'Listo para jugar', 'ok');
+// Y en setupEventListeners, añade el parámetro config:
+function setupEventListeners(ui, state, categories, boardSize, config) {
+  // ... código existente ...
+  
+  // Reemplaza la validación existente con:
+  setupValidation(ui, state, categories, config);
+  
+  // ... resto del código ...
+}
 
   // FUNCIONES AUXILIARES
   function renderClues(container, clues) {
@@ -370,126 +379,166 @@ function setStatus(element, text, type = '') {
 // FUNCIÓN DE VALIDACIÓN CORREGIDA para enigma_einstein.js
 // Reemplaza las funciones de validación existentes
 
-function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
+function checkAgainstSolutionFlexibleRows(state, categories, solution) {
   const SIZE = 4;
-
+  
   // Obtener todas las personas de la solución
   const personas = Object.keys(solution);
   if (personas.length !== SIZE) {
     return { ok: false, msg: 'La solución debe tener exactamente 4 personas.' };
   }
 
-  // Obtener las categorías a validar (excluyendo "Persona" si existe)
+  // Obtener todas las categorías disponibles
+  const allCategories = Object.keys(categories);
   const firstPerson = personas[0];
-  const catsToCheck = Object.keys(solution[firstPerson]); // Ej: ["Camiseta", "Bebida", "Mascota"]
+  const expectedCategories = Object.keys(solution[firstPerson]);
 
-  // 1) Validar que cada columna tenga exactamente 1 selección por categoría
-  const picksByCol = [];
+  console.log('Categorías esperadas:', expectedCategories);
+  console.log('Categorías disponibles:', allCategories);
+
+  // 1) Para cada columna, recolectar TODOS los valores seleccionados
+  const columnData = [];
+  
   for (let col = 0; col < SIZE; col++) {
-    const picks = {};
-    let hasSelections = false;
+    const columnValues = {};
+    let hasAnySelection = false;
 
-    for (const cat of catsToCheck) {
-      const cellData = state.board[col]?.[cat];
+    // Recolectar valores de TODAS las categorías/filas
+    for (const category of allCategories) {
+      const cellData = state.board[col]?.[category];
       
-      if (!cellData || !(cellData instanceof Set)) {
-        return { ok: false, msg: `La columna ${col + 1} no tiene selección en "${cat}".` };
+      if (cellData && cellData instanceof Set && cellData.size > 0) {
+        columnValues[category] = Array.from(cellData);
+        hasAnySelection = true;
+      } else {
+        columnValues[category] = [];
       }
-
-      if (cellData.size !== 1) {
-        if (cellData.size === 0) {
-          return { ok: false, msg: `Falta seleccionar un valor en "${cat}" para la columna ${col + 1}.` };
-        } else {
-          return { ok: false, msg: `Hay ${cellData.size} valores seleccionados en "${cat}" para la columna ${col + 1}. Debe ser exactamente 1.` };
-        }
-      }
-
-      const selectedValue = Array.from(cellData)[0];
-      picks[cat] = selectedValue;
-      hasSelections = true;
     }
 
-    if (!hasSelections) {
-      return { ok: false, msg: `La columna ${col + 1} está vacía.` };
+    if (!hasAnySelection) {
+      return { ok: false, msg: `La columna ${col + 1} está completamente vacía.` };
     }
 
-    picksByCol.push(picks);
+    columnData.push(columnValues);
   }
 
-  // 2) Para cada columna, encontrar qué persona(s) de la solución coinciden
-  const candidatesByCol = picksByCol.map((picks, colIndex) => {
-    const candidates = personas.filter(persona => {
-      const solPerson = solution[persona];
-      return catsToCheck.every(cat => {
-        const expected = solPerson[cat];
-        const actual = picks[cat];
-        return expected === actual;
-      });
-    });
+  console.log('Datos por columna:', columnData);
 
-    // Debug info para diagnóstico
-    if (candidates.length === 0) {
-      console.log(`Columna ${colIndex + 1}:`, picks);
-      console.log('No coincide con ninguna persona. Comparando con solución:');
-      personas.forEach(p => {
-        const sol = solution[p];
-        const diffs = catsToCheck.filter(cat => sol[cat] !== picks[cat]);
-        if (diffs.length > 0) {
-          console.log(`  ${p}: difiere en ${diffs.map(cat => `${cat} (esperado: ${sol[cat]}, actual: ${picks[cat]})`).join(', ')}`);
-        }
-      });
+  // 2) Para cada columna, generar todas las combinaciones posibles
+  //    (una selección por cada categoría esperada)
+  const columnCombinations = columnData.map((colData, colIndex) => {
+    const combinations = [];
+    
+    // Generar todas las combinaciones posibles seleccionando 1 valor de cada categoría esperada
+    function generateCombos(catIndex, currentCombo) {
+      if (catIndex >= expectedCategories.length) {
+        combinations.push({...currentCombo});
+        return;
+      }
+
+      const category = expectedCategories[catIndex];
+      const availableValues = colData[category] || [];
+      
+      if (availableValues.length === 0) {
+        // No hay valores para esta categoría en esta columna
+        return;
+      }
+
+      for (const value of availableValues) {
+        currentCombo[category] = value;
+        generateCombos(catIndex + 1, currentCombo);
+      }
     }
 
-    return candidates;
+    generateCombos(0, {});
+    return combinations;
   });
 
-  // 3) Verificar que cada columna tenga al menos un candidato
-  for (let col = 0; col < SIZE; col++) {
-    if (candidatesByCol[col].length === 0) {
-      // Dar información específica sobre qué está mal
-      const picks = picksByCol[col];
-      const details = [];
-      
-      personas.forEach(persona => {
-        const sol = solution[persona];
-        const mismatches = catsToCheck.filter(cat => sol[cat] !== picks[cat]);
-        if (mismatches.length > 0) {
-          const first = mismatches[0];
-          details.push(`Para ${persona}, "${first}" debería ser "${sol[first]}" no "${picks[first]}"`);
-        }
-      });
+  console.log('Combinaciones por columna:', columnCombinations);
 
-      return {
-        ok: false,
-        msg: `La columna ${col + 1} no coincide con ninguna persona de la solución. ${details[0] || ''}`
+  // 3) Verificar que cada columna tenga al menos una combinación válida
+  for (let col = 0; col < SIZE; col++) {
+    if (columnCombinations[col].length === 0) {
+      return { 
+        ok: false, 
+        msg: `La columna ${col + 1} no tiene una combinación completa. Asegúrate de seleccionar valores para todas las categorías necesarias.` 
       };
     }
   }
 
-  // 4) Intentar encontrar una asignación única usando backtracking
-  const used = new Set();
-  const assignment = new Array(SIZE);
+  // 4) Para cada columna, encontrar qué personas pueden coincidir
+  const candidatesByColumn = columnCombinations.map((combos, colIndex) => {
+    const candidates = [];
+    
+    for (const combo of combos) {
+      // Ver qué persona de la solución coincide con esta combinación
+      for (const persona of personas) {
+        const solData = solution[persona];
+        
+        // Verificar si esta combinación coincide exactamente con esta persona
+        const matches = expectedCategories.every(cat => {
+          return solData[cat] === combo[cat];
+        });
+        
+        if (matches) {
+          candidates.push({
+            persona: persona,
+            combination: combo
+          });
+        }
+      }
+    }
+    
+    return candidates;
+  });
+
+  console.log('Candidatos por columna:', candidatesByColumn);
+
+  // 5) Verificar que cada columna tenga al menos un candidato
+  for (let col = 0; col < SIZE; col++) {
+    if (candidatesByColumn[col].length === 0) {
+      const colData = columnData[col];
+      const selectedValues = [];
+      
+      for (const cat of expectedCategories) {
+        if (colData[cat] && colData[cat].length > 0) {
+          selectedValues.push(`${cat}: [${colData[cat].join(', ')}]`);
+        }
+      }
+      
+      return {
+        ok: false,
+        msg: `La columna ${col + 1} no coincide con ninguna persona. Selecciones actuales: ${selectedValues.join(', ')}`
+      };
+    }
+  }
+
+  // 6) Usar backtracking para encontrar una asignación única
+  const usedPersonas = new Set();
+  const finalAssignment = new Array(SIZE);
 
   function backtrack(col) {
-    if (col === SIZE) {
-      return true; // Encontramos una asignación completa
+    if (col >= SIZE) {
+      return true; // Asignación completa encontrada
     }
 
-    for (const persona of candidatesByCol[col]) {
-      if (used.has(persona)) {
+    for (const candidate of candidatesByColumn[col]) {
+      const persona = candidate.persona;
+      
+      if (usedPersonas.has(persona)) {
         continue; // Esta persona ya está asignada
       }
 
-      used.add(persona);
-      assignment[col] = persona;
+      usedPersonas.add(persona);
+      finalAssignment[col] = candidate;
 
       if (backtrack(col + 1)) {
         return true;
       }
 
       // Backtrack
-      used.delete(persona);
-      assignment[col] = null;
+      usedPersonas.delete(persona);
+      finalAssignment[col] = null;
     }
 
     return false;
@@ -498,16 +547,46 @@ function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
   if (!backtrack(0)) {
     return {
       ok: false,
-      msg: 'No se puede encontrar una asignación única de personas a columnas. Verifica que no haya conflictos entre las selecciones.'
+      msg: 'No se puede encontrar una asignación única de personas a columnas. Puede haber conflictos o duplicados.'
     };
   }
 
-  // 5) Si llegamos aquí, encontramos una asignación válida
-  console.log('Asignación encontrada:', assignment.map((persona, col) => `Columna ${col + 1}: ${persona}`));
-  
-  return { ok: true, msg: '¡Solución correcta!' };
+  // 7) ¡Éxito!
+  console.log('🎉 Asignación final encontrada:');
+  finalAssignment.forEach((assignment, col) => {
+    console.log(`Columna ${col + 1}: ${assignment.persona}`, assignment.combination);
+  });
+
+  return { 
+    ok: true, 
+    msg: `¡Perfecto! Asignación encontrada: ${finalAssignment.map((a, i) => `Col${i+1}=${a.persona}`).join(', ')}`
+  };
 }
 
+// FUNCIÓN PRINCIPAL DE VALIDACIÓN - Reemplaza la existente en setupEventListeners
+function setupValidation(ui, gameState, categories, config) {
+  if (ui.btnValidate) {
+    ui.btnValidate.addEventListener('click', () => {
+      if (!config || !config.solution) {
+        setStatus(ui.result, 'No hay solución en el JSON (campo "solution").', 'ko');
+        return;
+      }
+      
+      console.log('🔍 Iniciando validación...');
+      console.log('Estado del juego:', gameState);
+      console.log('Solución esperada:', config.solution);
+      
+      const result = checkAgainstSolutionFlexibleRows(gameState, categories, config.solution);
+      setStatus(ui.result, result.msg, result.ok ? 'ok' : 'ko');
+      
+      if (result.ok) {
+        console.log('✅ ¡Solución correcta!');
+      } else {
+        console.log('❌ Solución incorrecta:', result.msg);
+      }
+    });
+  }
+}
 // Función auxiliar para debug - puedes usarla para diagnosticar problemas
 function debugGameState(state, categories) {
   console.log('=== DEBUG: Estado actual del juego ===');
