@@ -400,49 +400,118 @@ li {
 }
 /* Agregar al final de style.css */
 
-/* Einstein badge styles */
-.einstein-badge {
+/* Agregar a style.css - Header de Einstein mejorado */
+
+/* Header del enigma con Einstein */
+.enigma-header {
+    margin-bottom: 20px;
+  }
+  
+  .einstein-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 20px;
     background: linear-gradient(135deg, #6c5ce7, #a855f7);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 20px;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
-    transition: all 0.3s ease;
+    border-radius: 16px;
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(108, 92, 231, 0.3);
   }
   
-  .einstein-badge:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+  .einstein-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    animation: shimmer 3s infinite;
   }
   
-  .einstein-icon {
-    width: 40px;
-    height: 40px;
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  .einstein-avatar {
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 2px;
-    transition: all 0.3s ease;
+    border: 3px solid rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.1);
+    padding: 3px;
+    box-shadow: 
+      0 0 20px rgba(255,210,59,0.5),
+      0 0 40px rgba(255,210,59,0.3);
+    animation: einsteinGlow 2s ease-in-out infinite alternate;
+    flex-shrink: 0;
   }
   
-  .einstein-icon:hover {
-    transform: rotate(5deg) scale(1.1);
+  @keyframes einsteinGlow {
+    from { 
+      box-shadow: 
+        0 0 20px rgba(255,210,59,0.5),
+        0 0 40px rgba(255,210,59,0.3);
+    }
+    to { 
+      box-shadow: 
+        0 0 30px rgba(255,210,59,0.8),
+        0 0 60px rgba(255,210,59,0.5);
+    }
   }
   
-  /* Responsive */
+  .header-content {
+    flex: 1;
+    color: white;
+  }
+  
+  .enigma-title {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 4px;
+  }
+  
+  .enigma-subtitle {
+    margin: 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 500;
+  }
+  
+  /* Responsive para el header */
   @media (max-width: 768px) {
-    .einstein-badge {
-      padding: 10px 16px;
-      font-size: 0.9rem;
+    .einstein-container {
+      gap: 15px;
+      padding: 14px 16px;
     }
     
-    .einstein-icon {
-      width: 32px;
-      height: 32px;
+    .einstein-avatar {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .enigma-title {
+      font-size: 1.4rem;
+    }
+    
+    .enigma-subtitle {
+      font-size: 0.95rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .einstein-container {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
+    
+    .einstein-avatar {
+      width: 70px;
+      height: 70px;
     }
   }

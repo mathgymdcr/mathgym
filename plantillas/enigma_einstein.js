@@ -242,21 +242,29 @@ export async function render(root, data, hooks) {
 }
 
 // FUNCIONES DE UTILIDAD - buildShell() CORREGIDA Y UNIFICADA
+// En plantillas/enigma_einstein.js - Modificar la función buildShell()
+
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
-  // Badge con Einstein
-  const badge = createElement('div', { class: 'badge' });
-  badge.innerHTML = `
-    <img src="assets/einstein-caricature.png" alt="Einstein" style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;">
-    <span>Enigma de Einstein</span>
+  // Header con Einstein integrado
+  const header = createElement('div', { class: 'enigma-header' });
+  header.innerHTML = `
+    <div class="einstein-container">
+      <img src="assets/einstein-caricature.png" alt="Einstein" class="einstein-avatar">
+      <div class="header-content">
+        <h2 class="enigma-title">Resuelve el enigma</h2>
+        <p class="enigma-subtitle">Coloca las tarjetas cumpliendo las pistas</p>
+      </div>
+    </div>
   `;
-  box.appendChild(badge);
+  box.appendChild(header);
 
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
   box.appendChild(status);
 
+  // ... resto del código igual
   const grid = createElement('div', { class: 'ein-grid' });
 
   // Sección de pistas
@@ -306,7 +314,6 @@ function buildShell() {
   grid.appendChild(paletteSection);
   box.appendChild(grid);
 
-  // *** RETURN STATEMENT CRÍTICO - ESTO FALTABA ***
   return {
     box,
     status,
