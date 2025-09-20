@@ -1,12 +1,10 @@
 // ===== ARCHIVO COMPLETO: plantillas/enigma_einstein.js =====
 export async function render(root, data, hooks) {
-  // Limpiar contenedor
   root.innerHTML = '';
   
   const ui = buildShell();
   root.append(ui.box);
 
-  // Cargar configuración
   let config;
   try {
     config = await loadConfig(data);
@@ -15,14 +13,12 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  // Validar categorías
   const allCategories = Object.keys(config.categories || {});
   if (allCategories.length < 4) {
     setStatus(ui.status, '❌ Faltan categorías en el enigma', 'ko');
     return;
   }
 
-  // Normalizar datos a 4x4
   const categoryKeys = allCategories.slice(0, 4);
   const categories = {};
   
@@ -30,38 +26,28 @@ export async function render(root, data, hooks) {
     const values = Array.isArray(config.categories[key]) 
       ? config.categories[key].slice(0, 4)
       : [];
-    
-    while (values.length < 4) {
-      values.push('Valor' + (values.length + 1));
-    }
-    
     categories[key] = values;
   }
 
   const BOARD_SIZE = 4;
 
-  // Renderizar pistas
   renderClues(ui.cluesContainer, config.clues || []);
 
-  // Estado del juego
   const gameState = {
     selected: null,
     board: Array(BOARD_SIZE).fill(0).map(() => ({}))
   };
 
-  // Renderizar componentes
   renderBoard(ui.board, categories, gameState);
   renderPalette(ui.palette, categories, (selection) => {
     gameState.selected = selection;
     highlightSelected(ui.palette, selection);
   });
 
-  // Event listeners
   setupEventListeners(ui, gameState, categories, BOARD_SIZE, config);
 
   setStatus(ui.status, '🎮 ¡Listo para jugar!', 'ok');
 
-  // FUNCIONES AUXILIARES
   function renderClues(container, clues) {
     container.innerHTML = '';
     
@@ -207,7 +193,6 @@ export async function render(root, data, hooks) {
   }
 
   function setupEventListeners(ui, state, categories, boardSize, config) {
-    // Validación
     if (ui.btnValidate) {
       ui.btnValidate.addEventListener('click', () => {
         if (!config || !config.solution) {
@@ -215,7 +200,7 @@ export async function render(root, data, hooks) {
           return;
         }
         
-        const result = checkSolution(state, categories, config.solution);
+        const result = validateSolution(state, categories, config.solution);
         setStatus(ui.result, result.msg, result.ok ? 'ok' : 'ko');
         
         if (result.ok && hooks && typeof hooks.onSuccess === 'function') {
@@ -224,7 +209,6 @@ export async function render(root, data, hooks) {
       });
     }
 
-    // Limpiar tablero
     if (ui.btnClear) {
       ui.btnClear.addEventListener('click', () => {
         for (let i = 0; i < boardSize; i++) {
@@ -241,7 +225,6 @@ export async function render(root, data, hooks) {
   }
 }
 
-// FUNCIONES DE UTILIDAD
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
@@ -255,7 +238,6 @@ function buildShell() {
 
   const grid = createElement('div', { class: 'ein-grid' });
 
-  // Sección de pistas
   const cluesSection = createElement('section', { class: 'ein-clues' });
   const cluesTitle = createElement('h2');
   cluesTitle.textContent = '🔍 Pistas';
@@ -264,7 +246,6 @@ function buildShell() {
   const cluesContainer = createElement('ol');
   cluesSection.appendChild(cluesContainer);
 
-  // Toolbar
   const toolbar = createElement('div', { class: 'toolbar' });
   const btnValidate = createElement('button', { class: 'btn' });
   btnValidate.textContent = '✅ Comprobar';
@@ -279,7 +260,6 @@ function buildShell() {
   const result = createElement('div', { class: 'feedback' });
   cluesSection.appendChild(result);
 
-  // Sección del tablero
   const boardSection = createElement('section', { class: 'ein-board' });
   const boardTitle = createElement('h2');
   boardTitle.textContent = '🏠 Tablero';
@@ -288,7 +268,6 @@ function buildShell() {
   const board = createElement('div');
   boardSection.appendChild(board);
 
-  // Sección de la paleta
   const paletteSection = createElement('section', { class: 'ein-palette' });
   const paletteTitle = createElement('h2');
   paletteTitle.textContent = '🃏 Tarjetas';
@@ -354,112 +333,135 @@ function setStatus(element, text, type = '') {
   }
 }
 
-// VALIDADOR SÚPER FLEXIBLE - Mensajes para niños/adolescentes
-function checkSolution(state, categories, solution) {
+// VALIDADOR GENÉRICO - Funciona con cualquier JSON
+function validateSolution(state, categories, solution) {
   const SIZE = 4;
   
-  // 1) Sacar las combinaciones correctas
-  const personas = Object.keys(solution);
-  const validCombinations = personas.map(persona => {
-    return { persona, ...solution[persona] };
-  });
+  // 1) Extraer la solución del JSON automáticamente
+  const persons = Object.keys(solution);
+  const correctCombos = persons.map(person => ({
+    person: person,
+    combo: solution[person]
+  }));
 
-  // 2) Ver qué puso el usuario en cada columna
+  // 2) Determinar qué categorías validar (todas excepto "Persona" si existe)
+  const categoriesToValidate = Object.keys(categories).filter(cat => 
+    cat.toLowerCase() !== 'persona'
+  );
+
+  // 3) Extraer lo que puso el usuario en cada columna
   const userColumns = [];
   
   for (let col = 0; col < SIZE; col++) {
-    const combination = {};
-    let hasAllCategories = true;
+    const columnCombo = {};
+    let isEmpty = true;
+    let hasIncomplete = false;
     
-    // Revisar cada categoría en esta columna
-    for (const [category, values] of Object.entries(categories)) {
+    // Revisar cada categoría a validar
+    for (const category of categoriesToValidate) {
       const cellData = state.board[col]?.[category];
       
       if (!cellData || !(cellData instanceof Set) || cellData.size === 0) {
-        return { 
-          ok: false, 
-          msg: `🤔 Te falta algo en la columna ${col + 1}. ¿Revisas la categoría "${category}"?` 
-        };
+        hasIncomplete = true;
+        continue;
       }
       
       if (cellData.size > 1) {
         return { 
           ok: false, 
-          msg: `😅 Tienes demasiadas opciones en la columna ${col + 1}. Elige solo una por categoría.` 
+          msg: `😅 Tienes ${cellData.size} opciones en la columna ${col + 1}. Elige solo una por categoría.` 
         };
       }
       
-      combination[category] = Array.from(cellData)[0];
+      columnCombo[category] = Array.from(cellData)[0];
+      isEmpty = false;
     }
     
-    userColumns.push(combination);
+    if (isEmpty) {
+      return { 
+        ok: false, 
+        msg: `🤔 La columna ${col + 1} está vacía. ¡Empieza poniendo algunas tarjetas!` 
+      };
+    }
+    
+    if (hasIncomplete) {
+      const missing = categoriesToValidate.filter(category => {
+        const cellData = state.board[col]?.[category];
+        return !cellData || cellData.size === 0;
+      });
+      return { 
+        ok: false, 
+        msg: `🤔 Te falta algo en la columna ${col + 1}: ${missing[0]}.` 
+      };
+    }
+    
+    userColumns.push(columnCombo);
   }
 
-  // 3) Ver si cada columna coincide con alguna persona
-  const usedPersonas = new Set();
+  // 4) Ver si cada columna coincide con alguna persona correcta
+  const usedPersons = new Set();
   const matches = [];
   
   for (let col = 0; col < SIZE; col++) {
     const userCombo = userColumns[col];
     let foundPerson = null;
     
-    // Buscar qué persona tiene esta combinación
-    for (const validCombo of validCombinations) {
-      // Comparar todas las categorías (menos "persona" si existe)
-      const matches = Object.keys(categories).every(category => {
-        if (category.toLowerCase() === 'persona') {
-          return true; // No comparar la persona directamente
-        }
-        return validCombo[category] === userCombo[category];
+    // Buscar qué persona tiene exactamente esta combinación
+    for (const correct of correctCombos) {
+      const isMatch = categoriesToValidate.every(category => {
+        return correct.combo[category] === userCombo[category];
       });
       
-      if (matches) {
-        foundPerson = validCombo.persona;
+      if (isMatch) {
+        foundPerson = correct.person;
         break;
       }
     }
     
     if (!foundPerson) {
-      // Dar una pista sobre qué está mal
-      const hints = validCombinations.map(valid => {
-        const wrongCategory = Object.keys(categories).find(cat => {
-          if (cat.toLowerCase() === 'persona') return false;
-          return valid[cat] !== userCombo[cat];
-        });
+      // Dar una pista específica sobre qué está mal
+      let bestHint = '';
+      let minErrors = 999;
+      
+      for (const correct of correctCombos) {
+        const errors = categoriesToValidate.filter(cat => 
+          correct.combo[cat] !== userCombo[cat]
+        );
         
-        if (wrongCategory) {
-          return `${valid.persona} necesita "${valid[wrongCategory]}" en ${wrongCategory}`;
+        if (errors.length < minErrors && errors.length > 0) {
+          minErrors = errors.length;
+          const wrongCategory = errors[0];
+          bestHint = `${correct.person} necesita "${correct.combo[wrongCategory]}" en ${wrongCategory}`;
         }
-        return null;
-      }).filter(Boolean);
+      }
       
       return {
         ok: false,
-        msg: `🤨 La columna ${col + 1} no está bien. Pista: ${hints[0] || 'revisa las pistas otra vez'}.`
+        msg: `🤨 La columna ${col + 1} no está bien. Pista: ${bestHint}.`
       };
     }
     
-    if (usedPersonas.has(foundPerson)) {
+    if (usedPersons.has(foundPerson)) {
       return {
         ok: false,
         msg: `😬 Tienes a ${foundPerson} repetido. Cada persona debe estar solo una vez.`
       };
     }
     
-    usedPersonas.add(foundPerson);
-    matches.push({ column: col + 1, persona: foundPerson });
+    usedPersons.add(foundPerson);
+    matches.push({ column: col + 1, person: foundPerson });
   }
 
-  // 4) Verificar que están todas las personas
-  if (usedPersonas.size !== personas.length) {
-    const missing = personas.filter(p => !usedPersonas.has(p));
+  // 5) Verificar que están todas las personas
+  if (usedPersons.size !== persons.length) {
+    const missing = persons.filter(p => !usedPersons.has(p));
     return {
       ok: false,
-      msg: `🔍 Te faltan personas: ${missing.join(', ')}. ¿Dónde los pondrías?`
+      msg: `🔍 Te falta: ${missing.join(', ')}. ¿Dónde los pondrías?`
     };
   }
 
-  // 5) ¡Victoria!
+  // 6) ¡Victoria total!
   return {
     ok: true,
     msg: `🎉 ¡INCREÍBLE! Lo resolviste perfectamente. Eres un genio como Einstein! 🧠✨`
