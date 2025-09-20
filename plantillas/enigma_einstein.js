@@ -333,35 +333,26 @@ function setStatus(element, text, type = '') {
   }
 }
 
-// VALIDADOR GENÉRICO - Funciona con cualquier JSON
+// VALIDADOR SIMPLE - Ordenar alfabéticamente y comparar
 function validateSolution(state, categories, solution) {
   const SIZE = 4;
   
-  // 1) Extraer la solución del JSON automáticamente
-  const persons = Object.keys(solution);
-  const correctCombos = persons.map(person => ({
-    person: person,
-    combo: solution[person]
-  }));
-
-  // 2) Determinar qué categorías validar (TODAS las categorías)
-  const categoriesToValidate = Object.keys(categories);
-
-  // 3) Extraer lo que puso el usuario en cada columna
-  const userColumns = [];
+  // 1) Extraer combinaciones del usuario
+  const userCombinations = [];
   
   for (let col = 0; col < SIZE; col++) {
-    const columnCombo = {};
-    let isEmpty = true;
-    let hasIncomplete = false;
+    const combination = {};
+    let isComplete = true;
     
-    // Revisar cada categoría a validar
-    for (const category of categoriesToValidate) {
+    // Revisar cada categoría
+    for (const [category, values] of Object.entries(categories)) {
       const cellData = state.board[col]?.[category];
       
       if (!cellData || !(cellData instanceof Set) || cellData.size === 0) {
-        hasIncomplete = true;
-        continue;
+        return { 
+          ok: false, 
+          msg: `🤔 Te falta algo en la columna ${col + 1}: ${category}` 
+        };
       }
       
       if (cellData.size > 1) {
@@ -371,107 +362,42 @@ function validateSolution(state, categories, solution) {
         };
       }
       
-      columnCombo[category] = Array.from(cellData)[0];
-      isEmpty = false;
+      combination[category] = Array.from(cellData)[0];
     }
     
-    if (isEmpty) {
-      return { 
-        ok: false, 
-        msg: `🤔 La columna ${col + 1} está vacía. ¡Empieza poniendo algunas tarjetas!` 
-      };
-    }
-    
-    if (hasIncomplete) {
-      const missing = categoriesToValidate.filter(category => {
-        const cellData = state.board[col]?.[category];
-        return !cellData || cellData.size === 0;
-      });
-      return { 
-        ok: false, 
-        msg: `🤔 Te falta algo en la columna ${col + 1}: ${missing[0]}.` 
-      };
-    }
-    
-    userColumns.push(columnCombo);
+    userCombinations.push(combination);
   }
 
-  // 4) Ver si cada columna coincide con alguna persona correcta
-  const usedPersons = new Set();
-  const matches = [];
-  
-  for (let col = 0; col < SIZE; col++) {
-    const userCombo = userColumns[col];
-    let foundPerson = null;
+  // 2) Extraer combinaciones de la solución
+  const solutionCombinations = [];
+  for (const [person, combo] of Object.entries(solution)) {
+    solutionCombinations.push({
+      Persona: person,
+      ...combo
+    });
+  }
+
+  // 3) Ordenar ambas listas alfabéticamente por Persona
+  userCombinations.sort((a, b) => a.Persona.localeCompare(b.Persona));
+  solutionCombinations.sort((a, b) => a.Persona.localeCompare(b.Persona));
+
+  // 4) Comparar las dos listas ordenadas
+  for (let i = 0; i < SIZE; i++) {
+    const userCombo = userCombinations[i];
+    const correctCombo = solutionCombinations[i];
     
-    // Buscar qué persona tiene exactamente esta combinación
-    for (const correct of correctCombos) {
-      const isMatch = categoriesToValidate.every(category => {
-        // Para la categoría "Persona", comparar directamente
-        if (category === 'Persona') {
-          return correct.person === userCombo[category];
-        }
-        // Para otras categorías, comparar con la solución
-        return correct.combo[category] === userCombo[category];
-      });
-      
-      if (isMatch) {
-        foundPerson = correct.person;
-        break;
+    // Comparar cada categoría
+    for (const category of Object.keys(categories)) {
+      if (userCombo[category] !== correctCombo[category]) {
+        return {
+          ok: false,
+          msg: `🤨 ${correctCombo.Persona} necesita "${correctCombo[category]}" en ${category}, no "${userCombo[category]}".`
+        };
       }
     }
-    
-    if (!foundPerson) {
-      // Dar una pista específica sobre qué está mal
-      let bestHint = '';
-      let minErrors = 999;
-      
-      for (const correct of correctCombos) {
-        const errors = categoriesToValidate.filter(cat => {
-          if (cat === 'Persona') {
-            return correct.person !== userCombo[cat];
-          }
-          return correct.combo[cat] !== userCombo[cat];
-        });
-        
-        if (errors.length < minErrors && errors.length > 0) {
-          minErrors = errors.length;
-          const wrongCategory = errors[0];
-          if (wrongCategory === 'Persona') {
-            bestHint = `Esta combinación pertenece a ${correct.person}`;
-          } else {
-            bestHint = `${correct.person} necesita "${correct.combo[wrongCategory]}" en ${wrongCategory}`;
-          }
-        }
-      }
-      
-      return {
-        ok: false,
-        msg: `🤨 La columna ${col + 1} no está bien. Pista: ${bestHint}.`
-      };
-    }
-    
-    if (usedPersons.has(foundPerson)) {
-      return {
-        ok: false,
-        msg: `😬 Tienes a ${foundPerson} repetido. Cada persona debe estar solo una vez.`
-      };
-    }
-    
-    usedPersons.add(foundPerson);
-    matches.push({ column: col + 1, person: foundPerson });
   }
 
-  // 5) Verificar que están todas las personas
-  if (usedPersons.size !== persons.length) {
-    const missing = persons.filter(p => !usedPersons.has(p));
-    return {
-      ok: false,
-      msg: `🔍 Te falta: ${missing.join(', ')}. ¿Dónde los pondrías?`
-    };
-  }
-
-  // 6) ¡Victoria total!
+  // 5) ¡Todo correcto!
   return {
     ok: true,
     msg: `🎉 ¡INCREÍBLE! Lo resolviste perfectamente. Eres un genio como Einstein! 🧠✨`
