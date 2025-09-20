@@ -228,9 +228,18 @@ export async function render(root, data, hooks) {
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
-  const badge = createElement('div', { class: 'badge' });
-  badge.textContent = '🧩 Enigma de Einstein';
-  box.appendChild(badge);
+  // Header con Einstein
+  const header = createElement('div', { class: 'enigma-header' });
+  header.innerHTML = `
+    <div class="einstein-container">
+      <img src="assets/einstein-caricature.png" alt="Einstein" class="einstein-avatar" style="width:48px;height:48px;border-radius:50%;" onerror="this.style.display='none'">
+      <div class="header-content">
+        <h2 class="enigma-title">🧩 Enigma de Einstein</h2>
+        <p class="enigma-subtitle">Coloca las tarjetas cumpliendo las pistas</p>
+      </div>
+    </div>
+  `;
+  box.appendChild(header);
 
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
@@ -351,7 +360,7 @@ function validateSolution(state, categories, solution) {
       if (!cellData || !(cellData instanceof Set) || cellData.size === 0) {
         return { 
           ok: false, 
-          msg: `🤔 Te falta algo en la columna ${col + 1}: ${category}` 
+          msg: `🤔 La columna ${col + 1} está incompleta` 
         };
       }
       
