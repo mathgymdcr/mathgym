@@ -228,18 +228,9 @@ export async function render(root, data, hooks) {
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
-  // Header con Einstein
-  const header = createElement('div', { class: 'enigma-header' });
-  header.innerHTML = `
-    <div class="einstein-container">
-      <img src="assets/einstein-caricature.png" alt="Einstein" class="einstein-avatar" style="width:48px;height:48px;border-radius:50%;" onerror="this.style.display='none'">
-      <div class="header-content">
-        <h2 class="enigma-title">🧩 Enigma de Einstein</h2>
-        <p class="enigma-subtitle">Coloca las tarjetas cumpliendo las pistas</p>
-      </div>
-    </div>
-  `;
-  box.appendChild(header);
+  const badge = createElement('div', { class: 'badge' });
+  badge.textContent = '🧩 Enigma de Einstein';
+  box.appendChild(badge);
 
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
@@ -386,12 +377,16 @@ function validateSolution(state, categories, solution) {
     solutionVectors.push(vector);
   }
 
-  // 3) Contar coincidencias
+  // 3) Contar coincidencias - comparar cada combinación del usuario con todos los vectores
   let matches = 0;
+  const usedVectors = new Set(); // Para evitar usar el mismo vector dos veces
   
   for (const userCombo of userCombinations) {
-    // Ver si esta combinación coincide con algún vector de la solución
-    for (const solutionVector of solutionVectors) {
+    // Ver si esta combinación coincide con algún vector no usado
+    for (let i = 0; i < solutionVectors.length; i++) {
+      if (usedVectors.has(i)) continue; // Ya usado
+      
+      const solutionVector = solutionVectors[i];
       let isMatch = true;
       
       // Comparar todas las categorías
@@ -404,7 +399,8 @@ function validateSolution(state, categories, solution) {
       
       if (isMatch) {
         matches++;
-        break; // No seguir buscando para esta combinación
+        usedVectors.add(i); // Marcar como usado
+        break;
       }
     }
   }
