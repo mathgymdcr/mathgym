@@ -1,3 +1,4 @@
+// ===== ARCHIVO CORREGIDO: plantillas/enigma_einstein.js =====
 export async function render(root, data, hooks) {
   // Limpiar contenedor
   root.innerHTML = '';
@@ -240,25 +241,19 @@ export async function render(root, data, hooks) {
   }
 }
 
-// FUNCIONES DE UTILIDAD
-// En plantillas/enigma_einstein.js - Modificar la función buildShell()
-
+// FUNCIONES DE UTILIDAD - buildShell() CORREGIDA Y UNIFICADA
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
-  // Badge con Einstein
-  const badge = createElement('div', { class: 'badge einstein-badge' });
-  badge.innerHTML = `
-    <img src="assets/einstein-caricature.png" alt="Einstein" class="einstein-icon">
-    <span>Resuelve el enigma</span>
-  `;
+  // Badge
+  const badge = createElement('div', { class: 'badge' });
+  badge.textContent = 'Enigma 4x4 PlayFix';
   box.appendChild(badge);
 
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
   box.appendChild(status);
 
-  // ... resto del código igual
   const grid = createElement('div', { class: 'ein-grid' });
 
   // Sección de pistas
@@ -308,65 +303,7 @@ function buildShell() {
   grid.appendChild(paletteSection);
   box.appendChild(grid);
 
-  return {
-    box,
-    status,
-    cluesContainer,
-    btnValidate,
-    btnClear,
-    result,
-    board,
-    palette
-  };
-}
-
-  // Seccion de pistas
-  const cluesSection = createElement('section', { class: 'ein-clues' });
-  const cluesTitle = createElement('h2');
-  cluesTitle.textContent = 'Pistas';
-  cluesSection.appendChild(cluesTitle);
-  
-  const cluesContainer = createElement('ol');
-  cluesSection.appendChild(cluesContainer);
-
-  // Toolbar
-  const toolbar = createElement('div', { class: 'toolbar' });
-  const btnValidate = createElement('button', { class: 'btn' });
-  btnValidate.textContent = 'Validar';
-  
-  const btnClear = createElement('button', { class: 'btn' });
-  btnClear.textContent = 'Limpiar';
-  
-  toolbar.appendChild(btnValidate);
-  toolbar.appendChild(btnClear);
-  cluesSection.appendChild(toolbar);
-
-  const result = createElement('div', { class: 'feedback' });
-  cluesSection.appendChild(result);
-
-  // Seccion del tablero
-  const boardSection = createElement('section', { class: 'ein-board' });
-  const boardTitle = createElement('h2');
-  boardTitle.textContent = 'Tablero';
-  boardSection.appendChild(boardTitle);
-  
-  const board = createElement('div');
-  boardSection.appendChild(board);
-
-  // Seccion de la paleta
-  const paletteSection = createElement('section', { class: 'ein-palette' });
-  const paletteTitle = createElement('h2');
-  paletteTitle.textContent = 'Tarjetas';
-  paletteSection.appendChild(paletteTitle);
-  
-  const palette = createElement('div');
-  paletteSection.appendChild(palette);
-
-  grid.appendChild(cluesSection);
-  grid.appendChild(boardSection);
-  grid.appendChild(paletteSection);
-  box.appendChild(grid);
-
+  // *** RETURN STATEMENT CRÍTICO - ESTO FALTABA ***
   return {
     box,
     status,
@@ -419,14 +356,14 @@ function setStatus(element, text, type = '') {
   }
 }
 
-// Funcion para validar solucion - Version final optimizada
+// Función para validar solución - Versión final optimizada
 function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
   const SIZE = 4;
 
-  // Las categorias a chequear se toman de la solucion
+  // Las categorías a chequear se toman de la solución
   const personas = Object.keys(solution);
   if (personas.length !== SIZE) {
-    return { ok: false, msg: 'La solucion no tiene 4 personas.' };
+    return { ok: false, msg: 'La solución no tiene 4 personas.' };
   }
   
   // Suponemos que todas las personas tienen las mismas claves
@@ -439,7 +376,7 @@ function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
     for (const cat of catsToCheck) {
       const set = state.board[col]?.[cat] || new Set();
       if (set.size !== 1) {
-        return { ok: false, msg: `En la columna ${col + 1}, en "${cat}" debe haber exactamente 1 seleccion.` };
+        return { ok: false, msg: `En la columna ${col + 1}, en "${cat}" debe haber exactamente 1 selección.` };
       }
       picks[cat] = [...set][0];
     }
@@ -461,7 +398,7 @@ function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
       for (const p of personas) {
         const sol = solution[p];
         const mis = catsToCheck.find(cat => sol[cat] !== picksByCol[i][cat]);
-        if (mis) det.push(`${p}: ${mis} deberia ser "${sol[mis]}"`);
+        if (mis) det.push(`${p}: ${mis} debería ser "${sol[mis]}"`);
       }
       return {
         ok: false,
@@ -470,7 +407,7 @@ function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
     }
   }
 
-  // 3) Resolver asignacion persona↔columna (backtracking)
+  // 3) Resolver asignación persona↔columna (backtracking)
   const used = new Set();
   const assign = new Array(SIZE);
 
@@ -488,9 +425,9 @@ function checkAgainstSolutionIgnoreOrder(state, categories, solution) {
 
   const ok = bt(0);
   if (!ok) {
-    return { ok: false, msg: 'Las selecciones no forman una asignacion valida persona↔columna.' };
+    return { ok: false, msg: 'Las selecciones no forman una asignación válida persona↔columna.' };
   }
 
-  return { ok: true, msg: 'Correcto!' };
+  return { ok: true, msg: '¡Correcto!' };
 }
 
