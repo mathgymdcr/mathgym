@@ -727,3 +727,184 @@ li {
       font-size: 2.5rem;
     }
   }
+  /* Agregar al final de style.css - Estilos para plantilla de polígonos */
+
+/* Contenedor del juego de polígonos */
+.polygon-game {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.polygon-instructions {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--card-b);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+  text-align: center;
+}
+
+.polygon-instructions p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.polygon-instructions strong {
+  color: var(--fg);
+}
+
+/* Contenedor principal */
+.polygon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Stage del juego */
+.polygon-stage {
+  position: relative;
+  width: 480px;
+  height: 480px;
+  border-radius: 12px;
+  background: #131a2a;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  border: 1px solid var(--card-b);
+  margin: 0 auto;
+}
+
+.polygon-stage canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  border-radius: 12px;
+}
+
+/* Capa de nodos */
+.polygon-nodes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.polygon-node {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--muted);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  z-index: 10;
+}
+
+.polygon-node:hover {
+  background: var(--accent);
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.polygon-node.selected {
+  background: var(--success);
+  box-shadow: 0 0 10px rgba(53, 208, 127, 0.9);
+  transform: translate(-50%, -50%) scale(1.3);
+}
+
+.polygon-node.adj {
+  background: var(--accent);
+  box-shadow: 0 0 12px rgba(255, 210, 59, 0.85);
+  animation: polygonPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes polygonPulse {
+  0% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1.0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+  100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1.0);
+  }
+}
+
+/* Controles */
+.polygon-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.polygon-controls .btn {
+  padding: 10px 16px;
+  font-size: 0.9rem;
+}
+
+.btn-secondary {
+  background: transparent !important;
+  border: 1px solid var(--card-b) !important;
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,.05) !important;
+  border-color: var(--accent) !important;
+}
+
+/* Mensaje del juego */
+.polygon-message {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  max-width: 400px;
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 560px) {
+  .polygon-stage {
+    width: 320px;
+    height: 320px;
+  }
+  
+  .polygon-stage canvas {
+    width: 320px !important;
+    height: 320px !important;
+  }
+  
+  .polygon-node {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .polygon-controls {
+    gap: 8px;
+  }
+  
+  .polygon-controls .btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .polygon-instructions {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .polygon-stage {
+    width: 280px;
+    height: 280px;
+  }
+  
+  .polygon-stage canvas {
+    width: 280px !important;
+    height: 280px !important;
+  }
+}
