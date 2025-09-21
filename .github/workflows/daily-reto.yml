@@ -1,78 +1,48 @@
-name: Generate Daily Reto
+name: Daily Reto
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # 6:00 UTC daily
+    - cron: "0 0 * * *" # todos los días a medianoche UTC
   workflow_dispatch:
-    inputs:
-      fecha:
-        description: 'Specific date (YYYY-MM-DD)'
-        required: false
-        type: string
-      force:
-        description: 'Force regenerate if exists'
-        required: false
-        type: boolean
-        default: false
+
+permissions:
+  contents: write # 👈 necesario para que el bot pueda hacer push
 
 jobs:
   generate:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      
+          fetch-depth: 0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+          cache-dependency-path: package-lock.json
+
       - name: Install dependencies
-        run: npm ci || npm i
-      
+        run: npm install
+
+      - name: Debug files
+        run: ls -la
+
       - name: Generate daily reto
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          if [ "${{ inputs.fecha }}" != "" ]; then
-            node scripts/generate-daily-reto.js "${{ inputs.fecha }}" ${{ inputs.force }}
-          else
-            node scripts/generate-daily-reto.js
-          fi
-      
-      - name: Validate generated reto
-        run: node scripts/validate-retos.js --latest
-      
-      - name: Commit and push
+        run: node scripts/generate-daily-reto.js
+
+      - name: Commit and push changes
         run: |
           git config --local user.email "mathgym-bot@github.com"
           git config --local user.name "MathGym Bot"
           git add .
-          
+
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          
-          FECHA="${{ inputs.fecha }}"
-          if [ "$FECHA" = "" ]; then
-            FECHA=$(date +%Y-%m-%d)
-          fi
-          
+
+          FECHA="$(date +%Y-%m-%d)"
           git commit -m "🎲 Daily reto generated for $FECHA"
-          git push
-      
-      - name: Update deployment
-        uses: actions/github-script@v7
-        with:
-          script: |
-            // Trigger Pages deployment if needed
-            github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'pages.yml'
-            });
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/mathgymdcr/mathgym.git HEAD:main
