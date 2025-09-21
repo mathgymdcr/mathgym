@@ -1,0 +1,7 @@
+{
+    "area": 9,
+    "perimeter": 12,
+    "gridSize": 8,
+    "title": "Construye el polígono perfecto",
+    "instructions": "Haz clic en los nodos para crear un polígono cerrado que cumpla exactamente con el área y perímetro dados."
+  }
