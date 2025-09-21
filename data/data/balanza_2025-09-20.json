@@ -1,0 +1,8 @@
+{
+    "variant": "oddUnknown",
+    "N": 5,
+    "k": 1,
+    "maxWeighings": 3,
+    "title": "Balanza - Moneda Anómala",
+    "description": "Encuentra la moneda con peso diferente y determina si es más pesada o más ligera"
+  }

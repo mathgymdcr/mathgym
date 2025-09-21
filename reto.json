@@ -1,7 +1,7 @@
 {
-  "fecha": "2025-09-19",
-  "titulo": "Trasvase Ecológico",
-  "objetivo": "Obtener exactamente 5L usando trasvases",
-  "tipo": "trasvase-ecologico",
-  "data": {"json_url": "data/trasvase_2025-09-19.json"}
+  "fecha": "2025-09-20",
+  "titulo": "Reto de la Balanza",
+  "objetivo": "Encuentra las monedas anómalas usando la balanza",
+  "tipo": "balanza-logica",
+  "data": {"json_url": "data/balanza_2025-09-20.json"}
 }
