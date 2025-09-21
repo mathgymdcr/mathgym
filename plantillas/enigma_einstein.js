@@ -9,13 +9,13 @@ export async function render(root, data, hooks) {
   try {
     config = await loadConfig(data);
   } catch (error) {
-    setStatus(ui.status, '❌ No se pudo cargar el enigma', 'ko');
+    setStatus(ui.status, 'Error: No se pudo cargar el enigma', 'ko');
     return;
   }
 
   const allCategories = Object.keys(config.categories || {});
   if (allCategories.length < 4) {
-    setStatus(ui.status, '❌ Faltan categorías en el enigma', 'ko');
+    setStatus(ui.status, 'Error: Faltan categorías en el enigma', 'ko');
     return;
   }
 
@@ -46,7 +46,7 @@ export async function render(root, data, hooks) {
 
   setupEventListeners(ui, gameState, categories, BOARD_SIZE, config);
 
-  setStatus(ui.status, '🎮 ¡Listo para jugar!', 'ok');
+  setStatus(ui.status, 'Listo para jugar', 'ok');
 
   function renderClues(container, clues) {
     container.innerHTML = '';
@@ -196,7 +196,7 @@ export async function render(root, data, hooks) {
     if (ui.btnValidate) {
       ui.btnValidate.addEventListener('click', () => {
         if (!config || !config.solution) {
-          setStatus(ui.result, '❌ No hay solución definida', 'ko');
+          setStatus(ui.result, 'No hay solución definida', 'ko');
           return;
         }
         
@@ -219,7 +219,7 @@ export async function render(root, data, hooks) {
         });
         state.selected = null;
         ui.palette.querySelectorAll('.card.is-selected').forEach(el => el.classList.remove('is-selected'));
-        setStatus(ui.result, '🧹 Tablero limpio', 'ok');
+        setStatus(ui.result, 'Tablero limpio', 'ok');
       });
     }
   }
@@ -228,9 +228,29 @@ export async function render(root, data, hooks) {
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
-  const badge = createElement('div', { class: 'badge' });
-  badge.textContent = '🧩 Enigma de Einstein';
-  box.appendChild(badge);
+  // Header con Einstein
+  const header = createElement('div', { class: 'enigma-header', style: 'display: flex; align-items: center; gap: 16px; margin-bottom: 16px;' });
+  
+  const einsteinImg = createElement('img', {
+    src: 'assets/einstein-caricature.png',
+    alt: 'Einstein',
+    style: 'width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--accent);'
+  });
+  einsteinImg.onerror = () => einsteinImg.style.display = 'none';
+  
+  const headerContent = createElement('div');
+  const title = createElement('h2', { style: 'margin: 0; color: var(--accent); font-size: 1.5rem;' });
+  title.textContent = 'Enigma de Einstein';
+  
+  const subtitle = createElement('p', { style: 'margin: 0; color: var(--muted); font-size: 0.9rem;' });
+  subtitle.textContent = 'Coloca las tarjetas cumpliendo las pistas';
+  
+  headerContent.appendChild(title);
+  headerContent.appendChild(subtitle);
+  
+  header.appendChild(einsteinImg);
+  header.appendChild(headerContent);
+  box.appendChild(header);
 
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
@@ -240,7 +260,7 @@ function buildShell() {
 
   const cluesSection = createElement('section', { class: 'ein-clues' });
   const cluesTitle = createElement('h2');
-  cluesTitle.textContent = '🔍 Pistas';
+  cluesTitle.textContent = 'Pistas';
   cluesSection.appendChild(cluesTitle);
   
   const cluesContainer = createElement('ol');
@@ -248,10 +268,10 @@ function buildShell() {
 
   const toolbar = createElement('div', { class: 'toolbar' });
   const btnValidate = createElement('button', { class: 'btn' });
-  btnValidate.textContent = '✅ Comprobar';
+  btnValidate.textContent = 'Comprobar';
   
   const btnClear = createElement('button', { class: 'btn' });
-  btnClear.textContent = '🗑️ Borrar todo';
+  btnClear.textContent = 'Borrar todo';
   
   toolbar.appendChild(btnValidate);
   toolbar.appendChild(btnClear);
@@ -262,7 +282,7 @@ function buildShell() {
 
   const boardSection = createElement('section', { class: 'ein-board' });
   const boardTitle = createElement('h2');
-  boardTitle.textContent = '🏠 Tablero';
+  boardTitle.textContent = 'Tablero';
   boardSection.appendChild(boardTitle);
   
   const board = createElement('div');
@@ -270,7 +290,7 @@ function buildShell() {
 
   const paletteSection = createElement('section', { class: 'ein-palette' });
   const paletteTitle = createElement('h2');
-  paletteTitle.textContent = '🃏 Tarjetas';
+  paletteTitle.textContent = 'Tarjetas';
   paletteSection.appendChild(paletteTitle);
   
   const palette = createElement('div');
@@ -315,6 +335,8 @@ function createElement(tag, attributes = {}) {
   Object.entries(attributes).forEach(([key, value]) => {
     if (key === 'class') {
       element.className = value;
+    } else if (key === 'style') {
+      element.style.cssText = value;
     } else {
       element.setAttribute(key, value);
     }
@@ -336,74 +358,94 @@ function setStatus(element, text, type = '') {
 function validateSolution(state, categories, solution) {
   const SIZE = 4;
   
-  const userCombinations = [];
+  // 1) Extraer columnas del usuario y ordenar cada una alfabéticamente
+  const userColumns = [];
   
   for (let col = 0; col < SIZE; col++) {
-    const combination = {};
+    const columnValues = [];
     
+    // Extraer todos los valores de esta columna
     for (const [category, values] of Object.entries(categories)) {
       const cellData = state.board[col]?.[category];
       
       if (!cellData || !(cellData instanceof Set) || cellData.size === 0) {
         return { 
           ok: false, 
-          msg: `🤔 La columna ${col + 1} está incompleta` 
+          msg: 'La columna ' + (col + 1) + ' está incompleta' 
         };
       }
       
       if (cellData.size > 1) {
         return { 
           ok: false, 
-          msg: `😅 Tienes demasiadas opciones en la columna ${col + 1}` 
+          msg: 'Tienes demasiadas opciones en la columna ' + (col + 1) 
         };
       }
       
-      combination[category] = Array.from(cellData)[0];
+      columnValues.push(Array.from(cellData)[0]);
     }
     
-    userCombinations.push(combination);
+    // Ordenar los valores de esta columna alfabéticamente
+    columnValues.sort();
+    userColumns.push(columnValues);
   }
 
-  const solutionVectors = [];
+  // 2) Crear columnas de la solución y ordenar cada una alfabéticamente
+  const solutionColumns = [];
+  
   for (const [person, combo] of Object.entries(solution)) {
-    const vector = {
-      Persona: person,
-      ...combo
-    };
-    solutionVectors.push(vector);
-  }
-  
-  userCombinations.sort((a, b) => a.Persona.localeCompare(b.Persona));
-  solutionVectors.sort((a, b) => a.Persona.localeCompare(b.Persona));
-
-  let matches = 0;
-  
-  for (let i = 0; i < SIZE; i++) {
-    const userVector = userCombinations[i];
-    const solutionVector = solutionVectors[i];
+    const columnValues = [person]; // Incluir la persona
     
-    let isMatch = true;
-    for (const category of Object.keys(categories)) {
-      if (userVector[category] !== solutionVector[category]) {
-        isMatch = false;
-        break;
+    // Añadir los otros valores
+    for (const value of Object.values(combo)) {
+      columnValues.push(value);
+    }
+    
+    // Ordenar alfabéticamente
+    columnValues.sort();
+    solutionColumns.push(columnValues);
+  }
+
+  // 3) Contar coincidencias (sin importar orden de columnas)
+  let matches = 0;
+  const usedSolutionColumns = new Set();
+  
+  for (const userColumn of userColumns) {
+    // Buscar si esta columna del usuario coincide con alguna de la solución
+    for (let i = 0; i < solutionColumns.length; i++) {
+      if (usedSolutionColumns.has(i)) continue; // Ya usada
+      
+      const solutionColumn = solutionColumns[i];
+      
+      // Comparar arrays
+      if (userColumn.length === solutionColumn.length) {
+        let isMatch = true;
+        for (let j = 0; j < userColumn.length; j++) {
+          if (userColumn[j] !== solutionColumn[j]) {
+            isMatch = false;
+            break;
+          }
+        }
+        
+        if (isMatch) {
+          matches++;
+          usedSolutionColumns.add(i);
+          break;
+        }
       }
     }
-    
-    if (isMatch) {
-      matches++;
-    }
   }
 
+  // 4) Resultado
   if (matches === 4) {
     return {
       ok: true,
-      msg: `🎉 ¡INCREÍBLE! Lo resolviste perfectamente!`
+      msg: 'Perfecto! Lo resolviste correctamente!'
     };
   } else {
     return {
       ok: false,
-      msg: `🤨 Hay un error. Revisa las pistas.`
+      msg: 'Hay un error. Revisa las pistas.'
     };
   }
 }
