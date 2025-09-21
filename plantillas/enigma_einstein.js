@@ -333,7 +333,7 @@ function setStatus(element, text, type = '') {
   }
 }
 
-// VALIDADOR SIMPLE - Contar coincidencias
+// VALIDADOR CORREGIDO - Ordenar alfabéticamente y comparar
 function validateSolution(state, categories, solution) {
   const SIZE = 4;
   
@@ -343,7 +343,6 @@ function validateSolution(state, categories, solution) {
   for (let col = 0; col < SIZE; col++) {
     const combination = {};
     
-    // Revisar cada categoría
     for (const [category, values] of Object.entries(categories)) {
       const cellData = state.board[col]?.[category];
       
@@ -367,7 +366,7 @@ function validateSolution(state, categories, solution) {
     userCombinations.push(combination);
   }
 
-  // 2) Crear matriz 4x4 de la solución (vectores columna)
+  // 2) Crear vectores de la solución (cada persona es un vector)
   const solutionVectors = [];
   for (const [person, combo] of Object.entries(solution)) {
     const vector = {
@@ -376,14 +375,44 @@ function validateSolution(state, categories, solution) {
     };
     solutionVectors.push(vector);
   }
-
-  // 3) Contar coincidencias - comparar cada combinación del usuario con todos los vectores
-  let matches = 0;
-  const usedVectors = new Set(); // Para evitar usar el mismo vector dos veces
   
-  for (const userCombo of userCombinations) {
-    // Ver si esta combinación coincide con algún vector no usado
-    for (let i = 0; i < solutionVectors.length; i++) {
+  // 3) Ordenar ambos alfabéticamente por persona
+  userCombinations.sort((a, b) => a.Persona.localeCompare(b.Persona));
+  solutionVectors.sort((a, b) => a.Persona.localeCompare(b.Persona));
+
+  // 4) Comparar vector a vector
+  let matches = 0;
+  
+  for (let i = 0; i < SIZE; i++) {
+    const userVector = userCombinations[i];
+    const solutionVector = solutionVectors[i];
+    
+    let isMatch = true;
+    for (const category of Object.keys(categories)) {
+      if (userVector[category] !== solutionVector[category]) {
+        isMatch = false;
+        break;
+      }
+    }
+    
+    if (isMatch) {
+      matches++;
+    }
+  }
+
+  // 5) Resultado
+  if (matches === 4) {
+    return {
+      ok: true,
+      msg: `🎉 ¡INCREÍBLE! Lo resolviste perfectamente!`
+    };
+  } else {
+    return {
+      ok: false,
+      msg: `🤨 Hay un error. Revisa las pistas.`
+    };
+  }
+}olutionVectors.length; i++) {
       if (usedVectors.has(i)) continue; // Ya usado
       
       const solutionVector = solutionVectors[i];
