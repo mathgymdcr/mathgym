@@ -1,7 +1,12 @@
 {
-  "fecha": "2025-09-20",
-  "titulo": "Reto de la Balanza",
-  "objetivo": "Encuentra las monedas anómalas usando la balanza",
   "tipo": "balanza-logica",
-  "data": {"json_url": "data/balanza_2025-09-20.json"}
+  "titulo": "Reto de la Balanza",
+  "objetivo": "Encuentra las monedas anómalas con el menor número de pesadas",
+  "data": {
+    "variant": "heaviest",
+    "N": 6,
+    "k": 1,
+    "maxWeighings": 3
+  },
+  "fecha": "2025-09-21"
 }
