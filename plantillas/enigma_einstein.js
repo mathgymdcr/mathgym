@@ -228,29 +228,64 @@ export async function render(root, data, hooks) {
 function buildShell() {
   const box = createElement('div', { class: 'template-box' });
   
-  // Header con Einstein
-  const header = createElement('div', { class: 'enigma-header', style: 'display: flex; align-items: center; gap: 16px; margin-bottom: 16px;' });
+  // Header con Einstein y efecto luminoso
+  const header = createElement('div', { 
+    class: 'enigma-header', 
+    style: 'display: flex; align-items: center; gap: 16px; margin-bottom: 16px; position: relative; overflow: hidden;' 
+  });
   
   const einsteinImg = createElement('img', {
     src: 'assets/einstein-caricature.png',
     alt: 'Einstein',
-    style: 'width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--accent);'
+    style: 'width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--accent); z-index: 2; position: relative;'
   });
   einsteinImg.onerror = () => einsteinImg.style.display = 'none';
   
-  const headerContent = createElement('div');
-  const title = createElement('h2', { style: 'margin: 0; color: var(--accent); font-size: 1.5rem;' });
-  title.textContent = 'Enigma de Einstein';
+  const title = createElement('h2', { 
+    style: 'margin: 0; color: var(--accent); font-size: 1.5rem; z-index: 2; position: relative;' 
+  });
+  title.textContent = 'Resuelve el enigma';
   
-  const subtitle = createElement('p', { style: 'margin: 0; color: var(--muted); font-size: 0.9rem;' });
-  subtitle.textContent = 'Coloca las tarjetas cumpliendo las pistas';
+  // Efecto luminoso animado
+  const lightEffect = createElement('div', {
+    style: `
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(108, 92, 231, 0.3), transparent);
+      animation: slideLight 3s infinite;
+      z-index: 1;
+    `
+  });
   
-  headerContent.appendChild(title);
-  headerContent.appendChild(subtitle);
-  
+  header.appendChild(lightEffect);
   header.appendChild(einsteinImg);
-  header.appendChild(headerContent);
+  header.appendChild(title);
   box.appendChild(header);
+
+  // Recuadro de instrucciones con Deceerre
+  const instructionsBox = createElement('div', { 
+    class: 'card',
+    style: 'display: flex; align-items: center; gap: 16px; margin-bottom: 16px;'
+  });
+  
+  const deceerreImg = createElement('img', {
+    src: 'assets/deceerre-instructions.png',
+    alt: 'Deceerre',
+    style: 'width: 80px; height: 80px; flex-shrink: 0;'
+  });
+  deceerreImg.onerror = () => deceerreImg.style.display = 'none';
+  
+  const instructionsText = createElement('p', {
+    style: 'margin: 0; color: var(--fg); line-height: 1.4;'
+  });
+  instructionsText.textContent = 'Selecciona una tarjeta de la derecha y colócala en el tablero. Usa las pistas para deducir dónde va cada elemento. ¡Cada columna debe tener exactamente una tarjeta de cada categoría!';
+  
+  instructionsBox.appendChild(deceerreImg);
+  instructionsBox.appendChild(instructionsText);
+  box.appendChild(instructionsBox);
 
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
@@ -300,6 +335,19 @@ function buildShell() {
   grid.appendChild(boardSection);
   grid.appendChild(paletteSection);
   box.appendChild(grid);
+
+  // Añadir estilos CSS para la animación
+  if (!document.getElementById('enigma-animations')) {
+    const style = createElement('style', { id: 'enigma-animations' });
+    style.textContent = `
+      @keyframes slideLight {
+        0% { left: -100%; }
+        50% { left: 100%; }
+        100% { left: 100%; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
   return {
     box,
@@ -436,11 +484,11 @@ function validateSolution(state, categories, solution) {
     }
   }
 
-  // 4) Resultado
+  // 4) Resultado con Deceerre
   if (matches === 4) {
     return {
       ok: true,
-      msg: 'Perfecto! Lo resolviste correctamente!'
+      msg: createCelebrationMessage()
     };
   } else {
     return {
@@ -448,4 +496,23 @@ function validateSolution(state, categories, solution) {
       msg: 'Hay un error. Revisa las pistas.'
     };
   }
+}
+
+function createCelebrationMessage() {
+  const deceerreImg = document.createElement('img');
+  deceerreImg.src = 'assets/deceerre-celebration.png';
+  deceerreImg.alt = 'Deceerre celebrando';
+  deceerreImg.style.cssText = 'width: 60px; height: 60px; vertical-align: middle; margin-right: 12px;';
+  deceerreImg.onerror = () => deceerreImg.style.display = 'none';
+  
+  const container = document.createElement('div');
+  container.style.cssText = 'display: flex; align-items: center; gap: 12px;';
+  
+  const textSpan = document.createElement('span');
+  textSpan.textContent = '¡Increíble! Lo has resuelto perfectamente. ¡Eres un genio de la lógica!';
+  
+  container.appendChild(deceerreImg);
+  container.appendChild(textSpan);
+  
+  return container;
 }
