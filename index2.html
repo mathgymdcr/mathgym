@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lector JSON - Matriz 4x4</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .matrix { display: grid; grid-template-columns: repeat(5, 150px); gap: 5px; margin: 10px 0; }
+        .header { font-weight: bold; background: #f0f0f0; padding: 8px; text-align: center; }
+        .cell { background: #f9f9f9; padding: 8px; text-align: center; border: 1px solid #ddd; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Extractor de Matriz 4x4 del JSON</h1>
+    
+    <div class="section">
+        <h3>JSON Original:</h3>
+        <pre id="originalJson"></pre>
+    </div>
+    
+    <div class="section">
+        <h3>Vectores extraídos (sin ordenar):</h3>
+        <pre id="vectorsOriginal"></pre>
+    </div>
+    
+    <div class="section">
+        <h3>Matriz 4x4 ordenada alfabéticamente por Persona:</h3>
+        <div id="matrixDisplay"></div>
+    </div>
+    
+    <div class="section">
+        <h3>Array final ordenado:</h3>
+        <pre id="finalArray"></pre>
+    </div>
+
+    <script>
+        async function loadAndProcessJson() {
+            try {
+                // Cargar el JSON desde el archivo
+                const response = await fetch('data/enigma_2025-09-15.json');
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar el archivo JSON');
+                }
+                
+                const jsonData = await response.json();
+                const solution = jsonData.solution;
+                
+                // Mostrar JSON original
+                document.getElementById('originalJson').textContent = JSON.stringify(solution, null, 2);
+
+                // Paso 1: Extraer vectores sin ordenar
+                const vectorsOriginal = [];
+                for (const [person, combo] of Object.entries(solution)) {
+                    const vector = {
+                        Persona: person,
+                        ...combo
+                    };
+                    vectorsOriginal.push(vector);
+                }
+
+                document.getElementById('vectorsOriginal').textContent = JSON.stringify(vectorsOriginal, null, 2);
+
+                // Paso 2: Ordenar alfabéticamente por Persona
+                const matrixOrdenada = vectorsOriginal.sort((a, b) => a.Persona.localeCompare(b.Persona));
+
+                document.getElementById('finalArray').textContent = JSON.stringify(matrixOrdenada, null, 2);
+
+                // Paso 3: Mostrar como tabla visual
+                displayMatrix(matrixOrdenada);
+
+                console.log('RESULTADO FINAL:');
+                console.log('Matriz ordenada:', matrixOrdenada);
+                console.log('Verificación orden alfabético:', matrixOrdenada.map(v => v.Persona));
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('originalJson').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        function displayMatrix(matrixOrdenada) {
+            const container = document.getElementById('matrixDisplay');
+            container.innerHTML = '';
+            
+            if (!matrixOrdenada || matrixOrdenada.length === 0) {
+                container.textContent = 'No se pudo cargar la matriz';
+                return;
+            }
+            
+            // Headers
+            const categories = Object.keys(matrixOrdenada[0]);
+            
+            // Header row
+            const emptyHeader = document.createElement('div');
+            emptyHeader.className = 'header';
+            emptyHeader.textContent = '';
+            container.appendChild(emptyHeader);
+            
+            categories.forEach(cat => {
+                const header = document.createElement('div');
+                header.className = 'header';
+                header.textContent = cat;
+                container.appendChild(header);
+            });
+            
+            // Data rows
+            matrixOrdenada.forEach((vector, index) => {
+                const rowHeader = document.createElement('div');
+                rowHeader.className = 'header';
+                rowHeader.textContent = `Vector ${index + 1}`;
+                container.appendChild(rowHeader);
+                
+                categories.forEach(cat => {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.textContent = vector[cat];
+                    container.appendChild(cell);
+                });
+            });
+            
+            container.className = 'matrix';
+        }
+
+        // Cargar al iniciar la página
+        loadAndProcessJson();
+    </script>
+</body>
+</html>
