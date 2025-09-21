@@ -333,11 +333,9 @@ function setStatus(element, text, type = '') {
   }
 }
 
-// VALIDADOR CORREGIDO - Ordenar alfabéticamente y comparar
 function validateSolution(state, categories, solution) {
   const SIZE = 4;
   
-  // 1) Extraer combinaciones del usuario
   const userCombinations = [];
   
   for (let col = 0; col < SIZE; col++) {
@@ -366,7 +364,6 @@ function validateSolution(state, categories, solution) {
     userCombinations.push(combination);
   }
 
-  // 2) Crear vectores de la solución (cada persona es un vector)
   const solutionVectors = [];
   for (const [person, combo] of Object.entries(solution)) {
     const vector = {
@@ -376,11 +373,9 @@ function validateSolution(state, categories, solution) {
     solutionVectors.push(vector);
   }
   
-  // 3) Ordenar ambos alfabéticamente por persona
   userCombinations.sort((a, b) => a.Persona.localeCompare(b.Persona));
   solutionVectors.sort((a, b) => a.Persona.localeCompare(b.Persona));
 
-  // 4) Comparar vector a vector
   let matches = 0;
   
   for (let i = 0; i < SIZE; i++) {
@@ -400,41 +395,6 @@ function validateSolution(state, categories, solution) {
     }
   }
 
-  // 5) Resultado
-  if (matches === 4) {
-    return {
-      ok: true,
-      msg: `🎉 ¡INCREÍBLE! Lo resolviste perfectamente!`
-    };
-  } else {
-    return {
-      ok: false,
-      msg: `🤨 Hay un error. Revisa las pistas.`
-    };
-  }
-}olutionVectors.length; i++) {
-      if (usedVectors.has(i)) continue; // Ya usado
-      
-      const solutionVector = solutionVectors[i];
-      let isMatch = true;
-      
-      // Comparar todas las categorías
-      for (const category of Object.keys(categories)) {
-        if (userCombo[category] !== solutionVector[category]) {
-          isMatch = false;
-          break;
-        }
-      }
-      
-      if (isMatch) {
-        matches++;
-        usedVectors.add(i); // Marcar como usado
-        break;
-      }
-    }
-  }
-
-  // 4) Resultado final
   if (matches === 4) {
     return {
       ok: true,
