@@ -1,11 +1,11 @@
-// ===== ARCHIVO: plantillas/base.js =====
-// Loader dinámico de plantillas
+// plantillas/base.js - Actualizado con polígonos
 window.Templates = (function() {
   const loaders = {
     'enigma-einstein': () => import('./enigma_einstein.js'),
     'relojes-arena': () => import('./relojes_arena.js'),
     'jarras-exactas': () => import('./jarras_exactas.js'),
-    'plantas': () => import('./plantas.js')
+    'plantas': () => import('./plantas.js'),
+    'poligono-geometrico': () => import('./poligono_geometrico.js')
   };
 
   async function render(tipo, data, container, hooks) {
