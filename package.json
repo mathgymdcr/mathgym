@@ -1,12 +1,22 @@
 {
   "name": "mathgym",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "vitest --run"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate": "node scripts/generate-daily-reto.js",
+    "validate": "node scripts/validate-retos.js",
+    "lint": "echo 'Linting not configured yet'",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'Build completed - static site ready'"
   },
   "devDependencies": {
     "vitest": "^2.0.0",
     "happy-dom": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
