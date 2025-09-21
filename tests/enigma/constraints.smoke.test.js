@@ -6,7 +6,7 @@ describe('Smoke tests plantillas MathGym', () => {
   beforeAll(async () => {
     // Import dinámico de la plantilla CommonJS
     const mod = await import('../../plantillas/enigma_einstein.js')
-    solver = mod.__test__ || mod  // por si exporta directamente
+    solver = mod.default || mod // si es CommonJS, tomamos la exportación default
   })
 
   it('Importar ../../plantillas/enigma_einstein.js sin errores', () => {
@@ -18,7 +18,7 @@ describe('Smoke tests plantillas MathGym', () => {
     expect(solver.titulo).toBeDefined()
   })
 
-  it('debería tener el método solvePuzzle', () => {
+  it('Debería tener el método solvePuzzle', () => {
     expect(typeof solver.solvePuzzle).toBe('function')
   })
 
@@ -27,6 +27,7 @@ describe('Smoke tests plantillas MathGym', () => {
     expect(result).toBeTypeOf('object')
   })
 })
+
 
 
 
