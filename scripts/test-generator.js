@@ -1,5 +1,10 @@
-const { execSync } = require('child_process');
-const fs = require('fs').promises;
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 async function testGenerator() {
   console.log('🧪 Testing reto generator...');
@@ -35,6 +40,6 @@ async function testGenerator() {
   }
 }
 
-if (require.main === module) {
-  testGenerator();
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main();
 }
