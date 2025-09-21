@@ -4,7 +4,7 @@ let solver
 
 beforeAll(async () => {
   // Import dinámico de la plantilla CommonJS
-  const mod = await import('../../../plantillas/enigma_einstein.js')
+  const mod = await import('../../plantillas/enigma_einstein.js')
   solver = mod.__test__
 })
 
@@ -18,5 +18,6 @@ describe('Enigma Einstein - smoke test', () => {
     expect(result).toBeTypeOf('object')
   })
 })
+
 
 
