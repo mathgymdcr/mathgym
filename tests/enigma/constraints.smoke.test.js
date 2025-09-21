@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import * as mod from '../../..//plantillas/enigma_einstein.js'
+import * as mod from '../../../plantillas/enigma_einstein.js'
 
 const solver = mod.__test__
 
