@@ -2,10 +2,11 @@ import { describe, it, expect, beforeAll } from 'vitest'
 
 let solver
 
-// Import dinámico de la plantilla ES Module
 beforeAll(async () => {
+  // Import dinámico de la plantilla CommonJS sin cambiarla
   const mod = await import('../../plantillas/enigma_einstein.js')
-  solver = mod.default ?? mod  // Asegura compatibilidad con export default o export nombrado
+  // Comprobamos si tiene default (export default) o es un módulo CommonJS
+  solver = mod.default ?? mod
 })
 
 describe('Smoke tests plantillas MathGym', () => {
@@ -23,6 +24,7 @@ describe('Smoke tests plantillas MathGym', () => {
     expect(result).toBeTypeOf('object')
   })
 })
+
 
 
 
