@@ -1,0 +1,11 @@
+{
+    "capacities": [7, 4, 3],
+    "target": 5,
+    "initialLevels": [7, 0, 0],
+    "title": "Trasvase Ecológico 7-4-3",
+    "hints": [
+      "Intenta llenar completamente el recipiente de 4L",
+      "Usa el recipiente más grande como almacén temporal",
+      "La planta te ayuda a vaciar recipientes"
+    ]
+  }

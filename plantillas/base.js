@@ -1,11 +1,12 @@
-// plantillas/base.js - Actualizado con polígonos
+// plantillas/base.js - Actualizado con polígonos y trasvases
 window.Templates = (function() {
   const loaders = {
     'enigma-einstein': () => import('./enigma_einstein.js'),
     'relojes-arena': () => import('./relojes_arena.js'),
     'jarras-exactas': () => import('./jarras_exactas.js'),
     'plantas': () => import('./plantas.js'),
-    'poligono-geometrico': () => import('./poligono_geometrico.js')
+    'poligono-geometrico': () => import('./poligono_geometrico.js'),
+    'trasvase-ecologico': () => import('./trasvase_ecologico.js')
   };
 
   async function render(tipo, data, container, hooks) {

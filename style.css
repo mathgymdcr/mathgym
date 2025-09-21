@@ -908,3 +908,323 @@ li {
     height: 280px !important;
   }
 }
+/* Agregar al final de style.css - Estilos para trasvases ecológicos */
+
+/* Contenedor del juego de trasvases */
+.trasvase-game {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Objetivo */
+.trasvase-objective {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--card-b);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+  text-align: center;
+}
+
+.trasvase-objective p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.target-amount {
+  color: var(--accent);
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+/* Contenedor de recipientes */
+.trasvase-recipients {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  margin: 30px 0;
+  padding: 20px;
+  background: rgba(255,255,255,.02);
+  border-radius: 12px;
+  border: 1px solid var(--card-b);
+  min-height: 200px;
+}
+
+/* Recipiente individual */
+.recipient {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.recipient:hover {
+  transform: translateY(-5px);
+  background: rgba(255,255,255,.05);
+}
+
+.recipient.selected {
+  background: rgba(255, 210, 59, 0.15);
+  border: 2px solid var(--accent);
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(255, 210, 59, 0.3);
+}
+
+/* Labels de capacidad */
+.capacity-label {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Recipiente visual */
+.vessel {
+  width: 80px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #6c5ce7, #5a4fcf);
+  border: 2px solid var(--card-b);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+.vessel:hover {
+  border-color: var(--accent);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 0 15px rgba(108, 92, 231, 0.4);
+}
+
+/* Agua */
+.water {
+  width: 100%;
+  background: linear-gradient(180deg, #1084c7, #0d6efd);
+  transition: height 0.4s ease;
+  position: relative;
+  box-shadow: 0 -2px 10px rgba(16, 132, 199, 0.5);
+}
+
+.water::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+/* Labels de nivel */
+.level-label {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--fg);
+  background: rgba(255,255,255,.08);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Controles */
+.trasvase-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+/* Sección de la planta */
+.trasvase-plant {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.plant-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: rgba(76, 175, 80, 0.1);
+  border: 2px solid rgba(76, 175, 80, 0.3);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  max-width: 200px;
+}
+
+.plant-button:hover {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: rgba(76, 175, 80, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.2);
+}
+
+.plant-button.celebration {
+  animation: plantGlow 2s infinite;
+}
+
+@keyframes plantGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.8);
+    transform: scale(1.05);
+  }
+}
+
+.plant-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 10px rgba(76, 175, 80, 0.8));
+}
+
+.plant-text {
+  text-align: center;
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.plant-text small {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+/* Mensaje de estado */
+.trasvase-message {
+  text-align: center;
+  color: var(--muted);
+  font-size: 1rem;
+  margin: 15px 0;
+  padding: 10px;
+  background: rgba(255,255,255,.03);
+  border-radius: 8px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trasvase-message.ko {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--error);
+}
+
+.trasvase-message.ok {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--success);
+}
+
+/* Celebración */
+.celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: celebrationFade 3s ease-out forwards;
+}
+
+.celebration-content {
+  text-align: center;
+  color: white;
+  animation: celebrationBounce 1s ease-out;
+}
+
+.celebration-text {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  background: linear-gradient(45deg, var(--accent), var(--success));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.celebration-emoji {
+  font-size: 5rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes celebrationFade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes celebrationBounce {
+  0% { transform: scale(0.3) translateY(-100px); }
+  50% { transform: scale(1.1) translateY(0); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .trasvase-recipients {
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    min-height: auto;
+    padding: 15px;
+  }
+  
+  .vessel {
+    width: 60px;
+  }
+  
+  .capacity-label,
+  .level-label {
+    font-size: 0.8rem;
+  }
+  
+  .plant-icon {
+    font-size: 2.5rem;
+  }
+  
+  .celebration-text {
+    font-size: 2rem;
+  }
+  
+  .celebration-emoji {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .trasvase-recipients {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .recipient {
+    margin-bottom: 15px;
+  }
+  
+  .trasvase-controls {
+    flex-wrap: wrap;
+  }
+}

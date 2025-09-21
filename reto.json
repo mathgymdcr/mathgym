@@ -1,7 +1,7 @@
 {
-  "fecha": "2025-09-18",
-  "titulo": "Polígono Geométrico",
-  "objetivo": "Construye un polígono con área 9 y perímetro 12",
-  "tipo": "poligono-geometrico",
-  "data": {"json_url": "data/poligono_2025-09-18.json"}
+  "fecha": "2025-09-19",
+  "titulo": "Trasvase Ecológico",
+  "objetivo": "Obtener exactamente 5L usando trasvases",
+  "tipo": "trasvase-ecologico",
+  "data": {"json_url": "data/trasvase_2025-09-19.json"}
 }
