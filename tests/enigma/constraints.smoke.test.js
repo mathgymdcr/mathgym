@@ -1,9 +1,12 @@
-// Usamos require porque la plantilla está en CommonJS
-const { describe, it, expect } = require('vitest')
-const mod = require('../../../plantillas/enigma_einstein.js')
+import { describe, it, expect, beforeAll } from 'vitest'
 
-// Accedemos al objeto de pruebas
-const solver = mod.__test__
+let solver
+
+beforeAll(async () => {
+  // Import dinámico de la plantilla CommonJS
+  const mod = await import('../../../plantillas/enigma_einstein.js')
+  solver = mod.__test__
+})
 
 describe('Enigma Einstein - smoke test', () => {
   it('debería tener el método solvePuzzle', () => {
@@ -15,4 +18,5 @@ describe('Enigma Einstein - smoke test', () => {
     expect(result).toBeTypeOf('object')
   })
 })
+
 
