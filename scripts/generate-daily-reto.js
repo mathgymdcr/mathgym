@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 class MathGymGenerator {
   constructor() {
     this.templates = {
@@ -47,6 +46,13 @@ class MathGymGenerator {
     
     // Save main reto.json
     await fs.writeFile('reto.json', JSON.stringify(reto, null, 2));
+    
+    // Save individual reto file
+    await fs.mkdir('retos', { recursive: true });
+    await fs.writeFile(
+      path.join('retos', `${fecha}.json`),
+      JSON.stringify(reto, null, 2)
+    );
     
     // Update lista_retos.json
     await this.updateRetosList(fecha, reto.titulo);
@@ -119,7 +125,7 @@ class MathGymGenerator {
     const solution = {};
     variant.personas.forEach((persona, i) => {
       solution[persona] = {
-        'Color': variant.colores[i],
+        'Camiseta': variant.colores[i],
         'Bebida': variant.bebidas[i],
         'Mascota': variant.mascotas[i]
       };
@@ -130,7 +136,7 @@ class MathGymGenerator {
     const enigmaData = {
       categories: {
         'Persona': variant.personas,
-        'Color': variant.colores,
+        'Camiseta': variant.colores,
         'Bebida': variant.bebidas,
         'Mascota': variant.mascotas
       },
@@ -150,6 +156,7 @@ class MathGymGenerator {
       tipo: 'enigma-einstein',
       titulo: 'Enigma de Einstein',
       objetivo: 'Resuelve el enigma usando las pistas',
+      icono_url: 'assets/icono-generico.svg',
       data: { json_url: `data/${dataFileName}` }
     };
   }
@@ -159,19 +166,19 @@ class MathGymGenerator {
     
     // Basic clues (always include some direct assignments)
     const clues = [
-      `${personas[0]} vive en la casa ${colores[0].toLowerCase()}.`,
+      `${personas[0]} viste camiseta ${colores[0].toLowerCase()}.`,
       `${personas[1]} bebe ${bebidas[1].toLowerCase()}.`,
       `${personas[2]} tiene un ${mascotas[2].toLowerCase()}.`
     ];
 
     // Add relational clues based on seed
     const relations = [
-      `Quien tiene la casa ${colores[3].toLowerCase()} no bebe ${bebidas[0].toLowerCase()}.`,
+      `Quien viste camiseta ${colores[3].toLowerCase()} no bebe ${bebidas[0].toLowerCase()}.`,
       `El ${mascotas[1].toLowerCase()} pertenece a quien bebe ${bebidas[1].toLowerCase()}.`,
       `${personas[3]} no tiene ${mascotas[0].toLowerCase()}.`,
-      `Quien bebe ${bebidas[2].toLowerCase()} vive en la casa ${colores[2].toLowerCase()}.`,
-      `La casa ${colores[1].toLowerCase()} está junto a una casa con ${mascotas[3].toLowerCase()}.`,
-      `${personas[seed % personas.length]} no vive en la casa ${colores[(seed + 1) % colores.length].toLowerCase()}.`
+      `Quien bebe ${bebidas[2].toLowerCase()} viste camiseta ${colores[2].toLowerCase()}.`,
+      `Quien viste ${colores[1].toLowerCase()} no bebe ${bebidas[3].toLowerCase()}.`,
+      `${personas[seed % personas.length]} no viste camiseta ${colores[(seed + 1) % colores.length].toLowerCase()}.`
     ];
 
     // Add some relations based on seed
@@ -190,11 +197,22 @@ class MathGymGenerator {
       { variant: 'kHeaviest', N: 8, k: 2, maxWeighings: 4 }
     ];
 
+    const config = configs[seed % configs.length];
+
+    // Save data file for balanza
+    const dataFileName = `balanza_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
     return {
       tipo: 'balanza-logica',
       titulo: 'Reto de la Balanza',
       objetivo: 'Encuentra las monedas anómalas con el menor número de pesadas',
-      data: configs[seed % configs.length]
+      icono_url: 'assets/icono-generico.svg',
+      data: { json_url: `data/${dataFileName}` }
     };
   }
 
@@ -211,11 +229,20 @@ class MathGymGenerator {
     const config = configs[seed % configs.length];
     config.gridSize = 8;
 
+    // Save data file for poligono
+    const dataFileName = `poligono_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
     return {
       tipo: 'poligono-geometrico',
       titulo: 'Polígono Geométrico',
       objetivo: `Construye un polígono con área ${config.area} y perímetro ${config.perimeter}`,
-      data: config
+      icono_url: 'assets/icono-generico.svg',
+      data: { json_url: `data/${dataFileName}` }
     };
   }
 
@@ -228,11 +255,22 @@ class MathGymGenerator {
       { capacities: [10, 6, 4], target: 8, initialLevels: [10, 0, 0] }
     ];
 
+    const config = configs[seed % configs.length];
+
+    // Save data file for trasvase
+    const dataFileName = `trasvase_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
     return {
       tipo: 'trasvase-ecologico',
       titulo: 'Trasvase Ecológico',
-      objetivo: `Obtén exactamente ${configs[seed % configs.length].target}L`,
-      data: configs[seed % configs.length]
+      objetivo: `Obtén exactamente ${config.target}L`,
+      icono_url: 'assets/icono-generico.svg',
+      data: { json_url: `data/${dataFileName}` }
     };
   }
 
