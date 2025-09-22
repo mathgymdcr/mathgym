@@ -607,8 +607,8 @@ function buildShell() {
   });
   
   const einsteinImg = createElement('img', {
-    src: 'assets/balance-icon.png',
-    alt: 'Balanza',
+    src: 'assets/einstein-caricature.png',
+    alt: 'Einstein',
     style: 'width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--accent); z-index: 2; position: relative;'
   });
   einsteinImg.onerror = () => einsteinImg.style.display = 'none';
@@ -616,7 +616,7 @@ function buildShell() {
   const title = createElement('h2', { 
     style: 'margin: 0; color: var(--accent); font-size: 1.5rem; z-index: 2; position: relative;' 
   });
-  title.textContent = 'Descubre los impostores';
+  title.textContent = 'Resuelve el enigma';
   
   // Efecto luminoso animado
   const lightEffect = createElement('div', {
@@ -916,4 +916,3 @@ function setStatus(element, text, type = '') {
     element.classList.add(type);
   }
 }
- 
