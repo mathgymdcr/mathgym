@@ -265,26 +265,100 @@ function buildShell() {
   header.appendChild(title);
   box.appendChild(header);
 
-  // Recuadro de instrucciones con Deceerre
+  // Recuadro de instrucciones con Deceerre - Elegante y vistoso
   const instructionsBox = createElement('div', { 
-    class: 'card',
-    style: 'display: flex; align-items: center; gap: 16px; margin-bottom: 16px;'
+    class: 'card deceerre-instructions',
+    style: `
+      display: flex; 
+      align-items: center; 
+      gap: 20px; 
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(168, 85, 247, 0.1));
+      border: 2px solid transparent;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    `
   });
+  
+  // Efecto de borde animado
+  const borderEffect = createElement('div', {
+    style: `
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 16px;
+      padding: 2px;
+      background: linear-gradient(45deg, var(--accent), #a855f7, var(--accent));
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: subtract;
+      opacity: 0.6;
+    `
+  });
+  instructionsBox.appendChild(borderEffect);
   
   const deceerreImg = createElement('img', {
     src: 'assets/deceerre-instructions.png',
     alt: 'Deceerre',
-    style: 'width: 80px; height: 80px; flex-shrink: 0;'
+    style: `
+      width: 90px; 
+      height: 90px; 
+      flex-shrink: 0;
+      filter: drop-shadow(0 4px 12px rgba(108, 92, 231, 0.3));
+      transition: transform 0.3s ease;
+      z-index: 2;
+      position: relative;
+    `
   });
   deceerreImg.onerror = () => deceerreImg.style.display = 'none';
   
-  const instructionsText = createElement('p', {
-    style: 'margin: 0; color: var(--fg); line-height: 1.4;'
+  const instructionsContent = createElement('div', {
+    style: 'flex: 1; z-index: 2; position: relative;'
   });
-  instructionsText.textContent = 'Selecciona una tarjeta de la derecha y colócala en el tablero. Usa las pistas para deducir dónde va cada elemento. ¡Cada columna debe tener exactamente una tarjeta de cada categoría!';
+  
+  const instructionsTitle = createElement('h3', {
+    style: `
+      margin: 0 0 8px 0;
+      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 700;
+    `
+  });
+  instructionsTitle.textContent = '¡Hola, detective!';
+  
+  const instructionsText = createElement('p', {
+    style: `
+      margin: 0;
+      color: var(--fg);
+      line-height: 1.5;
+      font-size: 0.95rem;
+    `
+  });
+  instructionsText.innerHTML = 'Soy <strong>Deceerre</strong> y te voy a ayudar a resolver este enigma. Selecciona una tarjeta y colócala en el tablero. Recuerda: cada <strong>COLUMNA</strong> debe tener exactamente una tarjeta de cada categoría. Usa tu lógica y las pistas para descifrar el misterio. <span style="color: var(--accent); font-weight: 600;">¡Tú puedes!</span>';
+  
+  instructionsContent.appendChild(instructionsTitle);
+  instructionsContent.appendChild(instructionsText);
   
   instructionsBox.appendChild(deceerreImg);
-  instructionsBox.appendChild(instructionsText);
+  instructionsBox.appendChild(instructionsContent);
+  
+  // Efecto hover
+  instructionsBox.addEventListener('mouseenter', () => {
+    instructionsBox.style.transform = 'translateY(-2px) scale(1.01)';
+    instructionsBox.style.boxShadow = '0 8px 25px rgba(108, 92, 231, 0.2)';
+    deceerreImg.style.transform = 'scale(1.05) rotate(1deg)';
+  });
+  
+  instructionsBox.addEventListener('mouseleave', () => {
+    instructionsBox.style.transform = 'translateY(0) scale(1)';
+    instructionsBox.style.boxShadow = 'none';
+    deceerreImg.style.transform = 'scale(1) rotate(0deg)';
+  });
+  
   box.appendChild(instructionsBox);
 
   const status = createElement('div', { class: 'feedback' });
@@ -336,7 +410,7 @@ function buildShell() {
   grid.appendChild(paletteSection);
   box.appendChild(grid);
 
-  // Añadir estilos CSS para la animación
+  // Añadir estilos CSS para las animaciones
   if (!document.getElementById('enigma-animations')) {
     const style = createElement('style', { id: 'enigma-animations' });
     style.textContent = `
@@ -344,6 +418,17 @@ function buildShell() {
         0% { left: -100%; }
         50% { left: 100%; }
         100% { left: 100%; }
+      }
+      
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+      }
+      
+      @keyframes sparkle {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.1); }
       }
     `;
     document.head.appendChild(style);
@@ -499,20 +584,72 @@ function validateSolution(state, categories, solution) {
 }
 
 function createCelebrationMessage() {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    display: flex; 
+    align-items: center; 
+    gap: 16px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.1));
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    position: relative;
+    overflow: hidden;
+  `;
+  
+  // Efecto de partículas de celebración
+  const particles = document.createElement('div');
+  particles.style.cssText = `
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.3) 2px, transparent 2px),
+      radial-gradient(circle at 80% 70%, rgba(255, 105, 180, 0.3) 2px, transparent 2px),
+      radial-gradient(circle at 40% 80%, rgba(0, 191, 255, 0.3) 2px, transparent 2px);
+    background-size: 30px 30px, 25px 25px, 35px 35px;
+    animation: sparkle 2s infinite;
+  `;
+  container.appendChild(particles);
+  
   const deceerreImg = document.createElement('img');
   deceerreImg.src = 'assets/deceerre-celebration.png';
   deceerreImg.alt = 'Deceerre celebrando';
-  deceerreImg.style.cssText = 'width: 60px; height: 60px; vertical-align: middle; margin-right: 12px;';
+  deceerreImg.style.cssText = `
+    width: 70px; 
+    height: 70px; 
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.4));
+    animation: bounce 1s infinite;
+    z-index: 2;
+    position: relative;
+  `;
   deceerreImg.onerror = () => deceerreImg.style.display = 'none';
   
-  const container = document.createElement('div');
-  container.style.cssText = 'display: flex; align-items: center; gap: 12px;';
+  const textContainer = document.createElement('div');
+  textContainer.style.cssText = 'flex: 1; z-index: 2; position: relative;';
   
-  const textSpan = document.createElement('span');
-  textSpan.textContent = '¡Increíble! Lo has resuelto perfectamente. ¡Eres un genio de la lógica!';
+  const title = document.createElement('div');
+  title.style.cssText = `
+    color: var(--success);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+  `;
+  title.textContent = '¡Increíble, detective!';
+  
+  const message = document.createElement('div');
+  message.style.cssText = 'color: var(--fg); line-height: 1.4;';
+  message.innerHTML = 'Lo has resuelto perfectamente. <strong>Eres un genio de la lógica!</strong>';
+  
+  textContainer.appendChild(title);
+  textContainer.appendChild(message);
   
   container.appendChild(deceerreImg);
-  container.appendChild(textSpan);
+  container.appendChild(textContainer);
   
   return container;
 }

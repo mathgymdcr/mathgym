@@ -1,9 +1,9 @@
-// plantillas/balanza_logica.js
+// ===== ARCHIVO COMPLETO: plantillas/balanza_logica.js =====
 export async function render(root, data, hooks) {
   // Limpiar contenedor
   root.innerHTML = '';
   
-  const ui = buildShell(data);
+  const ui = buildShell();
   root.append(ui.box);
 
   // Cargar configuración
@@ -188,7 +188,7 @@ export async function render(root, data, hooks) {
       const col = index % 3;
       coin.element.style.position = 'relative';
       coin.element.style.left = (col * 35) + 'px';
-      coin.element.style.top = (row * 35) + 'px';
+      coin.element.style.top = (row * 45) + 'px'; // Más espacio vertical
       coin.element.style.margin = '2px';
     });
   }
@@ -429,6 +429,11 @@ export async function render(root, data, hooks) {
   }
 
   function checkAnswer(state, ui, config) {
+    if (state.weighings === 0) {
+      showMessage(ui.message, 'Debes pesar al menos una vez antes de responder', 'warning');
+      return;
+    }
+
     const { variant, k } = state;
     let userAnswer = [];
 
@@ -462,13 +467,14 @@ export async function render(root, data, hooks) {
 
     if (isCorrect) {
       state.gameWon = true;
-      if (state.weighings === optimal) {
-        showMessage(ui.result, `¡Perfecto! Correcto en ${optimal} pesadas (óptimo)`, 'success');
-        showCelebration(ui);
-      } else if (state.weighings < optimal) {
-        showMessage(ui.result, `Correcto, pero teóricamente necesitas ${optimal} pesadas para demostrarlo`, 'info');
+      if (state.weighings <= optimal) {
+        showMessage(ui.result, createCelebrationMessage(), 'success');
       } else {
-        showMessage(ui.result, `Correcto, pero no óptimo (usaste ${state.weighings}, óptimo: ${optimal})`, 'info');
+        showMessage(ui.result, 'Correcto, pero no óptimo', 'info');
+      }
+      
+      if (hooks && typeof hooks.onSuccess === 'function') {
+        hooks.onSuccess();
       }
     } else {
       const solution = state.anomalies.map(a => `${a.i+1}${a.sign > 0 ? '↑' : '↓'}`).join(', ');
@@ -520,22 +526,6 @@ export async function render(root, data, hooks) {
     return Math.round(result);
   }
 
-  function showCelebration(ui) {
-    const celebration = createElement('div', { class: 'balance-celebration' });
-    celebration.innerHTML = `
-      <div class="celebration-content">
-        <div class="celebration-text">¡Victoria!</div>
-        <div class="celebration-emoji">⚖️</div>
-      </div>
-    `;
-    
-    ui.box.appendChild(celebration);
-    
-    setTimeout(() => {
-      celebration.remove();
-    }, 3000);
-  }
-
   function updateInstructions(element, config) {
     const { variant, N, k } = config;
     let text = '';
@@ -572,7 +562,7 @@ export async function render(root, data, hooks) {
   }
 
   function resetGame(state, ui, config) {
-    // Reinicializar estado
+    // Reinicializar estado con nuevas monedas anómalas
     Object.assign(state, initializeGame(config));
     
     // Re-renderizar componentes
@@ -591,7 +581,14 @@ export async function render(root, data, hooks) {
   function showMessage(element, text, type = '') {
     if (!element) return;
     
-    element.textContent = text;
+    if (typeof text === 'object' && text.nodeType) {
+      // Es un elemento DOM
+      element.innerHTML = '';
+      element.appendChild(text);
+    } else {
+      element.textContent = text;
+    }
+    
     element.className = 'balance-message';
     if (type) {
       element.classList.add(type);
@@ -600,38 +597,144 @@ export async function render(root, data, hooks) {
 }
 
 // FUNCIONES DE UTILIDAD
-function buildShell(data) {
+function buildShell() {
   const box = createElement('div', { class: 'template-box balance-game' });
   
-  // Badge
-  const badge = createElement('div', { class: 'badge' });
-  badge.innerHTML = `<span>⚖️ Reto de la Balanza</span>`;
-  box.appendChild(badge);
+  // Header con Einstein y efecto luminoso
+  const header = createElement('div', { 
+    class: 'enigma-header', 
+    style: 'display: flex; align-items: center; gap: 16px; margin-bottom: 16px; position: relative; overflow: hidden;' 
+  });
+  
+  const einsteinImg = createElement('img', {
+    src: 'assets/balance-icon.png',
+    alt: 'Balanza',
+    style: 'width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--accent); z-index: 2; position: relative;'
+  });
+  einsteinImg.onerror = () => einsteinImg.style.display = 'none';
+  
+  const title = createElement('h2', { 
+    style: 'margin: 0; color: var(--accent); font-size: 1.5rem; z-index: 2; position: relative;' 
+  });
+  title.textContent = 'Descubre los impostores';
+  
+  // Efecto luminoso animado
+  const lightEffect = createElement('div', {
+    style: `
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(108, 92, 231, 0.3), transparent);
+      animation: slideLight 3s infinite;
+      z-index: 1;
+    `
+  });
+  
+  header.appendChild(lightEffect);
+  header.appendChild(einsteinImg);
+  header.appendChild(title);
+  box.appendChild(header);
+
+  // Recuadro de instrucciones con Deceerre
+  const instructionsBox = createElement('div', { 
+    class: 'card deceerre-instructions',
+    style: `
+      display: flex; 
+      align-items: center; 
+      gap: 20px; 
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(168, 85, 247, 0.1));
+      border: 2px solid transparent;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    `
+  });
+  
+  const deceerreImg = createElement('img', {
+    src: 'assets/deceerre-instructions.png',
+    alt: 'Deceerre',
+    style: `
+      width: 90px; 
+      height: 90px; 
+      flex-shrink: 0;
+      filter: drop-shadow(0 4px 12px rgba(108, 92, 231, 0.3));
+      z-index: 2;
+      position: relative;
+    `
+  });
+  deceerreImg.onerror = () => deceerreImg.style.display = 'none';
+  
+  const instructionsContent = createElement('div', {
+    style: 'flex: 1; z-index: 2; position: relative;'
+  });
+  
+  const instructionsTitle = createElement('h3', {
+    style: `
+      margin: 0 0 8px 0;
+      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 700;
+    `
+  });
+  instructionsTitle.textContent = 'Detective, a por la balanza!';
+  
+  const instructionsText = createElement('p', {
+    style: `
+      margin: 0;
+      color: var(--fg);
+      line-height: 1.5;
+      font-size: 0.95rem;
+    `
+  });
+  instructionsText.innerHTML = 'Selecciona monedas y colócalas en los <strong>PLATOS</strong> de la balanza. Pesa estratégicamente para descubrir cuáles son diferentes. <span style="color: var(--accent); font-weight: 600;">¡Usa tu lógica!</span>';
+  
+  const instructions = createElement('div', { 
+    class: 'balance-instructions',
+    style: 'margin-top: 8px; font-size: 0.9rem; color: var(--muted);'
+  });
+  
+  instructionsContent.appendChild(instructionsTitle);
+  instructionsContent.appendChild(instructionsText);
+  instructionsContent.appendChild(instructions);
+  
+  instructionsBox.appendChild(deceerreImg);
+  instructionsBox.appendChild(instructionsContent);
+  box.appendChild(instructionsBox);
 
   // Status
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
   box.appendChild(status);
 
-  // Instrucciones
-  const instructions = createElement('div', { class: 'balance-instructions' });
-  box.appendChild(instructions);
-
   // Contador de pesadas
-  const weighingsInfo = createElement('div', { class: 'weighings-info' });
+  const weighingsInfo = createElement('div', { 
+    class: 'weighings-info',
+    style: 'margin: 12px 0; text-align: center; font-size: 1rem;'
+  });
   weighingsInfo.innerHTML = `
     <span>Pesadas: </span>
     <strong><span class="weighings-count">0</span></strong>
   `;
   box.appendChild(weighingsInfo);
 
-  // Contenedor de monedas
-  const coinsContainer = createElement('div', { class: 'balance-coins' });
-  box.appendChild(coinsContainer);
-
-  // Balanza
-  const balanceContainer = createElement('div', { class: 'balance-container' });
+  // Balanza (primero para que las monedas estén cerca)
+  const balanceContainer = createElement('div', { 
+    class: 'balance-container',
+    style: 'margin: 20px 0;'
+  });
   box.appendChild(balanceContainer);
+
+  // Contenedor de monedas (justo debajo de la balanza)
+  const coinsContainer = createElement('div', { 
+    class: 'balance-coins',
+    style: 'margin-top: 10px;'
+  });
+  box.appendChild(coinsContainer);
 
   // Resultado de pesada
   const result = createElement('div', { class: 'balance-message' });
@@ -670,6 +773,38 @@ function buildShell(data) {
   const message = createElement('div', { class: 'balance-message' });
   box.appendChild(message);
 
+  // Añadir estilos CSS para las animaciones
+  if (!document.getElementById('balance-animations')) {
+    const style = createElement('style', { id: 'balance-animations' });
+    style.textContent = `
+      @keyframes slideLight {
+        0% { left: -100%; }
+        50% { left: 100%; }
+        100% { left: 100%; }
+      }
+      
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+      }
+      
+      @keyframes sparkle {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.1); }
+      }
+      
+      .balance-rope {
+        height: 60px; /* Hilos más largos */
+      }
+      
+      .balance-coins {
+        margin-top: 10px; /* Monedas más cerca de los platos */
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   return {
     box,
     status,
@@ -685,6 +820,59 @@ function buildShell(data) {
     result,
     message
   };
+}
+
+function createCelebrationMessage() {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    display: flex; 
+    align-items: center; 
+    gap: 16px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.1));
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    position: relative;
+    overflow: hidden;
+  `;
+  
+  const deceerreImg = document.createElement('img');
+  deceerreImg.src = 'assets/deceerre-celebration.png';
+  deceerreImg.alt = 'Deceerre celebrando';
+  deceerreImg.style.cssText = `
+    width: 70px; 
+    height: 70px; 
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.4));
+    animation: bounce 1s infinite;
+    z-index: 2;
+    position: relative;
+  `;
+  deceerreImg.onerror = () => deceerreImg.style.display = 'none';
+  
+  const textContainer = document.createElement('div');
+  textContainer.style.cssText = 'flex: 1; z-index: 2; position: relative;';
+  
+  const title = document.createElement('div');
+  title.style.cssText = `
+    color: var(--success);
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+  `;
+  title.textContent = 'Excelente deducción!';
+  
+  const message = document.createElement('div');
+  message.style.cssText = 'color: var(--fg); line-height: 1.4;';
+  message.innerHTML = 'Has resuelto la balanza como un <strong>verdadero detective!</strong>';
+  
+  textContainer.appendChild(title);
+  textContainer.appendChild(message);
+  
+  container.appendChild(deceerreImg);
+  container.appendChild(textContainer);
+  
+  return container;
 }
 
 async function loadConfig(data) {
@@ -709,6 +897,8 @@ function createElement(tag, attributes = {}) {
   Object.entries(attributes).forEach(([key, value]) => {
     if (key === 'class') {
       element.className = value;
+    } else if (key === 'style') {
+      element.style.cssText = value;
     } else {
       element.setAttribute(key, value);
     }
