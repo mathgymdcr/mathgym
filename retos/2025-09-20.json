@@ -1,0 +1,11 @@
+{
+  "fecha": "2025-09-20",
+  "titulo": "Encuentra al impostor",
+  "objetivo": "Resolver el enigma",
+  "icono_url": "assets/icono-generico.svg",
+  "tipo": "balanza-logica",
+  "data": {
+    "json_url": "data/balanza_2025-09-20.json"
+  }
+}
+  
