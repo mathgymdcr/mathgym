@@ -1,12 +1,11 @@
 {
-  "tipo": "balanza-logica",
-  "titulo": "Reto de la Balanza",
-  "objetivo": "Encuentra las monedas anómalas con el menor número de pesadas",
+  "tipo": "poligono-geometrico",
+  "titulo": "Polígono Geométrico",
+  "objetivo": "Construye un polígono con área 15 y perímetro 16",
   "data": {
-    "variant": "heaviest",
-    "N": 6,
-    "k": 1,
-    "maxWeighings": 3
+    "area": 15,
+    "perimeter": 16,
+    "gridSize": 8
   },
-  "fecha": "2025-09-21"
+  "fecha": "2025-09-22"
 }
