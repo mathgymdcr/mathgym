@@ -1,65 +1,11 @@
 {
-    "level": "medio",
-    "categories": {
-      "Persona": [
-        "Ana",
-        "Beto",
-        "Cora",
-        "Damian"
-      ],
-      "Camiseta": [
-        "Roja",
-        "Verde",
-        "Azul",
-        "Amarilla"
-      ],
-      "Bebida": [
-        "Cafe",
-        "Te",
-        "Agua",
-        "Zumo"
-      ],
-      "Mascota": [
-        "Perro",
-        "Gato",
-        "Pez",
-        "Tortuga"
-      ]
-    },
-    "clues": [
-      "Damian tiene tortuga.",
-      "Quien viste camiseta azul tiene tortuga.",
-      "Quien viste camiseta amarilla tiene perro.",
-      "Quien bebe te tiene gato.",
-      "Quien bebe zumo tiene perro.",
-      "Ana no viste camiseta roja.",
-      "Beto no viste camiseta roja.",
-      "Beto no bebe cafe.",
-      "Cora no bebe cafe.",
-      "Damian no bebe cafe."
-    ],
-    "solution": {
-      "Ana": {
-        "Camiseta": "Verde",
-        "Bebida": "Cafe",
-        "Mascota": "Pez"
-      },
-      "Beto": {
-        "Camiseta": "Amarilla",
-        "Bebida": "Zumo",
-        "Mascota": "Perro"
-      },
-      "Cora": {
-        "Camiseta": "Roja",
-        "Bebida": "Te",
-        "Mascota": "Gato"
-      },
-      "Damian": {
-        "Camiseta": "Azul",
-        "Bebida": "Agua",
-        "Mascota": "Tortuga"
-      }
-    },
-    "notes": "Puzzle 4x4 sin posiciones; pistas en texto natural. SoluciÃ³n Ãºnica verificada."
+  "fecha": "2025-09-15",
+  "titulo": "Resuelve el enigma",
+  "objetivo": "Resolver el enigma",
+  "icono_url": "assets/icono-generico.svg",
+  "tipo": "enigma",
+  "data": {
+    "json_url": "data/enigma_2025-09-15.json"
   }
+}
   
