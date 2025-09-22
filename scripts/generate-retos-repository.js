@@ -1,3 +1,5 @@
+**Planificando respuesta a solicitud**Voy a preparar el código solicitado, arreglado para solucionar el error 403. El código se entregará como archivo o en texto plano, no en bloques de código.
+```js
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -5,8 +7,12 @@ class MathGymAIGenerator {
   constructor() {
     this.apiKey = process.env.OPENROUTER_API_KEY;
     this.apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-    this.model = 'deepseek/deepseek-r1-distill-qwen-1.5b';
-    
+    this.model = process.env.MATHGYM_MODEL || 'deepseek/deepseek-r1-distill-qwen-1.5b';
+
+    // 👉 Recomendado por OpenRouter para evitar 403 (origen/referer)
+    this.referer = process.env.APP_REFERER || 'https://mathgym.es';
+    this.title = process.env.APP_TITLE || 'MathGym';
+
     if (!this.apiKey) {
       throw new Error('OPENROUTER_API_KEY environment variable is required');
     }
@@ -22,7 +28,7 @@ class MathGymAIGenerator {
 
   async generateRepository() {
     console.log('🤖 Generando repositorio de 30 retos con IA...');
-    
+
     await fs.mkdir('retos', { recursive: true });
     await fs.mkdir('data', { recursive: true });
 
@@ -31,10 +37,10 @@ class MathGymAIGenerator {
 
     for (const { type, count } of this.retoTypes) {
       console.log(`\n📚 Generando ${count} retos de tipo: ${type}`);
-      
+
       for (let i = 0; i < count; i++) {
         const reto = await this.generateReto(type, retoNumber);
-        
+
         // Guardar archivo del reto
         const retoFileName = `${String(retoNumber).padStart(3, '0')}.json`;
         await fs.writeFile(
@@ -66,40 +72,90 @@ class MathGymAIGenerator {
 
   async generateReto(type, numero) {
     const prompt = this.getPrompt(type);
-    
-    try {
-      const response = await fetch(this.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: this.model,
-          messages: [
-            {
-              role: 'system',
-              content: 'Eres un experto en crear retos matemáticos y de lógica para adolescentes. Responde SOLO con JSON válido.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.8,
-          max_tokens: 2000
-        })
-      });
 
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
+    // Pequeño helper de reintentos frente a 429/5xx
+    const postWithRetries = async (body, retries = 3) => {
+      let attempt = 0;
+      while (true) {
+        attempt++;
+        const response = await fetch(this.apiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+            // 🔑 Cabeceras recomendadas por OpenRouter para evitar 403
+            'HTTP-Referer': this.referer,
+            'X-Title': this.title
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (response.ok) return response;
+
+        // Mensaje claro para 403
+        if (response.status === 403) {
+          const errText = await safeReadText(response);
+          throw new Error(
+            `API Error 403 (Forbidden). Revisa que tu clave tenga acceso al modelo "${this.model}" ` +
+            `y que estés enviando las cabeceras HTTP-Referer y X-Title. ` +
+            `Referer usado: ${this.referer} | Title: ${this.title}. ` +
+            `Detalle: ${errText?.slice(0, 200) || 'sin detalle'}`
+          );
+        }
+
+        // Reintentos para 429 y 5xx
+        if ((response.status === 429 || (response.status >= 500 && response.status < 600)) && attempt < retries) {
+          const backoff = Math.min(2000 * Math.pow(1.6, attempt - 1), 8000);
+          await this.sleep(backoff);
+          continue;
+        }
+
+        const errText = await safeReadText(response);
+        throw new Error(`API Error ${response.status}: ${errText?.slice(0, 200) || 'sin detalle'}`);
+      }
+    };
+
+    // Intento principal: forzar JSON si está soportado
+    const requestBody = {
+      model: this.model,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'Eres un experto en crear retos matemáticos y de lógica para adolescentes. ' +
+            'Responde SOLO con JSON válido (sin explicaciones ni markdown).'
+        },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.8,
+      max_tokens: 2000,
+      // Forzar JSON (si el modelo lo soporta)
+      response_format: { type: 'json_object' }
+    };
+
+    try {
+      // Primer intento con response_format
+      let response;
+      try {
+        response = await postWithRetries(requestBody);
+      } catch (e) {
+        // Si el proveedor no soporta response_format, reintenta sin él
+        if (String(e.message || e).includes('400') || String(e.message || e).includes('unsupported') || String(e.message || e).includes('response_format')) {
+          delete requestBody.response_format;
+          response = await postWithRetries(requestBody);
+        } else {
+          throw e;
+        }
       }
 
       const data = await response.json();
-      const content = data.choices[0].message.content;
-      
-      // Parsear y procesar el JSON generado
-      const generatedData = JSON.parse(content);
+      const content = data?.choices?.[0]?.message?.content;
+      if (!content) throw new Error('Respuesta vacía de la API');
+
+      // Parseo robusto de JSON (por si el modelo envía texto alrededor)
+      const generatedData = safeParseJson(content);
+      if (!generatedData) throw new Error('No se pudo parsear el JSON devuelto por la IA');
+
       return await this.processGeneratedReto(generatedData, type, numero);
 
     } catch (error) {
@@ -127,10 +183,10 @@ Responde con JSON:
     "Categoria3": ["valor1", "valor2", "valor3", "valor4"],
     "Categoria4": ["valor1", "valor2", "valor3", "valor4"]
   },
-  "clues": ["pista1", "pista2", ...],
+  "clues": ["pista1", "pista2", "..."],
   "solution": {
     "Persona1": {"Categoria2": "valor", "Categoria3": "valor", "Categoria4": "valor"},
-    "Persona2": {...}
+    "Persona2": {}
   },
   "titulo": "Título atractivo",
   "tema": "Descripción del tema"
@@ -146,9 +202,9 @@ Crea un problema de balanza único:
 Responde con JSON:
 {
   "variant": "oddUnknown|heaviest|lightest|kHeaviest|kLightest",
-  "N": número_monedas,
-  "k": número_anómalas,
-  "maxWeighings": máximo_pesadas,
+  "N": numero_monedas,
+  "k": numero_anomalas,
+  "maxWeighings": max_pesadas,
   "titulo": "Título atractivo",
   "contexto": "Historia/contexto del problema",
   "objetivo": "Descripción del objetivo"
@@ -163,8 +219,8 @@ Crea un reto de construcción de polígonos:
 
 Responde con JSON:
 {
-  "area": número,
-  "perimeter": número,
+  "area": numero,
+  "perimeter": numero,
   "gridSize": 8,
   "titulo": "Título atractivo",
   "contexto": "Historia del reto",
@@ -194,7 +250,7 @@ Responde con JSON:
 
   async processGeneratedReto(generatedData, type, numero) {
     const dataFileName = `${type.replace('-', '_')}_${String(numero).padStart(3, '0')}.json`;
-    
+
     // Guardar datos específicos
     await fs.writeFile(
       path.join('data', dataFileName),
@@ -254,6 +310,11 @@ Responde con JSON:
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+}
+
+// Helper: lectura segura de texto en errores HTTP
+async function safeReadText(response) {
+  try { return await response.text(); } catch { return ''; }
 }
 
 // Script de selección diaria
@@ -342,3 +403,4 @@ async function main() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
+```
