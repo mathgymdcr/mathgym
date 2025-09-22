@@ -1,0 +1,94 @@
+name: Generate Retos Repository
+
+on:
+  workflow_dispatch:
+    inputs:
+      regenerate_all:
+        description: 'Regenerar todos los retos (borra los existentes)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+        - 'false'
+        - 'true'
+
+jobs:
+  generate-repository:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Create scripts directory if needed
+      run: mkdir -p scripts
+      
+    - name: Check if repository already exists
+      id: check_repo
+      run: |
+        if [ -f "retos-repository.json" ] && [ "${{ github.event.inputs.regenerate_all }}" = "false" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "Repository already exists. Use 'regenerate_all: true' to overwrite."
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Remove existing repository if regenerating
+      if: github.event.inputs.regenerate_all == 'true'
+      run: |
+        rm -f retos-repository.json
+        rm -rf retos/0*.json
+        rm -rf data/*_0*.json
+        echo "Existing repository cleaned"
+        
+    - name: Generate repository
+      if: steps.check_repo.outputs.exists == 'false'
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      run: |
+        echo "Starting repository generation..."
+        node scripts/generate-retos-repository.js generate
+        echo "Repository generation completed"
+        
+    - name: Verify generated files
+      if: steps.check_repo.outputs.exists == 'false'
+      run: |
+        echo "Checking generated files..."
+        ls -la retos/
+        ls -la data/
+        if [ -f "retos-repository.json" ]; then
+          echo "Repository index created successfully"
+          wc -l retos-repository.json
+        else
+          echo "ERROR: Repository index not created"
+          exit 1
+        fi
+        
+    - name: Commit and push changes
+      if: steps.check_repo.outputs.exists == 'false'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add retos/ data/ retos-repository.json
+        git commit -m "Generate new retos repository (30 retos)" || echo "No changes to commit"
+        git push
+        
+    - name: Repository already exists
+      if: steps.check_repo.outputs.exists == 'true'
+      run: |
+        echo "Repository already exists. No action needed."
+        echo "To regenerate, run workflow with 'regenerate_all: true'"
+        
+    - name: Summary
+      run: |
+        if [ -f "retos-repository.json" ]; then
+          TOTAL_RETOS=$(jq length retos-repository.json)
+          echo "Repository contains $TOTAL_RETOS retos"
+          echo "Types breakdown:"
+          jq -r 'group_by(.tipo) | .[] | "\(.[0].tipo): \(length) retos"' retos-repository.json
+        fi
