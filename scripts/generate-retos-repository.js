@@ -5,7 +5,7 @@ class MathGymAIGenerator {
   constructor() {
     this.apiKey = process.env.OPENROUTER_API_KEY;
     this.apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-    this.model = 'deepseek/deepseek-chat';
+    this.model = 'deepseek/deepseek-r1-distill-qwen-1.5b';
     
     if (!this.apiKey) {
       throw new Error('OPENROUTER_API_KEY environment variable is required');
