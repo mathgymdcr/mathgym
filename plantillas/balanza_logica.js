@@ -127,21 +127,23 @@ export async function render(root, data, hooks) {
 
   function renderBalance(container, state) {
     container.innerHTML = `
-      <div class="balance-beam" id="balance-beam">
-        <div class="balance-hook left">
-          <div class="balance-rope"></div>
-          <div class="balance-plate left" id="left-plate" data-side="left">
-            <div class="plate-coins"></div>
+      <div class="balance-wrapper">
+        <div class="balance-beam" id="balance-beam">
+          <div class="balance-hook left">
+            <div class="balance-rope"></div>
+            <div class="balance-plate left" id="left-plate" data-side="left">
+              <div class="plate-coins"></div>
+            </div>
+          </div>
+          <div class="balance-hook right">
+            <div class="balance-rope"></div>
+            <div class="balance-plate right" id="right-plate" data-side="right">
+              <div class="plate-coins"></div>
+            </div>
           </div>
         </div>
-        <div class="balance-hook right">
-          <div class="balance-rope"></div>
-          <div class="balance-plate right" id="right-plate" data-side="right">
-            <div class="plate-coins"></div>
-          </div>
-        </div>
+        <div class="balance-pivot"></div>
       </div>
-      <div class="balance-pivot"></div>
     `;
 
     // Event listeners para los platos
@@ -186,11 +188,40 @@ export async function render(root, data, hooks) {
     coinsOnSide.forEach((coin, index) => {
       const row = Math.floor(index / 3);
       const col = index % 3;
-      coin.element.style.position = 'relative';
+      coin.element.style.position = 'absolute';
       coin.element.style.left = (col * 35) + 'px';
-      coin.element.style.top = (row * 45) + 'px'; // Más espacio vertical
-      coin.element.style.margin = '2px';
+      coin.element.style.top = (row * 35) + 'px';
+      coin.element.style.margin = '4px';
+      coin.element.style.zIndex = '10';
+      
+      // Event listener para devolver moneda al hacer click
+      coin.element.onclick = (e) => {
+        e.stopPropagation();
+        returnCoinToOrigin(coin, state, ui);
+      };
     });
+  }
+
+  function returnCoinToOrigin(coin, state, ui) {
+    // Resetear estilos
+    coin.element.style.position = '';
+    coin.element.style.left = '';
+    coin.element.style.top = '';
+    coin.element.style.margin = '';
+    coin.element.style.zIndex = '';
+    
+    // Quitar el onclick del plato
+    coin.element.onclick = () => selectCoin(coin.i, state, ui);
+    
+    // Devolver al contenedor original
+    coin.side = null;
+    ui.coinsContainer.appendChild(coin.element);
+    
+    // Re-organizar el plato
+    const side = coin.side; // Guardar lado antes de resetear
+    if (side) {
+      layoutPlate(side, state, ui);
+    }
   }
 
   function weighCoins(state, ui) {
@@ -607,8 +638,8 @@ function buildShell() {
   });
   
   const einsteinImg = createElement('img', {
-    src: 'assets/einstein-caricature.png',
-    alt: 'Einstein',
+    src: 'assets/balance-icon.png',
+    alt: 'Balanza',
     style: 'width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--accent); z-index: 2; position: relative;'
   });
   einsteinImg.onerror = () => einsteinImg.style.display = 'none';
@@ -616,7 +647,7 @@ function buildShell() {
   const title = createElement('h2', { 
     style: 'margin: 0; color: var(--accent); font-size: 1.5rem; z-index: 2; position: relative;' 
   });
-  title.textContent = 'Resuelve el enigma';
+  title.textContent = 'Descubre los impostores';
   
   // Efecto luminoso animado
   const lightEffect = createElement('div', {
@@ -706,11 +737,6 @@ function buildShell() {
   instructionsBox.appendChild(instructionsContent);
   box.appendChild(instructionsBox);
 
-  // Status
-  const status = createElement('div', { class: 'feedback' });
-  status.textContent = 'Cargando...';
-  box.appendChild(status);
-
   // Contador de pesadas
   const weighingsInfo = createElement('div', { 
     class: 'weighings-info',
@@ -794,12 +820,167 @@ function buildShell() {
         50% { opacity: 0.7; transform: scale(1.1); }
       }
       
-      .balance-rope {
-        height: 60px; /* Hilos más largos */
+      /* Estilos mejorados para la balanza */
+      .balance-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        margin: 20px 0;
+        position: relative;
       }
       
+      .balance-beam {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        width: 400px;
+        position: relative;
+        margin-bottom: 20px;
+      }
+      
+      .balance-pivot {
+        width: 60px;
+        height: 30px;
+        background: linear-gradient(45deg, #d4af37, #ffd700);
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        clip-path: polygon(20% 100%, 50% 0%, 80% 100%);
+        border-radius: 4px;
+      }
+      
+      .balance-hook {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+      
+      .balance-hook.left {
+        margin-right: 50px;
+      }
+      
+      .balance-hook.right {
+        margin-left: 50px;
+      }
+      
+      .balance-rope {
+        width: 3px;
+        height: 80px;
+        background: linear-gradient(to bottom, #8b4513, #654321);
+        margin-bottom: 5px;
+        border-radius: 2px;
+      }
+      
+      .balance-plate {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #d4af37, #ffd700);
+        border: 3px solid #b8860b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+      }
+      
+      .balance-plate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      }
+      
+      .plate-coins {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .balance-coin {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+        border: 2px solid #b8860b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #8b4513;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+      
+      .balance-coin:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      }
+      
+      .balance-coin.selected {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3);
+        transform: scale(1.05);
+      }
+      
+      /* Contenedor de monedas más cerca */
       .balance-coins {
-        margin-top: 10px; /* Monedas más cerca de los platos */
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 10px;
+        padding: 16px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+      }
+      
+      /* Animaciones de inclinación */
+      .balance-beam.tilt-left {
+        transform: rotate(-5deg);
+        transition: transform 0.5s ease;
+      }
+      
+      .balance-beam.tilt-right {
+        transform: rotate(5deg);
+        transition: transform 0.5s ease;
+      }
+      
+      .balance-beam.balanced {
+        transform: rotate(0deg);
+        transition: transform 0.5s ease;
+      }
+      
+      /* Controles centrados */
+      .balance-controls {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+      
+      .balance-answer-section {
+        text-align: center;
+        margin: 20px 0;
+      }
+      
+      .balance-answer-section h3 {
+        margin-bottom: 16px;
+      }
+      
+      .balance-answer-section .btn {
+        margin-top: 16px;
       }
     `;
     document.head.appendChild(style);
@@ -807,7 +988,6 @@ function buildShell() {
 
   return {
     box,
-    status,
     instructions,
     weighingsCount: weighingsInfo.querySelector('.weighings-count'),
     coinsContainer,
