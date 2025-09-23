@@ -1,14 +1,18 @@
 // ===== ARCHIVO COMPLETO: plantillas/balanza_logica.js =====
-// Versión corregida: centrado, altura, cuerdas/platos, devolución de moneda y celebración con Deceerre,
-// manteniendo la estética de cabecera (glassmorphism + efecto "slideLight") e icono de la balanza.
+// Versión con:
+// - Cabecera conservando estética (glassmorphism + barrido de luz) y título “Descubre el impostor” con icono de balanza.
+// - Balanza centrada y subida (sin hueco arriba): barra anclada por arriba, cuerdas más largas y platos más bajos.
+// - Monedas encima del plato (no se cuelan debajo) y clic en moneda del plato => vuelve al pool.
+// - Celebración a pantalla completa (overlay) con Deceerre durante unos segundos.
+// - Sin inyección de CSS global desde JS (usa tus estilos + inline locales de la balanza).
 
 export async function render(root, data, hooks) {
-  // Limpiar contenedor y montar shell
+  // 1) Montar contenedor base
   root.innerHTML = '';
   const ui = buildShell();
   root.append(ui.box);
 
-  // Cargar configuración
+  // 2) Cargar configuración
   let config;
   try {
     config = await loadConfig(data);
@@ -17,7 +21,7 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  // Normalizaciones seguras
+  // 3) Normalizaciones seguras
   if (['heaviest', 'lightest', 'oddUnknown'].includes(config.variant)) config.k = 1;
   if (!config.maxWeighings) config.maxWeighings = 4;
   if (!config.variant || !config.N) {
@@ -25,15 +29,17 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  // Estado + UI
+  // 4) Estado + Render UI
   const state = initializeGame(config);
   renderCoins(ui.coinsContainer, state);
   renderBalance(ui.balanceContainer, state);
   renderAnswerSelector(ui.answerContainer, state);
   setupEventListeners(ui, state, config);
 
-  // Quitar estado genérico
+  // Ocultar el status genérico
   ui.status?.remove();
+
+  // Instrucciones dinámicas
   updateInstructions(ui.instructions, config);
 
   // ====================== LÓGICA DEL JUEGO ======================
@@ -140,8 +146,8 @@ export async function render(root, data, hooks) {
   }
 
   function renderBalance(container, state) {
-    // Importante: anclamos la barra por arriba (top) y no por abajo (bottom) para eliminar el hueco superior.
-    // Alargamos la cuerda y bajamos los platos para ganar distancia barra ↔ plato.
+    // Importante: barra anclada por arriba (top) para eliminar hueco superior.
+    // Cuerdas largas y platos más bajos para ganar distancia barra ↔ plato.
     container.innerHTML = `
       <div class="balance-beam" id="balance-beam" style="
         position:absolute; top:12px; left:50%; transform:translateX(-50%);
@@ -182,14 +188,14 @@ export async function render(root, data, hooks) {
         border-radius:8px; box-shadow:0 4px 15px rgba(0,0,0,.5); z-index:3;"></div>
     `;
 
-    // Contenedor más compacto y centrado
+    // Contenedor compacto y centrado
     container.style.position = 'relative';
     container.style.width = '100%';
     container.style.maxWidth = '600px';
     container.style.height = '260px';  // reduce aire total
     container.style.margin = '8px auto';
 
-    // Listeners
+    // Listeners de platos
     const leftPlate = container.querySelector('#left-plate');
     const rightPlate = container.querySelector('#right-plate');
     leftPlate.addEventListener('click', () => placeCoin('left', state, ui));
@@ -218,7 +224,7 @@ export async function render(root, data, hooks) {
     // Marcado visual
     coin.element.classList.add('in-plate');
 
-    // Layout: en filas/columnas por encima del borde del plato (usamos top negativo)
+    // Layout: en filas/columnas por encima del borde del plato (top negativo)
     layoutPlate(side, state, ui);
 
     // Limpiar selección
@@ -234,7 +240,7 @@ export async function render(root, data, hooks) {
     const width = area.clientWidth || 200; // ancho del plato
     const cols = 3;
     const rowGap = 46;        // separación entre filas
-    const rise = 28;          // cuánto sube la primera fila sobre el borde
+    const rise = 28;          // cuánto “sube” la primera fila sobre el borde
 
     coins.forEach((c, idx) => {
       const row = Math.floor(idx / cols);
@@ -244,14 +250,14 @@ export async function render(root, data, hooks) {
       const colCenter = width * ((1 + col * 2) / 6);  // 1/6, 3/6, 5/6
       const leftPx = Math.round(colCenter - coinW / 2);
 
-      // Posicionamos ABSOLUTO y “por encima” del borde del plato (top negativo)
+      // Posicionamos ABSOLUTO y por encima del plato (top negativo respecto al borde del plato)
       const el = c.element;
       el.style.position = 'absolute';
       el.style.left = `${leftPx}px`;
-      el.style.top = `${-(rise + row * rowGap)}px`;  // NEGATIVO → sube sobre el plato
+      el.style.top = `${-(rise + row * rowGap)}px`;
       el.style.margin = '0';
       el.style.zIndex = String(10 + row);
-      el.style.pointerEvents = 'auto';
+      el.style.pointerEvents = 'auto'; // permite clic para devolver al pool
     });
   }
 
@@ -296,7 +302,6 @@ export async function render(root, data, hooks) {
   function animateBalance(container, tilt) {
     const beam = container.querySelector('#balance-beam');
     if (!beam) return;
-    // Usamos transform inline para no depender de clases externas
     setTimeout(() => {
       if (tilt === 'left')  beam.style.transform = 'translateX(-50%) rotate(-6deg)';
       else if (tilt === 'right') beam.style.transform = 'translateX(-50%) rotate(6deg)';
@@ -495,14 +500,19 @@ export async function render(root, data, hooks) {
 
     if (ok) {
       state.gameWon = true;
-      // Celebración con Deceerre (restaurada)
-      showMessage(ui.result, createCelebrationMessage(), 'success');
 
+      // Overlay a pantalla completa (3.2 s) con Deceerre
+      showFullscreenCelebration({ duration: 3200 });
+
+      // Mensaje informativo secundario
       if (state.weighings <= optimal) {
         showMessage(ui.message, '¡Has alcanzado el óptimo teórico mínimo!', 'success');
       } else {
         showMessage(ui.message, 'Correcto, pero no óptimo', 'info');
       }
+
+      // Mensaje breve en el bloque de resultado (opcional)
+      showMessage(ui.result, '¡Victoria!', 'success');
 
       hooks?.onSuccess?.();
     } else {
@@ -598,6 +608,51 @@ export async function render(root, data, hooks) {
     el.style.zIndex = '';
     el.style.pointerEvents = '';
   }
+
+  // ---------- Overlay a pantalla completa (victoria) ----------
+  function showFullscreenCelebration({ duration = 3200 } = {}) {
+    const overlay = document.createElement('div');
+    overlay.className = 'balance-celebration';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-live', 'assertive');
+    overlay.setAttribute('aria-label', 'Celebración de victoria');
+
+    const content = document.createElement('div');
+    content.className = 'celebration-content';
+
+    const deceerre = document.createElement('img');
+    deceerre.src = 'assets/deceerre-celebration.png';
+    deceerre.alt = 'Deceerre celebrando';
+    deceerre.style.cssText = `
+      width:140px;height:140px;display:block;margin:0 auto 12px auto;
+      filter: drop-shadow(0 6px 18px rgba(16,185,129,.45));
+      animation: bounce 1s infinite;
+    `;
+    deceerre.onerror = () => { deceerre.style.display = 'none'; };
+
+    const title = document.createElement('div');
+    title.className = 'celebration-text';
+    title.textContent = '¡Excelente deducción!';
+
+    const emoji = document.createElement('div');
+    emoji.className = 'celebration-emoji';
+    emoji.textContent = '🎉';
+
+    content.appendChild(deceerre);
+    content.appendChild(title);
+    content.appendChild(emoji);
+    overlay.appendChild(content);
+
+    const close = () => overlay.remove();
+    overlay.addEventListener('click', close);
+
+    document.body.appendChild(overlay);
+
+    const t = setTimeout(() => {
+      clearTimeout(t);
+      close();
+    }, duration);
+  }
 }
 
 // ====================== UTILIDADES UI ======================
@@ -605,7 +660,7 @@ export async function render(root, data, hooks) {
 function buildShell() {
   const box = createElement('div', { class: 'template-box balance-game' });
 
-  // ---- Cabecera con estética original (glassmorphism + barrido de luz) ----
+  // ---- Cabecera: estética original (glassmorphism + barrido de luz) ----
   const header = createElement('div', {
     class: 'enigma-header',
     style: 'display:flex;align-items:center;gap:16px;margin-bottom:16px;position:relative;overflow:hidden;'
@@ -641,7 +696,7 @@ function buildShell() {
   header.appendChild(title);
   box.appendChild(header);
 
-  // ---- Tarjeta de instrucciones con Deceerre (tu estética) ----
+  // ---- Tarjeta de instrucciones con Deceerre ----
   const instructionsBox = createElement('div', {
     class: 'card deceerre-instructions',
     style: `
@@ -696,7 +751,7 @@ function buildShell() {
   weighingsInfo.innerHTML = `<span>Pesadas: </span><strong><span class="weighings-count">0</span></strong>`;
   box.appendChild(weighingsInfo);
 
-  // ---- Balanza ----
+  // ---- Balanza (contenedor) ----
   const balanceContainer = createElement('div', {
     class: 'balance-container',
     style: 'margin: 8px 0;'
@@ -756,38 +811,6 @@ function buildShell() {
     result,
     message
   };
-}
-
-function createCelebrationMessage() {
-  const container = document.createElement('div');
-  container.style.cssText = `
-    display:flex;align-items:center;gap:16px;
-    background:linear-gradient(135deg, rgba(16,185,129,.1), rgba(34,197,94,.1));
-    padding:16px;border-radius:12px;border:2px solid rgba(16,185,129,.3);
-    position:relative;overflow:hidden;
-  `;
-  const img = document.createElement('img');
-  img.src = 'assets/deceerre-celebration.png';
-  img.alt = 'Deceerre celebrando';
-  img.style.cssText = `
-    width:70px;height:70px;flex-shrink:0;
-    filter:drop-shadow(0 4px 12px rgba(16,185,129,.4));
-    animation:bounce 1s infinite;z-index:2;position:relative;
-  `;
-  img.onerror = () => (img.style.display = 'none');
-  const textContainer = document.createElement('div');
-  textContainer.style.cssText = 'flex:1;z-index:2;position:relative;';
-  const title = document.createElement('div');
-  title.style.cssText = 'color:var(--success);font-weight:700;font-size:1.1rem;margin-bottom:4px;';
-  title.textContent = '¡Excelente deducción!';
-  const message = document.createElement('div');
-  message.style.cssText = 'color:var(--fg);line-height:1.4;';
-  message.innerHTML = 'Has descubierto al impostor como un <strong>verdadero detective</strong>.';
-  textContainer.appendChild(title);
-  textContainer.appendChild(message);
-  container.appendChild(img);
-  container.appendChild(textContainer);
-  return container;
 }
 
 async function loadConfig(data) {
