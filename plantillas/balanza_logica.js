@@ -1,44 +1,42 @@
-// ===== ARCHIVO COMPLETO: plantillas/balanza_logica.js (Versión LITE) =====
+// ===== ARCHIVO COMPLETO: plantillas/balanza_logica.js (Corrección centrado, altura, cuerdas, devolución de moneda y celebración Deceerre) =====
 
 export async function render(root, data, hooks) {
-  // 1) Shell mínimo
+  // 1) Montar contenedor base
   root.innerHTML = '';
   const ui = buildShell();
   root.append(ui.box);
 
-  // 2) Cargar config
+  // 2) Cargar configuración
   let config;
   try {
     config = await loadConfig(data);
   } catch (error) {
-    setStatus(ui.status, 'Error: ' + (error.message || error), 'ko');
+    setStatus(ui.status, 'Error: ' + (error?.message || error), 'ko');
     return;
   }
 
-  // Normalizar: variantes de 1 anómala → k=1; tope pesadas por defecto
+  // 3) Normalizaciones seguras
   if (['heaviest', 'lightest', 'oddUnknown'].includes(config.variant)) config.k = 1;
   if (!config.maxWeighings) config.maxWeighings = 4;
-
   if (!config.variant || !config.N) {
     setStatus(ui.status, 'Error: Falta configuración de la balanza', 'ko');
     return;
   }
 
-  // 3) Estado
+  // 4) Estado + Render UI
   const state = initializeGame(config);
-
-  // 4) Render UI
   renderCoins(ui.coinsContainer, state);
   renderBalance(ui.balanceContainer, state);
   renderAnswerSelector(ui.answerContainer, state);
   setupEventListeners(ui, state, config);
 
-  // Quitar “Cargando…/Listo para pesar”
+  // Ocultar el status genérico
   ui.status?.remove();
 
+  // Instrucciones dinámicas
   updateInstructions(ui.instructions, config);
 
-  // ============ LÓGICA DEL JUEGO ============
+  // ====================== LÓGICA DEL JUEGO ======================
 
   function initializeGame(config) {
     const s = {
@@ -62,12 +60,15 @@ export async function render(root, data, hooks) {
     const { variant, k, N } = config;
     const idxs = Array.from({ length: N }, (_, i) => i);
 
-    function pickRandom(count) {
+    const pickRandom = (count) => {
       const picked = [];
       const pool = idxs.slice();
-      for (let i = 0; i < count; i++) picked.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+      for (let i = 0; i < count; i++) {
+        const pos = Math.floor(Math.random() * pool.length);
+        picked.push(pool.splice(pos, 1)[0]);
+      }
       return picked;
-    }
+    };
 
     switch (variant) {
       case 'heaviest':
@@ -97,22 +98,24 @@ export async function render(root, data, hooks) {
   function renderCoins(container, state) {
     container.innerHTML = '';
     state.coins = [];
+
     for (let i = 0; i < state.N; i++) {
       const coin = createElement('div', { class: 'balance-coin', 'data-index': i });
       coin.textContent = i + 1;
 
-      // Clic: si está en plato → vuelve al pool; si no → selecciona
+      // Clic: si está en plato → volver al pool; si no → seleccionar
       coin.addEventListener('click', () => {
         const c = state.coins[i];
         if (!c) return;
 
         if (c.side !== null) {
-          // devolver al pool
+          // Devolver al pool
           c.side = null;
           c.element.classList.remove('in-plate');
           clearInlinePos(c.element);
           ui.coinsContainer.appendChild(c.element);
           animateBalance(ui.balanceContainer, 'balanced');
+          // Limpiar selección
           state.selectedCoin = null;
           state.coins.forEach(x => x.element.classList.remove('selected'));
         } else {
@@ -137,25 +140,61 @@ export async function render(root, data, hooks) {
   }
 
   function renderBalance(container, state) {
+    // HTML de la balanza con estilos inline clave para evitar depender de CSS externo
     container.innerHTML = `
-      <div class="balance-beam" id="balance-beam">
-        <div class="balance-hook left">
-          <div class="balance-rope"></div>
-          <div class="balance-plate left" id="left-plate" data-side="left">
-            <div class="plate-coins"></div>
+      <div class="balance-beam" id="balance-beam" style="
+        position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
+        width:500px; height:12px; background:linear-gradient(180deg,#ccc,#999);
+        border-radius:6px; transition:transform .6s ease; transform-origin:center; z-index:2;">
+        <div class="balance-hook left" style="position:absolute; top:-5px; left:50px; width:4px; height:20px;">
+          <div class="balance-rope" style="
+            position:absolute; top:12px; left:1px; width:2px; height:110px; /* CUERDA LARGA */
+            background:#888; transform-origin:top;"></div>
+          <div class="balance-plate left" id="left-plate" data-side="left" style="
+            position:absolute; top:140px; /* PLATO MÁS ABAJO */
+            left:-100px; width:200px; height:20px; cursor:pointer;
+            background:linear-gradient(180deg,#ddd,#aaa); border-radius:20px; border:2px solid rgba(0,0,0,.3);">
+            <div class="plate-coins" style="
+              position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
+              width:180px; height:120px; overflow:visible; pointer-events:none;">
+            </div>
           </div>
         </div>
-        <div class="balance-hook right">
-          <div class="balance-rope"></div>
-          <div class="balance-plate right" id="right-plate" data-side="right">
-            <div class="plate-coins"></div>
+
+        <div class="balance-hook right" style="position:absolute; top:-5px; right:50px; width:4px; height:20px;">
+          <div class="balance-rope" style="
+            position:absolute; top:12px; left:1px; width:2px; height:110px;
+            background:#888; transform-origin:top;"></div>
+          <div class="balance-plate right" id="right-plate" data-side="right" style="
+            position:absolute; top:140px;
+            left:-100px; width:200px; height:20px; cursor:pointer;
+            background:linear-gradient(180deg,#ddd,#aaa); border-radius:20px; border:2px solid rgba(0,0,0,.3);">
+            <div class="plate-coins" style="
+              position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
+              width:180px; height:120px; overflow:visible; pointer-events:none;">
+            </div>
           </div>
         </div>
       </div>
-      <div class="balance-pivot"></div>
+
+      <div class="balance-pivot" style="
+        position:absolute; bottom:55px; left:50%; transform:translateX(-50%);
+        width:30px; height:30px; background:linear-gradient(145deg,#666,#333);
+        border-radius:8px; box-shadow:0 4px 15px rgba(0,0,0,.5); z-index:3;"></div>
     `;
-    container.querySelector('#left-plate').addEventListener('click', () => placeCoin('left', state, ui));
-    container.querySelector('#right-plate').addEventListener('click', () => placeCoin('right', state, ui));
+
+    // Asegurar centrado vertical del contenedor (menos aire)
+    container.style.position = 'relative';
+    container.style.width = '100%';
+    container.style.maxWidth = '600px';
+    container.style.height = '280px';
+    container.style.margin = '8px auto'; // más arriba
+
+    // Listeners de platos
+    const leftPlate = container.querySelector('#left-plate');
+    const rightPlate = container.querySelector('#right-plate');
+    leftPlate.addEventListener('click', () => placeCoin('left', state, ui));
+    rightPlate.addEventListener('click', () => placeCoin('right', state, ui));
   }
 
   function placeCoin(side, state, ui) {
@@ -165,20 +204,22 @@ export async function render(root, data, hooks) {
     }
     const coin = state.coins[state.selectedCoin];
 
-    // Si ya estaba en plato, primero la devolvemos (para limpiar estilos)
+    // Si ya estaba en un plato, primero devolverla (limpiar estilos)
     if (coin.side !== null) {
       coin.element.classList.remove('in-plate');
       clearInlinePos(coin.element);
       ui.coinsContainer.appendChild(coin.element);
     }
 
-    // Colocar en plato
+    // Colocar en el nuevo plato
     coin.side = side;
     const plate = ui.balanceContainer.querySelector(`[data-side="${side}"] .plate-coins`);
     plate.appendChild(coin.element);
+
+    // Marcado visual
     coin.element.classList.add('in-plate');
 
-    // Distribución visual (sin tocar tu CSS): absoluta, centrada arriba del plato
+    // Layout absoluto encima del plato
     layoutPlate(side, state, ui);
 
     // Limpiar selección
@@ -187,37 +228,32 @@ export async function render(root, data, hooks) {
   }
 
   function layoutPlate(side, state, ui) {
-    const plate = ui.balanceContainer.querySelector(`[data-side="${side}"] .plate-coins`);
+    const plateCoins = ui.balanceContainer.querySelector(`[data-side="${side}"] .plate-coins`);
     const coins = state.coins.filter(c => c.side === side);
-    if (!plate) return;
+    if (!plateCoins) return;
 
-    // Medidas dinámicas (responden a 200px / 150px en media queries)
-    const plateWidth = plate.clientWidth || 200;
+    const areaW = plateCoins.clientWidth || 180;
     const cols = 3;
-    const gapY = 46;             // altura efectiva por fila
-    const baseBottom = 18;       // a qué altura "asientan" sobre el plato
+    const gapY = 46;       // separación vertical entre filas
+    const baseBottom = 0;  // dentro del contenedor "plate-coins" ya ajustado a 18px sobre el plato
 
     coins.forEach((c, idx) => {
       const row = Math.floor(idx / cols);
       const col = idx % cols;
 
-      // Ancho real de la moneda ya en DOM (40–52 px según media query)
       const coinW = c.element.offsetWidth || 48;
-
-      // Centros a 1/6, 3/6, 5/6 del ancho del área
-      const colCenter = plateWidth * ((1 + col * 2) / 6);
+      const colCenter = areaW * ((1 + col * 2) / 6);
       const leftPx = Math.round(colCenter - coinW / 2);
-
       const bottomPx = baseBottom + row * gapY;
 
-      // Posicionamiento absoluto
       const el = c.element;
       el.style.position = 'absolute';
       el.style.left = `${leftPx}px`;
       el.style.bottom = `${bottomPx}px`;
-      el.style.top = '';        // limpiar por si acaso
+      el.style.top = '';
       el.style.margin = '0';
-      el.style.zIndex = 10 + row; // filas posteriores por encima
+      el.style.zIndex = String(10 + row); // asegurar por encima del plato
+      el.style.pointerEvents = 'auto';    // permitir clic para devolverla al pool
     });
   }
 
@@ -226,8 +262,10 @@ export async function render(root, data, hooks) {
       showMessage(ui.message, 'Ya no puedes pesar más', 'error');
       return;
     }
+
     const leftCoins = state.coins.filter(c => c.side === 'left').map(c => c.i);
     const rightCoins = state.coins.filter(c => c.side === 'right').map(c => c.i);
+
     if (leftCoins.length === 0 && rightCoins.length === 0) {
       showMessage(ui.message, 'Coloca monedas antes de pesar', 'warning');
       return;
@@ -240,31 +278,33 @@ export async function render(root, data, hooks) {
     const rw = calculateWeight(rightCoins, state);
 
     let tilt = 'balanced', result = 'Equilibrio';
-    if (lw > rw) { tilt = 'left';  result = 'Izquierda más pesada'; }
-    if (rw > lw) { tilt = 'right'; result = 'Derecha más pesada'; }
+    if (lw > rw) { tilt = 'left'; result = 'Izquierda más pesada'; }
+    else if (rw > lw) { tilt = 'right'; result = 'Derecha más pesada'; }
 
     animateBalance(ui.balanceContainer, tilt);
     showMessage(ui.result, result, tilt === 'balanced' ? 'ok' : 'info');
 
-    if (state.weighings >= state.maxWeighings) ui.weighButton.disabled = true;
+    if (state.weighings >= state.maxWeighings) {
+      ui.weighButton.disabled = true;
+    }
 
     hooks?.onWeigh?.({ left: leftCoins, right: rightCoins, result, weighingIndex: state.weighings });
   }
 
-  function calculateWeight(coins, state) {
-    let w = coins.length;
-    state.anomalies.forEach(a => { if (coins.includes(a.i)) w += a.sign; });
+  function calculateWeight(indices, state) {
+    let w = indices.length;
+    state.anomalies.forEach(a => { if (indices.includes(a.i)) w += a.sign; });
     return w;
   }
 
   function animateBalance(container, tilt) {
-    const beam = container.querySelector('.balance-beam');
+    const beam = container.querySelector('#balance-beam');
     if (!beam) return;
     beam.classList.remove('tilt-left', 'tilt-right', 'balanced');
     setTimeout(() => {
-      if (tilt === 'left') beam.classList.add('tilt-left');
-      else if (tilt === 'right') beam.classList.add('tilt-right');
-      else beam.classList.add('balanced');
+      if (tilt === 'left') beam.style.transform = 'translateX(-50%) rotate(-6deg)';
+      else if (tilt === 'right') beam.style.transform = 'translateX(-50%) rotate(6deg)';
+      else beam.style.transform = 'translateX(-50%) rotate(0deg)';
     }, 40);
   }
 
@@ -338,7 +378,7 @@ export async function render(root, data, hooks) {
       <label><input type="radio" name="sign" value="1" checked> Más pesada</label>
       <label><input type="radio" name="sign" value="-1"> Más ligera</label>
     `;
-    sign.addEventListener('change', (e) => { state.answer.singleSign = parseInt(e.target.value); });
+    sign.addEventListener('change', (e) => { state.answer.singleSign = parseInt(e.target.value, 10); });
     container.appendChild(sign);
   }
 
@@ -368,12 +408,17 @@ export async function render(root, data, hooks) {
     container.appendChild(title);
 
     const grid = createElement('div', { class: 'answer-grid' });
+
     const heavySec = createElement('div', { class: 'answer-section' });
-    heavySec.appendChild(createElement('div', { class: 'section-title' })).textContent = 'Más pesadas:';
+    const heavyTitle = createElement('div', { class: 'section-title' });
+    heavyTitle.textContent = 'Más pesadas:';
+    heavySec.appendChild(heavyTitle);
     const heavyWrap = createElement('div', { class: 'answer-coins' });
 
     const lightSec = createElement('div', { class: 'answer-section' });
-    lightSec.appendChild(createElement('div', { class: 'section-title' })).textContent = 'Más ligeras:';
+    const lightTitle = createElement('div', { class: 'section-title' });
+    lightTitle.textContent = 'Más ligeras:';
+    lightSec.appendChild(lightTitle);
     const lightWrap = createElement('div', { class: 'answer-coins' });
 
     for (let i = 0; i < state.N; i++) {
@@ -404,8 +449,9 @@ export async function render(root, data, hooks) {
     if (other.has(index)) {
       other.delete(index);
       const oc = otherContainer.children[index];
-      oc && oc.classList.remove('selected');
+      if (oc) oc.classList.remove('selected');
     }
+
     if (target.has(index)) {
       target.delete(index);
       clickedCoin.classList.remove('selected');
@@ -426,15 +472,22 @@ export async function render(root, data, hooks) {
     const { variant, k } = state;
     let user = [];
 
-    if (variant === 'heaviest' && state.answer.single !== null) user = [{ i: state.answer.single, sign: 1 }];
-    else if (variant === 'lightest' && state.answer.single !== null) user = [{ i: state.answer.single, sign: -1 }];
-    else if (variant === 'oddUnknown' && state.answer.single !== null) user = [{ i: state.answer.single, sign: state.answer.singleSign }];
-    else if (variant === 'kHeaviest') user = [...state.answer.heavy].map(i => ({ i, sign: 1 }));
-    else if (variant === 'kLightest') user = [...state.answer.light].map(i => ({ i, sign: -1 }));
-    else if (variant === 'kOddUnknown') user = [
-      ...[...state.answer.heavy].map(i => ({ i, sign: 1 })),
-      ...[...state.answer.light].map(i => ({ i, sign: -1 }))
-    ];
+    if (variant === 'heaviest' && state.answer.single !== null) {
+      user = [{ i: state.answer.single, sign: 1 }];
+    } else if (variant === 'lightest' && state.answer.single !== null) {
+      user = [{ i: state.answer.single, sign: -1 }];
+    } else if (variant === 'oddUnknown' && state.answer.single !== null) {
+      user = [{ i: state.answer.single, sign: state.answer.singleSign }];
+    } else if (variant === 'kHeaviest') {
+      user = [...state.answer.heavy].map(i => ({ i, sign: 1 }));
+    } else if (variant === 'kLightest') {
+      user = [...state.answer.light].map(i => ({ i, sign: -1 }));
+    } else if (variant === 'kOddUnknown') {
+      user = [
+        ...[...state.answer.heavy].map(i => ({ i, sign: 1 })),
+        ...[...state.answer.light].map(i => ({ i, sign: -1 }))
+      ];
+    }
 
     if (user.length !== state.anomalies.length) {
       showMessage(ui.message, 'Respuesta incompleta', 'warning');
@@ -446,11 +499,15 @@ export async function render(root, data, hooks) {
 
     if (ok) {
       state.gameWon = true;
+      // Celebración con Deceerre (restaurada)
+      showMessage(ui.result, createCelebrationMessage(), 'success');
+
       if (state.weighings <= optimal) {
-        showMessage(ui.result, '¡Has alcanzado el óptimo teórico mínimo!', 'success');
+        showMessage(ui.message, '¡Has alcanzado el óptimo teórico mínimo!', 'success');
       } else {
-        showMessage(ui.result, 'Correcto, pero no óptimo', 'info');
+        showMessage(ui.message, 'Correcto, pero no óptimo', 'info');
       }
+
       hooks?.onSuccess?.();
     } else {
       const solution = state.anomalies.map(a => `${a.i + 1}${a.sign > 0 ? '↑' : '↓'}`).join(', ');
@@ -471,15 +528,11 @@ export async function render(root, data, hooks) {
     let states = 0;
     switch (variant) {
       case 'heaviest':
-      case 'lightest':
-        states = N; break;
-      case 'oddUnknown':
-        states = 2 * N; break;
+      case 'lightest': states = N; break;
+      case 'oddUnknown': states = 2 * N; break;
       case 'kHeaviest':
-      case 'kLightest':
-        states = combination(N, k); break;
-      case 'kOddUnknown':
-        states = combination(N, k) * Math.pow(2, k); break;
+      case 'kLightest': states = combination(N, k); break;
+      case 'kOddUnknown': states = combination(N, k) * Math.pow(2, k); break;
     }
     return Math.ceil(Math.log(states) / Math.log(3));
   }
@@ -530,8 +583,12 @@ export async function render(root, data, hooks) {
 
   function showMessage(el, text, type = '') {
     if (!el) return;
-    if (typeof text === 'object' && text?.nodeType) { el.innerHTML = ''; el.appendChild(text); }
-    else { el.textContent = text; }
+    if (typeof text === 'object' && text?.nodeType) {
+      el.innerHTML = '';
+      el.appendChild(text);
+    } else {
+      el.textContent = text;
+    }
     el.className = 'balance-message';
     if (type) el.classList.add(type);
   }
@@ -543,54 +600,72 @@ export async function render(root, data, hooks) {
     el.style.bottom = '';
     el.style.margin = '';
     el.style.zIndex = '';
+    el.style.pointerEvents = '';
   }
 }
 
-// ============ UTILIDADES UI ============
+// ====================== UTILIDADES UI ======================
 
 function buildShell() {
-  const box = createElement('div', { class: 'template-box balance-game' });
+  // Contenedor base con centrado robusto
+  const box = createElement('div', {
+    class: 'template-box balance-game',
+    style: 'max-width:800px;margin:0 auto;display:grid;justify-items:center;' // centrado fuerte
+  });
 
-  // Header simple (sin inyectar CSS)
+  // Header: icono de balanza + título del reto
   const header = createElement('div', {
     class: 'enigma-header',
-    style: 'display:flex;align-items:center;gap:16px;margin-bottom:16px;position:relative;overflow:hidden;'
+    style: 'display:flex;align-items:center;gap:12px;margin-bottom:8px;position:relative;overflow:hidden;'
   });
-  const einsteinImg = createElement('img', {
-    src: 'assets/einstein-caricature.png',
-    alt: 'Einstein',
-    style: 'width:64px;height:64px;border-radius:50%;border:2px solid var(--accent);z-index:2;position:relative;'
+
+  const icon = createElement('img', {
+    src: 'assets/icon-balanza.png',
+    alt: 'Balanza',
+    style: 'width:56px;height:56px;border-radius:12px;border:2px solid var(--accent);background:rgba(255,255,255,.06);padding:6px;box-sizing:border-box;'
   });
-  einsteinImg.onerror = () => (einsteinImg.style.display = 'none');
+  icon.onerror = () => {
+    icon.src = 'assets/balance-icon.svg';
+    icon.onerror = () => (icon.style.display = 'none');
+  };
+
   const title = createElement('h2', {
-    style: 'margin:0;color:var(--accent);font-size:1.5rem;z-index:2;position:relative;'
+    style: 'margin:0;color:var(--accent);font-size:1.5rem;'
   });
-  title.textContent = 'Resuelve el enigma';
-  header.appendChild(einsteinImg);
+  title.textContent = 'Descubre el impostor';
+
+  header.appendChild(icon);
   header.appendChild(title);
   box.appendChild(header);
 
-  // Tarjeta instrucciones + área texto dinámico
+  // Tarjeta de instrucciones + área dinámica
   const instructionsBox = createElement('div', {
     class: 'card deceerre-instructions',
-    style: 'display:flex;align-items:center;gap:20px;margin-bottom:16px;background:linear-gradient(135deg, rgba(108,92,231,.1), rgba(168,85,247,.1));border:2px solid transparent;border-radius:16px;position:relative;overflow:hidden;transition:all .3s ease;backdrop-filter:blur(10px);'
+    style: 'display:flex;align-items:center;gap:16px;margin-bottom:8px;background:linear-gradient(135deg, rgba(108,92,231,.1), rgba(168,85,247,.1));border:2px solid transparent;border-radius:16px;position:relative;overflow:hidden;transition:all .3s ease;backdrop-filter:blur(10px);'
   });
+
   const deceerreImg = createElement('img', {
     src: 'assets/deceerre-instructions.png',
     alt: 'Deceerre',
-    style: 'width:90px;height:90px;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(108,92,231,.3));z-index:2;position:relative;'
+    style: 'width:84px;height:84px;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(108,92,231,.3));'
   });
   deceerreImg.onerror = () => (deceerreImg.style.display = 'none');
-  const instructionsContent = createElement('div', { style: 'flex:1;z-index:2;position:relative;' });
+
+  const instructionsContent = createElement('div', { style: 'flex:1;' });
   const instructionsTitle = createElement('h3', {
-    style: 'margin:0 0 8px 0;color:var(--accent);font-size:1.1rem;font-weight:700;'
+    style: 'margin:0 0 6px 0;color:var(--accent);font-size:1.05rem;font-weight:700;'
   });
-  instructionsTitle.textContent = 'Detective, a por la balanza!';
+  instructionsTitle.textContent = 'Cómo jugar';
+
   const instructionsText = createElement('p', {
     style: 'margin:0;color:var(--fg);line-height:1.5;font-size:.95rem;'
   });
-  instructionsText.innerHTML = 'Selecciona monedas y colócalas en los <strong>PLATOS</strong> de la balanza. Pesa estratégicamente para descubrir cuáles son diferentes.';
-  const instructions = createElement('div', { class: 'balance-instructions', style: 'margin-top:8px;font-size:.9rem;color:var(--muted);' });
+  instructionsText.innerHTML = 'Selecciona monedas y colócalas en los <strong>platos</strong>. Pesa con lógica para descubrir el impostor.';
+
+  const instructions = createElement('div', {
+    class: 'balance-instructions',
+    style: 'margin-top:6px;font-size:.9rem;color:var(--muted);'
+  });
 
   instructionsContent.appendChild(instructionsTitle);
   instructionsContent.appendChild(instructionsText);
@@ -605,34 +680,49 @@ function buildShell() {
   box.appendChild(status);
 
   // Contador de pesadas
-  const weighingsInfo = createElement('div', { class: 'weighings-info', style: 'margin:12px 0;text-align:center;font-size:1rem;' });
+  const weighingsInfo = createElement('div', {
+    class: 'weighings-info',
+    style: 'margin:8px 0;text-align:center;font-size:1rem;'
+  });
   weighingsInfo.innerHTML = `<span>Pesadas: </span><strong><span class="weighings-count">0</span></strong>`;
   box.appendChild(weighingsInfo);
 
-  // Balanza centrada
-  const balanceContainer = createElement('div', { class: 'balance-container', style: 'margin:16px 0;' });
+  // Balanza (centrada y con menos aire)
+  const balanceContainer = createElement('div', {
+    class: 'balance-container',
+    style: 'margin:8px 0;' // reducido respecto al default para subir la balanza
+  });
   box.appendChild(balanceContainer);
 
   // Pool de monedas
-  const coinsContainer = createElement('div', { class: 'balance-coins', style: 'margin-top:10px;' });
+  const coinsContainer = createElement('div', {
+    class: 'balance-coins',
+    style: 'margin-top:8px;'
+  });
   box.appendChild(coinsContainer);
 
-  // Resultado y controles
+  // Resultado de pesada
   const result = createElement('div', { class: 'balance-message' });
   box.appendChild(result);
 
-  const controls = createElement('div', { class: 'balance-controls' });
+  // Controles
+  const balanceControls = createElement('div', { class: 'balance-controls' });
   const weighButton = createElement('button', { class: 'btn' }); weighButton.textContent = 'Pesar';
   const clearButton = createElement('button', { class: 'btn btn-secondary' }); clearButton.textContent = 'Vaciar';
   const resetButton = createElement('button', { class: 'btn btn-secondary' }); resetButton.textContent = 'Reiniciar';
-  controls.appendChild(weighButton); controls.appendChild(clearButton); controls.appendChild(resetButton);
-  box.appendChild(controls);
+  balanceControls.appendChild(weighButton);
+  balanceControls.appendChild(clearButton);
+  balanceControls.appendChild(resetButton);
+  box.appendChild(balanceControls);
 
-  // Respuesta + botón centrado (inline style)
+  // Sección de respuesta (botón centrado por inline style)
   const answerSection = createElement('div', { class: 'balance-answer-section' });
   const answerTitle = createElement('h3'); answerTitle.textContent = 'Tu respuesta:';
   const answerContainer = createElement('div', { class: 'balance-answer' });
-  const checkButton = createElement('button', { class: 'btn btn-primary', style: 'display:block;margin:12px auto 0;' });
+  const checkButton = createElement('button', {
+    class: 'btn btn-primary',
+    style: 'display:block;margin:12px auto 0;'
+  });
   checkButton.textContent = 'Comprobar respuesta';
   answerSection.appendChild(answerTitle);
   answerSection.appendChild(answerContainer);
@@ -660,6 +750,38 @@ function buildShell() {
   };
 }
 
+function createCelebrationMessage() {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    display:flex;align-items:center;gap:16px;
+    background:linear-gradient(135deg, rgba(16,185,129,.1), rgba(34,197,94,.1));
+    padding:16px;border-radius:12px;border:2px solid rgba(16,185,129,.3);
+    position:relative;overflow:hidden;
+  `;
+  const img = document.createElement('img');
+  img.src = 'assets/deceerre-celebration.png';
+  img.alt = 'Deceerre celebrando';
+  img.style.cssText = `
+    width:70px;height:70px;flex-shrink:0;
+    filter:drop-shadow(0 4px 12px rgba(16,185,129,.4));
+    animation:bounce 1s infinite;z-index:2;position:relative;
+  `;
+  img.onerror = () => (img.style.display = 'none');
+  const textContainer = document.createElement('div');
+  textContainer.style.cssText = 'flex:1;z-index:2;position:relative;';
+  const title = document.createElement('div');
+  title.style.cssText = 'color:var(--success);font-weight:700;font-size:1.1rem;margin-bottom:4px;';
+  title.textContent = '¡Excelente deducción!';
+  const message = document.createElement('div');
+  message.style.cssText = 'color:var(--fg);line-height:1.4;';
+  message.innerHTML = 'Has descubierto al impostor como un <strong>verdadero detective</strong>.';
+  textContainer.appendChild(title);
+  textContainer.appendChild(message);
+  container.appendChild(img);
+  container.appendChild(textContainer);
+  return container;
+}
+
 async function loadConfig(data) {
   if (data?.json_url) {
     const resp = await fetch(data.json_url);
@@ -670,19 +792,19 @@ async function loadConfig(data) {
   throw new Error('Faltan datos de configuracion de la balanza');
 }
 
-function createElement(tag, attrs = {}) {
+function createElement(tag, attributes = {}) {
   const el = document.createElement(tag);
-  Object.entries(attrs).forEach(([k, v]) => {
-    if (k === 'class') el.className = v;
-    else if (k === 'style') el.style.cssText = v;
-    else el.setAttribute(k, v);
+  Object.entries(attributes).forEach(([key, val]) => {
+    if (key === 'class') el.className = val;
+    else if (key === 'style') el.style.cssText = val;
+    else el.setAttribute(key, val);
   });
   return el;
 }
 
-function setStatus(el, text, type = '') {
-  if (!el) return;
-  el.textContent = text;
-  el.className = 'feedback';
-  if (type) el.classList.add(type);
+function setStatus(element, text, type = '') {
+  if (!element) return;
+  element.textContent = text;
+  element.className = 'feedback';
+  if (type) element.classList.add(type);
 }

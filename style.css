@@ -1228,15 +1228,25 @@ li {
     flex-wrap: wrap;
   }
 }
-/* Agregar al final de style.css - Estilos para balanza lógica */
+/* =========================================================
+   style.css — Balanza Lógica (versión corregida y centrada)
+   - Centrado robusto
+   - Menos aire vertical
+   - Cuerda más larga y platos más abajo
+   - Moneda en plato vuelve al pool con clic (compatible con JS)
+   - Celebración con Deceerre disponible
+   - Accesibilidad (focus) y reduce motion
+   ========================================================= */
 
-/* Contenedor del juego de balanza */
+/* ---------- Contenedor del juego ---------- */
 .balance-game {
   max-width: 800px;
   margin: 0 auto;
+  display: grid;           /* centrado robusto en cualquier layout padre */
+  justify-items: center;   /* centra todos los hijos por defecto */
 }
 
-/* Instrucciones */
+/* ---------- Instrucciones ---------- */
 .balance-instructions {
   background: rgba(255,255,255,.04);
   border: 1px solid var(--card-b);
@@ -1248,7 +1258,7 @@ li {
   font-size: 1.1rem;
 }
 
-/* Contador de pesadas */
+/* ---------- Contador de pesadas ---------- */
 .weighings-info {
   display: flex;
   justify-content: center;
@@ -1258,19 +1268,18 @@ li {
   background: rgba(255,255,255,.06);
   border: 1px solid var(--card-b);
   border-radius: 20px;
-  margin: 16px auto;
+  margin: 8px auto;    /* menos aire */
   width: fit-content;
   font-size: 0.9rem;
   color: var(--muted);
 }
-
 .weighings-count {
   color: var(--accent);
   font-size: 1.1rem;
   font-weight: bold;
 }
 
-/* Contenedor de monedas */
+/* ---------- Pool de monedas ---------- */
 .balance-coins {
   display: flex;
   flex-wrap: wrap;
@@ -1280,7 +1289,7 @@ li {
   background: rgba(255,255,255,.02);
   border: 1px solid var(--card-b);
   border-radius: 12px;
-  margin: 20px 0;
+  margin: 12px 0;      /* más compacto */
 }
 
 /* Monedas */
@@ -1297,35 +1306,38 @@ li {
   color: #2a2a2a;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, outline 0.1s ease;
+  position: relative;
+  z-index: 5; /* por si algún stacking context del plato interfiere */
 }
-
 .balance-coin:hover {
   box-shadow: 0 6px 18px rgba(255,210,59,0.35);
   transform: scale(1.05);
 }
-
 .balance-coin.selected {
   outline: 3px solid var(--success);
   transform: scale(1.1);
 }
+/* Moneda cuando está en el plato (lo marca el JS) */
+.balance-coin.in-plate {
+  transform: scale(0.92);
+  z-index: 20;
+}
 
-/* Contenedor de la balanza */
+/* ---------- Contenedor de la balanza ---------- */
 .balance-container {
   position: relative;
   width: 100%;
   max-width: 600px;
-  height: 300px;
-  margin: 30px auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 280px;       /* más compacta */
+  margin: 8px auto;    /* “sube” la balanza */
+  display: block;
 }
 
-/* Pivote de la balanza */
+/* Pivote (fallback; el JS ya aplica inline) */
 .balance-pivot {
   position: absolute;
-  bottom: 50px;
+  bottom: 55px;
   left: 50%;
   transform: translateX(-50%);
   width: 30px;
@@ -1336,10 +1348,10 @@ li {
   z-index: 3;
 }
 
-/* Barra de la balanza */
+/* Barra (fallback por si el JS usa clases en vez de inline) */
 .balance-beam {
   position: absolute;
-  bottom: 65px;
+  bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
   width: 500px;
@@ -1350,50 +1362,35 @@ li {
   transform-origin: center;
   z-index: 2;
 }
+.balance-beam.tilt-left  { transform: translateX(-50%) rotate(-6deg); }
+.balance-beam.tilt-right { transform: translateX(-50%) rotate(6deg); }
+.balance-beam.balanced   { transform: translateX(-50%) rotate(0deg); }
 
-.balance-beam.tilt-left {
-  transform: translateX(-50%) rotate(-6deg);
-}
-
-.balance-beam.tilt-right {
-  transform: translateX(-50%) rotate(6deg);
-}
-
-.balance-beam.balanced {
-  transform: translateX(-50%) rotate(0deg);
-}
-
-/* Ganchos de la balanza */
+/* Ganchos (fallback) */
 .balance-hook {
   position: absolute;
   top: -5px;
   width: 4px;
   height: 20px;
 }
+.balance-hook.left  { left: 50px; }
+.balance-hook.right { right: 50px; }
 
-.balance-hook.left {
-  left: 50px;
-}
-
-.balance-hook.right {
-  right: 50px;
-}
-
-/* Cuerdas */
+/* Cuerdas (alargar para “llegar” al plato) */
 .balance-rope {
   position: absolute;
   top: 12px;
   left: 1px;
   width: 2px;
-  height: 80px;
+  height: 110px;  /* antes 80px */
   background: #888;
   transform-origin: top;
 }
 
-/* Platos */
+/* Platos (más abajo para mayor distancia barra ↔ plato) */
 .balance-plate {
   position: absolute;
-  top: 92px;
+  top: 140px;    /* antes 92px */
   left: -100px;
   width: 200px;
   height: 20px;
@@ -1401,36 +1398,44 @@ li {
   border-radius: 20px;
   border: 2px solid rgba(0,0,0,0.3);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
-
 .balance-plate:hover {
   background: linear-gradient(180deg, #eee, #bbb);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
+/* Área donde el JS posiciona las monedas del plato.
+   Nota: pointer-events desactivado para el contenedor,
+   y reactivado en las monedas (.balance-coin) vía JS o selector descendiente. */
 .plate-coins {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 120px;
   overflow: visible;
+  pointer-events: none;
+}
+.plate-coins > .balance-coin {
+  pointer-events: auto;  /* permite clic para devolver al pool */
 }
 
-/* Controles de la balanza */
+/* ---------- Controles ---------- */
 .balance-controls {
   display: flex;
   gap: 12px;
   justify-content: center;
-  margin: 20px 0;
+  margin: 16px 0;
   flex-wrap: wrap;
 }
-
 .balance-controls .btn {
   padding: 10px 16px;
   font-size: 0.9rem;
 }
 
-/* Mensajes */
+/* ---------- Mensajes ---------- */
 .balance-message {
   text-align: center;
   padding: 10px;
@@ -1438,44 +1443,45 @@ li {
   border-radius: 8px;
   font-weight: 500;
 }
-
 .balance-message.info {
   background: rgba(16, 132, 199, 0.1);
   border: 1px solid rgba(16, 132, 199, 0.3);
   color: var(--secondary);
 }
-
 .balance-message.success {
   background: rgba(16, 185, 129, 0.1);
   border: 1px solid rgba(16, 185, 129, 0.3);
   color: var(--success);
 }
-
 .balance-message.error {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: var(--error);
 }
-
 .balance-message.warning {
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.3);
   color: var(--warning);
 }
 
-/* Sección de respuesta */
+/* ---------- Sección de respuesta ---------- */
 .balance-answer-section {
   background: rgba(255,255,255,.04);
   border: 1px solid var(--card-b);
   border-radius: 12px;
   padding: 20px;
-  margin: 30px 0;
+  margin: 20px 0;
 }
-
 .balance-answer-section h3 {
   margin: 0 0 15px 0;
   text-align: center;
   color: var(--fg);
+}
+/* Fuerza centrado del botón principal (además de inline style en JS) */
+.balance-answer-section .btn.btn-primary {
+  display: block;
+  width: fit-content;
+  margin: 12px auto 0;
 }
 
 .answer-title {
@@ -1505,19 +1511,17 @@ li {
   font-weight: 600;
   color: var(--fg);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
-
 .answer-coin:hover {
   background: rgba(255,255,255,.15);
   border-color: var(--accent);
   transform: scale(1.1);
 }
-
 .answer-coin.selected {
   background: var(--accent);
   border-color: var(--accent);
-  color: #2a2a2a;
+  color: #0B1220; /* legible sobre acento claro; ajusta según tema */
   transform: scale(1.1);
 }
 
@@ -1527,7 +1531,6 @@ li {
   justify-content: center;
   margin: 15px 0;
 }
-
 .sign-selector label {
   display: flex;
   align-items: center;
@@ -1535,7 +1538,6 @@ li {
   color: var(--muted);
   cursor: pointer;
 }
-
 .sign-selector input[type="radio"] {
   accent-color: var(--accent);
 }
@@ -1545,14 +1547,12 @@ li {
   grid-template-columns: 1fr 1fr;
   gap: 15px;
 }
-
 .answer-section {
   background: rgba(255,255,255,.02);
   border: 1px solid var(--card-b);
   border-radius: 8px;
   padding: 12px;
 }
-
 .section-title {
   font-weight: 600;
   text-align: center;
@@ -1561,13 +1561,10 @@ li {
   font-size: 0.9rem;
 }
 
-/* Celebración */
+/* ---------- Celebración (overlay opcional) ---------- */
 .balance-celebration {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0,0,0,0.8);
   display: flex;
   align-items: center;
@@ -1575,13 +1572,11 @@ li {
   z-index: 1000;
   animation: balanceCelebrationFade 3s ease-out forwards;
 }
-
 .celebration-content {
   text-align: center;
   color: white;
   animation: balanceCelebrationBounce 1s ease-out;
 }
-
 .celebration-text {
   font-size: 3rem;
   font-weight: bold;
@@ -1591,75 +1586,93 @@ li {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
 .celebration-emoji {
   font-size: 5rem;
   animation: balanceRotate 2s ease-in-out infinite;
 }
 
+/* ---------- Accesibilidad: foco visible ---------- */
+.balance-coin:focus-visible,
+.answer-coin:focus-visible,
+.balance-plate:focus-visible,
+.balance-controls .btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(108,92,231,.25);
+}
+
+/* ---------- Reduce Motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .balance-beam,
+  .balance-coin,
+  .answer-coin,
+  .celebration-content {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---------- Animaciones ---------- */
+@keyframes slideLight {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+@keyframes bounce {
+  0%,20%,50%,80%,100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+@keyframes sparkle {
+  0%,100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
 @keyframes balanceCelebrationFade {
   0% { opacity: 0; }
   20% { opacity: 1; }
   80% { opacity: 1; }
   100% { opacity: 0; }
 }
-
 @keyframes balanceCelebrationBounce {
   0% { transform: scale(0.3) translateY(-100px); }
   50% { transform: scale(1.1) translateY(0); }
   100% { transform: scale(1) translateY(0); }
 }
-
 @keyframes balanceRotate {
   0%, 100% { transform: rotate(-3deg); }
   50% { transform: rotate(3deg); }
 }
 
-/* Responsive */
+/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .balance-container {
-    height: 250px;
+    height: 260px;
     max-width: 400px;
+    margin: 8px auto;
   }
-  
-  .balance-beam {
-    width: 350px;
-  }
-  
+  .balance-beam { width: 350px; }
   .balance-plate {
     width: 150px;
     left: -75px;
+    top: 130px;   /* acompasa el descenso en móvil */
   }
-  
+  .balance-rope { height: 100px; }
   .balance-coin {
     width: 40px;
     height: 40px;
     font-size: 0.9rem;
   }
-  
   .answer-grid {
     grid-template-columns: 1fr;
     gap: 10px;
   }
-  
-  .celebration-text {
-    font-size: 2rem;
-  }
-  
-  .celebration-emoji {
-    font-size: 3rem;
-  }
+  .celebration-text { font-size: 2rem; }
+  .celebration-emoji { font-size: 3rem; }
 }
 
 @media (max-width: 480px) {
-  .balance-coins {
-    padding: 15px;
-  }
-  
-  .balance-controls {
-    gap: 8px;
-  }
-  
+  .balance-coins { padding: 15px; }
+  .balance-controls { gap: 8px; }
   .balance-controls .btn {
     padding: 8px 12px;
     font-size: 0.85rem;
