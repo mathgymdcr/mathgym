@@ -1,12 +1,14 @@
-// ===== ARCHIVO COMPLETO: plantillas/balanza_logica.js (Corrección centrado, altura, cuerdas, devolución de moneda y celebración Deceerre) =====
+// ===== ARCHIVO COMPLETO: plantillas/balanza_logica.js =====
+// Versión corregida: centrado, altura, cuerdas/platos, devolución de moneda y celebración con Deceerre,
+// manteniendo la estética de cabecera (glassmorphism + efecto "slideLight") e icono de la balanza.
 
 export async function render(root, data, hooks) {
-  // 1) Montar contenedor base
+  // Limpiar contenedor y montar shell
   root.innerHTML = '';
   const ui = buildShell();
   root.append(ui.box);
 
-  // 2) Cargar configuración
+  // Cargar configuración
   let config;
   try {
     config = await loadConfig(data);
@@ -15,7 +17,7 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  // 3) Normalizaciones seguras
+  // Normalizaciones seguras
   if (['heaviest', 'lightest', 'oddUnknown'].includes(config.variant)) config.k = 1;
   if (!config.maxWeighings) config.maxWeighings = 4;
   if (!config.variant || !config.N) {
@@ -23,17 +25,15 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  // 4) Estado + Render UI
+  // Estado + UI
   const state = initializeGame(config);
   renderCoins(ui.coinsContainer, state);
   renderBalance(ui.balanceContainer, state);
   renderAnswerSelector(ui.answerContainer, state);
   setupEventListeners(ui, state, config);
 
-  // Ocultar el status genérico
+  // Quitar estado genérico
   ui.status?.remove();
-
-  // Instrucciones dinámicas
   updateInstructions(ui.instructions, config);
 
   // ====================== LÓGICA DEL JUEGO ======================
@@ -140,23 +140,23 @@ export async function render(root, data, hooks) {
   }
 
   function renderBalance(container, state) {
-    // HTML de la balanza con estilos inline clave para evitar depender de CSS externo
+    // Importante: anclamos la barra por arriba (top) y no por abajo (bottom) para eliminar el hueco superior.
+    // Alargamos la cuerda y bajamos los platos para ganar distancia barra ↔ plato.
     container.innerHTML = `
       <div class="balance-beam" id="balance-beam" style="
-        position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
+        position:absolute; top:12px; left:50%; transform:translateX(-50%);
         width:500px; height:12px; background:linear-gradient(180deg,#ccc,#999);
         border-radius:6px; transition:transform .6s ease; transform-origin:center; z-index:2;">
         <div class="balance-hook left" style="position:absolute; top:-5px; left:50px; width:4px; height:20px;">
           <div class="balance-rope" style="
-            position:absolute; top:12px; left:1px; width:2px; height:110px; /* CUERDA LARGA */
+            position:absolute; top:12px; left:1px; width:2px; height:110px;
             background:#888; transform-origin:top;"></div>
           <div class="balance-plate left" id="left-plate" data-side="left" style="
-            position:absolute; top:140px; /* PLATO MÁS ABAJO */
+            position:absolute; top:140px;
             left:-100px; width:200px; height:20px; cursor:pointer;
             background:linear-gradient(180deg,#ddd,#aaa); border-radius:20px; border:2px solid rgba(0,0,0,.3);">
             <div class="plate-coins" style="
-              position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
-              width:180px; height:120px; overflow:visible; pointer-events:none;">
+              position:relative; width:100%; height:20px; overflow:visible;">
             </div>
           </div>
         </div>
@@ -170,27 +170,26 @@ export async function render(root, data, hooks) {
             left:-100px; width:200px; height:20px; cursor:pointer;
             background:linear-gradient(180deg,#ddd,#aaa); border-radius:20px; border:2px solid rgba(0,0,0,.3);">
             <div class="plate-coins" style="
-              position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
-              width:180px; height:120px; overflow:visible; pointer-events:none;">
+              position:relative; width:100%; height:20px; overflow:visible;">
             </div>
           </div>
         </div>
       </div>
 
       <div class="balance-pivot" style="
-        position:absolute; bottom:55px; left:50%; transform:translateX(-50%);
+        position:absolute; top:98px; left:50%; transform:translateX(-50%);
         width:30px; height:30px; background:linear-gradient(145deg,#666,#333);
         border-radius:8px; box-shadow:0 4px 15px rgba(0,0,0,.5); z-index:3;"></div>
     `;
 
-    // Asegurar centrado vertical del contenedor (menos aire)
+    // Contenedor más compacto y centrado
     container.style.position = 'relative';
     container.style.width = '100%';
     container.style.maxWidth = '600px';
-    container.style.height = '280px';
-    container.style.margin = '8px auto'; // más arriba
+    container.style.height = '260px';  // reduce aire total
+    container.style.margin = '8px auto';
 
-    // Listeners de platos
+    // Listeners
     const leftPlate = container.querySelector('#left-plate');
     const rightPlate = container.querySelector('#right-plate');
     leftPlate.addEventListener('click', () => placeCoin('left', state, ui));
@@ -219,7 +218,7 @@ export async function render(root, data, hooks) {
     // Marcado visual
     coin.element.classList.add('in-plate');
 
-    // Layout absoluto encima del plato
+    // Layout: en filas/columnas por encima del borde del plato (usamos top negativo)
     layoutPlate(side, state, ui);
 
     // Limpiar selección
@@ -228,32 +227,31 @@ export async function render(root, data, hooks) {
   }
 
   function layoutPlate(side, state, ui) {
-    const plateCoins = ui.balanceContainer.querySelector(`[data-side="${side}"] .plate-coins`);
+    const area = ui.balanceContainer.querySelector(`[data-side="${side}"] .plate-coins`);
     const coins = state.coins.filter(c => c.side === side);
-    if (!plateCoins) return;
+    if (!area) return;
 
-    const areaW = plateCoins.clientWidth || 180;
+    const width = area.clientWidth || 200; // ancho del plato
     const cols = 3;
-    const gapY = 46;       // separación vertical entre filas
-    const baseBottom = 0;  // dentro del contenedor "plate-coins" ya ajustado a 18px sobre el plato
+    const rowGap = 46;        // separación entre filas
+    const rise = 28;          // cuánto sube la primera fila sobre el borde
 
     coins.forEach((c, idx) => {
       const row = Math.floor(idx / cols);
       const col = idx % cols;
 
       const coinW = c.element.offsetWidth || 48;
-      const colCenter = areaW * ((1 + col * 2) / 6);
+      const colCenter = width * ((1 + col * 2) / 6);  // 1/6, 3/6, 5/6
       const leftPx = Math.round(colCenter - coinW / 2);
-      const bottomPx = baseBottom + row * gapY;
 
+      // Posicionamos ABSOLUTO y “por encima” del borde del plato (top negativo)
       const el = c.element;
       el.style.position = 'absolute';
       el.style.left = `${leftPx}px`;
-      el.style.bottom = `${bottomPx}px`;
-      el.style.top = '';
+      el.style.top = `${-(rise + row * rowGap)}px`;  // NEGATIVO → sube sobre el plato
       el.style.margin = '0';
-      el.style.zIndex = String(10 + row); // asegurar por encima del plato
-      el.style.pointerEvents = 'auto';    // permitir clic para devolverla al pool
+      el.style.zIndex = String(10 + row);
+      el.style.pointerEvents = 'auto';
     });
   }
 
@@ -278,15 +276,13 @@ export async function render(root, data, hooks) {
     const rw = calculateWeight(rightCoins, state);
 
     let tilt = 'balanced', result = 'Equilibrio';
-    if (lw > rw) { tilt = 'left'; result = 'Izquierda más pesada'; }
+    if (lw > rw) { tilt = 'left';  result = 'Izquierda más pesada'; }
     else if (rw > lw) { tilt = 'right'; result = 'Derecha más pesada'; }
 
     animateBalance(ui.balanceContainer, tilt);
     showMessage(ui.result, result, tilt === 'balanced' ? 'ok' : 'info');
 
-    if (state.weighings >= state.maxWeighings) {
-      ui.weighButton.disabled = true;
-    }
+    if (state.weighings >= state.maxWeighings) ui.weighButton.disabled = true;
 
     hooks?.onWeigh?.({ left: leftCoins, right: rightCoins, result, weighingIndex: state.weighings });
   }
@@ -300,9 +296,9 @@ export async function render(root, data, hooks) {
   function animateBalance(container, tilt) {
     const beam = container.querySelector('#balance-beam');
     if (!beam) return;
-    beam.classList.remove('tilt-left', 'tilt-right', 'balanced');
+    // Usamos transform inline para no depender de clases externas
     setTimeout(() => {
-      if (tilt === 'left') beam.style.transform = 'translateX(-50%) rotate(-6deg)';
+      if (tilt === 'left')  beam.style.transform = 'translateX(-50%) rotate(-6deg)';
       else if (tilt === 'right') beam.style.transform = 'translateX(-50%) rotate(6deg)';
       else beam.style.transform = 'translateX(-50%) rotate(0deg)';
     }, 40);
@@ -469,7 +465,7 @@ export async function render(root, data, hooks) {
       return;
     }
 
-    const { variant, k } = state;
+    const { variant } = state;
     let user = [];
 
     if (variant === 'heaviest' && state.answer.single !== null) {
@@ -607,22 +603,19 @@ export async function render(root, data, hooks) {
 // ====================== UTILIDADES UI ======================
 
 function buildShell() {
-  // Contenedor base con centrado robusto
-  const box = createElement('div', {
-    class: 'template-box balance-game',
-    style: 'max-width:800px;margin:0 auto;display:grid;justify-items:center;' // centrado fuerte
-  });
+  const box = createElement('div', { class: 'template-box balance-game' });
 
-  // Header: icono de balanza + título del reto
+  // ---- Cabecera con estética original (glassmorphism + barrido de luz) ----
   const header = createElement('div', {
     class: 'enigma-header',
-    style: 'display:flex;align-items:center;gap:12px;margin-bottom:8px;position:relative;overflow:hidden;'
+    style: 'display:flex;align-items:center;gap:16px;margin-bottom:16px;position:relative;overflow:hidden;'
   });
 
+  // Icono de la balanza (con fallback)
   const icon = createElement('img', {
     src: 'assets/icon-balanza.png',
     alt: 'Balanza',
-    style: 'width:56px;height:56px;border-radius:12px;border:2px solid var(--accent);background:rgba(255,255,255,.06);padding:6px;box-sizing:border-box;'
+    style: 'width:64px;height:64px;border-radius:12px;border:2px solid var(--accent);background:rgba(255,255,255,.06);padding:8px;box-sizing:border-box;z-index:2;position:relative;'
   });
   icon.onerror = () => {
     icon.src = 'assets/balance-icon.svg';
@@ -630,41 +623,57 @@ function buildShell() {
   };
 
   const title = createElement('h2', {
-    style: 'margin:0;color:var(--accent);font-size:1.5rem;'
+    style: 'margin:0;color:var(--accent);font-size:1.5rem;z-index:2;position:relative;'
   });
   title.textContent = 'Descubre el impostor';
 
+  // Efecto de barrido luminoso (usa @keyframes slideLight de tu CSS)
+  const lightEffect = createElement('div', {
+    style: `
+      position:absolute; top:0; left:-100%; width:100%; height:100%;
+      background: linear-gradient(90deg, transparent, rgba(108,92,231,0.3), transparent);
+      animation: slideLight 3s infinite; z-index:1;
+    `
+  });
+
+  header.appendChild(lightEffect);
   header.appendChild(icon);
   header.appendChild(title);
   box.appendChild(header);
 
-  // Tarjeta de instrucciones + área dinámica
+  // ---- Tarjeta de instrucciones con Deceerre (tu estética) ----
   const instructionsBox = createElement('div', {
     class: 'card deceerre-instructions',
-    style: 'display:flex;align-items:center;gap:16px;margin-bottom:8px;background:linear-gradient(135deg, rgba(108,92,231,.1), rgba(168,85,247,.1));border:2px solid transparent;border-radius:16px;position:relative;overflow:hidden;transition:all .3s ease;backdrop-filter:blur(10px);'
+    style: `
+      display:flex; align-items:center; gap:20px; margin-bottom:16px;
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(168, 85, 247, 0.1));
+      border: 2px solid transparent; border-radius: 16px; position: relative;
+      overflow: hidden; transition: all 0.3s ease; backdrop-filter: blur(10px);
+    `
   });
-
   const deceerreImg = createElement('img', {
     src: 'assets/deceerre-instructions.png',
     alt: 'Deceerre',
-    style: 'width:84px;height:84px;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(108,92,231,.3));'
+    style: `
+      width:90px; height:90px; flex-shrink:0;
+      filter: drop-shadow(0 4px 12px rgba(108, 92, 231, 0.3));
+      z-index:2; position:relative;
+    `
   });
   deceerreImg.onerror = () => (deceerreImg.style.display = 'none');
 
-  const instructionsContent = createElement('div', { style: 'flex:1;' });
+  const instructionsContent = createElement('div', { style: 'flex:1; z-index:2; position:relative;' });
   const instructionsTitle = createElement('h3', {
-    style: 'margin:0 0 6px 0;color:var(--accent);font-size:1.05rem;font-weight:700;'
+    style: 'margin:0 0 8px 0; color: var(--accent); font-size: 1.1rem; font-weight: 700;'
   });
   instructionsTitle.textContent = 'Cómo jugar';
-
   const instructionsText = createElement('p', {
-    style: 'margin:0;color:var(--fg);line-height:1.5;font-size:.95rem;'
+    style: 'margin:0; color: var(--fg); line-height: 1.5; font-size: 0.95rem;'
   });
   instructionsText.innerHTML = 'Selecciona monedas y colócalas en los <strong>platos</strong>. Pesa con lógica para descubrir el impostor.';
-
   const instructions = createElement('div', {
     class: 'balance-instructions',
-    style: 'margin-top:6px;font-size:.9rem;color:var(--muted);'
+    style: 'margin-top:8px; font-size:0.9rem; color: var(--muted);'
   });
 
   instructionsContent.appendChild(instructionsTitle);
@@ -674,38 +683,37 @@ function buildShell() {
   instructionsBox.appendChild(instructionsContent);
   box.appendChild(instructionsBox);
 
-  // Status (se elimina tras render OK)
+  // ---- Status (se elimina al cargar) ----
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
   box.appendChild(status);
 
-  // Contador de pesadas
+  // ---- Contador de pesadas ----
   const weighingsInfo = createElement('div', {
     class: 'weighings-info',
-    style: 'margin:8px 0;text-align:center;font-size:1rem;'
+    style: 'margin: 8px 0; text-align: center; font-size: 1rem;'
   });
   weighingsInfo.innerHTML = `<span>Pesadas: </span><strong><span class="weighings-count">0</span></strong>`;
   box.appendChild(weighingsInfo);
 
-  // Balanza (centrada y con menos aire)
+  // ---- Balanza ----
   const balanceContainer = createElement('div', {
     class: 'balance-container',
-    style: 'margin:8px 0;' // reducido respecto al default para subir la balanza
+    style: 'margin: 8px 0;'
   });
   box.appendChild(balanceContainer);
 
-  // Pool de monedas
+  // ---- Pool de monedas ----
   const coinsContainer = createElement('div', {
     class: 'balance-coins',
-    style: 'margin-top:8px;'
+    style: 'margin-top: 8px;'
   });
   box.appendChild(coinsContainer);
 
-  // Resultado de pesada
+  // ---- Resultado + Controles ----
   const result = createElement('div', { class: 'balance-message' });
   box.appendChild(result);
 
-  // Controles
   const balanceControls = createElement('div', { class: 'balance-controls' });
   const weighButton = createElement('button', { class: 'btn' }); weighButton.textContent = 'Pesar';
   const clearButton = createElement('button', { class: 'btn btn-secondary' }); clearButton.textContent = 'Vaciar';
@@ -715,7 +723,7 @@ function buildShell() {
   balanceControls.appendChild(resetButton);
   box.appendChild(balanceControls);
 
-  // Sección de respuesta (botón centrado por inline style)
+  // ---- Sección de respuesta (botón centrado) ----
   const answerSection = createElement('div', { class: 'balance-answer-section' });
   const answerTitle = createElement('h3'); answerTitle.textContent = 'Tu respuesta:';
   const answerContainer = createElement('div', { class: 'balance-answer' });
@@ -729,7 +737,7 @@ function buildShell() {
   answerSection.appendChild(checkButton);
   box.appendChild(answerSection);
 
-  // Mensaje general
+  // ---- Mensaje general ----
   const message = createElement('div', { class: 'balance-message' });
   box.appendChild(message);
 
