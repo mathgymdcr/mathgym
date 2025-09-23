@@ -1,18 +1,19 @@
 // ===== ARCHIVO COMPLETO: plantillas/balanza_logica.js =====
-// Versión con:
-// - Cabecera conservando estética (glassmorphism + barrido de luz) y título “Descubre el impostor” con icono de balanza.
-// - Balanza centrada y subida (sin hueco arriba): barra anclada por arriba, cuerdas más largas y platos más bajos.
-// - Monedas encima del plato (no se cuelan debajo) y clic en moneda del plato => vuelve al pool.
-// - Celebración a pantalla completa (overlay) con Deceerre durante unos segundos.
-// - Sin inyección de CSS global desde JS (usa tus estilos + inline locales de la balanza).
+// Versión: centrado sin hueco, cuerdas/platos ajustados, monedas encima del plato,
+// clic en moneda del plato => vuelve al pool, cabecera original (glassmorphism + barrido),
+// y CELEBRACIÓN A PANTALLA COMPLETA (overlay) con Deceerre que se cierra sola.
+// Sustituye TODO tu archivo por este.
 
+// -----------------------------------------------------------
+// RENDER PRINCIPAL
+// -----------------------------------------------------------
 export async function render(root, data, hooks) {
-  // 1) Montar contenedor base
+  // Limpiar contenedor y montar shell
   root.innerHTML = '';
   const ui = buildShell();
   root.append(ui.box);
 
-  // 2) Cargar configuración
+  // Cargar configuración
   let config;
   try {
     config = await loadConfig(data);
@@ -21,7 +22,7 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  // 3) Normalizaciones seguras
+  // Normalizaciones seguras
   if (['heaviest', 'lightest', 'oddUnknown'].includes(config.variant)) config.k = 1;
   if (!config.maxWeighings) config.maxWeighings = 4;
   if (!config.variant || !config.N) {
@@ -29,27 +30,26 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  // 4) Estado + Render UI
+  // Estado + UI
   const state = initializeGame(config);
   renderCoins(ui.coinsContainer, state);
   renderBalance(ui.balanceContainer, state);
   renderAnswerSelector(ui.answerContainer, state);
   setupEventListeners(ui, state, config);
 
-  // Ocultar el status genérico
+  // Quitar “Cargando…/Listo”
   ui.status?.remove();
-
-  // Instrucciones dinámicas
   updateInstructions(ui.instructions, config);
 
-  // ====================== LÓGICA DEL JUEGO ======================
-
-  function initializeGame(config) {
+  // -----------------------------------------------------------
+  // LÓGICA DEL JUEGO
+  // -----------------------------------------------------------
+  function initializeGame(cfg) {
     const s = {
-      N: config.N,
-      variant: config.variant,
-      k: config.k || 1,
-      maxWeighings: config.maxWeighings || 4,
+      N: cfg.N,
+      variant: cfg.variant,
+      k: cfg.k || 1,
+      maxWeighings: cfg.maxWeighings || 4,
       coins: [],
       anomalies: [],
       weighings: 0,
@@ -57,13 +57,13 @@ export async function render(root, data, hooks) {
       answer: { heavy: new Set(), light: new Set(), single: null, singleSign: 1 },
       gameWon: false
     };
-    generateAnomalies(s, config);
+    generateAnomalies(s, cfg);
     return s;
   }
 
-  function generateAnomalies(state, config) {
+  function generateAnomalies(state, cfg) {
     state.anomalies = [];
-    const { variant, k, N } = config;
+    const { variant, k, N } = cfg;
     const idxs = Array.from({ length: N }, (_, i) => i);
 
     const pickRandom = (count) => {
@@ -109,7 +109,7 @@ export async function render(root, data, hooks) {
       const coin = createElement('div', { class: 'balance-coin', 'data-index': i });
       coin.textContent = i + 1;
 
-      // Clic: si está en plato → volver al pool; si no → seleccionar
+      // Clic: si está en plato => vuelve al pool; si no => seleccionar
       coin.addEventListener('click', () => {
         const c = state.coins[i];
         if (!c) return;
@@ -134,7 +134,7 @@ export async function render(root, data, hooks) {
     }
   }
 
-  function selectCoin(index, state, ui) {
+  function selectCoin(index, state) {
     if (state.gameWon) return;
     state.coins.forEach(c => c.element.classList.remove('selected'));
     if (state.selectedCoin === index) {
@@ -145,14 +145,15 @@ export async function render(root, data, hooks) {
     }
   }
 
-  function renderBalance(container, state) {
-    // Importante: barra anclada por arriba (top) para eliminar hueco superior.
-    // Cuerdas largas y platos más bajos para ganar distancia barra ↔ plato.
+  function renderBalance(container /*, state */) {
+    // Barra anclada por ARRIBA para quitar hueco superior.
+    // Cuerdas largas + platos más bajos => más distancia barra↔plato.
     container.innerHTML = `
       <div class="balance-beam" id="balance-beam" style="
         position:absolute; top:12px; left:50%; transform:translateX(-50%);
         width:500px; height:12px; background:linear-gradient(180deg,#ccc,#999);
         border-radius:6px; transition:transform .6s ease; transform-origin:center; z-index:2;">
+        
         <div class="balance-hook left" style="position:absolute; top:-5px; left:50px; width:4px; height:20px;">
           <div class="balance-rope" style="
             position:absolute; top:12px; left:1px; width:2px; height:110px;
@@ -192,7 +193,7 @@ export async function render(root, data, hooks) {
     container.style.position = 'relative';
     container.style.width = '100%';
     container.style.maxWidth = '600px';
-    container.style.height = '260px';  // reduce aire total
+    container.style.height = '260px';
     container.style.margin = '8px auto';
 
     // Listeners de platos
@@ -221,10 +222,10 @@ export async function render(root, data, hooks) {
     const plate = ui.balanceContainer.querySelector(`[data-side="${side}"] .plate-coins`);
     plate.appendChild(coin.element);
 
-    // Marcado visual
+    // Marca visual
     coin.element.classList.add('in-plate');
 
-    // Layout: en filas/columnas por encima del borde del plato (top negativo)
+    // Layout en filas por ENCIMA del borde del plato (top NEGATIVO)
     layoutPlate(side, state, ui);
 
     // Limpiar selección
@@ -250,7 +251,7 @@ export async function render(root, data, hooks) {
       const colCenter = width * ((1 + col * 2) / 6);  // 1/6, 3/6, 5/6
       const leftPx = Math.round(colCenter - coinW / 2);
 
-      // Posicionamos ABSOLUTO y por encima del plato (top negativo respecto al borde del plato)
+      // Posición absoluta y por encima del plato (top negativo)
       const el = c.element;
       el.style.position = 'absolute';
       el.style.left = `${leftPx}px`;
@@ -501,8 +502,8 @@ export async function render(root, data, hooks) {
     if (ok) {
       state.gameWon = true;
 
-      // Overlay a pantalla completa (3.2 s) con Deceerre
-      showFullscreenCelebration({ duration: 3200 });
+      // *** CELEBRACIÓN A PANTALLA COMPLETA ***
+      showFullscreenCelebration({ duration: 3600 });
 
       // Mensaje informativo secundario
       if (state.weighings <= optimal) {
@@ -529,8 +530,8 @@ export async function render(root, data, hooks) {
     return u.size === c.size && [...u].every(x => c.has(x));
   }
 
-  function calculateOptimalWeighings(config) {
-    const { variant, N, k } = config;
+  function calculateOptimalWeighings(cfg) {
+    const { variant, N, k } = cfg;
     let states = 0;
     switch (variant) {
       case 'heaviest':
@@ -551,8 +552,8 @@ export async function render(root, data, hooks) {
     return Math.round(res);
   }
 
-  function updateInstructions(el, config) {
-    const { variant, N, k } = config;
+  function updateInstructions(el, cfg) {
+    const { variant, N, k } = cfg;
     let t = '';
     switch (variant) {
       case 'heaviest':    t = `De estas ${N} monedas, una es más pesada que el resto.`; break;
@@ -565,15 +566,15 @@ export async function render(root, data, hooks) {
     el.textContent = t;
   }
 
-  function setupEventListeners(ui, state, config) {
+  function setupEventListeners(ui, state, cfg) {
     ui.weighButton.addEventListener('click', () => weighCoins(state, ui));
     ui.clearButton.addEventListener('click', () => clearPlates(state, ui));
-    ui.resetButton.addEventListener('click', () => resetGame(state, ui, config));
-    ui.checkButton.addEventListener('click', () => checkAnswer(state, ui, config));
+    ui.resetButton.addEventListener('click', () => resetGame(state, ui, cfg));
+    ui.checkButton.addEventListener('click', () => checkAnswer(state, ui, cfg));
   }
 
-  function resetGame(state, ui, config) {
-    const fresh = initializeGame(config);
+  function resetGame(state, ui, cfg) {
+    const fresh = initializeGame(cfg);
     Object.assign(state, fresh);
 
     renderCoins(ui.coinsContainer, state);
@@ -584,7 +585,7 @@ export async function render(root, data, hooks) {
     ui.weighButton.disabled = false;
     showMessage(ui.result, '', '');
     showMessage(ui.message, '', '');
-    updateInstructions(ui.instructions, config);
+    updateInstructions(ui.instructions, cfg);
   }
 
   function showMessage(el, text, type = '') {
@@ -609,58 +610,178 @@ export async function render(root, data, hooks) {
     el.style.pointerEvents = '';
   }
 
-  // ---------- Overlay a pantalla completa (victoria) ----------
-  function showFullscreenCelebration({ duration = 3200 } = {}) {
+  // -----------------------------------------------------------
+  // CELEBRACIÓN A PANTALLA COMPLETA (overlay) — sin depender del CSS externo
+  // -----------------------------------------------------------
+  function showFullscreenCelebration({ duration = 3600 } = {}) {
+    // Inyectar estilos de la celebración (una sola vez)
+    ensureCelebrationStyles();
+
+    // Si ya hay overlay, eliminarlo primero
+    const existing = document.getElementById('mg-balance-celebration');
+    if (existing) existing.remove();
+
+    // Congelar scroll del body durante la celebración
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    // Overlay
     const overlay = document.createElement('div');
-    overlay.className = 'balance-celebration';
-    overlay.setAttribute('role', 'dialog');
-    overlay.setAttribute('aria-live', 'assertive');
-    overlay.setAttribute('aria-label', 'Celebración de victoria');
-
-    const content = document.createElement('div');
-    content.className = 'celebration-content';
-
-    const deceerre = document.createElement('img');
-    deceerre.src = 'assets/deceerre-celebration.png';
-    deceerre.alt = 'Deceerre celebrando';
-    deceerre.style.cssText = `
-      width:140px;height:140px;display:block;margin:0 auto 12px auto;
-      filter: drop-shadow(0 6px 18px rgba(16,185,129,.45));
-      animation: bounce 1s infinite;
+    overlay.id = 'mg-balance-celebration';
+    overlay.style.cssText = `
+      position: fixed; inset: 0; z-index: 9999;
+      display: grid; place-items: center;
+      background: radial-gradient(120% 120% at 50% 40%, rgba(12,18,32,0.94), rgba(12,18,32,0.85)) ,
+                  linear-gradient(160deg, rgba(108,92,231,0.20), rgba(16,132,199,0.20));
+      backdrop-filter: blur(4px);
+      animation: mg-celebrate-fade-in 280ms ease-out forwards;
+      cursor: pointer;
     `;
-    deceerre.onerror = () => { deceerre.style.display = 'none'; };
 
+    // Tarjeta central
+    const card = document.createElement('div');
+    card.style.cssText = `
+      width: min(680px, 92vw);
+      padding: clamp(16px, 4vw, 28px);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border: 1.5px solid rgba(255,255,255,0.12);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.05);
+      text-align: center;
+      color: var(--fg, #E9EEF8);
+      transform: translateY(8px) scale(0.98);
+      animation: mg-celebrate-pop 420ms cubic-bezier(.2, .9, .18, 1.1) forwards 120ms;
+    `;
+
+    // Deceerre
+    const deco = document.createElement('img');
+    deco.src = 'assets/deceerre-celebration.png';
+    deco.alt = 'Deceerre celebrando';
+    deco.style.cssText = `
+      width: clamp(120px, 24vw, 180px);
+      height: clamp(120px, 24vw, 180px);
+      object-fit: contain;
+      margin: 0 auto 8px auto;
+      filter: drop-shadow(0 10px 24px rgba(16,185,129,0.45));
+      animation: mg-bounce 1100ms ease-in-out infinite;
+      display: block;
+    `;
+    deco.onerror = () => { deco.style.display = 'none'; };
+
+    // Título
     const title = document.createElement('div');
-    title.className = 'celebration-text';
     title.textContent = '¡Excelente deducción!';
+    title.style.cssText = `
+      font-weight: 800;
+      font-size: clamp(22px, 4.2vw, 36px);
+      letter-spacing: 0.3px;
+      margin: 6px 0 2px 0;
+      background: linear-gradient(45deg, var(--accent, #6C5CE7), var(--success, #10B981));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    `;
 
+    // Subtítulo
+    const subtitle = document.createElement('div');
+    subtitle.textContent = 'Has descubierto al impostor como un verdadero detective';
+    subtitle.style.cssText = `
+      opacity: .9;
+      font-size: clamp(14px, 2.4vw, 18px);
+      margin-bottom: 12px;
+    `;
+
+    // Emoji animado
     const emoji = document.createElement('div');
-    emoji.className = 'celebration-emoji';
     emoji.textContent = '🎉';
+    emoji.style.cssText = `
+      font-size: clamp(36px, 8vw, 64px);
+      animation: mg-tilt 1800ms ease-in-out infinite;
+      margin-bottom: 6px;
+    `;
 
-    content.appendChild(deceerre);
-    content.appendChild(title);
-    content.appendChild(emoji);
-    overlay.appendChild(content);
+    // Pista de cierre
+    const hint = document.createElement('div');
+    hint.textContent = 'Toca para continuar';
+    hint.style.cssText = `
+      opacity: 0.75;
+      font-size: 13px;
+      margin-top: 6px;
+    `;
 
-    const close = () => overlay.remove();
+    card.appendChild(deco);
+    card.appendChild(title);
+    card.appendChild(subtitle);
+    card.appendChild(emoji);
+    card.appendChild(hint);
+    overlay.appendChild(card);
+
+    // Cierre: click o timeout
+    const close = () => {
+      overlay.style.animation = 'mg-celebrate-fade-out 280ms ease-in forwards';
+      // liberar scroll al terminar fade
+      setTimeout(() => {
+        document.body.style.overflow = prevOverflow || '';
+        overlay.remove();
+      }, 260);
+    };
     overlay.addEventListener('click', close);
+    document.addEventListener('keydown', onEsc, { once: true });
 
+    function onEsc(e) {
+      if (e.key === 'Escape') close();
+    }
+
+    // Montar
     document.body.appendChild(overlay);
 
+    // Autocierre
     const t = setTimeout(() => {
       clearTimeout(t);
       close();
-    }, duration);
+    }, Math.max(1200, duration));
+  }
+
+  function ensureCelebrationStyles() {
+    if (document.getElementById('mg-celebration-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'mg-celebration-styles';
+    style.textContent = `
+      @keyframes mg-bounce {
+        0%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+      }
+      @keyframes mg-tilt {
+        0%, 100% { transform: rotate(-3deg); }
+        50% { transform: rotate(3deg); }
+      }
+      @keyframes mg-celebrate-fade-in {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes mg-celebrate-fade-out {
+        from { opacity: 1; }
+        to   { opacity: 0; }
+      }
+      @keyframes mg-celebrate-pop {
+        0%   { transform: translateY(12px) scale(0.95); opacity: 0; }
+        100% { transform: translateY(0px)  scale(1.00); opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #mg-balance-celebration { animation: none !important; }
+        #mg-balance-celebration * { animation: none !important; transition: none !important; }
+      }
+    `;
+    document.head.appendChild(style);
   }
 }
 
-// ====================== UTILIDADES UI ======================
-
+// -----------------------------------------------------------
+// SHELL / UI
+// -----------------------------------------------------------
 function buildShell() {
   const box = createElement('div', { class: 'template-box balance-game' });
 
-  // ---- Cabecera: estética original (glassmorphism + barrido de luz) ----
+  // Cabecera con estética original (glassmorphism + barrido de luz)
   const header = createElement('div', {
     class: 'enigma-header',
     style: 'display:flex;align-items:center;gap:16px;margin-bottom:16px;position:relative;overflow:hidden;'
@@ -682,7 +803,6 @@ function buildShell() {
   });
   title.textContent = 'Descubre el impostor';
 
-  // Efecto de barrido luminoso (usa @keyframes slideLight de tu CSS)
   const lightEffect = createElement('div', {
     style: `
       position:absolute; top:0; left:-100%; width:100%; height:100%;
@@ -696,7 +816,7 @@ function buildShell() {
   header.appendChild(title);
   box.appendChild(header);
 
-  // ---- Tarjeta de instrucciones con Deceerre ----
+  // Tarjeta de instrucciones con Deceerre
   const instructionsBox = createElement('div', {
     class: 'card deceerre-instructions',
     style: `
@@ -738,12 +858,12 @@ function buildShell() {
   instructionsBox.appendChild(instructionsContent);
   box.appendChild(instructionsBox);
 
-  // ---- Status (se elimina al cargar) ----
+  // Status (se elimina al cargar OK)
   const status = createElement('div', { class: 'feedback' });
   status.textContent = 'Cargando...';
   box.appendChild(status);
 
-  // ---- Contador de pesadas ----
+  // Contador de pesadas
   const weighingsInfo = createElement('div', {
     class: 'weighings-info',
     style: 'margin: 8px 0; text-align: center; font-size: 1rem;'
@@ -751,21 +871,21 @@ function buildShell() {
   weighingsInfo.innerHTML = `<span>Pesadas: </span><strong><span class="weighings-count">0</span></strong>`;
   box.appendChild(weighingsInfo);
 
-  // ---- Balanza (contenedor) ----
+  // Balanza (contenedor)
   const balanceContainer = createElement('div', {
     class: 'balance-container',
     style: 'margin: 8px 0;'
   });
   box.appendChild(balanceContainer);
 
-  // ---- Pool de monedas ----
+  // Pool de monedas
   const coinsContainer = createElement('div', {
     class: 'balance-coins',
     style: 'margin-top: 8px;'
   });
   box.appendChild(coinsContainer);
 
-  // ---- Resultado + Controles ----
+  // Resultado + controles
   const result = createElement('div', { class: 'balance-message' });
   box.appendChild(result);
 
@@ -778,7 +898,7 @@ function buildShell() {
   balanceControls.appendChild(resetButton);
   box.appendChild(balanceControls);
 
-  // ---- Sección de respuesta (botón centrado) ----
+  // Sección de respuesta (botón centrado)
   const answerSection = createElement('div', { class: 'balance-answer-section' });
   const answerTitle = createElement('h3'); answerTitle.textContent = 'Tu respuesta:';
   const answerContainer = createElement('div', { class: 'balance-answer' });
@@ -792,7 +912,7 @@ function buildShell() {
   answerSection.appendChild(checkButton);
   box.appendChild(answerSection);
 
-  // ---- Mensaje general ----
+  // Mensaje general
   const message = createElement('div', { class: 'balance-message' });
   box.appendChild(message);
 
@@ -813,6 +933,9 @@ function buildShell() {
   };
 }
 
+// -----------------------------------------------------------
+// UTILIDADES BÁSICAS
+// -----------------------------------------------------------
 async function loadConfig(data) {
   if (data?.json_url) {
     const resp = await fetch(data.json_url);
