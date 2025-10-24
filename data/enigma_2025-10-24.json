@@ -1,0 +1,61 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Camiseta": [
+      "Negro",
+      "Blanco",
+      "Gris",
+      "Marrón"
+    ],
+    "Bebida": [
+      "Leche",
+      "Vino",
+      "Cerveza",
+      "Refresco"
+    ],
+    "Mascota": [
+      "Hamster",
+      "Tortuga",
+      "Conejo",
+      "Serpiente"
+    ]
+  },
+  "clues": [
+    "María viste camiseta negro.",
+    "Pedro bebe vino.",
+    "Sofía tiene un conejo.",
+    "Quien viste camiseta marrón no bebe leche.",
+    "El tortuga pertenece a quien bebe vino.",
+    "Miguel no tiene hamster.",
+    "Quien bebe cerveza viste camiseta gris.",
+    "Quien viste blanco no bebe refresco.",
+    "María no viste camiseta blanco."
+  ],
+  "solution": {
+    "María": {
+      "Camiseta": "Negro",
+      "Bebida": "Leche",
+      "Mascota": "Hamster"
+    },
+    "Pedro": {
+      "Camiseta": "Blanco",
+      "Bebida": "Vino",
+      "Mascota": "Tortuga"
+    },
+    "Sofía": {
+      "Camiseta": "Gris",
+      "Bebida": "Cerveza",
+      "Mascota": "Conejo"
+    },
+    "Miguel": {
+      "Camiseta": "Marrón",
+      "Bebida": "Refresco",
+      "Mascota": "Serpiente"
+    }
+  }
+}
