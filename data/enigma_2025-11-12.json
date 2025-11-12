@@ -1,0 +1,61 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier"
+    ],
+    "Camiseta": [
+      "Rosa",
+      "Violeta",
+      "Naranja",
+      "Turquesa"
+    ],
+    "Bebida": [
+      "Batido",
+      "Soda",
+      "Kombucha",
+      "Smoothie"
+    ],
+    "Mascota": [
+      "Iguana",
+      "Hurón",
+      "Chinchilla",
+      "Gecko"
+    ]
+  },
+  "clues": [
+    "Laura viste camiseta rosa.",
+    "Andrés bebe soda.",
+    "Carmen tiene un chinchilla.",
+    "Quien viste camiseta turquesa no bebe batido.",
+    "El hurón pertenece a quien bebe soda.",
+    "Javier no tiene iguana.",
+    "Quien bebe kombucha viste camiseta naranja.",
+    "Quien viste violeta no bebe smoothie.",
+    "Laura no viste camiseta violeta."
+  ],
+  "solution": {
+    "Laura": {
+      "Camiseta": "Rosa",
+      "Bebida": "Batido",
+      "Mascota": "Iguana"
+    },
+    "Andrés": {
+      "Camiseta": "Violeta",
+      "Bebida": "Soda",
+      "Mascota": "Hurón"
+    },
+    "Carmen": {
+      "Camiseta": "Naranja",
+      "Bebida": "Kombucha",
+      "Mascota": "Chinchilla"
+    },
+    "Javier": {
+      "Camiseta": "Turquesa",
+      "Bebida": "Smoothie",
+      "Mascota": "Gecko"
+    }
+  }
+}
