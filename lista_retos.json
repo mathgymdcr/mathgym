@@ -414,5 +414,9 @@
   {
     "fecha": "2026-01-01",
     "titulo": "Reto de la Balanza"
+  },
+  {
+    "fecha": "2026-01-02",
+    "titulo": "Polígono Geométrico"
   }
 ]
