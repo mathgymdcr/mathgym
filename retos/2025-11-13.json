@@ -1,0 +1,12 @@
+{
+  "fecha": "2025-11-13",
+  "titulo": "Cajas Apiladas",
+  "objetivo": "Mueve todas las cajas a la Zona C sin dejar una caja sobre otra más ligera",
+  "icono_url": "assets/logo_mathgym.png",
+  "tipo": "cajas-apiladas",
+  "dificultad": 2,
+  "categorias": ["logica", "movimiento", "optimizacion"],
+  "data": {
+    "json_url": "data/cajas_2025-11-13.json"
+  }
+}

@@ -414,6 +414,7 @@ export async function render(root, data, hooks) {
         title: '¡Excelente deducción!',
         message: 'Has descubierto al impostor como un verdadero detective'
       });
+      if (hooks && hooks.onSuccess) hooks.onSuccess();
       if (s.weighings <= optimal) {
         setStatus(ui.message, '¡Perfecto! Lo has logrado en el mínimo teórico (' + optimal + ') o menos.', 'ok');
       } else {

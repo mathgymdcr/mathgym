@@ -1,8 +1,22 @@
 // ===== script.js =====
 import './plantillas/base.js';
 import { initRouter } from './router.js';
+import { recordCompletion, getProgress } from './progress.js';
 
 const $ = id => document.getElementById(id);
+
+// --- RACHA (badge en el nav) ---
+function pintarRacha() {
+  const badge = $('streak-badge');
+  if (!badge) return;
+  const { currentStreak } = getProgress();
+  if (!currentStreak) {
+    badge.style.display = 'none';
+    return;
+  }
+  badge.style.display = '';
+  badge.textContent = `🔥 Racha: ${currentStreak} día${currentStreak === 1 ? '' : 's'}`;
+}
 
 // --- CARGA DEL RETO ---
 async function loadReto(fecha) {
@@ -13,7 +27,7 @@ async function loadReto(fecha) {
 }
 
 // --- MONTAJE DEL RETO ---
-async function mount(reto) {
+async function mount(reto, esRetoDeHoy) {
   const cont = $('contenedor-interactivo');
   if (!cont) {
     console.error('❌ Falta #contenedor-interactivo en el HTML');
@@ -30,7 +44,10 @@ async function mount(reto) {
   try {
     await window.Templates.render(reto.tipo, reto.data || {}, cont, {
       onSuccess() {
-        console.log('✅ Reto cargado correctamente');
+        if (esRetoDeHoy) {
+          recordCompletion(reto);
+          pintarRacha();
+        }
       }
     });
   } catch (err) {
@@ -43,6 +60,7 @@ async function mount(reto) {
 const router = initRouter({ mount, loadReto });
 
 // --- CARGA EL RETO AL INICIAR ---
+pintarRacha();
 router.renderCurrent();
 
 // --- INTERCEPTA EL CLICK EN “ENTRENAR AHORA” ---

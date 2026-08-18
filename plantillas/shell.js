@@ -1,0 +1,61 @@
+// ===== plantillas/shell.js =====
+// Helpers compartidos para el patrón cabecera + instrucciones + estado que
+// cada plantilla reconstruye a mano (ver `buildShell` en trasvase_ecologico.js,
+// poligono_geometrico.js, etc). Usar en plantillas nuevas; las existentes no se
+// tocan para no arriesgar regresiones en juegos que ya funcionan.
+
+export function createElement(tag, attributes = {}) {
+  const element = document.createElement(tag);
+  Object.entries(attributes).forEach(([key, value]) => {
+    if (key === 'class') {
+      element.className = value;
+    } else {
+      element.setAttribute(key, value);
+    }
+  });
+  return element;
+}
+
+export function setStatus(element, text, type = '') {
+  if (!element) return;
+  element.textContent = text;
+  element.className = element.className.split(' ')[0];
+  if (type) element.classList.add(type);
+}
+
+/**
+ * Construye la cabecera + caja de instrucciones (con Deceerre) + estado
+ * que comparten todas las plantillas. Devuelve los elementos para que la
+ * plantilla añada su propio contenido de juego dentro de `box`.
+ *
+ * @param {{icon: string, titulo: string, gameClass: string, instructionsHTML: string}} opts
+ */
+export function buildStandardShell({ icon, titulo, gameClass, instructionsHTML }) {
+  const box = createElement('div', { class: `template-box ${gameClass}` });
+
+  const header = createElement('div', { class: 'enigma-header-dark' });
+  const headerIcon = createElement('span', { class: 'enigma-header-icon' });
+  headerIcon.textContent = icon;
+  const headerTitle = document.createElement('h2');
+  headerTitle.textContent = titulo;
+  header.appendChild(headerIcon);
+  header.appendChild(headerTitle);
+  box.appendChild(header);
+
+  const status = createElement('div', { class: 'feedback' });
+  status.textContent = 'Cargando...';
+  box.appendChild(status);
+
+  const instructions = createElement('div', { class: 'card deceerre-instructions' });
+  const instructionsImg = createElement('img', { src: 'assets/deceerre-instructions.png', alt: 'Deceerre' });
+  const instructionsBody = createElement('div', { class: 'instructions-body' });
+  instructionsBody.innerHTML = instructionsHTML;
+  instructions.appendChild(instructionsImg);
+  instructions.appendChild(instructionsBody);
+  box.appendChild(instructions);
+
+  const result = createElement('div', { class: 'feedback' });
+  box.appendChild(result);
+
+  return { box, status, result };
+}

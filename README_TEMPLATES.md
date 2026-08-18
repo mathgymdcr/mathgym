@@ -9,9 +9,13 @@
   "objetivo": "string",
   "icono_url": "string",
   "tipo": "multiple | relojes-arena | trasvase-ecologico | ...",
+  "dificultad": "entero 1-5, opcional",
+  "categorias": ["array de strings, opcional"],
   "data": { /* payload específico por plantilla */ }
 }
 ```
+
+`dificultad` y `categorias` son opcionales: los retos antiguos no los tienen y siguen siendo válidos. Cuando están presentes, `archivo.js` los usa para mostrar la dificultad y para los filtros por categoría del archivo.
 
 ## Añadir una plantilla nueva
 1. Crea un archivo en `plantillas/mi_plantilla.js` que exporte `render(root, data, hooks)`.

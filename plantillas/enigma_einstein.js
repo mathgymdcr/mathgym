@@ -161,7 +161,10 @@ export async function render(root, data, hooks) {
     ui.btnValidate.addEventListener('click', () => {
       const r = validateSolution(state, cats, cfg.solution);
       setStatus(ui.result, r.msg, r.ok ? 'ok' : 'ko');
-      if (r.ok) celebrate({ ok: true });
+      if (r.ok) {
+        celebrate({ ok: true });
+        if (hooks && hooks.onSuccess) hooks.onSuccess();
+      }
     });
     ui.btnClear.addEventListener('click', () => {
       for (let i = 0; i < n; i++) state.board[i] = {};

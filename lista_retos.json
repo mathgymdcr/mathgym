@@ -30,5 +30,17 @@
   {
     "fecha": "2025-11-11",
     "titulo": "Jarras Exactas"
+  },
+  {
+    "fecha": "2025-11-12",
+    "titulo": "Anillas Encadenadas",
+    "dificultad": 2,
+    "categorias": ["logica", "movimiento", "optimizacion"]
+  },
+  {
+    "fecha": "2025-11-13",
+    "titulo": "Cajas Apiladas",
+    "dificultad": 2,
+    "categorias": ["logica", "movimiento", "optimizacion"]
   }
 ]

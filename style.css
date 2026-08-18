@@ -171,6 +171,7 @@ h1, h2, h3 {
     border: 1px solid var(--card-b);
     border-radius: 12px;
     padding: 16px;
+    min-width: 0;
 }
 
 .ein-clues h2, .ein-board h2, .ein-palette h2 {
@@ -482,7 +483,19 @@ li {
   margin: 0 auto;
   padding: 8px 20px 0;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+}
+
+.streak-badge {
+  margin-right: auto;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--card-b);
+  background: rgba(255,255,255,.04);
+  color: var(--fg);
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -671,8 +684,8 @@ li {
 /* Stage del juego */
 .polygon-stage {
   position: relative;
-  width: 480px;
-  height: 480px;
+  width: min(480px, 100%);
+  aspect-ratio: 1 / 1;
   border-radius: 12px;
   background: #131a2a;
   box-shadow: 0 10px 30px rgba(0,0,0,.35);
@@ -774,16 +787,6 @@ li {
 
 /* Responsive */
 @media (max-width: 560px) {
-  .polygon-stage {
-    width: 320px;
-    height: 320px;
-  }
-  
-  .polygon-stage canvas {
-    width: 320px !important;
-    height: 320px !important;
-  }
-  
   .polygon-node {
     width: 10px;
     height: 10px;
@@ -804,17 +807,6 @@ li {
   }
 }
 
-@media (max-width: 400px) {
-  .polygon-stage {
-    width: 280px;
-    height: 280px;
-  }
-  
-  .polygon-stage canvas {
-    width: 280px !important;
-    height: 280px !important;
-  }
-}
 /* Agregar al final de style.css - Estilos para trasvases ecológicos */
 
 /* Contenedor del juego de trasvases */
@@ -1789,5 +1781,220 @@ li {
   height: 0%;
   background: linear-gradient(180deg, #e9c46a, #d9a441);
   transition: height .2s linear;
+}
+
+/* ===== Anillas Encadenadas ===== */
+.anillas-info {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 4px 0 16px;
+  font-size: 0.95rem;
+  color: var(--fg);
+}
+
+.anillas-hint {
+  text-align: center;
+  margin: -8px 0 8px;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.anillas-bar-container {
+  position: relative;
+  padding: 32px 12px 20px;
+}
+
+.anillas-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--card-b);
+  margin: 0 auto 28px;
+  max-width: 90%;
+}
+
+.anillas-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.anillas-ring {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 6px solid #6c5ce7;
+  background: rgba(108, 92, 231, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--fg);
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.anillas-ring::before {
+  content: '';
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 26px;
+  background: var(--card-b);
+}
+
+.anillas-ring:hover {
+  border-color: var(--accent);
+}
+
+.anillas-ring.is-off {
+  opacity: 0.4;
+  transform: translateY(28px);
+  border-color: var(--card-b);
+  background: transparent;
+}
+
+.anillas-ring.is-legal {
+  animation: anillasPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes anillasPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 210, 59, 0); }
+  50% { box-shadow: 0 0 14px rgba(255, 210, 59, 0.85); }
+}
+
+.anillas-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+@media (max-width: 560px) {
+  .anillas-row {
+    gap: 12px;
+  }
+
+  .anillas-ring {
+    width: 44px;
+    height: 44px;
+    border-width: 5px;
+    font-size: 0.85rem;
+  }
+
+  .anillas-ring.is-off {
+    transform: translateY(20px);
+  }
+}
+
+/* ===== Cajas Apiladas ===== */
+.cajas-info {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 4px 0 16px;
+  font-size: 0.95rem;
+  color: var(--fg);
+}
+
+.cajas-board {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  gap: 16px;
+  padding: 20px 12px 12px;
+}
+
+.cajas-zona {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  max-width: 220px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  cursor: pointer;
+  padding-bottom: 8px;
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.cajas-zona:hover {
+  background: rgba(255,255,255,.04);
+}
+
+.cajas-zona.is-selected {
+  background: rgba(108, 92, 231, 0.15);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.cajas-stack {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 3px;
+}
+
+.cajas-caja {
+  max-width: 100%;
+  height: 26px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #e9c46a, #d9a441);
+  border: 1px solid var(--card-b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #2b2410;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+.cajas-suelo {
+  width: 90%;
+  max-width: 200px;
+  height: 4px;
+  background: var(--card-b);
+  border-radius: 2px;
+  margin-top: 6px;
+}
+
+.cajas-zona-label {
+  position: relative;
+  z-index: 1;
+  margin-top: 6px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.cajas-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+@media (max-width: 560px) {
+  .cajas-board {
+    gap: 8px;
+    padding: 16px 4px 8px;
+  }
+
+  .cajas-zona {
+    height: 150px;
+  }
+
+  .cajas-caja {
+    height: 20px;
+    font-size: 0.65rem;
+  }
 }
   

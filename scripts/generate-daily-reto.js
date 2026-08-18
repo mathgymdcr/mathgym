@@ -55,7 +55,7 @@ class MathGymGenerator {
     );
     
     // Update lista_retos.json
-    await this.updateRetosList(fecha, reto.titulo);
+    await this.updateRetosList(fecha, reto.titulo, reto.dificultad, reto.categorias);
     
     console.log(`✅ Generated: ${reto.titulo}`);
     return reto;
@@ -71,7 +71,7 @@ class MathGymGenerator {
     return templates[seed % templates.length];
   }
 
-  async updateRetosList(fecha, titulo) {
+  async updateRetosList(fecha, titulo, dificultad, categorias) {
     let lista = [];
     try {
       const content = await fs.readFile('lista_retos.json', 'utf8');
@@ -82,13 +82,16 @@ class MathGymGenerator {
 
     // Remove existing entry for this date
     lista = lista.filter(r => r.fecha !== fecha);
-    
+
     // Add new entry
-    lista.push({ fecha, titulo });
-    
+    const entry = { fecha, titulo };
+    if (dificultad != null) entry.dificultad = dificultad;
+    if (categorias != null) entry.categorias = categorias;
+    lista.push(entry);
+
     // Sort by date
     lista.sort((a, b) => a.fecha.localeCompare(b.fecha));
-    
+
     await fs.writeFile('lista_retos.json', JSON.stringify(lista, null, 2));
   }
 
@@ -157,6 +160,8 @@ class MathGymGenerator {
       titulo: 'Enigma de Einstein',
       objetivo: 'Resuelve el enigma usando las pistas',
       icono_url: 'assets/icono-generico.svg',
+      dificultad: 3,
+      categorias: ['deduccion', 'logica'],
       data: { json_url: `data/${dataFileName}` }
     };
   }
@@ -212,6 +217,8 @@ class MathGymGenerator {
       titulo: 'Reto de la Balanza',
       objetivo: 'Encuentra las monedas anómalas con el menor número de pesadas',
       icono_url: 'assets/icono-generico.svg',
+      dificultad: 3,
+      categorias: ['logica', 'optimizacion'],
       data: { json_url: `data/${dataFileName}` }
     };
   }
@@ -242,6 +249,8 @@ class MathGymGenerator {
       titulo: 'Polígono Geométrico',
       objetivo: `Construye un polígono con área ${config.area} y perímetro ${config.perimeter}`,
       icono_url: 'assets/icono-generico.svg',
+      dificultad: 2,
+      categorias: ['geometria'],
       data: { json_url: `data/${dataFileName}` }
     };
   }
@@ -270,6 +279,8 @@ class MathGymGenerator {
       titulo: 'Trasvase Ecológico',
       objetivo: `Obtén exactamente ${config.target}L`,
       icono_url: 'assets/icono-generico.svg',
+      dificultad: 2,
+      categorias: ['volumen', 'movimiento'],
       data: { json_url: `data/${dataFileName}` }
     };
   }

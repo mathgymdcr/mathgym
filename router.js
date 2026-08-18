@@ -6,7 +6,7 @@ export function initRouter({ mount, loadReto }) {
 
     try {
       const reto = await loadReto(fecha);
-      await mount(reto);
+      await mount(reto, !fecha); // sin ?fecha= => es el reto del día
     } catch (err) {
       const cont = document.getElementById('contenedor-interactivo');
       if (cont) {

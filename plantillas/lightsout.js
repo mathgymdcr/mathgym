@@ -85,6 +85,7 @@ export async function render(root, data, hooks) {
             title: perfect ? '¡Excelente trabajo!' : '¡Reto superado, pero puedes hacerlo en menos pulsaciones!'
           });
           if (hooks?.onWin) hooks.onWin({ pulsaciones, perfect, modo });
+          if (hooks?.onSuccess) hooks.onSuccess();
         }
       };
       ui.grid.append(b);

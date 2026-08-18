@@ -1,0 +1,12 @@
+{
+  "fecha": "2025-11-12",
+  "titulo": "Anillas Encadenadas",
+  "objetivo": "Desengancha todas las anillas de la barra siguiendo la regla de vecindad",
+  "icono_url": "assets/logo_mathgym.png",
+  "tipo": "anillas-encadenadas",
+  "dificultad": 2,
+  "categorias": ["logica", "movimiento", "optimizacion"],
+  "data": {
+    "json_url": "data/anillas_2025-11-12.json"
+  }
+}

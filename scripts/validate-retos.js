@@ -53,7 +53,19 @@ class RetoValidator {
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
     }
-    
+
+    // dificultad y categorias son opcionales, pero si están presentes deben tener el tipo correcto
+    if (reto.dificultad != null) {
+      if (!Number.isInteger(reto.dificultad) || reto.dificultad < 1 || reto.dificultad > 5) {
+        throw new Error('dificultad must be an integer between 1 and 5');
+      }
+    }
+    if (reto.categorias != null) {
+      if (!Array.isArray(reto.categorias) || !reto.categorias.every(c => typeof c === 'string')) {
+        throw new Error('categorias must be an array of strings');
+      }
+    }
+
     // Validate data structure based on type
     await this.validateRetoData(reto);
     

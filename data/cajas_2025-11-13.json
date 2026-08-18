@@ -1,0 +1,5 @@
+{
+  "cajas": 3,
+  "zonas": ["Zona A", "Zona B", "Zona C"],
+  "destino": "Zona C"
+}

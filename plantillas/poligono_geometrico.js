@@ -30,7 +30,7 @@ export async function render(root, data, hooks) {
   }
 
   // Inicializar variables del juego
-  const gameState = initializeGame(config);
+  const gameState = initializeGame(config, ui.canvases.grid.parentElement);
   
   // Renderizar componentes
   setupCanvas(ui.canvases, gameState);
@@ -40,10 +40,11 @@ export async function render(root, data, hooks) {
   setStatus(ui.status, 'Listo para construir', 'ok');
 
   // FUNCIONES DEL JUEGO
-  function initializeGame(config) {
+  function initializeGame(config, stageEl) {
     const N = config.gridSize || 8;
-    const W = 480, H = 480;
-    const pad = 24;
+    const measured = stageEl ? Math.round(stageEl.getBoundingClientRect().width) : 480;
+    const W = measured || 480, H = W;
+    const pad = Math.round(W * (24 / 480));
     const step = (W - pad * 2) / (N - 1);
 
     return {
@@ -275,6 +276,7 @@ export async function render(root, data, hooks) {
         if (areaOk && perimeterOk) {
           setStatus(ui.result, `Correcto! A=${area.toFixed(1)}, P=${perimeter}`, 'ok');
           celebrate({ ok: true });
+          if (hooks && hooks.onSuccess) hooks.onSuccess();
         } else {
           setStatus(ui.result, `No coincide. A=${area.toFixed(2)}, P=${perimeter}`, 'ko');
         }

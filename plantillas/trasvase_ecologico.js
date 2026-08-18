@@ -151,6 +151,7 @@ export async function render(root, data, hooks) {
   function handleVictory(uiRef, state, message) {
     setStatus(uiRef.result, `¡Objetivo conseguido! ${state.target}L en ${state.moves} movimientos`, 'ok');
     celebrate({ ok: true, message });
+    if (hooks && hooks.onSuccess) hooks.onSuccess();
 
     if (uiRef.plantButton) {
       uiRef.plantButton.classList.add('celebration');
