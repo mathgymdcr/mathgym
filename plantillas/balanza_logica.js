@@ -1,297 +1,234 @@
 // ===== ARCHIVO COMPLETO: plantillas/balanza_logica.js =====
-// Versión final con:
-// - Cabecera intacta (glassmorphism + barrido de luz) y título “Descubre el impostor”.
-// - Icono corregido: assets/balance-icon.png (con fallback opcional).
-// - Balanza sin hueco superior (barra anclada por arriba), cuerdas largas y platos más bajos.
-// - Monedas encima del plato (y al tocarlas vuelven al pool).
-// - Celebración a PANTALLA COMPLETA con Deceerre (overlay con estilos propios, cierre por clic/Esc/timeout).
+// Estética estándar MathGym (cabecera + tarjeta Deceerre) · Balanza lógica
+// Compat: sin optional chaining ni nullish. No bloquea pesadas al superar el "mínimo teórico".
+// Envío de respuestas: hooks.onSubmit(payload) si existe, tras pulsar "Comprobar".
+
+import { celebrate } from './celebration.js';
 
 export async function render(root, data, hooks) {
-  // Montar shell base
+  // ---------- Boot ----------
   root.innerHTML = '';
   const ui = buildShell();
-  root.append(ui.box);
+  root.appendChild(ui.box);
 
-  // Cargar configuración
+  // ---------- Config ----------
   let config;
   try {
     config = await loadConfig(data);
   } catch (err) {
-    setStatus(ui.status, 'Error: ' + (err?.message || err), 'ko');
+    setStatus(ui.status, 'Error al cargar datos: ' + (err && err.message ? err.message : err), 'ko');
     return;
   }
-
-  // Normalizaciones
-  if (['heaviest', 'lightest', 'oddUnknown'].includes(config.variant)) config.k = 1;
+  if (!config || !config.variant || !config.N) {
+    setStatus(ui.status, 'Error: Falta configuración (variant, N).', 'ko');
+    return;
+  }
   if (!config.maxWeighings) config.maxWeighings = 4;
-  if (!config.variant || !config.N) {
-    setStatus(ui.status, 'Error: Falta configuración de la balanza', 'ko');
-    return;
-  }
+  if (config.variant === 'heaviest' || config.variant === 'lightest' || config.variant === 'oddUnknown') config.k = 1;
 
-  // Estado + UI
-  const state = initializeGame(config);
+  // ---------- Estado ----------
+  const state = {
+    N: config.N,
+    variant: config.variant,
+    k: config.k || 1,
+    maxWeighings: config.maxWeighings,
+    coins: [],                 // {i, element, side: 'left'|'right'|null}
+    anomalies: [],             // [{i, sign: +1|-1}]
+    weighings: 0,
+    selectedCoin: null,
+    log: [],                   // historial de pesadas: {left,right,result}
+    answer: { heavy: new Set(), light: new Set(), single: null, singleSign: 1 },
+    gameWon: false
+  };
+  generateAnomalies(state, config);
+
+  // ---------- Pintado ----------
   renderCoins(ui.coinsContainer, state);
   renderBalance(ui.balanceContainer, state);
   renderAnswerSelector(ui.answerContainer, state);
-  setupEventListeners(ui, state, config);
-
-  // Quitar estado genérico y mostrar instrucciones
-  ui.status?.remove();
+  if (ui.status && ui.status.parentNode) ui.status.parentNode.removeChild(ui.status);
   updateInstructions(ui.instructions, config);
 
-  // ================= LÓGICA =================
-  function initializeGame(cfg) {
-    const s = {
-      N: cfg.N,
-      variant: cfg.variant,
-      k: cfg.k || 1,
-      maxWeighings: cfg.maxWeighings || 4,
-      coins: [],
-      anomalies: [],
-      weighings: 0,
-      selectedCoin: null,
-      answer: { heavy: new Set(), light: new Set(), single: null, singleSign: 1 },
-      gameWon: false
-    };
-    generateAnomalies(s, cfg);
-    return s;
-  }
+  // ---------- Eventos ----------
+  ui.weighButton.addEventListener('click', function () { onWeigh(ui, state); });
+  ui.clearButton.addEventListener('click', function () { clearPlates(ui, state); });
+  ui.resetButton.addEventListener('click', function () { render(root, data, hooks); });
+  ui.checkButton.addEventListener('click', function () { onCheck(ui, state, config, hooks); });
 
-  function generateAnomalies(state, cfg) {
-    state.anomalies = [];
-    const { variant, k, N } = cfg;
-    const idxs = Array.from({ length: N }, (_, i) => i);
-
-    const pickRandom = (count) => {
-      const picked = [];
-      const pool = idxs.slice();
-      for (let i = 0; i < count; i++) {
-        const pos = Math.floor(Math.random() * pool.length);
-        picked.push(pool.splice(pos, 1)[0]);
+  // ========================= LÓGICA =========================
+  function generateAnomalies(s, cfg) {
+    s.anomalies = [];
+    var idxs = Array.from({ length: s.N }, function (_, i) { return i; });
+    function pick(n) {
+      var pool = idxs.slice(), out = [];
+      for (var j = 0; j < n; j++) {
+        var p = Math.floor(Math.random() * pool.length);
+        out.push(pool.splice(p, 1)[0]);
       }
-      return picked;
-    };
-
-    switch (variant) {
+      return out;
+    }
+    switch (cfg.variant) {
       case 'heaviest':
-        state.anomalies.push({ i: pickRandom(1)[0], sign: 1 });
-        break;
+        s.anomalies.push({ i: pick(1)[0], sign: 1 }); break;
       case 'lightest':
-        state.anomalies.push({ i: pickRandom(1)[0], sign: -1 });
-        break;
+        s.anomalies.push({ i: pick(1)[0], sign: -1 }); break;
       case 'oddUnknown': {
-        const i = pickRandom(1)[0];
-        const sign = Math.random() < 0.5 ? 1 : -1;
-        state.anomalies.push({ i, sign });
+        var ii = pick(1)[0];
+        var sg = Math.random() < 0.5 ? 1 : -1;
+        s.anomalies.push({ i: ii, sign: sg });
         break;
       }
       case 'kHeaviest':
-        pickRandom(k).forEach(i => state.anomalies.push({ i, sign: 1 }));
-        break;
+        pick(s.k).forEach(function (i) { s.anomalies.push({ i: i, sign: 1 }); }); break;
       case 'kLightest':
-        pickRandom(k).forEach(i => state.anomalies.push({ i, sign: -1 }));
-        break;
+        pick(s.k).forEach(function (i) { s.anomalies.push({ i: i, sign: -1 }); }); break;
       case 'kOddUnknown':
-        pickRandom(k).forEach(i => state.anomalies.push({ i, sign: Math.random() < 0.5 ? 1 : -1 }));
-        break;
+        pick(s.k).forEach(function (i) { s.anomalies.push({ i: i, sign: Math.random() < 0.5 ? 1 : -1 }); }); break;
     }
   }
 
-  function renderCoins(container, state) {
+  function renderCoins(container, s) {
     container.innerHTML = '';
-    state.coins = [];
-
-    for (let i = 0; i < state.N; i++) {
-      const coin = createElement('div', { class: 'balance-coin', 'data-index': i });
-      coin.textContent = i + 1;
-
-      // Clic: si está en plato => vuelve al pool; si no => seleccionar
-      coin.addEventListener('click', () => {
-        const c = state.coins[i];
-        if (!c) return;
-
-        if (c.side !== null) {
-          c.side = null;
-          c.element.classList.remove('in-plate');
-          clearInlinePos(c.element);
-          ui.coinsContainer.appendChild(c.element);
-          animateBalance(ui.balanceContainer, 'balanced');
-          state.selectedCoin = null;
-          state.coins.forEach(x => x.element.classList.remove('selected'));
-        } else {
-          selectCoin(i, state);
-        }
-      });
-
+    s.coins = [];
+    for (var i = 0; i < s.N; i++) {
+      var coin = createElement('div', { class: 'balance-coin', 'data-index': i });
+      coin.textContent = (i + 1).toString();
+      (function (idx, el) {
+        el.addEventListener('click', function () {
+          var c = s.coins[idx];
+          if (!c) return;
+          if (c.side !== null) {
+            // volver al pool
+            c.side = null;
+            el.classList.remove('in-plate', 'is-selected');
+            clearInlinePos(el);
+            ui.coinsContainer.appendChild(el);
+            animateBalance(ui.balanceContainer, 'balanced');
+          } else {
+            // seleccionar para colocar
+            s.coins.forEach(function (x) { x.element.classList.remove('is-selected'); });
+            if (s.selectedCoin === idx) {
+              s.selectedCoin = null;
+              el.classList.remove('is-selected');
+            } else {
+              s.selectedCoin = idx;
+              el.classList.add('is-selected');
+            }
+          }
+        });
+      })(i, coin);
+      s.coins.push({ i: i, element: coin, side: null });
       container.appendChild(coin);
-      state.coins.push({ i, element: coin, side: null });
     }
   }
 
-  function selectCoin(index, state) {
-    if (state.gameWon) return;
-    state.coins.forEach(c => c.element.classList.remove('selected'));
-    if (state.selectedCoin === index) {
-      state.selectedCoin = null;
-    } else {
-      state.selectedCoin = index;
-      state.coins[index].element.classList.add('selected');
-    }
-  }
+  function renderBalance(container, s) {
+    container.innerHTML =
+      '<div class="balance-beam" id="balance-beam" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);width:520px;height:12px;background:linear-gradient(180deg,#cfd4db,#9aa3ad);border-radius:8px;transition:transform .6s ease;transform-origin:center;z-index:2;">' +
+      '  <div class="balance-hook left" style="position:absolute;top:-4px;left:62px;width:4px;height:20px;">' +
+      '    <div class="balance-rope" style="position:absolute;top:12px;left:1px;width:2px;height:118px;background:#a6b0bb;"></div>' +
+      '    <div class="balance-plate" id="left-plate" data-side="left" style="position:absolute;top:146px;left:-110px;width:220px;height:20px;background:linear-gradient(180deg,#e9edf3,#babfc7);border-radius:20px;border:2px solid rgba(0,0,0,.25);cursor:pointer;">' +
+      '      <div class="plate-coins" style="position:relative;width:100%;height:20px;overflow:visible;"></div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <div class="balance-hook right" style="position:absolute;top:-4px;right:62px;width:4px;height:20px;">' +
+      '    <div class="balance-rope" style="position:absolute;top:12px;left:1px;width:2px;height:118px;background:#a6b0bb;"></div>' +
+      '    <div class="balance-plate" id="right-plate" data-side="right" style="position:absolute;top:146px;left:-110px;width:220px;height:20px;background:linear-gradient(180deg,#e9edf3,#babfc7);border-radius:20px;border:2px solid rgba(0,0,0,.25);cursor:pointer;">' +
+      '      <div class="plate-coins" style="position:relative;width:100%;height:20px;overflow:visible;"></div>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>' +
+      '<div class="balance-pivot" style="position:absolute;top:100px;left:50%;transform:translateX(-50%);width:30px;height:30px;background:linear-gradient(145deg,#5f6772,#2f343b);border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,.5);z-index:3;"></div>';
 
-  function renderBalance(container, state) {
-    // Barra anclada ARRIBA para eliminar hueco; cuerdas largas y platos más abajo.
-    container.innerHTML = `
-      <div class="balance-beam" id="balance-beam" style="
-        position:absolute; top:8px; left:50%; transform:translateX(-50%);
-        width:500px; height:12px; background:linear-gradient(180deg,#ccc,#999);
-        border-radius:6px; transition:transform .6s ease; transform-origin:center; z-index:2;">
-
-        <div class="balance-hook left" style="position:absolute; top:-5px; left:50px; width:4px; height:20px;">
-          <div class="balance-rope" style="
-            position:absolute; top:12px; left:1px; width:2px; height:112px;
-            background:#888; transform-origin:top;"></div>
-          <div class="balance-plate left" id="left-plate" data-side="left" style="
-            position:absolute; top:142px;
-            left:-100px; width:200px; height:20px; cursor:pointer;
-            background:linear-gradient(180deg,#ddd,#aaa); border-radius:20px; border:2px solid rgba(0,0,0,.3);">
-            <div class="plate-coins" style="position:relative; width:100%; height:20px; overflow:visible;"></div>
-          </div>
-        </div>
-
-        <div class="balance-hook right" style="position:absolute; top:-5px; right:50px; width:4px; height:20px;">
-          <div class="balance-rope" style="
-            position:absolute; top:12px; left:1px; width:2px; height:112px;
-            background:#888; transform-origin:top;"></div>
-          <div class="balance-plate right" id="right-plate" data-side="right" style="
-            position:absolute; top:142px;
-            left:-100px; width:200px; height:20px; cursor:pointer;
-            background:linear-gradient(180deg,#ddd,#aaa); border-radius:20px; border:2px solid rgba(0,0,0,.3);">
-            <div class="plate-coins" style="position:relative; width:100%; height:20px; overflow:visible;"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="balance-pivot" style="
-        position:absolute; top:96px; left:50%; transform:translateX(-50%);
-        width:30px; height:30px; background:linear-gradient(145deg,#666,#333);
-        border-radius:8px; box-shadow:0 4px 15px rgba(0,0,0,.5); z-index:3;"></div>
-    `;
-
-    // Contenedor compacto y centrado
     container.style.position = 'relative';
     container.style.width = '100%';
-    container.style.maxWidth = '600px';
-    container.style.height = '248px';
+    container.style.maxWidth = '680px';
+    container.style.height = '260px';
     container.style.margin = '0 auto';
 
-    const leftPlate = container.querySelector('#left-plate');
-    const rightPlate = container.querySelector('#right-plate');
-    leftPlate.addEventListener('click', () => placeCoin('left', state, ui));
-    rightPlate.addEventListener('click', () => placeCoin('right', state, ui));
+    container.querySelector('#left-plate').addEventListener('click', function () { placeCoin('left', s); });
+    container.querySelector('#right-plate').addEventListener('click', function () { placeCoin('right', s); });
   }
 
-  function placeCoin(side, state, ui) {
-    if (state.selectedCoin === null) {
-      showMessage(ui.message, 'Selecciona primero una moneda', 'warning');
+  function placeCoin(side, s) {
+    if (s.selectedCoin === null) {
+      setStatus(ui.message, 'Selecciona primero una moneda', 'ko');
       return;
     }
-    const coin = state.coins[state.selectedCoin];
-
+    var coin = s.coins[s.selectedCoin];
     if (coin.side !== null) {
       coin.element.classList.remove('in-plate');
       clearInlinePos(coin.element);
       ui.coinsContainer.appendChild(coin.element);
     }
-
     coin.side = side;
-    const plate = ui.balanceContainer.querySelector(`[data-side="${side}"] .plate-coins`);
+    var plate = ui.balanceContainer.querySelector('[data-side="' + side + '"] .plate-coins');
     plate.appendChild(coin.element);
     coin.element.classList.add('in-plate');
-
-    layoutPlate(side, state, ui);
-
-    state.selectedCoin = null;
-    state.coins.forEach(c => c.element.classList.remove('selected'));
+    layoutPlate(side, s);
+    s.selectedCoin = null;
+    s.coins.forEach(function (c) { c.element.classList.remove('is-selected'); });
   }
 
-  function layoutPlate(side, state, ui) {
-    const area = ui.balanceContainer.querySelector(`[data-side="${side}"] .plate-coins`);
-    const coins = state.coins.filter(c => c.side === side);
+  function layoutPlate(side, s) {
+    var area = ui.balanceContainer.querySelector('[data-side="' + side + '"] .plate-coins');
     if (!area) return;
-
-    const width = area.clientWidth || 200;
-    const cols = 3;
-    const rowGap = 46;  // separación vertical
-    const rise = 28;    // cuánto sube la primera fila sobre el borde
-
-    coins.forEach((c, idx) => {
-      const row = Math.floor(idx / cols);
-      const col = idx % cols;
-
-      const coinW = c.element.offsetWidth || 48;
-      const colCenter = width * ((1 + col * 2) / 6);  // 1/6, 3/6, 5/6
-      const leftPx = Math.round(colCenter - coinW / 2);
-
-      const el = c.element;
+    var coins = s.coins.filter(function (c) { return c.side === side; });
+    var width = area.clientWidth || 220;
+    var cols = 3, rowGap = 44, rise = 26;
+    coins.forEach(function (c, idx) {
+      var row = Math.floor(idx / cols);
+      var col = idx % cols;
+      var coinW = c.element.offsetWidth || 48;
+      var colCenter = width * ((1 + col * 2) / 6);
+      var leftPx = Math.round(colCenter - coinW / 2);
+      var el = c.element;
       el.style.position = 'absolute';
-      el.style.left = `${leftPx}px`;
-      el.style.top = `${-(rise + row * rowGap)}px`; // NEGATIVO => por encima del plato
+      el.style.left = leftPx + 'px';
+      el.style.top = '-' + (rise + row * rowGap) + 'px'; // sobre el plato
       el.style.margin = '0';
       el.style.zIndex = String(10 + row);
       el.style.pointerEvents = 'auto';
     });
   }
 
-  function weighCoins(state, ui) {
-    if (state.weighings >= state.maxWeighings) {
-      showMessage(ui.message, 'Ya no puedes pesar más', 'error');
-      return;
-    }
-    const leftCoins = state.coins.filter(c => c.side === 'left').map(c => c.i);
-    const rightCoins = state.coins.filter(c => c.side === 'right').map(c => c.i);
-    if (leftCoins.length === 0 && rightCoins.length === 0) {
-      showMessage(ui.message, 'Coloca monedas antes de pesar', 'warning');
+  function onWeigh(ui, s) {
+    var left = s.coins.filter(function (c) { return c.side === 'left'; }).map(function (c) { return c.i; });
+    var right = s.coins.filter(function (c) { return c.side === 'right'; }).map(function (c) { return c.i; });
+    if (left.length === 0 && right.length === 0) {
+      setStatus(ui.message, 'Coloca monedas antes de pesar', 'ko');
       return;
     }
 
-    state.weighings++;
-    ui.weighingsCount.textContent = state.weighings;
+    s.weighings += 1;
+    ui.weighingsCount.textContent = String(s.weighings);
 
-    const lw = calculateWeight(leftCoins, state);
-    const rw = calculateWeight(rightCoins, state);
-
-    let tilt = 'balanced', result = 'Equilibrio';
-    if (lw > rw) { tilt = 'left';  result = 'Izquierda más pesada'; }
+    var lw = calcWeight(left, s);
+    var rw = calcWeight(right, s);
+    var tilt = 'balanced', result = 'Equilibrio';
+    if (lw > rw) { tilt = 'left'; result = 'Izquierda más pesada'; }
     else if (rw > lw) { tilt = 'right'; result = 'Derecha más pesada'; }
 
+    s.log.push({ left: left.slice(), right: right.slice(), result: result });
     animateBalance(ui.balanceContainer, tilt);
-    showMessage(ui.result, result, tilt === 'balanced' ? 'ok' : 'info');
+    setStatus(ui.result, result, tilt === 'balanced' ? 'ok' : 'info');
 
-    if (state.weighings >= state.maxWeighings) ui.weighButton.disabled = true;
-
-    hooks?.onWeigh?.({ left: leftCoins, right: rightCoins, result, weighingIndex: state.weighings });
+    // No bloqueamos nunca el botón de pesar.
+    // Si supera el mínimo teórico, solo avisamos, sin impedir continuar.
+    var optimal = optimalWeighings(config);
+    if (s.weighings > optimal) {
+      setStatus(ui.message, 'Puedes resolverlo en ' + optimal + ' pesadas o menos. ¡Intenta optimizar!', 'info');
+    }
   }
 
-  function calculateWeight(indices, state) {
-    let w = indices.length;
-    state.anomalies.forEach(a => { if (indices.includes(a.i)) w += a.sign; });
+  function calcWeight(indices, s) {
+    var w = indices.length;
+    s.anomalies.forEach(function (a) { if (indices.indexOf(a.i) !== -1) w += a.sign; });
     return w;
   }
 
-  function animateBalance(container, tilt) {
-    const beam = container.querySelector('#balance-beam');
-    if (!beam) return;
-    setTimeout(() => {
-      if (tilt === 'left')  beam.style.transform = 'translateX(-50%) rotate(-6deg)';
-      else if (tilt === 'right') beam.style.transform = 'translateX(-50%) rotate(6deg)';
-      else beam.style.transform = 'translateX(-50%) rotate(0deg)';
-    }, 40);
-  }
-
-  function clearPlates(state, ui) {
-    state.coins.forEach(c => {
+  function clearPlates(ui, s) {
+    s.coins.forEach(function (c) {
       if (c.side !== null) {
         c.side = null;
         c.element.classList.remove('in-plate');
@@ -300,281 +237,387 @@ export async function render(root, data, hooks) {
       }
     });
     animateBalance(ui.balanceContainer, 'balanced');
-    showMessage(ui.result, '', '');
+    setStatus(ui.result, '', '');
   }
 
-  function renderAnswerSelector(container, state) {
+  function renderAnswerSelector(container, s) {
     container.innerHTML = '';
-    const { variant, k } = state;
-
-    if (variant === 'heaviest' || variant === 'lightest') {
-      renderSingleSelect(container, state, variant === 'heaviest' ? 'pesada' : 'ligera');
-    } else if (variant === 'oddUnknown') {
-      renderOddUnknownSelect(container, state);
-    } else if (variant === 'kHeaviest' || variant === 'kLightest') {
-      renderMultiSelect(container, state, k, variant === 'kHeaviest' ? 'pesadas' : 'ligeras');
-    } else if (variant === 'kOddUnknown') {
-      renderKOddSelect(container, state, k);
+    var v = s.variant;
+    if (v === 'heaviest' || v === 'lightest') {
+      renderSingle(container, s, v === 'heaviest' ? 'pesada' : 'ligera');
+    } else if (v === 'oddUnknown') {
+      renderOddUnknown(container, s);
+    } else if (v === 'kHeaviest' || v === 'kLightest') {
+      renderMulti(container, s, s.k, v === 'kHeaviest' ? 'pesadas' : 'ligeras');
+    } else if (v === 'kOddUnknown') {
+      renderKOdd(container, s, s.k);
     }
   }
 
-  function renderSingleSelect(container, state, type) {
-    const title = createElement('div', { class: 'answer-title' });
-    title.textContent = `Selecciona la moneda ${type}:`;
+  function renderSingle(container, s, label) {
+    var title = createElement('div', { class: 'answer-title' });
+    title.textContent = 'Selecciona la moneda ' + label + ':';
     container.appendChild(title);
 
-    const wrap = createElement('div', { class: 'answer-coins' });
-    for (let i = 0; i < state.N; i++) {
-      const coin = createElement('div', { class: 'answer-coin' });
-      coin.textContent = i + 1;
-      coin.addEventListener('click', () => {
-        state.answer.single = i;
-        wrap.querySelectorAll('.answer-coin').forEach(x => x.classList.remove('selected'));
-        coin.classList.add('selected');
-      });
-      wrap.appendChild(coin);
+    var wrap = createElement('div', { class: 'answer-coins' });
+    for (var i = 0; i < s.N; i++) {
+      (function (idx) {
+        var c = createElement('div', { class: 'answer-coin' });
+        c.textContent = (idx + 1).toString();
+        c.addEventListener('click', function () {
+          s.answer.single = idx;
+          var all = wrap.querySelectorAll('.answer-coin');
+          for (var j = 0; j < all.length; j++) all[j].classList.remove('selected');
+          c.classList.add('selected');
+        });
+        wrap.appendChild(c);
+      })(i);
     }
     container.appendChild(wrap);
   }
 
-  function renderOddUnknownSelect(container, state) {
-    const title = createElement('div', { class: 'answer-title' });
+  function renderOddUnknown(container, s) {
+    var title = createElement('div', { class: 'answer-title' });
     title.textContent = 'Selecciona la moneda anómala:';
     container.appendChild(title);
 
-    const wrap = createElement('div', { class: 'answer-coins' });
-    for (let i = 0; i < state.N; i++) {
-      const coin = createElement('div', { class: 'answer-coin' });
-      coin.textContent = i + 1;
-      coin.addEventListener('click', () => {
-        state.answer.single = i;
-        wrap.querySelectorAll('.answer-coin').forEach(x => x.classList.remove('selected'));
-        coin.classList.add('selected');
-      });
-      wrap.appendChild(coin);
+    var wrap = createElement('div', { class: 'answer-coins' });
+    for (var i = 0; i < s.N; i++) {
+      (function (idx) {
+        var c = createElement('div', { class: 'answer-coin' });
+        c.textContent = (idx + 1).toString();
+        c.addEventListener('click', function () {
+          s.answer.single = idx;
+          var all = wrap.querySelectorAll('.answer-coin');
+          for (var j = 0; j < all.length; j++) all[j].classList.remove('selected');
+          c.classList.add('selected');
+        });
+        wrap.appendChild(c);
+      })(i);
     }
     container.appendChild(wrap);
 
-    const sign = createElement('div', { class: 'sign-selector' });
-    sign.innerHTML = `
-      <label><input type="radio" name="sign" value="1" checked> Más pesada</label>
-      <label><input type="radio" name="sign" value="-1"> Más ligera</label>
-    `;
-    sign.addEventListener('change', (e) => { state.answer.singleSign = parseInt(e.target.value, 10); });
+    var sign = createElement('div', { class: 'sign-selector' });
+    sign.innerHTML =
+      '<label><input type="radio" name="signSel" value="1" checked> Más pesada</label>' +
+      '<label><input type="radio" name="signSel" value="-1"> Más ligera</label>';
+    sign.addEventListener('change', function (e) {
+      var t = e.target;
+      if (t && t.name === 'signSel') s.answer.singleSign = parseInt(t.value, 10);
+    });
     container.appendChild(sign);
   }
 
-  function renderMultiSelect(container, state, k, type) {
-    const title = createElement('div', { class: 'answer-title' });
-    title.textContent = `Selecciona ${k} monedas ${type}:`;
+  function renderMulti(container, s, k, label) {
+    var title = createElement('div', { class: 'answer-title' });
+    title.textContent = 'Selecciona ' + k + ' monedas ' + label + ':';
     container.appendChild(title);
 
-    const wrap = createElement('div', { class: 'answer-coins' });
-    const set = type === 'pesadas' ? state.answer.heavy : state.answer.light;
+    var wrap = createElement('div', { class: 'answer-coins' });
+    var set = label === 'pesadas' ? s.answer.heavy : s.answer.light;
 
-    for (let i = 0; i < state.N; i++) {
-      const coin = createElement('div', { class: 'answer-coin' });
-      coin.textContent = i + 1;
-      coin.addEventListener('click', () => {
-        if (set.has(i)) { set.delete(i); coin.classList.remove('selected'); }
-        else if (set.size < k) { set.add(i); coin.classList.add('selected'); }
-      });
-      wrap.appendChild(coin);
+    for (var i = 0; i < s.N; i++) {
+      (function (idx) {
+        var c = createElement('div', { class: 'answer-coin' });
+        c.textContent = (idx + 1).toString();
+        c.addEventListener('click', function () {
+          if (set.has(idx)) { set.delete(idx); c.classList.remove('selected'); }
+          else if (set.size < k) { set.add(idx); c.classList.add('selected'); }
+        });
+        wrap.appendChild(c);
+      })(i);
     }
     container.appendChild(wrap);
   }
 
-  function renderKOddSelect(container, state, k) {
-    const title = createElement('div', { class: 'answer-title' });
-    title.textContent = `Marca ${k} monedas anómalas:`;
+  function renderKOdd(container, s, k) {
+    var title = createElement('div', { class: 'answer-title' });
+    title.textContent = 'Marca ' + k + ' monedas anómalas:';
     container.appendChild(title);
 
-    const grid = createElement('div', { class: 'answer-grid' });
+    var grid = createElement('div', { class: 'answer-grid' });
+    var heavySec = createElement('div', { class: 'answer-section' });
+    var lightSec = createElement('div', { class: 'answer-section' });
 
-    const heavySec = createElement('div', { class: 'answer-section' });
-    const heavyTitle = createElement('div', { class: 'section-title' });
-    heavyTitle.textContent = 'Más pesadas:';
-    heavySec.appendChild(heavyTitle);
-    const heavyWrap = createElement('div', { class: 'answer-coins' });
+    var ht = createElement('div', { class: 'section-title' });
+    ht.textContent = 'Más pesadas:'; heavySec.appendChild(ht);
+    var lt = createElement('div', { class: 'section-title' });
+    lt.textContent = 'Más ligeras:'; lightSec.appendChild(lt);
 
-    const lightSec = createElement('div', { class: 'answer-section' });
-    const lightTitle = createElement('div', { class: 'section-title' });
-    lightTitle.textContent = 'Más ligeras:';
-    lightSec.appendChild(lightTitle);
-    const lightWrap = createElement('div', { class: 'answer-coins' });
+    var hw = createElement('div', { class: 'answer-coins' });
+    var lw = createElement('div', { class: 'answer-coins' });
 
-    for (let i = 0; i < state.N; i++) {
-      const h = createElement('div', { class: 'answer-coin' });
-      h.textContent = i + 1;
-      h.addEventListener('click', () => toggleKOddAnswer(i, 'heavy', state, h, lightWrap));
+    for (var i = 0; i < s.N; i++) {
+      (function (idx) {
+        var h = createElement('div', { class: 'answer-coin' });
+        h.textContent = (idx + 1).toString();
+        h.addEventListener('click', function () { toggleKOdd(idx, 'heavy', s, h, lw); });
+        hw.appendChild(h);
 
-      const l = createElement('div', { class: 'answer-coin' });
-      l.textContent = i + 1;
-      l.addEventListener('click', () => toggleKOddAnswer(i, 'light', state, l, heavyWrap));
-
-      heavyWrap.appendChild(h);
-      lightWrap.appendChild(l);
+        var l = createElement('div', { class: 'answer-coin' });
+        l.textContent = (idx + 1).toString();
+        l.addEventListener('click', function () { toggleKOdd(idx, 'light', s, l, hw); });
+        lw.appendChild(l);
+      })(i);
     }
 
-    heavySec.appendChild(heavyWrap);
-    lightSec.appendChild(lightWrap);
+    heavySec.appendChild(hw);
+    lightSec.appendChild(lw);
     grid.appendChild(heavySec);
     grid.appendChild(lightSec);
     container.appendChild(grid);
   }
 
-  function toggleKOddAnswer(index, type, state, clickedCoin, otherContainer) {
-    const { heavy, light } = state.answer;
-    const target = type === 'heavy' ? heavy : light;
-    const other = type === 'heavy' ? light : heavy;
+  function toggleKOdd(index, type, s, clicked, otherWrap) {
+    var heavy = s.answer.heavy, light = s.answer.light;
+    var target = type === 'heavy' ? heavy : light;
+    var other = type === 'heavy' ? light : heavy;
 
     if (other.has(index)) {
       other.delete(index);
-      const oc = otherContainer.children[index];
-      if (oc) oc.classList.remove('selected');
+      if (otherWrap && otherWrap.children && otherWrap.children[index]) {
+        otherWrap.children[index].classList.remove('selected');
+      }
     }
-
+    var total = heavy.size + light.size;
     if (target.has(index)) {
       target.delete(index);
-      clickedCoin.classList.remove('selected');
-    } else if (heavy.size + light.size < state.k) {
+      clicked.classList.remove('selected');
+    } else if (total < s.k) {
       target.add(index);
-      clickedCoin.classList.add('selected');
+      clicked.classList.add('selected');
     } else {
-      showMessage(ui.message, `Solo puedes marcar ${state.k} monedas en total`, 'warning');
+      setStatus(ui.message, 'Solo puedes marcar ' + s.k + ' monedas en total', 'info');
     }
   }
 
-  function checkAnswer(state, ui, cfg) {
-    if (state.weighings === 0) {
-      showMessage(ui.message, 'Debes pesar al menos una vez antes de responder', 'warning');
+  function onCheck(ui, s, cfg, hooks) {
+    if (s.weighings === 0) {
+      setStatus(ui.message, 'Debes realizar al menos una pesada', 'ko');
       return;
     }
 
-    const { variant } = state;
-    let user = [];
-
-    if (variant === 'heaviest' && state.answer.single !== null) {
-      user = [{ i: state.answer.single, sign: 1 }];
-    } else if (variant === 'lightest' && state.answer.single !== null) {
-      user = [{ i: state.answer.single, sign: -1 }];
-    } else if (variant === 'oddUnknown' && state.answer.single !== null) {
-      user = [{ i: state.answer.single, sign: state.answer.singleSign }];
-    } else if (variant === 'kHeaviest') {
-      user = [...state.answer.heavy].map(i => ({ i, sign: 1 }));
-    } else if (variant === 'kLightest') {
-      user = [...state.answer.light].map(i => ({ i, sign: -1 }));
-    } else if (variant === 'kOddUnknown') {
-      user = [
-        ...[...state.answer.heavy].map(i => ({ i, sign: 1 })),
-        ...[...state.answer.light].map(i => ({ i, sign: -1 }))
-      ];
-    }
-
-    if (user.length !== state.anomalies.length) {
-      showMessage(ui.message, 'Respuesta incompleta', 'warning');
+    var user = buildUserAnswer(s);
+    if (user.length !== s.anomalies.length) {
+      setStatus(ui.message, 'Respuesta incompleta', 'info');
       return;
     }
 
-    const ok = compareAnswers(user, state.anomalies);
-    const optimal = calculateOptimalWeighings(cfg);
+    var ok = sameAnswer(user, s.anomalies);
+    var optimal = optimalWeighings(cfg);
 
+    // Celebración o mensaje de mejora
     if (ok) {
-      state.gameWon = true;
-
-      // Celebración a pantalla completa
-      showFullscreenCelebration({ duration: 3600 });
-
-      // Mensaje informativo (sin mini-celebración inline)
-      if (state.weighings <= optimal) {
-        showMessage(ui.message, '¡Has alcanzado el óptimo teórico mínimo!', 'success');
+      s.gameWon = true;
+      celebrate({
+        ok: true,
+        title: '¡Excelente deducción!',
+        message: 'Has descubierto al impostor como un verdadero detective'
+      });
+      if (s.weighings <= optimal) {
+        setStatus(ui.message, '¡Perfecto! Lo has logrado en el mínimo teórico (' + optimal + ') o menos.', 'ok');
       } else {
-        showMessage(ui.message, 'Correcto, pero no óptimo', 'info');
+        setStatus(ui.message, 'Correcto, pero se puede en ' + optimal + ' pesadas. ¡Prueba a mejorar!', 'info');
       }
-      showMessage(ui.result, '', '');
-
-      hooks?.onSuccess?.();
+      setStatus(ui.result, '', '');
     } else {
-      const solution = state.anomalies.map(a => `${a.i + 1}${a.sign > 0 ? '↑' : '↓'}`).join(', ');
-      showMessage(ui.result, `Incorrecto. Solución: ${solution}`, 'error');
-      hooks?.onFail?.({ solution: state.anomalies.slice() });
+      var sol = s.anomalies.map(function (a) { return (a.i + 1) + (a.sign > 0 ? '↑' : '↓'); }).join(', ');
+      setStatus(ui.result, 'Incorrecto. Solución: ' + sol, 'ko');
+    }
+
+    // Enviar resultados (si hooks.onSubmit existe)
+    var payload = {
+      type: 'balance',
+      variant: s.variant,
+      N: s.N,
+      k: s.k,
+      maxWeighings: s.maxWeighings,
+      weighings: s.weighings,
+      optimal: optimal,
+      userAnswer: user.slice(),
+      success: ok === true,
+      history: s.log.slice() // {left,right,result}
+    };
+    if (hooks && typeof hooks.onSubmit === 'function') {
+      try { hooks.onSubmit(payload); } catch (e) { /* no-op */ }
     }
   }
 
-  function compareAnswers(userAnswer, correctAnswer) {
-    if (userAnswer.length !== correctAnswer.length) return false;
-    const u = new Set(userAnswer.map(a => `${a.i}:${a.sign}`));
-    const c = new Set(correctAnswer.map(a => `${a.i}:${a.sign}`));
-    return u.size === c.size && [...u].every(x => c.has(x));
+  function buildUserAnswer(s) {
+    var v = s.variant;
+    var out = [];
+    if (v === 'heaviest' && s.answer.single !== null) {
+      out = [{ i: s.answer.single, sign: 1 }];
+    } else if (v === 'lightest' && s.answer.single !== null) {
+      out = [{ i: s.answer.single, sign: -1 }];
+    } else if (v === 'oddUnknown' && s.answer.single !== null) {
+      out = [{ i: s.answer.single, sign: s.answer.singleSign }];
+    } else if (v === 'kHeaviest') {
+      out = Array.from(s.answer.heavy).map(function (i) { return { i: i, sign: 1 }; });
+    } else if (v === 'kLightest') {
+      out = Array.from(s.answer.light).map(function (i) { return { i: i, sign: -1 }; });
+    } else if (v === 'kOddUnknown') {
+      out = []
+        .concat(Array.from(s.answer.heavy).map(function (i) { return { i: i, sign: 1 }; }))
+        .concat(Array.from(s.answer.light).map(function (i) { return { i: i, sign: -1 }; }));
+    }
+    return out;
   }
 
-  function calculateOptimalWeighings(cfg) {
-    const { variant, N, k } = cfg;
-    let states = 0;
-    switch (variant) {
+  function sameAnswer(a, b) {
+    if (!a || !b || a.length !== b.length) return false;
+    var sa = a.map(function (x) { return x.i + ':' + x.sign; }).sort().join('|');
+    var sb = b.map(function (x) { return x.i + ':' + x.sign; }).sort().join('|');
+    return sa === sb;
+  }
+
+  function optimalWeighings(cfg) {
+    var states = 0;
+    switch (cfg.variant) {
       case 'heaviest':
-      case 'lightest': states = N; break;
-      case 'oddUnknown': states = 2 * N; break;
+      case 'lightest':
+        states = cfg.N; break;
+      case 'oddUnknown':
+        states = 2 * cfg.N; break;
       case 'kHeaviest':
-      case 'kLightest': states = combination(N, k); break;
-      case 'kOddUnknown': states = combination(N, k) * Math.pow(2, k); break;
+      case 'kLightest':
+        states = nCr(cfg.N, cfg.k); break;
+      case 'kOddUnknown':
+        states = nCr(cfg.N, cfg.k) * Math.pow(2, cfg.k); break;
     }
     return Math.ceil(Math.log(states) / Math.log(3));
   }
 
-  function combination(n, r) {
+  function nCr(n, r) {
     if (r < 0 || r > n) return 0;
     if (r === 0 || r === n) return 1;
-    let res = 1;
-    for (let i = 1; i <= r; i++) res = (res * (n - r + i)) / i;
+    var res = 1;
+    for (var i = 1; i <= r; i++) res = (res * (n - r + i)) / i;
     return Math.round(res);
   }
 
+  // ========================= UI HELPERS =========================
+  function buildShell() {
+    const box = createElement('div', { class: 'template-box balance-game' });
+
+    // Cabecera estándar (oscura) + barrido
+    const header = createElement('div', { class: 'enigma-header-dark' });
+    const hImg = createElement('img', { src: 'assets/balance-icon.png', alt: 'Icono balanza' });
+    hImg.onerror = function () { hImg.style.display = 'none'; };
+    const h2 = document.createElement('h2'); h2.textContent = 'Descubre el impostor';
+    header.appendChild(hImg);
+    header.appendChild(h2);
+    box.appendChild(header);
+
+    // Tarjeta Deceerre
+    const card = createElement('div', { class: 'card deceerre-instructions' });
+    const cImg = createElement('img', { src: 'assets/deceerre-instructions.png', alt: 'Deceerre' });
+    cImg.onerror = function () { cImg.style.display = 'none'; };
+    const cBody = createElement('div', { class: 'instructions-body' });
+    const cH3 = document.createElement('h3'); cH3.textContent = 'Cómo se juega';
+    const cP = document.createElement('p');
+    cP.innerHTML = 'Selecciona monedas y colócalas en los <strong>platos</strong>. Pesa con lógica para descubrir el impostor.';
+    const inst = createElement('div', { class: 'instructions-content balance-instructions' });
+    cBody.appendChild(cH3); cBody.appendChild(cP); cBody.appendChild(inst);
+    card.appendChild(cImg); card.appendChild(cBody);
+    box.appendChild(card);
+
+    // Clúster central
+    const status = createElement('div', { class: 'feedback' }); status.textContent = 'Cargando...'; box.appendChild(status);
+
+    const info = createElement('div', { class: 'weighings-info' });
+    info.innerHTML = '<span>Pesadas: </span><strong><span class="weighings-count">0</span></strong>';
+    box.appendChild(info);
+
+    const board = createElement('section', { class: 'ein-board' });
+    const boardTitle = document.createElement('h2'); boardTitle.textContent = 'Balanza';
+    const boardDiv = document.createElement('div');
+    board.appendChild(boardTitle); board.appendChild(boardDiv);
+    box.appendChild(board);
+
+    const coinsSec = createElement('section', { class: 'ein-palette' });
+    const coinsTitle = document.createElement('h2'); coinsTitle.textContent = 'Monedas';
+    const coinsDiv = createElement('div', { class: 'balance-coins' });
+    coinsSec.appendChild(coinsTitle); coinsSec.appendChild(coinsDiv);
+    box.appendChild(coinsSec);
+
+    const result = createElement('div', { class: 'feedback' }); box.appendChild(result);
+
+    const toolbar = createElement('div', { class: 'toolbar' });
+    const weighBtn = createElement('button', { class: 'btn' }); weighBtn.textContent = 'Pesar';
+    const clearBtn = createElement('button', { class: 'btn btn-secondary' }); clearBtn.textContent = 'Vaciar';
+    const resetBtn = createElement('button', { class: 'btn btn-secondary' }); resetBtn.textContent = 'Reiniciar';
+    toolbar.appendChild(weighBtn); toolbar.appendChild(clearBtn); toolbar.appendChild(resetBtn);
+    box.appendChild(toolbar);
+
+    const answerSec = createElement('section', { class: 'ein-clues' });
+    const aH2 = document.createElement('h2'); aH2.textContent = 'Tu respuesta';
+    const answerDiv = createElement('div', { class: 'balance-answer' });
+    const checkBtn = createElement('button', { class: 'btn btn-primary' }); checkBtn.textContent = 'Comprobar';
+    const message = createElement('div', { class: 'feedback' });
+    answerSec.appendChild(aH2);
+    answerSec.appendChild(answerDiv);
+    answerSec.appendChild(checkBtn);
+    answerSec.appendChild(message);
+    box.appendChild(answerSec);
+
+    return {
+      box: box,
+      status: status,
+      instructions: inst,
+      weighingsCount: info.querySelector('.weighings-count'),
+      balanceContainer: boardDiv,
+      coinsContainer: coinsDiv,
+      weighButton: weighBtn,
+      clearButton: clearBtn,
+      resetButton: resetBtn,
+      answerContainer: answerDiv,
+      checkButton: checkBtn,
+      result: result,
+      message: message
+    };
+  }
+
   function updateInstructions(el, cfg) {
-    const { variant, N, k } = cfg;
-    let t = '';
-    switch (variant) {
-      case 'heaviest':    t = `De estas ${N} monedas, una es más pesada que el resto.`; break;
-      case 'lightest':    t = `De estas ${N} monedas, una es más ligera que el resto.`; break;
-      case 'oddUnknown':  t = `De estas ${N} monedas, una tiene un peso distinto al resto.`; break;
-      case 'kHeaviest':   t = `De estas ${N} monedas, hay ${k} más pesadas que el resto.`; break;
-      case 'kLightest':   t = `De estas ${N} monedas, hay ${k} más ligeras que el resto.`; break;
-      case 'kOddUnknown': t = `De estas ${N} monedas, hay ${k} con peso distinto (pueden ser más pesadas o más ligeras).`; break;
+    var t = '';
+    switch (cfg.variant) {
+      case 'heaviest': t = 'De estas ' + cfg.N + ' monedas, una es más pesada que el resto.'; break;
+      case 'lightest': t = 'De estas ' + cfg.N + ' monedas, una es más ligera que el resto.'; break;
+      case 'oddUnknown': t = 'De estas ' + cfg.N + ' monedas, una tiene un peso distinto al resto.'; break;
+      case 'kHeaviest': t = 'De estas ' + cfg.N + ' monedas, hay ' + cfg.k + ' más pesadas que el resto.'; break;
+      case 'kLightest': t = 'De estas ' + cfg.N + ' monedas, hay ' + cfg.k + ' más ligeras que el resto.'; break;
+      case 'kOddUnknown': t = 'De estas ' + cfg.N + ' monedas, hay ' + cfg.k + ' con peso distinto (más pesadas o más ligeras).'; break;
     }
     el.textContent = t;
   }
 
-  function setupEventListeners(ui, state, cfg) {
-    ui.weighButton.addEventListener('click', () => weighCoins(state, ui));
-    ui.clearButton.addEventListener('click', () => clearPlates(state, ui));
-    ui.resetButton.addEventListener('click', () => resetGame(state, ui, cfg));
-    ui.checkButton.addEventListener('click', () => checkAnswer(state, ui, cfg));
-  }
-
-  function resetGame(state, ui, cfg) {
-    const fresh = initializeGame(cfg);
-    Object.assign(state, fresh);
-
-    renderCoins(ui.coinsContainer, state);
-    renderBalance(ui.balanceContainer, state);
-    renderAnswerSelector(ui.answerContainer, state);
-
-    ui.weighingsCount.textContent = '0';
-    ui.weighButton.disabled = false;
-    showMessage(ui.result, '', '');
-    showMessage(ui.message, '', '');
-    updateInstructions(ui.instructions, cfg);
-  }
-
-  function showMessage(el, text, type = '') {
-    if (!el) return;
-    if (typeof text === 'object' && text?.nodeType) {
-      el.innerHTML = '';
-      el.appendChild(text);
-    } else {
-      el.textContent = text;
+  // ========================= Utils base =========================
+  async function loadConfig(d) {
+    if (d && d.json_url) {
+      const r = await fetch(d.json_url, { cache: 'no-cache' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return await r.json();
     }
-    el.className = 'balance-message';
+    return d;
+  }
+
+  function createElement(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        var v = attrs[k];
+        if (k === 'class') el.className = v;
+        else if (k === 'style') el.style.cssText = v;
+        else el.setAttribute(k, v);
+      });
+    }
+    return el;
+  }
+
+  function setStatus(el, text, type) {
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'feedback';
     if (type) el.classList.add(type);
   }
 
@@ -588,303 +631,14 @@ export async function render(root, data, hooks) {
     el.style.pointerEvents = '';
   }
 
-  // ============== CELEBRACIÓN FULLSCREEN (overlay con estilos propios) ==============
-  function showFullscreenCelebration({ duration = 3600 } = {}) {
-    ensureCelebrationStyles();
-
-    // Si ya hay overlay, lo reemplazamos
-    const prev = document.getElementById('mg-balance-celebration');
-    if (prev) prev.remove();
-
-    // Bloquear scroll mientras dura
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const overlay = document.createElement('div');
-    overlay.id = 'mg-balance-celebration';
-    overlay.style.cssText = `
-      position: fixed; inset: 0; z-index: 99999;
-      display: grid; place-items: center;
-      background: radial-gradient(125% 125% at 50% 40%, rgba(11,18,32,0.94), rgba(11,18,32,0.86)),
-                  linear-gradient(160deg, rgba(108,92,231,0.25), rgba(16,132,199,0.25));
-      backdrop-filter: blur(4px);
-      animation: mg-celebrate-fade-in 260ms ease-out forwards;
-      cursor: pointer;
-    `;
-
-    const card = document.createElement('div');
-    card.style.cssText = `
-      width: min(720px, 92vw);
-      padding: clamp(16px, 4vw, 28px);
-      border-radius: 18px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-      border: 1.5px solid rgba(255,255,255,0.14);
-      box-shadow: 0 24px 52px rgba(0,0,0,0.50), inset 0 0 0 1px rgba(255,255,255,0.06);
-      text-align: center;
-      color: var(--fg, #E9EEF8);
-      transform: translateY(10px) scale(0.985);
-      animation: mg-celebrate-pop 420ms cubic-bezier(.2,.9,.18,1.1) forwards 120ms;
-    `;
-
-    const deco = document.createElement('img');
-    deco.src = 'assets/deceerre-celebration.png';
-    deco.alt = 'Deceerre celebrando';
-    deco.style.cssText = `
-      width: clamp(130px, 26vw, 190px);
-      height: clamp(130px, 26vw, 190px);
-      object-fit: contain;
-      margin: 0 auto 8px auto;
-      filter: drop-shadow(0 10px 24px rgba(16,185,129,0.45));
-      animation: mg-bounce 1100ms ease-in-out infinite;
-      display: block;
-    `;
-    deco.onerror = () => { deco.style.display = 'none'; };
-
-    const title = document.createElement('div');
-    title.textContent = '¡Excelente deducción!';
-    title.style.cssText = `
-      font-weight: 800;
-      font-size: clamp(22px, 4.4vw, 38px);
-      letter-spacing: .3px;
-      margin: 6px 0 2px 0;
-      background: linear-gradient(45deg, var(--accent,#6C5CE7), var(--success,#10B981));
-      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    `;
-
-    const subtitle = document.createElement('div');
-    subtitle.textContent = 'Has descubierto al impostor como un verdadero detective';
-    subtitle.style.cssText = `opacity:.9; font-size:clamp(14px,2.4vw,18px); margin-bottom:12px;`;
-
-    const emoji = document.createElement('div');
-    emoji.textContent = '🎉';
-    emoji.style.cssText = `font-size:clamp(36px,8vw,64px); animation: mg-tilt 1800ms ease-in-out infinite; margin-bottom:6px;`;
-
-    const hint = document.createElement('div');
-    hint.textContent = 'Toca o pulsa Esc para continuar';
-    hint.style.cssText = `opacity:.75; font-size:13px; margin-top:6px;`;
-
-    card.appendChild(deco);
-    card.appendChild(title);
-    card.appendChild(subtitle);
-    card.appendChild(emoji);
-    card.appendChild(hint);
-    overlay.appendChild(card);
-
-    const close = () => {
-      overlay.style.animation = 'mg-celebrate-fade-out 220ms ease-in forwards';
-      setTimeout(() => {
-        document.body.style.overflow = prevOverflow || '';
-        overlay.remove();
-      }, 200);
-    };
-
-    overlay.addEventListener('click', close);
-    const onEsc = (e) => { if (e.key === 'Escape') { document.removeEventListener('keydown', onEsc); close(); } };
-    document.addEventListener('keydown', onEsc);
-
-    document.body.appendChild(overlay);
-
-    const t = setTimeout(() => { clearTimeout(t); close(); }, Math.max(1400, duration));
+  function animateBalance(container, tilt) {
+    var beam = container.querySelector('#balance-beam');
+    if (!beam) return;
+    setTimeout(function () {
+      if (tilt === 'left') beam.style.transform = 'translateX(-50%) rotate(-6deg)';
+      else if (tilt === 'right') beam.style.transform = 'translateX(-50%) rotate(6deg)';
+      else beam.style.transform = 'translateX(-50%) rotate(0deg)';
+    }, 30);
   }
 
-  function ensureCelebrationStyles() {
-    if (document.getElementById('mg-celebration-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'mg-celebration-styles';
-    style.textContent = `
-      @keyframes mg-bounce { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-10px)} 60%{transform:translateY(-5px)} }
-      @keyframes mg-tilt { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
-      @keyframes mg-celebrate-fade-in { from{opacity:0} to{opacity:1} }
-      @keyframes mg-celebrate-fade-out { from{opacity:1} to{opacity:0} }
-      @keyframes mg-celebrate-pop { 0%{transform:translateY(12px) scale(.95);opacity:0} 100%{transform:translateY(0) scale(1);opacity:1} }
-      @media (prefers-reduced-motion: reduce) {
-        #mg-balance-celebration, #mg-balance-celebration * { animation:none !important; transition:none !important; }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-}
-
-// ================= SHELL / UI =================
-function buildShell() {
-  const box = createElement('div', { class: 'template-box balance-game' });
-
-  // Cabecera (glass + barrido de luz)
-  const header = createElement('div', {
-    class: 'enigma-header',
-    style: 'display:flex;align-items:center;gap:16px;margin-bottom:8px;position:relative;overflow:hidden;'
-  });
-
-  // Icono correcto (con fallback a .svg y si falla, oculta)
-  const icon = createElement('img', {
-    src: 'assets/balance-icon.png',
-    alt: 'Balanza',
-    style: 'width:64px;height:64px;border-radius:12px;border:2px solid var(--accent);background:rgba(255,255,255,.06);padding:8px;box-sizing:border-box;z-index:2;position:relative;'
-  });
-  icon.onerror = () => {
-    icon.src = 'assets/balance-icon.svg';
-    icon.onerror = () => (icon.style.display = 'none');
-  };
-
-  const title = createElement('h2', {
-    style: 'margin:0;color:var(--accent);font-size:1.5rem;z-index:2;position:relative;'
-  });
-  title.textContent = 'Descubre el impostor';
-
-  const lightEffect = createElement('div', {
-    style: `
-      position:absolute; top:0; left:-100%; width:100%; height:100%;
-      background: linear-gradient(90deg, transparent, rgba(108,92,231,0.3), transparent);
-      animation: slideLight 3s infinite; z-index:1;
-    `
-  });
-
-  header.appendChild(lightEffect);
-  header.appendChild(icon);
-  header.appendChild(title);
-  box.appendChild(header);
-
-  // Tarjeta de instrucciones
-  const instructionsBox = createElement('div', {
-    class: 'card deceerre-instructions',
-    style: `
-      display:flex; align-items:center; gap:20px; margin-bottom:8px;
-      background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(168, 85, 247, 0.1));
-      border: 2px solid transparent; border-radius: 16px; position: relative;
-      overflow: hidden; transition: all 0.3s ease; backdrop-filter: blur(10px);
-    `
-  });
-  const deceerreImg = createElement('img', {
-    src: 'assets/deceerre-instructions.png',
-    alt: 'Deceerre',
-    style: `
-      width:90px; height:90px; flex-shrink:0;
-      filter: drop-shadow(0 4px 12px rgba(108, 92, 231, 0.3));
-      z-index:2; position:relative;
-    `
-  });
-  deceerreImg.onerror = () => (deceerreImg.style.display = 'none');
-
-  const instructionsContent = createElement('div', { style: 'flex:1; z-index:2; position:relative;' });
-  const instructionsTitle = createElement('h3', {
-    style: 'margin:0 0 6px 0; color: var(--accent); font-size: 1.05rem; font-weight: 700;'
-  });
-  instructionsTitle.textContent = 'Cómo jugar';
-  const instructionsText = createElement('p', {
-    style: 'margin:0; color: var(--fg); line-height: 1.5; font-size: 0.95rem;'
-  });
-  instructionsText.innerHTML = 'Selecciona monedas y colócalas en los <strong>platos</strong>. Pesa con lógica para descubrir el impostor.';
-  const instructions = createElement('div', {
-    class: 'balance-instructions',
-    style: 'margin-top:6px; font-size:0.9rem; color: var(--muted);'
-  });
-
-  instructionsContent.appendChild(instructionsTitle);
-  instructionsContent.appendChild(instructionsText);
-  instructionsContent.appendChild(instructions);
-  instructionsBox.appendChild(deceerreImg);
-  instructionsBox.appendChild(instructionsContent);
-  box.appendChild(instructionsBox);
-
-  // Status (se elimina tras render OK)
-  const status = createElement('div', { class: 'feedback' });
-  status.textContent = 'Cargando...';
-  box.appendChild(status);
-
-  // Contador de pesadas (márgenes ajustados para quitar aire)
-  const weighingsInfo = createElement('div', {
-    class: 'weighings-info',
-    style: 'margin:6px 0;text-align:center;font-size:1rem;'
-  });
-  weighingsInfo.innerHTML = `<span>Pesadas: </span><strong><span class="weighings-count">0</span></strong>`;
-  box.appendChild(weighingsInfo);
-
-  // Balanza (contenedor) sin márgenes extra
-  const balanceContainer = createElement('div', {
-    class: 'balance-container',
-    style: 'margin:0;'
-  });
-  box.appendChild(balanceContainer);
-
-  // Pool de monedas
-  const coinsContainer = createElement('div', {
-    class: 'balance-coins',
-    style: 'margin-top:8px;'
-  });
-  box.appendChild(coinsContainer);
-
-  // Resultado + controles
-  const result = createElement('div', { class: 'balance-message' });
-  box.appendChild(result);
-
-  const balanceControls = createElement('div', { class: 'balance-controls' });
-  const weighButton = createElement('button', { class: 'btn' }); weighButton.textContent = 'Pesar';
-  const clearButton = createElement('button', { class: 'btn btn-secondary' }); clearButton.textContent = 'Vaciar';
-  const resetButton = createElement('button', { class: 'btn btn-secondary' }); resetButton.textContent = 'Reiniciar';
-  balanceControls.appendChild(weighButton);
-  balanceControls.appendChild(clearButton);
-  balanceControls.appendChild(resetButton);
-  box.appendChild(balanceControls);
-
-  // Respuesta (botón centrado)
-  const answerSection = createElement('div', { class: 'balance-answer-section' });
-  const answerTitle = createElement('h3'); answerTitle.textContent = 'Tu respuesta:';
-  const answerContainer = createElement('div', { class: 'balance-answer' });
-  const checkButton = createElement('button', {
-    class: 'btn btn-primary',
-    style: 'display:block;margin:12px auto 0;'
-  });
-  checkButton.textContent = 'Comprobar respuesta';
-  answerSection.appendChild(answerTitle);
-  answerSection.appendChild(answerContainer);
-  answerSection.appendChild(checkButton);
-  box.appendChild(answerSection);
-
-  // Mensaje general
-  const message = createElement('div', { class: 'balance-message' });
-  box.appendChild(message);
-
-  return {
-    box,
-    status,
-    instructions,
-    weighingsCount: weighingsInfo.querySelector('.weighings-count'),
-    coinsContainer,
-    balanceContainer,
-    weighButton,
-    clearButton,
-    resetButton,
-    answerContainer,
-    checkButton,
-    result,
-    message
-  };
-}
-
-// ============== UTILIDADES BÁSICAS ==============
-async function loadConfig(data) {
-  if (data?.json_url) {
-    const resp = await fetch(data.json_url);
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return await resp.json();
-  }
-  if (data?.variant && data?.N) return data;
-  throw new Error('Faltan datos de configuracion de la balanza');
-}
-
-function createElement(tag, attributes = {}) {
-  const el = document.createElement(tag);
-  Object.entries(attributes).forEach(([k, v]) => {
-    if (k === 'class') el.className = v;
-    else if (k === 'style') el.style.cssText = v;
-    else el.setAttribute(k, v);
-  });
-  return el;
-}
-
-function setStatus(element, text, type = '') {
-  if (!element) return;
-  element.textContent = text;
-  element.className = 'feedback';
-  if (type) element.classList.add(type);
 }

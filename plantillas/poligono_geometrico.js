@@ -1,4 +1,6 @@
 // plantillas/poligono_geometrico.js
+import { celebrate } from './celebration.js';
+
 export async function render(root, data, hooks) {
   // Limpiar contenedor
   root.innerHTML = '';
@@ -19,6 +21,12 @@ export async function render(root, data, hooks) {
   if (!config.area || !config.perimeter) {
     setStatus(ui.status, 'Error: Faltan área y perímetro objetivo', 'ko');
     return;
+  }
+
+  // Actualizar el objetivo mostrado (buildShell se ejecutó antes de cargar config)
+  const instructionsP = ui.box.querySelector('.polygon-instructions p');
+  if (instructionsP) {
+    instructionsP.innerHTML = `<strong>Objetivo:</strong> Área = ${config.area}, Perímetro = ${config.perimeter}`;
   }
 
   // Inicializar variables del juego
@@ -266,6 +274,7 @@ export async function render(root, data, hooks) {
         
         if (areaOk && perimeterOk) {
           setStatus(ui.result, `Correcto! A=${area.toFixed(1)}, P=${perimeter}`, 'ok');
+          celebrate({ ok: true });
         } else {
           setStatus(ui.result, `No coincide. A=${area.toFixed(2)}, P=${perimeter}`, 'ko');
         }
@@ -301,11 +310,16 @@ export async function render(root, data, hooks) {
 // FUNCIONES DE UTILIDAD
 function buildShell(data) {
   const box = createElement('div', { class: 'template-box polygon-game' });
-  
-  // Badge
-  const badge = createElement('div', { class: 'badge' });
-  badge.innerHTML = `<span>📐 Construye el polígono</span>`;
-  box.appendChild(badge);
+
+  // Cabecera estándar (oscura) + barrido
+  const header = createElement('div', { class: 'enigma-header-dark' });
+  const headerIcon = createElement('span', { class: 'enigma-header-icon' });
+  headerIcon.textContent = '📐';
+  const headerTitle = document.createElement('h2');
+  headerTitle.textContent = 'Construye el polígono';
+  header.appendChild(headerIcon);
+  header.appendChild(headerTitle);
+  box.appendChild(header);
 
   // Status
   const status = createElement('div', { class: 'feedback' });

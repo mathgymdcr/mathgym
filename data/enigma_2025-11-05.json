@@ -1,0 +1,44 @@
+{
+  "titulo": "El enigma de las casas de Einstein",
+  "descripcion": "Usa la lógica para descubrir quién vive en cada casa, qué color tiene, qué mascota tiene y qué bebida prefiere.",
+  "categories": {
+    "Persona": ["Alice", "Bob", "Carlos", "Diana"],
+    "Color": ["Roja", "Verde", "Azul", "Amarilla"],
+    "Mascota": ["Gato", "Perro", "Pez", "Pájaro"],
+    "Bebida": ["Té", "Café", "Leche", "Agua"]
+  },
+  "clues": [
+    "Alice vive en la casa roja.",
+    "Bob tiene un perro.",
+    "Carlos bebe café.",
+    "Diana vive en la casa amarilla.",
+    "La casa verde está inmediatamente a la izquierda de la casa blanca.",
+    "El dueño de la casa verde bebe té.",
+    "El que tiene pájaros vive junto al que bebe agua.",
+    "La persona que tiene un gato vive junto a la casa azul.",
+    "Diana no tiene un pez.",
+    "El que vive en la casa azul bebe leche."
+  ],
+  "solution": {
+    "Alice": {
+      "Color": "Roja",
+      "Mascota": "Gato",
+      "Bebida": "Té"
+    },
+    "Bob": {
+      "Color": "Verde",
+      "Mascota": "Perro",
+      "Bebida": "Café"
+    },
+    "Carlos": {
+      "Color": "Azul",
+      "Mascota": "Pez",
+      "Bebida": "Leche"
+    },
+    "Diana": {
+      "Color": "Amarilla",
+      "Mascota": "Pájaro",
+      "Bebida": "Agua"
+    }
+  }
+}

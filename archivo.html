@@ -1,40 +1,101 @@
-<!-- ===== archivo.html (CORREGIDO) ===== -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MathGym — Archivo</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MathGym — Archivo de retos</title>
+
+  <link rel="icon" href="assets/logo_mathgym.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Lexend:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 60px;
+      text-align: center;
+    }
+
+    .title-zone {
+      margin-bottom: 40px;
+    }
+
+    .title-zone h2 {
+      color: var(--accent);
+      font-size: 2.3rem;
+      margin-bottom: 8px;
+    }
+
+    .title-zone p {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .archive-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    .reto-card {
+      display: block;
+      text-align: left;
+      text-decoration: none;
+    }
+
+    .reto-card h3 {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .reto-card small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+    }
+  </style>
 </head>
+
 <body>
-    <header class="site-header">
-        <div class="brand">
-            <img src="assets/logo-placeholder.svg" alt="MathGym" class="brand-logo" 
-                 onerror="this.style.display='none'">
-            <div class="brand-title">
-                <h1>Archivo</h1>
-                <p>Retos anteriores</p>
-            </div>
-            <div class="brand-actions">
-                <a class="btn" href="index.html">🏠 Reto del día</a>
-            </div>
-        </div>
-    </header>
-    
-    <main class="contenedor-reto">
-        <section class="card">
-            <h2>Retos publicados</h2>
-            <div id="lista-retos">
-                <p>Cargando…</p>
-            </div>
-        </section>
-    </main>
-    
-    <footer class="site-footer">
-        © <span id="year"></span> MathGym
-    </footer>
-    
-    <script src="archivo.js"></script>
+  <!-- CABECERA -->
+  <header class="enigma-header-dark site-header">
+    <img src="assets/logo_mathgym.png" alt="Logo MathGym">
+    <div>
+      <h2>MathGym</h2>
+      <p class="site-header-tagline">Tu gimnasio mental diario 🧩</p>
+    </div>
+  </header>
+  <nav class="site-nav">
+    <a href="index.html" class="btn btn-secondary">🏠 Inicio</a>
+  </nav>
+
+  <!-- CONTENIDO -->
+  <main>
+    <div class="title-zone">
+      <h2>Archivo de Retos</h2>
+      <p>Explora los retos anteriores y sigue fortaleciendo tu mente</p>
+    </div>
+
+    <div class="archive-grid" id="lista-retos">
+      <!-- Rellenado dinámicamente por archivo.js -->
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © <span id="year"></span> MathGym — Proyecto educativo libre
+  </footer>
+
+  <script src="archivo.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>

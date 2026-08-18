@@ -1,0 +1,12 @@
+{
+  "modos": [
+    {
+      "id": "encender_todo",
+      "tamano": [3,3],
+      "objetivo": "all_on",
+      "patron_inicial": "todo_apagado",
+      "min_movimientos": 5
+    }
+  ]
+}
+

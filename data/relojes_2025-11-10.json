@@ -1,0 +1,5 @@
+{
+  "glasses": [3, 5],
+  "target": 4,
+  "tolerance": 0.25
+}

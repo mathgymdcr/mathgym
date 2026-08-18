@@ -1,48 +1,119 @@
-<!-- ===== index.html (CORREGIDO) ===== -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MathGym — Reto del día</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MathGym — Reto del día</title>
+
+  <link rel="icon" href="assets/logo_mathgym.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Lexend:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      overflow-x: hidden;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 16px 80px;
+    }
+
+    .hero {
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      margin: 0 auto;
+    }
+
+    .hero h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0;
+    }
+
+    .hero > p {
+      color: var(--muted);
+      font-size: 1.15rem;
+      line-height: 1.7;
+      margin: 0;
+      max-width: 640px;
+    }
+
+    .hero .deceerre-instructions {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .hero .deceerre-instructions img {
+      width: 150px;
+      height: 150px;
+    }
+
+    .hero .btn-main {
+      margin-top: 8px;
+    }
+  </style>
 </head>
+
 <body>
-    <header class="site-header">
-        <div class="brand">
-            <img src="assets/logo-placeholder.png" alt="MathGym" class="brand-logo" 
-                 onerror="this.style.display='none'">
-            <div class="brand-title">
-                <h1>MathGym</h1>
-                <p>Entrena tu mente</p>
-            </div>
-            <div class="brand-actions">
-                <a class="btn" href="archivo.html">📂 Archivo</a>
-            </div>
+  <!-- CABECERA -->
+  <header class="enigma-header-dark site-header">
+    <img src="assets/logo_mathgym.png" alt="Logo MathGym">
+    <div>
+      <h2>MathGym</h2>
+      <p class="site-header-tagline">Tu gimnasio mental diario 🧩</p>
+    </div>
+  </header>
+  <nav class="site-nav">
+    <a href="archivo.html" class="btn btn-secondary">📚 Archivo</a>
+  </nav>
+
+  <!-- HERO PRINCIPAL -->
+  <main>
+    <div class="hero">
+      <h2>Entrena tu mente cada día</h2>
+      <p>
+        Bienvenido a <strong>MathGym</strong>, el gimnasio mental donde cada día te espera un nuevo reto matemático o lógico.
+        ¡Ejercita tu pensamiento, supera desafíos y acompaña a <strong>Deceerre</strong> en tu entrenamiento mental!
+      </p>
+
+      <div class="card deceerre-instructions">
+        <img src="assets/deceerre.png" alt="Deceerre entrenador">
+        <div class="instructions-body">
+          <h3>¡Hola, soy Deceerre!</h3>
+          <p>
+            Te guiaré en tus entrenamientos. Cada reto es un nuevo músculo mental por desarrollar.
+            Cuando resuelvas uno, ¡celebraremos juntos tu progreso!
+          </p>
+          <!-- ✅ BOTÓN corregido -->
+          <a href="reto.json" class="btn btn-main" data-action="entrenar">🏋️ Entrenar ahora</a>
         </div>
-    </header>
-    
-    <main class="contenedor-reto">
-        <section class="card reto-header">
-            <h2 id="titulo-reto">Cargando…</h2>
-            <p id="objetivo-reto"></p>
-        </section>
-        
-        <section class="card" id="estado-card">
-            <div id="estado-carga"></div>
-        </section>
-        
-        <section class="card" id="reto-interactivo" hidden>
-            
-            <div id="contenedor-interactivo" aria-live="polite"></div>
-        </section>
-    </main>
-    
-    <footer class="site-footer">
-        © <span id="year"></span> MathGym
-    </footer>
-    
-    <script type="module" src="script.js"></script>
+      </div>
+    </div>
+
+    <!-- ✅ CONTENEDOR donde se montará el reto (oculto hasta cargar) -->
+    <div id="contenedor-interactivo" style="display:none;"></div>
+  </main>
+
+  <footer class="site-footer">
+    © <span id="year"></span> MathGym — Proyecto educativo libre
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+  <!-- ✅ Carga del router y sistema MathGym -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
-

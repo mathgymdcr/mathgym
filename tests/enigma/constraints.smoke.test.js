@@ -1,35 +1,29 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 
-let solver
+let mod
+const data = {
+  level: 'medio',
+  categories: {
+    Persona: ['Ana', 'Beto', 'Cora', 'Damian'],
+    Camiseta: ['Roja', 'Verde', 'Azul', 'Amarilla'],
+    Bebida: ['Cafe', 'Te', 'Agua', 'Zumo'],
+    Mascota: ['Perro', 'Gato', 'Pez', 'Tortuga']
+  },
+  clues: ['Damian tiene tortuga.']
+}
 
 beforeAll(async () => {
-  // Import dinámico de la plantilla CommonJS sin cambiarla
-  const mod = await import('../../plantillas/enigma_einstein.js')
-  // Comprobamos si tiene default (export default) o es un módulo CommonJS
-  solver = mod.default ?? mod
+  mod = await import('../../plantillas/enigma_einstein.js')
 })
 
 describe('Smoke tests plantillas MathGym', () => {
-  it('Comprobar que ../../plantillas/enigma_einstein.js tiene "tipo" y "titulo"', () => {
-    expect(solver.tipo).toBeDefined()
-    expect(solver.titulo).toBeDefined()
+  it('plantillas/enigma_einstein.js expone render(root, data, hooks)', () => {
+    expect(typeof mod.render).toBe('function')
   })
 
-  it('Debería tener el método solvePuzzle', () => {
-    expect(typeof solver.solvePuzzle).toBe('function')
-  })
-
-  it('solvePuzzle debería retornar un objeto', () => {
-    const result = solver.solvePuzzle()
-    expect(result).toBeTypeOf('object')
+  it('render monta el tablero en el contenedor sin lanzar', async () => {
+    const root = document.createElement('div')
+    await mod.render(root, data, {})
+    expect(root.children.length).toBeGreaterThan(0)
   })
 })
-
-
-
-
-
-
-
-
-
