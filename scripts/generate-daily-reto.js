@@ -204,12 +204,25 @@ class MathGymGenerator {
 
     const config = configs[seed % configs.length];
 
+    // La instancia concreta (qué moneda(s) son anómalas y su signo) se fija
+    // aquí con un PRNG seedeado por fecha, no en el navegador con
+    // Math.random() -- si no, dos personas cargando "el reto de hoy" verían
+    // monedas anómalas distintas. La lógica de abajo replica a propósito
+    // generateAnomalies() de plantillas/balanza_logica.js.
+    // Seed derivado (no el `seed` crudo, que ya decide `config` arriba) para
+    // que este PRNG no quede correlacionado con la elección de config ni con
+    // cualquier otro uso futuro de `seed` en este generador.
+    const anomalySeed = (seed * 2654435761) >>> 0;
+    const rand = this.mulberry32(anomalySeed);
+    const anomalies = this.generateBalanzaAnomalies(config, rand);
+    const dataOut = { ...config, anomalies };
+
     // Save data file for balanza
     const dataFileName = `balanza_${fecha}.json`;
     await fs.mkdir('data', { recursive: true });
     await fs.writeFile(
       path.join('data', dataFileName),
-      JSON.stringify(config, null, 2)
+      JSON.stringify(dataOut, null, 2)
     );
 
     return {
@@ -295,6 +308,60 @@ class MathGymGenerator {
       }
       return shuffled;
     });
+  }
+
+  // PRNG determinista (mulberry32), sin dependencias externas. Misma
+  // semilla -> misma secuencia de [0,1) siempre.
+  mulberry32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // Replica generateAnomalies() de plantillas/balanza_logica.js, pero
+  // usando el PRNG seedeado `rand` en vez de Math.random(). Mantener
+  // ambas en sync si cambia la lógica de una de ellas.
+  generateBalanzaAnomalies(cfg, rand) {
+    const idxs = Array.from({ length: cfg.N }, (_, i) => i);
+    const pick = (n) => {
+      const pool = idxs.slice();
+      const out = [];
+      for (let j = 0; j < n; j++) {
+        const p = Math.floor(rand() * pool.length);
+        out.push(pool.splice(p, 1)[0]);
+      }
+      return out;
+    };
+
+    const anomalies = [];
+    switch (cfg.variant) {
+      case 'heaviest':
+        anomalies.push({ i: pick(1)[0], sign: 1 });
+        break;
+      case 'lightest':
+        anomalies.push({ i: pick(1)[0], sign: -1 });
+        break;
+      case 'oddUnknown': {
+        const ii = pick(1)[0];
+        const sg = rand() < 0.5 ? 1 : -1;
+        anomalies.push({ i: ii, sign: sg });
+        break;
+      }
+      case 'kHeaviest':
+        pick(cfg.k).forEach((i) => anomalies.push({ i, sign: 1 }));
+        break;
+      case 'kLightest':
+        pick(cfg.k).forEach((i) => anomalies.push({ i, sign: -1 }));
+        break;
+      case 'kOddUnknown':
+        pick(cfg.k).forEach((i) => anomalies.push({ i, sign: rand() < 0.5 ? 1 : -1 }));
+        break;
+    }
+    return anomalies;
   }
 }
 

@@ -57,6 +57,14 @@ export async function render(root, data, hooks) {
 
   // ========================= LÓGICA =========================
   function generateAnomalies(s, cfg) {
+    // Si el generador ya fijó qué moneda(s) son anómalas (seedeado por
+    // fecha), se usan tal cual -- así el reto de hoy es el mismo para
+    // todo el mundo. Solo se cae a Math.random() si faltan (datos
+    // antiguos o de prueba manual sin generador).
+    if (Array.isArray(cfg.anomalies) && cfg.anomalies.length > 0) {
+      s.anomalies = cfg.anomalies;
+      return;
+    }
     s.anomalies = [];
     var idxs = Array.from({ length: s.N }, function (_, i) { return i; });
     function pick(n) {
