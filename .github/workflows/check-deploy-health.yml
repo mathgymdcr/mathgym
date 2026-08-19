@@ -1,0 +1,39 @@
+name: Check Deploy Health
+
+on:
+  # Desactivado por schedule hasta que el catálogo tenga contenido real
+  # (ver Paso 6-8 del plan de reconciliación) -- activar el cron cuando
+  # el primer reto generado por el pipeline nuevo esté publicado.
+  # - cron: "0 6 * * *" # unas horas después del cron de daily-reto.yml (00:00 UTC), da margen a reintentos
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Comprobar que reto.json es el de hoy (Europe/Madrid)
+        run: |
+          HOY="$(TZ='Europe/Madrid' date +%Y-%m-%d)"
+          echo "Fecha de hoy (Europe/Madrid): $HOY"
+
+          if [ ! -f reto.json ]; then
+            echo "❌ No existe reto.json en main"
+            exit 1
+          fi
+
+          FECHA_RETO="$(jq -r '.fecha' reto.json)"
+          echo "Fecha en reto.json: $FECHA_RETO"
+
+          if [ "$FECHA_RETO" != "$HOY" ]; then
+            echo "❌ reto.json desactualizado -- esperaba $HOY, encontrado $FECHA_RETO"
+            exit 1
+          fi
+
+          echo "✅ reto.json coincide con la fecha de hoy ($HOY)"
