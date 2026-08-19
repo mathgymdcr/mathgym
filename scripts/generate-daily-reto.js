@@ -1,9 +1,23 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { balanzaMinWeighings } from './balanza-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// "Hoy" en Europe/Madrid, no en UTC del runner -- si no, el cron a las
+// 00:00 UTC puede caer antes o después de la medianoche real de Madrid
+// según la época del año (CET/CEST), y el reto se etiqueta con la fecha
+// equivocada justo en el borde del día.
+function todayMadrid() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Madrid',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date());
+}
 
 class MathGymGenerator {
   constructor() {
@@ -17,7 +31,7 @@ class MathGymGenerator {
 
   async generateDailyReto(fecha, force = false) {
     if (!fecha) {
-      fecha = new Date().toISOString().split('T')[0];
+      fecha = todayMadrid();
     }
 
     console.log(`🎯 Generating reto for ${fecha}`);
@@ -225,13 +239,27 @@ class MathGymGenerator {
       JSON.stringify(dataOut, null, 2)
     );
 
+    // Mínimo de pesadas real según la cota de teoría de la información
+    // (3^W resultados distinguibles en W pesadas de 3 salidas cada una),
+    // no un número fijo -- así hints y objectives son específicos de
+    // cada variant/N/k, y el validador puede reusar la misma cota.
+    const minW = balanzaMinWeighings(config);
+
     return {
+      id: `${fecha}-balanza-logica-001`,
       tipo: 'balanza-logica',
+      variant: config.variant,
       titulo: 'Reto de la Balanza',
       objetivo: 'Encuentra las monedas anómalas con el menor número de pesadas',
       icono_url: 'assets/icono-generico.svg',
       dificultad: 3,
       categorias: ['logica', 'optimizacion'],
+      hints: this.generateBalanzaHints(config, minW),
+      objectives: {
+        winCondition: 'identify_anomalies',
+        maxWeighingsFor3Stars: minW,
+        maxWeighingsFor2Stars: Math.min(config.maxWeighings, minW + 1)
+      },
       data: { json_url: `data/${dataFileName}` }
     };
   }
@@ -363,12 +391,30 @@ class MathGymGenerator {
     }
     return anomalies;
   }
+
+  // Pistas específicas de la variante y de N/k -- no un texto genérico.
+  generateBalanzaHints(cfg, minW) {
+    const N = cfg.N, k = cfg.k || 1;
+    const plural = (n, s) => (n === 1 ? s : s + 's');
+    const estrategia = {
+      heaviest: `Divide las ${N} monedas en tres grupos lo más iguales posible y compara dos en la balanza: el lado que baja contiene la moneda pesada, o si equilibran, está en el grupo que dejaste fuera.`,
+      lightest: `Divide las ${N} monedas en tres grupos lo más iguales posible y compara dos en la balanza: el lado que sube contiene la moneda ligera, o si equilibran, está en el grupo que dejaste fuera.`,
+      oddUnknown: `Como no sabes si la moneda distinta pesa más o menos, deja siempre algunas monedas fuera de la primera pesada -- necesitas poder comparar su comportamiento en pesadas distintas para deducir el signo.`,
+      kHeaviest: `Hay ${k} ${plural(k, 'moneda')} más ${plural(k, 'pesada')} entre las ${N} -- reparte muchas monedas en cada plato para que el resultado te diga de un vistazo cuántas de las pesadas cayeron en cada lado.`,
+      kLightest: `Hay ${k} ${plural(k, 'moneda')} más ${plural(k, 'ligera')} entre las ${N} -- reparte muchas monedas en cada plato para que el resultado te diga de un vistazo cuántas de las ligeras cayeron en cada lado.`,
+      kOddUnknown: `Hay ${k} monedas distintas entre las ${N}, y cada una puede pesar más o menos por separado -- es la variante más exigente, aprovecha cada pesada para acotar a la vez cuántas sospechosas quedan y su signo.`
+    };
+    return [
+      estrategia[cfg.variant] || 'Compara grupos de monedas para descartar sospechosas en cada pesada.',
+      `El mínimo teórico para este reto es ${minW} ${plural(minW, 'pesada')} (tienes ${cfg.maxWeighings}, con ${cfg.maxWeighings - minW} de margen).`
+    ];
+  }
 }
 
 // Main execution
 async function main() {
   const args = process.argv.slice(2);
-  const fecha = args[0] || new Date().toISOString().split('T')[0];
+  const fecha = args[0] || todayMadrid();
   const force = args[1] === 'true' || args[1] === '--force';
 
   const generator = new MathGymGenerator();

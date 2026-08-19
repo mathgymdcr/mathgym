@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { balanzaScenarios } from './balanza-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,7 +79,7 @@ class RetoValidator {
         await this.validateEinsteinData(reto);
         break;
       case 'balanza-logica':
-        this.validateBalanzaData(reto);
+        await this.validateBalanzaData(reto);
         break;
       case 'poligono-geometrico':
         this.validatePoligonoData(reto);
@@ -116,14 +117,48 @@ class RetoValidator {
     }
   }
 
-  validateBalanzaData(reto) {
-    const data = reto.data;
-    if (!data.variant || !data.N || !data.maxWeighings) {
-      throw new Error('Balanza reto missing required fields');
+  async validateBalanzaData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Balanza reto missing json_url');
     }
-    
+
+    // Los parámetros reales (variant/N/k/maxWeighings/anomalies) viven en
+    // el archivo referenciado por json_url, no en reto.data directamente
+    // -- reto.data solo trae { json_url }. Antes esta función comprobaba
+    // reto.data.variant/N/maxWeighings, que nunca existen ahí, así que
+    // fallaba siempre para cualquier reto de balanza real.
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!data.variant || !data.N || !data.maxWeighings) {
+      throw new Error('Balanza reto missing required fields (variant/N/maxWeighings) in data file');
+    }
+
     if (data.N < 3 || data.N > 10) {
       throw new Error('Balanza N must be between 3 and 10');
+    }
+
+    if (!Array.isArray(data.anomalies) || data.anomalies.length === 0) {
+      throw new Error('Balanza reto missing anomalies (instancia sin fijar -- ver fix de A.4)');
+    }
+
+    // Solvencia: cota de teoría de la información. Con maxWeighings
+    // pesadas de 3 resultados cada una (izq/der/equilibrio) se pueden
+    // distinguir como mucho 3^maxWeighings escenarios; si hay más
+    // escenarios posibles que eso, el reto NO tiene solución garantizada
+    // dentro del número de pesadas que anuncia.
+    const scenarios = balanzaScenarios(data);
+    if (scenarios == null) {
+      throw new Error(`Balanza reto has unknown variant: ${data.variant}`);
+    }
+    const maxDistinguishable = Math.pow(3, data.maxWeighings);
+    if (scenarios > maxDistinguishable) {
+      throw new Error(
+        `Balanza reto not solvable within maxWeighings: ${scenarios} escenarios posibles ` +
+        `(variant=${data.variant}, N=${data.N}, k=${data.k || 1}) requieren más de ` +
+        `${data.maxWeighings} pesadas (3^${data.maxWeighings}=${maxDistinguishable} < ${scenarios})`
+      );
     }
   }
 
