@@ -1,10 +1,10 @@
 {
-  "fecha": "2025-11-08",
+  "fecha": "2026-08-22",
   "titulo": "Los Cuadrados Luminosos",
   "objetivo": "Enciende todas las luces del tablero",
   "icono_url": "assets/icono-lightsout.png",
   "tipo": "lightsout",
   "data": {
-    "json_url": "data/lightsout_2025-11-08.json"
+    "json_url": "data/lightsout_2026-08-22.json"
   }
 }

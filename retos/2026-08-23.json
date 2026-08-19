@@ -1,10 +1,10 @@
 {
-  "fecha": "2025-11-10",
+  "fecha": "2026-08-23",
   "titulo": "Relojes de Arena",
   "objetivo": "Mide exactamente 4 minutos con relojes de 3 y 5 minutos",
   "icono_url": "assets/logo_mathgym.png",
   "tipo": "relojes-arena",
   "data": {
-    "json_url": "data/relojes_2025-11-10.json"
+    "json_url": "data/relojes_2026-08-23.json"
   }
 }

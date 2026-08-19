@@ -1,10 +1,10 @@
 {
-  "fecha": "2025-11-11",
+  "fecha": "2026-08-24",
   "titulo": "Jarras Exactas",
   "objetivo": "Consigue exactamente 4L con jarras de 5L y 3L",
   "icono_url": "assets/logo_mathgym.png",
   "tipo": "trasvase-ecologico",
   "data": {
-    "json_url": "data/trasvase_2025-11-11.json"
+    "json_url": "data/trasvase_2026-08-24.json"
   }
 }
