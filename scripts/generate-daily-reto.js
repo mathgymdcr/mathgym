@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { balanzaMinWeighings } from './balanza-logic.js';
+import { solveTrasvase } from './trasvase-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -298,14 +299,35 @@ class MathGymGenerator {
 
   async generateTrasvase(seed, fecha) {
     const configs = [
-      { capacities: [7, 4, 3], target: 5, initialLevels: [7, 0, 0] },
-      { capacities: [8, 5, 3], target: 4, initialLevels: [8, 0, 0] },
-      { capacities: [9, 4, 2], target: 6, initialLevels: [9, 0, 0] },
-      { capacities: [12, 7, 5], target: 9, initialLevels: [12, 0, 0] },
-      { capacities: [10, 6, 4], target: 8, initialLevels: [10, 0, 0] }
+      { capacities: [7, 4, 3], target: 5 },
+      { capacities: [8, 5, 3], target: 4 },
+      { capacities: [9, 4, 2], target: 6 },
+      { capacities: [12, 7, 5], target: 9 },
+      { capacities: [10, 6, 4], target: 8 }
     ];
 
-    const config = configs[seed % configs.length];
+    const base = configs[seed % configs.length];
+
+    // Variante ('ecologico'/'clasico') seedeada por fecha, con una
+    // derivación de seed distinta de la que ya usa configs[] arriba (y
+    // distinta también del multiplicador de anomalySeed en
+    // generateBalanza) -- para que la elección de variante no quede
+    // correlacionada con la de capacidades/target. Igual que con
+    // anomalySeed, se pasa por mulberry32 (no solo un % 2) para no
+    // depender de la paridad cruda del seed derivado.
+    const variantSeed = (seed * 40503 + 12345) >>> 0;
+    const variant = this.mulberry32(variantSeed)() < 0.5 ? 'ecologico' : 'clasico';
+
+    // 'clasico' (grifo infinito) arranca con las jarras vacías;
+    // 'ecologico' (agua limitada) arranca con toda el agua en el primer
+    // recipiente. No se puede dejar que initializeGame() de la plantilla
+    // decida esto con su propio fallback, porque el generador siempre
+    // escribe initialLevels explícito en el JSON.
+    const initialLevels = variant === 'clasico'
+      ? base.capacities.map(() => 0)
+      : [base.capacities[0], ...base.capacities.slice(1).map(() => 0)];
+
+    const config = { variant, capacities: base.capacities, target: base.target, initialLevels };
 
     // Save data file for trasvase
     const dataFileName = `trasvase_${fecha}.json`;
@@ -315,15 +337,42 @@ class MathGymGenerator {
       JSON.stringify(config, null, 2)
     );
 
+    // Mínimo de movimientos real vía BFS sobre el espacio de estados, no
+    // un número fijo a mano -- así hints y objectives son específicos de
+    // cada capacities/target, y el validador reusa la misma función para
+    // comprobar que el reto tiene solución.
+    const minMoves = solveTrasvase(config);
+
     return {
+      id: `${fecha}-trasvase-ecologico-001`,
       tipo: 'trasvase-ecologico',
+      variant: config.variant,
       titulo: 'Trasvase Ecológico',
       objetivo: `Obtén exactamente ${config.target}L`,
       icono_url: 'assets/icono-generico.svg',
       dificultad: 2,
       categorias: ['volumen', 'movimiento'],
+      hints: this.generateTrasvaseHints(config, minMoves),
+      objectives: {
+        winCondition: 'reach_target_amount',
+        parMoves: minMoves,
+        maxMovesFor3Stars: minMoves,
+        maxMovesFor2Stars: minMoves + 2
+      },
       data: { json_url: `data/${dataFileName}` }
     };
+  }
+
+  // Pistas específicas de capacities/target/variant -- no un texto genérico.
+  generateTrasvaseHints(cfg, minMoves) {
+    const capsTxt = cfg.capacities.map((c) => `${c}L`).join(', ');
+    const estrategia = cfg.variant === 'clasico'
+      ? `Llena y vacía las jarras de ${capsTxt} desde el grifo, y trasvasa entre ellas para ir acotando la cantidad hasta llegar a ${cfg.target}L exactos.`
+      : `Solo tienes ${cfg.initialLevels[0]}L de agua en total, toda en el primer recipiente -- trasvasa entre los recipientes de ${capsTxt} sin desperdiciarla para llegar a ${cfg.target}L.`;
+    return [
+      estrategia,
+      `El mínimo real para este reto es ${minMoves} movimiento${minMoves === 1 ? '' : 's'}.`
+    ];
   }
 
   shuffleArrayWithSeed(arrays, seed) {
