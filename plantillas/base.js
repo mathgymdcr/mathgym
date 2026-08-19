@@ -7,9 +7,11 @@ window.Templates = (function() {
   // --- Registro de todas las plantillas disponibles ---
   const loaders = {
     'enigma-einstein': () => import('./enigma_einstein.js'),
-    'lightsout': () => import('./lightsout.js'),          // ✅ NUEVA PLANTILLA
+    'luces-fuera': () => import('./luces_fuera.js'),
+    'lightsout': () => import('./luces_fuera.js'),   // alias legado
     'relojes-arena': () => import('./relojes_arena.js'),
-    'plantas': () => import('./plantas.js'),
+    'riego-plantas': () => import('./riego_plantas.js'),
+    'plantas': () => import('./riego_plantas.js'),   // alias legado
     'poligono-geometrico': () => import('./poligono_geometrico.js'),
     'trasvase-ecologico': () => import('./trasvase_ecologico.js'),
     'balanza-logica': () => import('./balanza_logica.js'),
