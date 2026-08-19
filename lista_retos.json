@@ -42,5 +42,29 @@
     "titulo": "Cajas Apiladas",
     "dificultad": 2,
     "categorias": ["logica", "movimiento", "optimizacion"]
+  },
+  {
+    "fecha": "2025-11-14",
+    "titulo": "Nonograma",
+    "dificultad": 2,
+    "categorias": ["logica", "deduccion"]
+  },
+  {
+    "fecha": "2025-11-15",
+    "titulo": "Láseres y Espejos",
+    "dificultad": 3,
+    "categorias": ["geometria", "logica"]
+  },
+  {
+    "fecha": "2025-11-16",
+    "titulo": "Láseres en Malla Triangular",
+    "dificultad": 4,
+    "categorias": ["geometria", "logica"]
+  },
+  {
+    "fecha": "2025-11-17",
+    "titulo": "Puentes de Hashi",
+    "dificultad": 3,
+    "categorias": ["grafos", "logica"]
   }
 ]

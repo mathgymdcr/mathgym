@@ -14,7 +14,11 @@ window.Templates = (function() {
     'trasvase-ecologico': () => import('./trasvase_ecologico.js'),
     'balanza-logica': () => import('./balanza_logica.js'),
     'anillas-encadenadas': () => import('./anillas.js'),    // ✅ NUEVA PLANTILLA
-    'cajas-apiladas': () => import('./cajas.js')             // ✅ NUEVA PLANTILLA
+    'cajas-apiladas': () => import('./cajas.js'),            // ✅ NUEVA PLANTILLA
+    'nonograma': () => import('./nonograma.js'),             // ✅ NUEVA PLANTILLA
+    'laser-espejos': () => import('./laser.js'),               // ✅ NUEVA PLANTILLA
+    'laser-triangular': () => import('./laser_triangular.js'), // ✅ NUEVA PLANTILLA
+    'puentes-hashi': () => import('./hashi.js')                 // ✅ NUEVA PLANTILLA
   };
 
   // --- Función principal para renderizar plantillas ---

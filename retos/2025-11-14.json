@@ -1,0 +1,12 @@
+{
+  "fecha": "2025-11-14",
+  "titulo": "Nonograma",
+  "objetivo": "Pinta las celdas según las pistas para revelar el dibujo oculto",
+  "icono_url": "assets/logo_mathgym.png",
+  "tipo": "nonograma",
+  "dificultad": 2,
+  "categorias": ["logica", "deduccion"],
+  "data": {
+    "json_url": "data/nonograma_2025-11-14.json"
+  }
+}

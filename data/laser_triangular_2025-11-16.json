@@ -1,0 +1,10 @@
+{
+  "size": 8,
+  "lasers": [
+    { "emitter": { "row": 7, "col": 7, "dir": "up" }, "target": { "row": 4, "col": 5 } },
+    { "emitter": { "row": 1, "col": 1, "dir": "se" }, "target": { "row": 0, "col": 0 } }
+  ],
+  "blocks": [
+    { "row": 3, "col": 7 }
+  ]
+}

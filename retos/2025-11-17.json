@@ -1,0 +1,12 @@
+{
+  "fecha": "2025-11-17",
+  "titulo": "Puentes de Hashi",
+  "objetivo": "Une todas las islas con puentes rectos hasta que el número de cada una coincida con sus conexiones, sin que ningún puente se cruce",
+  "icono_url": "assets/logo_mathgym.png",
+  "tipo": "puentes-hashi",
+  "dificultad": 3,
+  "categorias": ["grafos", "logica"],
+  "data": {
+    "json_url": "data/hashi_2025-11-17.json"
+  }
+}

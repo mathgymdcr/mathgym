@@ -1,0 +1,12 @@
+{
+  "fecha": "2025-11-15",
+  "titulo": "Láseres y Espejos",
+  "objetivo": "Esquiva los bloqueos y dirige cada láser hasta su diana con espejos, sin que los rayos se crucen",
+  "icono_url": "assets/logo_mathgym.png",
+  "tipo": "laser-espejos",
+  "dificultad": 3,
+  "categorias": ["geometria", "logica"],
+  "data": {
+    "json_url": "data/laser_2025-11-15.json"
+  }
+}

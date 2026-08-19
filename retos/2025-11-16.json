@@ -1,0 +1,12 @@
+{
+  "fecha": "2025-11-16",
+  "titulo": "Láseres en Malla Triangular",
+  "objetivo": "Dirige cada láser hasta su diana sobre una malla de triángulos con reflexión real a 45°, sin que los rayos se crucen",
+  "icono_url": "assets/logo_mathgym.png",
+  "tipo": "laser-triangular",
+  "dificultad": 4,
+  "categorias": ["geometria", "logica"],
+  "data": {
+    "json_url": "data/laser_triangular_2025-11-16.json"
+  }
+}

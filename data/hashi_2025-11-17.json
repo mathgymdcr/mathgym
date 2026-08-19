@@ -1,0 +1,13 @@
+{
+  "rows": 5,
+  "cols": 5,
+  "islands": [
+    { "row": 0, "col": 0, "grado": 3 },
+    { "row": 0, "col": 4, "grado": 3 },
+    { "row": 2, "col": 0, "grado": 4 },
+    { "row": 2, "col": 2, "grado": 2 },
+    { "row": 2, "col": 4, "grado": 4 },
+    { "row": 4, "col": 0, "grado": 3 },
+    { "row": 4, "col": 4, "grado": 3 }
+  ]
+}
