@@ -20,6 +20,7 @@ export async function render(root, data, hooks) {
 
   const rings = Number.isInteger(config.rings) && config.rings > 0 ? config.rings : 4;
   const minMoves = theoreticalMinMoves(rings);
+  const mostrarPistas = config.mostrarPistas !== false; // niveles más difíciles pueden desactivarlo
 
   const ui = buildStandardShell({
     icon: '🔗',
@@ -28,8 +29,12 @@ export async function render(root, data, hooks) {
     instructionsHTML: `
       <h3>Cómo se juega</h3>
       <p><strong>Objetivo:</strong> suelta todas las anillas de la barra.</p>
-      <p>No hace falta memorizar ninguna regla: solo puedes tocar las anillas que <strong>brillan en dorado</strong> — se recalculan después de cada movimiento.</p>
-      <p><small>Regla completa, por si tienes curiosidad: la primera anilla siempre se puede tocar; cualquier otra, solo si la anterior está enganchada y todas las que hay antes de esa ya están sueltas.</small></p>
+      <p><strong>Regla:</strong> en cada momento solo hay como mucho dos anillas que se pueden tocar:</p>
+      <ul>
+        <li>La anilla 1 siempre se puede tocar.</li>
+        <li>Si la anilla 1 está enganchada, la otra anilla que puedes tocar es siempre la 2 (ninguna otra).</li>
+        <li>Si la anilla 1 está suelta: recorre las anillas desde la 1 hacia la derecha hasta encontrar la primera que esté enganchada. Esa anilla <strong>no</strong> se puede tocar — la que puedes tocar es la <strong>siguiente</strong> a ella.</li>
+      </ul>
     `
   });
   root.append(ui.box);
@@ -44,9 +49,12 @@ export async function render(root, data, hooks) {
   info.innerHTML = `<span>Movimientos: <strong class="anillas-moves">0</strong></span><span>Mínimo teórico: <strong>${minMoves}</strong></span>`;
   ui.box.appendChild(info);
 
-  const hint = createElement('div', { class: 'anillas-hint' });
-  hint.textContent = '✨ Toca las anillas doradas';
-  ui.box.appendChild(hint);
+  let hint = null;
+  if (mostrarPistas) {
+    hint = createElement('div', { class: 'anillas-hint' });
+    hint.textContent = '✨ Toca las anillas doradas';
+    ui.box.appendChild(hint);
+  }
 
   const bar = createElement('div', { class: 'anillas-bar-container' });
   const barLine = createElement('div', { class: 'anillas-bar' });
@@ -85,6 +93,13 @@ export async function render(root, data, hooks) {
   // i-1 está enganchada y todas las anillas 0..i-2 están desenganchadas.
   // Verificado por BFS: para n=1..8 produce el mínimo de movimientos real
   // del puzzle (1, 2, 5, 10, 21, 42, 85, 170).
+  //
+  // Equivalente más intuitivo (verificado exhaustivamente para n=1..10,
+  // mismo resultado en todos los estados posibles — es el que se explica
+  // al jugador): la anilla 1 siempre es legal; si la anilla 1 está
+  // enganchada, la anilla 2 es la única otra legal; si la anilla 1 está
+  // suelta, la única otra legal es la siguiente a la primera anilla
+  // enganchada (de izquierda a derecha), si existe.
   function esMovimientoLegal(i, ringsState) {
     if (i === 0) return true;
     if (!ringsState[i - 1]) return false;
@@ -129,10 +144,10 @@ export async function render(root, data, hooks) {
 
   function refresh() {
     info.querySelector('.anillas-moves').textContent = state.moves;
-    const legal = new Set(legalIndices(state.rings));
+    const legal = mostrarPistas ? new Set(legalIndices(state.rings)) : null;
     ringEls.forEach((el, i) => {
       el.classList.toggle('is-off', !state.rings[i]);
-      el.classList.toggle('is-legal', !state.won && legal.has(i));
+      el.classList.toggle('is-legal', !state.won && !!legal && legal.has(i));
     });
   }
 }
