@@ -1,4 +1,4 @@
-// ===== ARCHIVO FINAL: plantillas/lightsout.js =====
+// ===== ARCHIVO FINAL: plantillas/luces_fuera.js =====
 // Estilo "Resuelve el enigma" · Tablero ampliado · Control correcto del mínimo (acepta min_pulsaciones o min_movimientos)
 
 import { celebrate } from './celebration.js';
