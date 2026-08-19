@@ -2,6 +2,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { balanzaScenarios } from './balanza-logic.js';
+import { isTrasvaseSolvable } from './trasvase-logic.js';
+import { solveLightsOutFor } from './lightsout-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,7 +52,7 @@ class RetoValidator {
     }
     
     // Valid tipo
-    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico'];
+    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera'];
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
     }
@@ -85,7 +87,10 @@ class RetoValidator {
         this.validatePoligonoData(reto);
         break;
       case 'trasvase-ecologico':
-        this.validateTrasvasData(reto);
+        await this.validateTrasvasData(reto);
+        break;
+      case 'luces-fuera':
+        await this.validateLucesData(reto);
         break;
     }
   }
@@ -173,14 +178,73 @@ class RetoValidator {
     }
   }
 
-  validateTrasvasData(reto) {
-    const data = reto.data;
-    if (!data.capacities || !data.target || !data.initialLevels) {
-      throw new Error('Trasvase reto missing required fields');
+  async validateTrasvasData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Trasvase reto missing json_url');
     }
-    
+
+    // Igual que en balanza (ver A.4/A.5 del informe): reto.data solo trae
+    // { json_url }, los parámetros reales viven en el archivo referenciado.
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!data.capacities || !data.target || !data.initialLevels) {
+      throw new Error('Trasvase reto missing required fields in data file');
+    }
+
     if (!Array.isArray(data.capacities) || data.capacities.length < 2) {
       throw new Error('Trasvase must have at least 2 containers');
+    }
+
+    if (!Array.isArray(data.initialLevels) || data.initialLevels.length !== data.capacities.length) {
+      throw new Error('Trasvase initialLevels must match capacities length');
+    }
+
+    // Solvencia: BFS sobre el espacio de estados real (mismo módulo que
+    // usa el generador para calcular objectives.parMoves).
+    if (!isTrasvaseSolvable(data)) {
+      throw new Error(
+        `Trasvase reto not solvable: no hay ninguna secuencia de trasvases que alcance ` +
+        `target=${data.target} desde capacities=[${data.capacities}] con initialLevels=[${data.initialLevels}]`
+      );
+    }
+  }
+
+  async validateLucesData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Luces-fuera reto missing json_url');
+    }
+
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!Array.isArray(data.modos) || data.modos.length === 0) {
+      throw new Error('Luces-fuera reto missing modos');
+    }
+
+    for (const modo of data.modos) {
+      if (!Array.isArray(modo.tamano) || modo.tamano.length !== 2) {
+        throw new Error(`Luces-fuera modo "${modo.id}" missing valid tamano`);
+      }
+      const [rows, cols] = modo.tamano;
+
+      if (!Array.isArray(modo.patron_inicial)) {
+        // 'todo_apagado' / 'aleatorio' (bug de A.4, fuera de alcance
+        // aquí) / ausente: no hay una instancia concreta que comprobar.
+        continue;
+      }
+
+      if (modo.patron_inicial.length !== rows || modo.patron_inicial.some((row) => row.length !== cols)) {
+        throw new Error(`Luces-fuera modo "${modo.id}" patron_inicial no coincide con tamano`);
+      }
+
+      // Solvencia real vía GF(2) (mismo módulo que usa el generador para
+      // calcular objectives.parMoves) -- no se asume que, por venir del
+      // generador, ya es correcto.
+      const minMoves = solveLightsOutFor(modo);
+      if (minMoves == null) {
+        throw new Error(`Luces-fuera modo "${modo.id}" not solvable: patron_inicial no tiene solución para objetivo="${modo.objetivo}"`);
+      }
     }
   }
 

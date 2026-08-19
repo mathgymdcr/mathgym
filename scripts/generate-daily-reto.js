@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { balanzaMinWeighings } from './balanza-logic.js';
 import { solveTrasvase } from './trasvase-logic.js';
+import { buildPattern, solveLightsOut } from './lightsout-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,7 +27,8 @@ class MathGymGenerator {
       'enigma-einstein': this.generateEinstein.bind(this),
       'balanza-logica': this.generateBalanza.bind(this),
       'poligono-geometrico': this.generatePoligono.bind(this),
-      'trasvase-ecologico': this.generateTrasvase.bind(this)
+      'trasvase-ecologico': this.generateTrasvase.bind(this),
+      'luces-fuera': this.generateLuces.bind(this)
     };
   }
 
@@ -372,6 +374,79 @@ class MathGymGenerator {
     return [
       estrategia,
       `El mínimo real para este reto es ${minMoves} movimiento${minMoves === 1 ? '' : 's'}.`
+    ];
+  }
+
+  async generateLuces(seed, fecha) {
+    const sizes = [
+      { rows: 4, cols: 4, dificultad: 2 },
+      { rows: 5, cols: 5, dificultad: 3 },
+      { rows: 6, cols: 6, dificultad: 4 }
+    ];
+    const { rows, cols, dificultad } = sizes[seed % sizes.length];
+
+    // Seed derivado para las pulsaciones que construyen el patrón,
+    // distinto del que ya usa `sizes[]` arriba (y de los multiplicadores
+    // ya usados en balanza/trasvase) para que la elección de patrón no
+    // quede correlacionada con la de tamaño.
+    const patternSeed = (seed * 1597334677 + 987654321) >>> 0;
+    const numPulsaciones = Math.ceil(rows * cols * 0.4);
+    const board = buildPattern(rows, cols, patternSeed, numPulsaciones);
+
+    // Por construcción esto nunca debería ser null (ver comentario de
+    // buildPattern) -- pero se comprueba de verdad, no se asume: si
+    // alguna vez fallara, es mejor que el generador reviente aquí y no
+    // que publique en silencio un reto de luces-fuera irresoluble.
+    const minPulsaciones = solveLightsOut(board);
+    if (minPulsaciones == null) {
+      throw new Error(
+        `generateLuces: patrón construido resultó insolvable (seed=${seed}, ` +
+        `patternSeed=${patternSeed}, rows=${rows}, cols=${cols}) -- esto no ` +
+        `debería pasar nunca por construcción; revisar buildPattern/solveLightsOut`
+      );
+    }
+
+    const modo = {
+      id: 'apagar_todo',
+      tamano: [rows, cols],
+      objetivo: 'all_off',
+      patron_inicial: board,
+      min_pulsaciones: minPulsaciones
+    };
+
+    const dataFileName = `luces_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify({ modos: [modo] }, null, 2)
+    );
+
+    return {
+      id: `${fecha}-luces-fuera-001`,
+      tipo: 'luces-fuera',
+      variant: `${rows}x${cols}`,
+      titulo: 'Los Cuadrados Luminosos',
+      objetivo: 'Apaga todas las luces del tablero',
+      icono_url: 'assets/icono-lightsout.png',
+      dificultad,
+      categorias: ['logica', 'tablero'],
+      hints: this.generateLucesHints(rows, cols, minPulsaciones),
+      objectives: {
+        winCondition: 'all_off',
+        parMoves: minPulsaciones,
+        maxMovesFor3Stars: minPulsaciones,
+        maxMovesFor2Stars: minPulsaciones + Math.ceil(minPulsaciones * 0.3)
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  // Pistas específicas del tamaño y del mínimo real -- no un texto genérico.
+  generateLucesHints(rows, cols, minPulsaciones) {
+    return [
+      'Cada pulsación cambia la casilla y sus vecinas ortogonales (arriba, abajo, izquierda, derecha) -- piensa en el efecto combinado antes de pulsar al azar.',
+      'Trabajar fila por fila desde arriba suele funcionar bien: para apagar definitivamente una casilla, pulsa la que tiene justo debajo.',
+      `El mínimo real para este tablero de ${rows}x${cols} es ${minPulsaciones} pulsaci${minPulsaciones === 1 ? 'ón' : 'ones'} -- una solución óptima nunca pulsa la misma casilla dos veces.`
     ];
   }
 
