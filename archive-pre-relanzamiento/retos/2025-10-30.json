@@ -1,0 +1,10 @@
+{
+  "tipo": "poligono-geometrico",
+  "titulo": "Polígono Geométrico",
+  "objetivo": "Construye un polígono con área 15 y perímetro 16",
+  "icono_url": "assets/icono-generico.svg",
+  "data": {
+    "json_url": "data/poligono_2025-10-30.json"
+  },
+  "fecha": "2025-10-30"
+}

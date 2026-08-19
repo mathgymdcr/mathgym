@@ -1,0 +1,10 @@
+{
+  "tipo": "trasvase-ecologico",
+  "titulo": "Trasvase Ecológico",
+  "objetivo": "Obtén exactamente 6L",
+  "icono_url": "assets/icono-generico.svg",
+  "data": {
+    "json_url": "data/trasvase_2026-03-07.json"
+  },
+  "fecha": "2026-03-07"
+}

@@ -1,0 +1,13 @@
+{
+  "capacities": [
+    9,
+    4,
+    2
+  ],
+  "target": 6,
+  "initialLevels": [
+    9,
+    0,
+    0
+  ]
+}

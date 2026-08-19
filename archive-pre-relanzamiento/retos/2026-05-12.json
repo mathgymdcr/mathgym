@@ -1,0 +1,10 @@
+{
+  "tipo": "enigma-einstein",
+  "titulo": "Enigma de Einstein",
+  "objetivo": "Resuelve el enigma usando las pistas",
+  "icono_url": "assets/icono-generico.svg",
+  "data": {
+    "json_url": "data/enigma_2026-05-12.json"
+  },
+  "fecha": "2026-05-12"
+}

@@ -1,0 +1,60 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Camiseta": [
+      "Rojo",
+      "Azul",
+      "Verde",
+      "Amarillo"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro"
+    ]
+  },
+  "clues": [
+    "Ana viste camiseta rojo.",
+    "Carlos bebe té.",
+    "Elena tiene un pez.",
+    "Quien viste camiseta amarillo no bebe café.",
+    "El gato pertenece a quien bebe té.",
+    "David no tiene perro.",
+    "Quien bebe agua viste camiseta verde.",
+    "Quien viste azul no bebe zumo."
+  ],
+  "solution": {
+    "Ana": {
+      "Camiseta": "Rojo",
+      "Bebida": "Café",
+      "Mascota": "Perro"
+    },
+    "Carlos": {
+      "Camiseta": "Azul",
+      "Bebida": "Té",
+      "Mascota": "Gato"
+    },
+    "Elena": {
+      "Camiseta": "Verde",
+      "Bebida": "Agua",
+      "Mascota": "Pez"
+    },
+    "David": {
+      "Camiseta": "Amarillo",
+      "Bebida": "Zumo",
+      "Mascota": "Pájaro"
+    }
+  }
+}

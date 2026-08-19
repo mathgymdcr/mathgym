@@ -1,0 +1,10 @@
+{
+  "tipo": "balanza-logica",
+  "titulo": "Reto de la Balanza",
+  "objetivo": "Encuentra las monedas anómalas con el menor número de pesadas",
+  "icono_url": "assets/icono-generico.svg",
+  "data": {
+    "json_url": "data/balanza_2026-02-05.json"
+  },
+  "fecha": "2026-02-05"
+}
