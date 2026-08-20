@@ -18,18 +18,29 @@ export async function render(root, data, hooks) {
   }
 
   const allCategories = Object.keys(config.categories || {});
-  if (allCategories.length < 4) {
-    setStatus(ui.result, 'Error: Faltan categorías', 'ko');
+  // Hoy el puzzle es siempre Persona + 3 categorías temáticas. Si algún
+  // día se generan 5 (variante "5x4"), esto avisa en vez de descartar la
+  // categoría sobrante en silencio: con slice(0,4) el tablero pintaría 4
+  // filas mientras `solution` traería 5 valores por grupo, y
+  // validateSolution nunca cuadraría -> "Hay un error" permanente y sin
+  // pista de por qué.
+  if (allCategories.length !== 4) {
+    setStatus(
+      ui.result,
+      `Error: este reto trae ${allCategories.length} categorías y la plantilla solo soporta 4 (Persona + 3)`,
+      'ko'
+    );
     return;
   }
 
-  const categoryKeys = allCategories.slice(0, 4);
+  const categoryKeys = allCategories;
   const categories = {};
   for (const k of categoryKeys) {
     categories[k] = Array.isArray(config.categories[k]) ? config.categories[k].slice(0, 4) : [];
   }
 
   const BOARD_SIZE = 4;
+  setCategoriesLine(ui.categoriesLine, categoryKeys);
   renderClues(ui.cluesContainer, config.clues || []);
   const gameState = { selected: null, board: Array(BOARD_SIZE).fill(0).map(() => ({})) };
 
@@ -219,7 +230,7 @@ function buildShell() {
     <img src="assets/deceerre-instructions.png" alt="Deceerre">
     <div class="instructions-body">
       <h3>Cómo se juega</h3>
-      <p>Coloca las tarjetas en el tablero para que cada <strong>columna</strong> contenga exactamente una tarjeta de cada categoría: <em>persona, color, bebida y mascota</em>.</p>
+      <p>Coloca las tarjetas en el tablero para que cada <strong>columna</strong> contenga exactamente una tarjeta de cada categoría: <em class="ein-categorias"></em>.</p>
       <p>Usa las pistas para deducir la posición correcta de cada elemento. Puedes arrastrar las tarjetas o hacer clic para moverlas.</p>
       <p><span style="color:var(--accent);font-weight:600;">¡Resuelve el enigma como un verdadero detective!</span></p>
     </div>
@@ -244,7 +255,8 @@ function buildShell() {
     btnClear: box.querySelectorAll('.btn')[1],
     result: box.querySelector('.feedback'),
     board: box.querySelector('.ein-board div'),
-    palette: box.querySelector('.ein-palette div')
+    palette: box.querySelector('.ein-palette div'),
+    categoriesLine: box.querySelector('.ein-categorias')
   };
 
   // Responsivo
@@ -279,6 +291,16 @@ function createElement(t, a = {}, txt) {
 function setStatus(el, txt, t) {
   el.textContent = txt;
   el.className = 'feedback' + (t ? ' ' + t : '');
+}
+
+// Enumera las categorías REALES del reto del día ("persona, profesión,
+// país y deporte"), en vez de la lista fija que había hardcodeada.
+function setCategoriesLine(el, categoryKeys) {
+  if (!el) return;
+  const nombres = categoryKeys.map(k => k.toLowerCase());
+  el.textContent = nombres.length > 1
+    ? nombres.slice(0, -1).join(', ') + ' y ' + nombres[nombres.length - 1]
+    : (nombres[0] || '');
 }
 
 function validateSolution(state, cats, sol) {

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { balanzaScenarios } from './balanza-logic.js';
 import { isTrasvaseSolvable } from './trasvase-logic.js';
 import { solveLightsOutFor } from './lightsout-logic.js';
+import { contarSolucionesDesdePistas } from './einstein-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -119,6 +120,37 @@ class RetoValidator {
       if (!Array.isArray(data.categories[cat]) || data.categories[cat].length !== 4) {
         throw new Error(`Category ${cat} must have exactly 4 items`);
       }
+    }
+
+    if (!Array.isArray(data.clues) || data.clues.length === 0) {
+      throw new Error('Einstein reto missing clues');
+    }
+
+    // Unicidad: se RECALCULA sobre las pistas del archivo publicado, no
+    // se confía en que el generador lo hiciera bien. El generador
+    // anterior producía sistemáticamente puzzles con 3-4 soluciones
+    // válidas, y la plantilla rechaza cualquiera que no sea la
+    // almacenada -- es decir, castigaba deducciones correctas.
+    const pistas = data.meta && data.meta.pistasEstructuradas;
+    if (!Array.isArray(pistas) || pistas.length === 0) {
+      throw new Error(
+        'Einstein reto missing meta.pistasEstructuradas -- sin ellas no se puede ' +
+        'verificar la unicidad de la solución (regenerar con el generador actual)'
+      );
+    }
+    if (pistas.length !== data.clues.length) {
+      throw new Error(
+        `Einstein reto inconsistente: ${data.clues.length} pistas de texto pero ` +
+        `${pistas.length} estructuradas`
+      );
+    }
+
+    const numSoluciones = contarSolucionesDesdePistas(pistas);
+    if (numSoluciones !== 1) {
+      throw new Error(
+        `Einstein reto sin solución única: las pistas admiten ${numSoluciones} ` +
+        `soluciones distintas (debe ser exactamente 1)`
+      );
     }
   }
 

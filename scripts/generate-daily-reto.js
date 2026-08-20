@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { balanzaMinWeighings } from './balanza-logic.js';
 import { solveTrasvase } from './trasvase-logic.js';
 import { buildPattern, solveLightsOut } from './lightsout-logic.js';
+import { generarEnigma } from './einstein-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -114,54 +115,33 @@ class MathGymGenerator {
 
   // GENERATORS
   async generateEinstein(seed, fecha) {
-    const variations = [
-      {
-        personas: ['Ana', 'Carlos', 'Elena', 'David'],
-        colores: ['Rojo', 'Azul', 'Verde', 'Amarillo'],
-        bebidas: ['Café', 'Té', 'Agua', 'Zumo'],
-        mascotas: ['Perro', 'Gato', 'Pez', 'Pájaro']
-      },
-      {
-        personas: ['María', 'Pedro', 'Sofía', 'Miguel'],
-        colores: ['Negro', 'Blanco', 'Gris', 'Marrón'],
-        bebidas: ['Leche', 'Vino', 'Cerveza', 'Refresco'],
-        mascotas: ['Hamster', 'Tortuga', 'Conejo', 'Serpiente']
-      },
-      {
-        personas: ['Laura', 'Andrés', 'Carmen', 'Javier'],
-        colores: ['Rosa', 'Violeta', 'Naranja', 'Turquesa'],
-        bebidas: ['Batido', 'Soda', 'Kombucha', 'Smoothie'],
-        mascotas: ['Iguana', 'Hurón', 'Chinchilla', 'Gecko']
-      }
-    ];
+    // Toda la lógica (banco temático, sorteo de solución, poda de pistas
+    // con unicidad verificada) vive en scripts/einstein-logic.js. El
+    // generador anterior producía puzzles con 3-4 soluciones válidas y
+    // solo 3 puzzles distintos en total; ver el módulo para el detalle.
+    const enigma = generarEnigma(seed);
 
-    const variant = variations[seed % variations.length];
-    const shuffled = this.shuffleArrayWithSeed(
-      Object.values(variant).map(arr => [...arr]), 
-      seed
-    );
-
-    // Generate deterministic solution
-    const solution = {};
-    variant.personas.forEach((persona, i) => {
-      solution[persona] = {
-        'Camiseta': variant.colores[i],
-        'Bebida': variant.bebidas[i],
-        'Mascota': variant.mascotas[i]
-      };
-    });
-
-    const clues = this.generateEinsteinClues(variant, solution, seed);
+    // Comprobación real, no asumida: si la poda dejara un puzzle
+    // ambiguo es mejor reventar aquí que publicar un enigma que
+    // rechace deducciones correctas del jugador.
+    if (enigma.meta.numSoluciones !== 1) {
+      throw new Error(
+        `generateEinstein: el puzzle generado tiene ${enigma.meta.numSoluciones} ` +
+        `soluciones en vez de 1 (seed=${seed}, categorías=${enigma.meta.categoriasElegidas.join('/')})`
+      );
+    }
 
     const enigmaData = {
-      categories: {
-        'Persona': variant.personas,
-        'Camiseta': variant.colores,
-        'Bebida': variant.bebidas,
-        'Mascota': variant.mascotas
-      },
-      clues: clues,
-      solution: solution
+      categories: enigma.categories,
+      clues: enigma.clues,
+      solution: enigma.solution,
+      // Clave que la plantilla ignora (solo lee categories/clues/solution).
+      // La necesita validate-retos.js para re-verificar la unicidad sobre
+      // el archivo realmente publicado, en vez de fiarse del generador.
+      meta: {
+        categoriasElegidas: enigma.meta.categoriasElegidas,
+        pistasEstructuradas: enigma.meta.pistasEstructuradas
+      }
     };
 
     // Save data file
@@ -172,42 +152,42 @@ class MathGymGenerator {
       JSON.stringify(enigmaData, null, 2)
     );
 
+    const numPistas = enigma.meta.numPistas;
+
     return {
+      id: `${fecha}-enigma-einstein-001`,
       tipo: 'enigma-einstein',
+      // Lo que de verdad varía de un día a otro es la combinación de
+      // categorías temáticas (C(12,3) = 220 combinaciones posibles).
+      variant: enigma.meta.categoriasElegidas.map((c) => this.slug(c)).join('-'),
       titulo: 'Enigma de Einstein',
       objetivo: 'Resuelve el enigma usando las pistas',
-      icono_url: 'assets/icono-generico.svg',
-      dificultad: 3,
+      icono_url: 'assets/einstein-caricature.png',
+      dificultad: numPistas <= 9 ? 4 : (numPistas <= 11 ? 3 : 2),
       categorias: ['deduccion', 'logica'],
+      hints: this.generateEinsteinHints(enigma),
+      objectives: {
+        winCondition: 'unique_solution',
+        numPistas,
+        maxErrorsFor3Stars: 0
+      },
       data: { json_url: `data/${dataFileName}` }
     };
   }
 
-  generateEinsteinClues(variant, solution, seed) {
-    const { personas, colores, bebidas, mascotas } = variant;
-    
-    // Basic clues (always include some direct assignments)
-    const clues = [
-      `${personas[0]} viste camiseta ${colores[0].toLowerCase()}.`,
-      `${personas[1]} bebe ${bebidas[1].toLowerCase()}.`,
-      `${personas[2]} tiene un ${mascotas[2].toLowerCase()}.`
+  // Pistas de ayuda (meta), distintas de las `clues` del propio enigma.
+  generateEinsteinHints(enigma) {
+    const cats = enigma.meta.categoriasElegidas;
+    return [
+      `Empieza por las pistas que asignan directamente un valor a una persona: siempre hay al menos una, y es el punto de entrada más rápido.`,
+      `Las pistas en negativo ("no bebe café") sirven para descartar, no para colocar: úsalas para ir tachando combinaciones imposibles.`,
+      `Este enigma relaciona ${cats.join(', ')} y tiene solución única con las ${enigma.meta.numPistas} pistas dadas.`
     ];
+  }
 
-    // Add relational clues based on seed
-    const relations = [
-      `Quien viste camiseta ${colores[3].toLowerCase()} no bebe ${bebidas[0].toLowerCase()}.`,
-      `El ${mascotas[1].toLowerCase()} pertenece a quien bebe ${bebidas[1].toLowerCase()}.`,
-      `${personas[3]} no tiene ${mascotas[0].toLowerCase()}.`,
-      `Quien bebe ${bebidas[2].toLowerCase()} viste camiseta ${colores[2].toLowerCase()}.`,
-      `Quien viste ${colores[1].toLowerCase()} no bebe ${bebidas[3].toLowerCase()}.`,
-      `${personas[seed % personas.length]} no viste camiseta ${colores[(seed + 1) % colores.length].toLowerCase()}.`
-    ];
-
-    // Add some relations based on seed
-    const selectedRelations = relations.slice(0, 5 + (seed % 3));
-    clues.push(...selectedRelations);
-
-    return clues;
+  // "Profesión" -> "profesion" (para componer el campo variant).
+  slug(texto) {
+    return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   }
 
   async generateBalanza(seed, fecha) {
@@ -448,18 +428,6 @@ class MathGymGenerator {
       'Trabajar fila por fila desde arriba suele funcionar bien: para apagar definitivamente una casilla, pulsa la que tiene justo debajo.',
       `El mínimo real para este tablero de ${rows}x${cols} es ${minPulsaciones} pulsaci${minPulsaciones === 1 ? 'ón' : 'ones'} -- una solución óptima nunca pulsa la misma casilla dos veces.`
     ];
-  }
-
-  shuffleArrayWithSeed(arrays, seed) {
-    // Simple deterministic shuffle
-    return arrays.map(arr => {
-      const shuffled = [...arr];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = (seed + i) % (i + 1);
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      return shuffled;
-    });
   }
 
   // PRNG determinista (mulberry32), sin dependencias externas. Misma
