@@ -27,7 +27,8 @@ const SEMILLAS = {
   'nonograma': 20260110,
   'cajas-apiladas': 20260110,
   'anillas-encadenadas': 20260112,
-  'laser-triangular': 20260114
+  'laser-triangular': 20260114,
+  'riego-plantas': 20260116
 };
 
 async function main() {

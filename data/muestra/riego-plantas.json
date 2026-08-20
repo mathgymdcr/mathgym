@@ -1,9 +1,38 @@
 {
-  "cycles": 5,
-  "capacity_per_cycle": 2,
+  "variant": "huerto",
+  "cycles": 6,
+  "capacity": 2,
+  "descanso": true,
   "plants": [
-    { "id": "Albahaca", "doses": 3 },
-    { "id": "Tomatera", "doses": 3 },
-    { "id": "Cactus", "doses": 2 }
+    {
+      "id": "Helecho",
+      "doses": 2,
+      "ventana": [
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "Lavanda",
+      "doses": 3,
+      "ventana": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "Romero",
+      "doses": 3,
+      "ventana": [
+        0,
+        1,
+        2,
+        4
+      ]
+    }
   ]
 }

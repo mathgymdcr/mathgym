@@ -11,6 +11,7 @@ import { buildNonogramaPuzzle, buildNonogramaHints } from './nonograma-logic.js'
 import { buildCajasPuzzle, buildCajasHints } from './cajas-logic.js';
 import { buildAnillasPuzzle, buildAnillasHints } from './anillas-logic.js';
 import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
+import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,7 +42,8 @@ class MathGymGenerator {
       'nonograma': this.generateNonograma.bind(this),
       'cajas-apiladas': this.generateCajas.bind(this),
       'anillas-encadenadas': this.generateAnillas.bind(this),
-      'laser-triangular': this.generateLaser.bind(this)
+      'laser-triangular': this.generateLaser.bind(this),
+      'riego-plantas': this.generateRiego.bind(this)
     };
   }
 
@@ -692,6 +694,42 @@ class MathGymGenerator {
         parMoves: min_espejos,
         maxMovesFor3Stars: min_espejos,
         maxMovesFor2Stars: min_espejos + 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateRiego(seed, fecha) {
+    // Las ventanas salen de un calendario válido sorteado antes, y luego se
+    // recortan hasta que ese calendario es el ÚNICO posible.
+    const puzzle = buildRiegoPuzzle(seed);
+    const { variant, cycles, capacity, plants, dificultad } = puzzle;
+
+    const config = { variant, cycles, capacity, descanso: true, plants };
+
+    const dataFileName = `riego_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
+    const totalRiegos = plants.reduce((acc, p) => acc + p.doses, 0);
+    return {
+      id: `${fecha}-riego-plantas-001`,
+      tipo: 'riego-plantas',
+      variant,
+      titulo: 'El Calendario de Riego',
+      objetivo: `Reparte los ${totalRiegos} riegos entre los ${cycles} ciclos sin regar ninguna planta dos días seguidos ni pasar de ${capacity} por ciclo`,
+      icono_url: 'assets/icono-generico.svg',
+      dificultad,
+      categorias: ['logica', 'planificacion'],
+      hints: buildRiegoHints(puzzle),
+      objectives: {
+        winCondition: 'watering_schedule_valid',
+        parMoves: totalRiegos,
+        maxMovesFor3Stars: totalRiegos,
+        maxMovesFor2Stars: totalRiegos + 2
       },
       data: { json_url: `data/${dataFileName}` }
     };

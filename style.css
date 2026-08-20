@@ -2658,3 +2658,86 @@ li {
   padding: 10px;
   border-radius: 8px;
 }
+
+/* ===== El Riego (riego_plantas.js) ===== */
+.riego-tabla-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 8px 0 12px;
+}
+
+.riego-tabla {
+  margin: 0 auto;
+  border-collapse: separate;
+  border-spacing: 4px;
+  font-size: 0.9rem;
+}
+
+.riego-tabla th {
+  font-weight: 600;
+  color: var(--muted, #aab3c5);
+  font-size: 0.8rem;
+  padding: 2px 6px;
+}
+
+.riego-nombre {
+  text-align: right;
+  padding-right: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.riego-cell {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--card-b);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.riego-cell:hover:not(.is-blocked) {
+  background: rgba(108, 92, 231, 0.2);
+}
+
+.riego-cell.is-on {
+  background: linear-gradient(180deg, #4dabf7, #1c7ed6);
+  border-color: #1c7ed6;
+}
+
+/* Ciclos en los que esa planta no admite agua: se ven, pero tachados, para
+   que el jugador razone con la ventana delante. */
+.riego-cell.is-blocked {
+  cursor: default;
+  background: repeating-linear-gradient(45deg,
+    rgba(255,255,255,.03), rgba(255,255,255,.03) 4px,
+    transparent 4px, transparent 8px);
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.riego-dosis {
+  padding-left: 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted, #aab3c5);
+}
+
+.riego-dosis.is-done { color: #51cf66; font-weight: 700; }
+.riego-dosis.is-over { color: #ff6b6b; font-weight: 700; }
+
+.riego-total {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted, #aab3c5);
+  font-variant-numeric: tabular-nums;
+}
+
+.riego-total.is-over { color: #ff6b6b; font-weight: 700; }
+
+.riego-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}

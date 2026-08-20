@@ -10,6 +10,7 @@ import { pistasDe, resolverNonograma } from './nonograma-logic.js';
 import { solveCajas } from './cajas-logic.js';
 import { resolverAnillas } from './anillas-logic.js';
 import { resuelto as laserResuelto, espejosMinimos, crearEspejos, DIR_VECTOR } from './laser-triangular-logic.js';
+import { contarSoluciones as contarRiegos, combinacionesPlanta } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -59,7 +60,7 @@ class RetoValidator {
     }
     
     // Valid tipo
-    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas', 'anillas-encadenadas', 'laser-triangular'];
+    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas', 'anillas-encadenadas', 'laser-triangular', 'riego-plantas'];
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
     }
@@ -122,6 +123,10 @@ class RetoValidator {
 
       case 'laser-triangular':
         await this.validateLaserData(reto);
+        break;
+
+      case 'riego-plantas':
+        await this.validateRiegoData(reto);
         break;
     }
   }
@@ -686,6 +691,70 @@ class RetoValidator {
       throw new Error(
         `Laser-triangular min_espejos=${declarados} pero se resuelve con ${minimo}: el par anunciado no es el real`
       );
+    }
+  }
+
+  async validateRiegoData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Riego-plantas reto missing json_url');
+    }
+
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!Number.isInteger(data.cycles) || data.cycles < 3 || data.cycles > 12) {
+      throw new Error(`Riego-plantas cycles fuera de rango 3..12: ${data.cycles}`);
+    }
+    if (!Number.isInteger(data.capacity) || data.capacity < 1) {
+      throw new Error(`Riego-plantas capacity inválida: ${data.capacity}`);
+    }
+    if (!Array.isArray(data.plants) || data.plants.length < 2) {
+      throw new Error('Riego-plantas necesita al menos 2 plantas');
+    }
+
+    const nombres = new Set();
+    for (const p of data.plants) {
+      if (!p.id || nombres.has(p.id)) {
+        throw new Error(`Riego-plantas con planta sin nombre o repetida: ${JSON.stringify(p)}`);
+      }
+      nombres.add(p.id);
+      if (!Number.isInteger(p.doses) || p.doses < 1) {
+        throw new Error(`Riego-plantas dosis inválidas en ${p.id}: ${p.doses}`);
+      }
+      if (!Array.isArray(p.ventana) || !p.ventana.length) {
+        throw new Error(`Riego-plantas ${p.id} sin ventana de riego`);
+      }
+      if (new Set(p.ventana).size !== p.ventana.length) {
+        throw new Error(`Riego-plantas ${p.id} con ciclos repetidos en su ventana`);
+      }
+      for (const c of p.ventana) {
+        if (!Number.isInteger(c) || c < 0 || c >= data.cycles) {
+          throw new Error(`Riego-plantas ${p.id} con un ciclo fuera de rango: ${c}`);
+        }
+      }
+      if (!combinacionesPlanta(p).length) {
+        throw new Error(
+          `Riego-plantas ${p.id} no puede colocar sus ${p.doses} riegos en los ciclos [${p.ventana.map((c) => c + 1)}] ` +
+          `respetando el descanso`
+        );
+      }
+    }
+
+    // Solución única: la plantilla da por bueno cualquier calendario que
+    // cumpla las reglas, así que con varias soluciones el jugador acierta por
+    // casualidad y el reto deja de tener deducción.
+    const res = contarRiegos({ cycles: data.cycles, capacity: data.capacity, plants: data.plants }, { tope: 2 });
+    if (res.soluciones === 0) {
+      throw new Error('Riego-plantas not solvable: no hay ningún calendario que cumpla las reglas');
+    }
+    if (res.soluciones > 1) {
+      throw new Error('Riego-plantas ambiguo: hay al menos 2 calendarios válidos distintos');
+    }
+
+    // Con las ventanas clavadas a la solución no hay nada que decidir.
+    const holgura = data.plants.reduce((acc, p) => acc + (p.ventana.length - p.doses), 0);
+    if (holgura < data.plants.length) {
+      throw new Error(`Riego-plantas sin margen de decisión: holgura total ${holgura} para ${data.plants.length} plantas`);
     }
   }
 

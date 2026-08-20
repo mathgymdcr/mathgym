@@ -76,8 +76,8 @@ export const TIPOS = [
     tipo: 'riego-plantas',
     nombre: 'El Riego',
     emoji: '🌱',
-    resumen: 'Reparte el agua de cada ciclo entre las plantas para que todas reciban sus dosis sin pasarte de la capacidad.',
-    generado: false
+    resumen: 'Cada planta solo bebe ciertos días y nunca dos seguidos: encaja el calendario para que todas reciban sus riegos sin agotar la regadera.',
+    generado: true
   },
   {
     tipo: 'anillas-encadenadas',
