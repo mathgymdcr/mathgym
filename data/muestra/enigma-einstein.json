@@ -1,0 +1,157 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla"
+    ]
+  },
+  "clues": [
+    "Pedro cultiva orquídeas.",
+    "María no cultiva girasoles.",
+    "María no viste camiseta azul.",
+    "Quien es dentista no viste camiseta roja.",
+    "Quien es electricista no viste camiseta roja.",
+    "Quien es dentista no cultiva tulipanes.",
+    "Quien es taxista no cultiva tulipanes.",
+    "Quien es dentista no viste camiseta verde.",
+    "Quien cultiva rosas viste camiseta azul.",
+    "Sofía no viste camiseta azul.",
+    "Quien es periodista cultiva rosas.",
+    "Quien es taxista no cultiva orquídeas."
+  ],
+  "solution": {
+    "María": {
+      "Profesión": "Electricista",
+      "Flor": "Tulipanes",
+      "Camiseta": "Verde"
+    },
+    "Pedro": {
+      "Profesión": "Dentista",
+      "Flor": "Orquídeas",
+      "Camiseta": "Amarilla"
+    },
+    "Sofía": {
+      "Profesión": "Taxista",
+      "Flor": "Girasoles",
+      "Camiseta": "Roja"
+    },
+    "Miguel": {
+      "Profesión": "Periodista",
+      "Flor": "Rosas",
+      "Camiseta": "Azul"
+    }
+  },
+  "meta": {
+    "categoriasElegidas": [
+      "Profesión",
+      "Flor",
+      "Camiseta"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      }
+    ]
+  }
+}

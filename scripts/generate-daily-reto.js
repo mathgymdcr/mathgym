@@ -686,6 +686,11 @@ class MathGymGenerator {
   }
 }
 
+// Se exporta para que scripts/generate-muestrario.js pueda reusar los
+// mismos generadores y los ejemplos del muestrario no se desvíen nunca del
+// esquema real de cada tipo.
+export { MathGymGenerator };
+
 // Main execution
 async function main() {
   const args = process.argv.slice(2);

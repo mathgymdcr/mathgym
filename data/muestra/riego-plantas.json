@@ -1,0 +1,9 @@
+{
+  "cycles": 5,
+  "capacity_per_cycle": 2,
+  "plants": [
+    { "id": "Albahaca", "doses": 3 },
+    { "id": "Tomatera", "doses": 3 },
+    { "id": "Cactus", "doses": 2 }
+  ]
+}

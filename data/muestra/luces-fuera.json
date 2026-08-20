@@ -1,0 +1,39 @@
+{
+  "modos": [
+    {
+      "id": "apagar_todo",
+      "tamano": [
+        4,
+        4
+      ],
+      "objetivo": "all_off",
+      "patron_inicial": [
+        [
+          false,
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          false,
+          true
+        ],
+        [
+          false,
+          false,
+          false,
+          true
+        ],
+        [
+          true,
+          true,
+          false,
+          true
+        ]
+      ],
+      "min_pulsaciones": 5
+    }
+  ]
+}

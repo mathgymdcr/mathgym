@@ -2518,3 +2518,99 @@ li {
     font-size: 0.82rem;
   }
 }
+
+/* ===== Muestrario de tipos de reto (muestrario.html) ===== */
+.muestrario-grid {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 24px;
+}
+
+.muestrario-card {
+  text-align: left;
+  padding: 20px;
+}
+
+.muestrario-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.muestrario-emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.muestrario-titulos h3 {
+  margin: 0 0 4px;
+}
+
+.muestrario-resumen {
+  margin: 0;
+  color: var(--muted, #aab3c5);
+  font-size: 0.95rem;
+}
+
+.muestrario-etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+.muestrario-tag {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--card-b);
+}
+
+.muestrario-tag-tipo {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* El ejemplo se monta aquí dentro; se reserva alto para que la página no
+   pegue saltos al ir cargando las fichas al hacer scroll. */
+.muestrario-host {
+  min-height: 120px;
+  margin-top: 8px;
+}
+
+.muestrario-cargando {
+  color: var(--muted, #aab3c5);
+  font-size: 0.9rem;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.muestrario-diagnostico {
+  width: 100%;
+  max-width: 900px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.muestrario-error {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: #ff6b6b;
+  margin: 4px 0;
+}
+
+.muestrario-debug {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--muted, #aab3c5);
+}
+
+.muestrario-debug pre {
+  overflow-x: auto;
+  background: rgba(0,0,0,.25);
+  padding: 10px;
+  border-radius: 8px;
+}

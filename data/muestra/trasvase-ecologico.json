@@ -1,0 +1,14 @@
+{
+  "variant": "clasico",
+  "capacities": [
+    7,
+    4,
+    3
+  ],
+  "target": 5,
+  "initialLevels": [
+    0,
+    0,
+    0
+  ]
+}
