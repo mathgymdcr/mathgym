@@ -7,6 +7,7 @@ import { solveLightsOutFor } from './lightsout-logic.js';
 import { solveRelojes } from './relojes-logic.js';
 import { solveHashi, construirPares } from './hashi-logic.js';
 import { pistasDe, resolverNonograma } from './nonograma-logic.js';
+import { solveCajas } from './cajas-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -56,7 +57,7 @@ class RetoValidator {
     }
     
     // Valid tipo
-    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma'];
+    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas'];
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
     }
@@ -107,6 +108,10 @@ class RetoValidator {
 
       case 'nonograma':
         await this.validateNonogramaData(reto);
+        break;
+
+      case 'cajas-apiladas':
+        await this.validateCajasData(reto);
         break;
     }
   }
@@ -494,6 +499,73 @@ class RetoValidator {
     const iguales = res.primera.every((fila, r) => fila.every((v, c) => v === data.grid[r][c]));
     if (!iguales) {
       throw new Error('Nonograma: la única solución de las pistas no es la cuadrícula guardada');
+    }
+  }
+
+  async validateCajasData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Cajas-apiladas reto missing json_url');
+    }
+
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!Array.isArray(data.zonas) || data.zonas.length !== 3 || data.zonas.some((z) => !Array.isArray(z))) {
+      throw new Error('Cajas-apiladas necesita exactamente 3 zonas con sus pilas');
+    }
+    const todas = data.zonas.flat();
+    if (todas.length < 3) {
+      throw new Error(`Cajas-apiladas con muy pocas cajas: ${todas.length}`);
+    }
+    if (todas.some((p) => !Number.isInteger(p) || p <= 0)) {
+      throw new Error(`Cajas-apiladas con pesos que no son enteros positivos: [${todas}]`);
+    }
+    if (new Set(todas).size !== todas.length) {
+      throw new Error(`Cajas-apiladas con pesos repetidos: [${todas}] -- el orden de apilado dejaría de estar definido`);
+    }
+    for (const zona of data.zonas) {
+      for (let i = 1; i < zona.length; i++) {
+        if (zona[i] >= zona[i - 1]) {
+          throw new Error(`Cajas-apiladas arranca con una caja de ${zona[i]} kg sobre otra de ${zona[i - 1]} kg: la propia regla del juego lo prohíbe`);
+        }
+      }
+    }
+
+    const destino = Number.isInteger(data.destino) ? data.destino : 2;
+    if (destino < 0 || destino > 2) {
+      throw new Error(`Cajas-apiladas destino fuera de rango: ${data.destino}`);
+    }
+    if (data.zonas[destino].length === todas.length) {
+      throw new Error('Cajas-apiladas ya viene resuelto');
+    }
+
+    const masPesada = Math.max(...todas);
+    if (!Number.isInteger(data.capacidad) || data.capacidad < masPesada) {
+      throw new Error(
+        `Cajas-apiladas capacidad=${data.capacidad} no llega para la caja de ${masPesada} kg, ` +
+        `que entonces no se podría mover nunca`
+      );
+    }
+
+    // Mínimo real por BFS, con el mismo módulo que usó el generador.
+    const res = solveCajas({ zonas: data.zonas.map((z) => [...z]), capacidad: data.capacidad, destino });
+    if (!res) {
+      throw new Error(`Cajas-apiladas not solvable: no hay forma de reunir las ${todas.length} cajas en la zona destino`);
+    }
+    if (data.min_movimientos != null && data.min_movimientos !== res.movimientos) {
+      throw new Error(
+        `Cajas-apiladas min_movimientos=${data.min_movimientos} no coincide con el mínimo real ${res.movimientos}`
+      );
+    }
+
+    // Si el mínimo llega al 2^n - 1 de Hanói, la carga por kilos no está
+    // aportando nada y el reto ha vuelto a ser el de siempre.
+    const hanoi = Math.pow(2, todas.length) - 1;
+    if (res.movimientos >= hanoi) {
+      throw new Error(
+        `Cajas-apiladas sin gracia: el mínimo (${res.movimientos}) iguala o supera el ${hanoi} de Hanói, ` +
+        `así que la capacidad de carga no cambia nada`
+      );
     }
   }
 

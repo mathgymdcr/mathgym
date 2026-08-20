@@ -8,6 +8,7 @@ import { generarEnigma } from './einstein-logic.js';
 import { buildRelojesPuzzle, buildRelojesHints } from './relojes-logic.js';
 import { buildHashiPuzzle, buildHashiHints } from './hashi-logic.js';
 import { buildNonogramaPuzzle, buildNonogramaHints } from './nonograma-logic.js';
+import { buildCajasPuzzle, buildCajasHints } from './cajas-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,7 +36,8 @@ class MathGymGenerator {
       'luces-fuera': this.generateLuces.bind(this),
       'relojes-arena': this.generateRelojes.bind(this),
       'puentes-hashi': this.generateHashi.bind(this),
-      'nonograma': this.generateNonograma.bind(this)
+      'nonograma': this.generateNonograma.bind(this),
+      'cajas-apiladas': this.generateCajas.bind(this)
     };
   }
 
@@ -564,6 +566,50 @@ class MathGymGenerator {
       // Informativo para el validador y el histórico: si el reto exigía
       // suponer o salía solo con lógica de líneas.
       solo_logica: soloLogica
+    };
+  }
+
+  async generateCajas(seed, fecha) {
+    // Variante de Hanói con carga por kilos: la construcción, el reparto
+    // inicial y el mínimo real (BFS) viven en cajas-logic.js, que el
+    // validador reusa para recalcular el mínimo sobre el JSON ya escrito.
+    const puzzle = buildCajasPuzzle(seed);
+    const { variant, zonas, capacidad, destino, nombresZonas, dificultad, solucion } = puzzle;
+
+    const config = {
+      variant,
+      zonas,
+      nombresZonas,
+      destino,
+      capacidad,
+      min_movimientos: solucion.movimientos
+    };
+
+    const dataFileName = `cajas_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
+    const total = zonas.flat().length;
+    return {
+      id: `${fecha}-cajas-apiladas-001`,
+      tipo: 'cajas-apiladas',
+      variant,
+      titulo: 'El Almacén de Cajas',
+      objetivo: `Reúne las ${total} cajas en la ${nombresZonas[destino]} sin dejar ninguna sobre otra más ligera, cargando como mucho ${capacidad} kg por viaje`,
+      icono_url: 'assets/icono-generico.svg',
+      dificultad,
+      categorias: ['logica', 'movimiento', 'optimizacion'],
+      hints: buildCajasHints(puzzle),
+      objectives: {
+        winCondition: 'all_boxes_at_destination',
+        parMoves: solucion.movimientos,
+        maxMovesFor3Stars: solucion.movimientos,
+        maxMovesFor2Stars: solucion.movimientos + Math.ceil(solucion.movimientos * 0.3)
+      },
+      data: { json_url: `data/${dataFileName}` }
     };
   }
 

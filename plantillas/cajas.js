@@ -1,7 +1,9 @@
 // ===== plantillas/cajas.js =====
-// Cajas Apiladas · Adaptación de las Torres de Hanói: mismo núcleo
-// matemático (movimientos ordenados, mínimo teórico 2^n - 1) pero contado
-// como un almacén de cajas de distinto peso en vez de discos en postes.
+// Cajas Apiladas · Almacén con carga por kilos. La base sigue siendo Hanói
+// (mover pilas sin dejar una caja sobre otra más ligera), pero con dos
+// cambios que rompen el 2^n - 1 de toda la vida: cada caja pesa unos kilos
+// concretos y una carretilla puede llevarse VARIAS cajas del tope de una
+// zona en un solo viaje, mientras la suma no pase de la capacidad.
 
 import { celebrate } from './celebration.js';
 import { buildStandardShell, createElement, setStatus } from './shell.js';
@@ -17,12 +19,19 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  const cajas = Number.isInteger(config.cajas) && config.cajas > 0 ? config.cajas : 3;
-  const zonaNombres = Array.isArray(config.zonas) && config.zonas.length === 3
-    ? config.zonas
-    : ['Zona A', 'Zona B', 'Zona C'];
-  const destino = zonaNombres.includes(config.destino) ? config.destino : zonaNombres[2];
-  const minMoves = Math.pow(2, cajas) - 1;
+  const modelo = normalizar(config);
+  if (!modelo) {
+    root.innerHTML = '<div class="feedback ko">Error: Reto de cajas mal configurado</div>';
+    return;
+  }
+
+  const { nombres, destino, capacidad, maxCajas, minMovimientos, inicial } = modelo;
+  const totalCajas = inicial.reduce((acc, z) => acc + z.length, 0);
+  const pesosOrdenados = [...inicial.flat()].sort((a, b) => a - b);
+
+  const limiteTexto = Number.isFinite(capacidad)
+    ? `<p>Tu carretilla aguanta <strong>${capacidad} kg</strong>: puedes llevarte de una vez varias cajas del montón mientras la suma no pase de ahí.</p>`
+    : '<p>Solo puedes mover una caja cada vez.</p>';
 
   const ui = buildStandardShell({
     icon: '📦',
@@ -30,37 +39,41 @@ export async function render(root, data, hooks) {
     gameClass: 'cajas-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> mueve todas las cajas a la <strong>${destino}</strong>.</p>
-      <p>Solo puedes coger la caja de arriba del todo de una zona. Nunca dejes una caja sobre otra más ligera: no aguantaría el peso.</p>
+      <p><strong>Objetivo:</strong> mueve todas las cajas a la <strong>${nombres[destino]}</strong>.</p>
+      ${limiteTexto}
+      <p>Toca una zona para cargar su caja de arriba; tócala otra vez para añadir la siguiente de debajo (si cabe en la carretilla) y una vez más para soltarlo todo. Luego toca la zona donde quieras descargar.</p>
+      <p>Nunca puedes dejar una caja sobre otra más ligera: no aguantaría el peso.</p>
     `
   });
   root.append(ui.box);
 
   const state = {
-    zonas: buildInitialZonas(zonaNombres, cajas),
-    selected: null,
+    zonas: inicial.map((z) => [...z]),
+    seleccion: null, // { zona, cajas }
     moves: 0,
     won: false
   };
 
   const info = createElement('div', { class: 'cajas-info' });
-  info.innerHTML = `<span>Movimientos: <strong class="cajas-moves">0</strong></span><span>Mínimo teórico: <strong>${minMoves}</strong></span>`;
   ui.box.appendChild(info);
 
+  const carga = createElement('div', { class: 'cajas-carga' });
+  ui.box.appendChild(carga);
+
   const board = createElement('div', { class: 'cajas-board' });
-  const zonaEls = {};
-  zonaNombres.forEach(name => {
-    const zona = createElement('div', { class: 'cajas-zona', 'data-zona': name });
+  const zonaEls = [];
+  nombres.forEach((nombre, idx) => {
+    const zona = createElement('div', { class: 'cajas-zona', 'data-zona': nombre });
     const stack = createElement('div', { class: 'cajas-stack' });
     const suelo = createElement('div', { class: 'cajas-suelo' });
     const label = createElement('div', { class: 'cajas-zona-label' });
-    label.textContent = name === destino ? `${name} 🎯` : name;
+    label.textContent = idx === destino ? `${nombre} 🎯` : nombre;
     zona.appendChild(stack);
     zona.appendChild(suelo);
     zona.appendChild(label);
-    zona.addEventListener('click', () => onZonaClick(name));
+    zona.addEventListener('click', () => onZonaClick(idx));
     board.appendChild(zona);
-    zonaEls[name] = { zona, stack };
+    zonaEls.push({ zona, stack });
   });
   ui.box.appendChild(board);
 
@@ -68,8 +81,8 @@ export async function render(root, data, hooks) {
   const btnReset = createElement('button', { class: 'btn btn-secondary' });
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
-    state.zonas = buildInitialZonas(zonaNombres, cajas);
-    state.selected = null;
+    state.zonas = inicial.map((z) => [...z]);
+    state.seleccion = null;
     state.moves = 0;
     state.won = false;
     setStatus(ui.result, '', '');
@@ -82,75 +95,167 @@ export async function render(root, data, hooks) {
   setStatus(ui.status, 'Listo para empezar', 'ok');
   refresh();
 
-  function buildInitialZonas(names, n) {
-    const zonas = {};
-    names.forEach(name => { zonas[name] = []; });
-    zonas[names[0]] = Array.from({ length: n }, (_, i) => n - i); // [n, n-1, ..., 1] (peso: n = más pesada)
-    return zonas;
+  function bloqueSeleccionado() {
+    if (!state.seleccion) return [];
+    const zona = state.zonas[state.seleccion.zona];
+    return zona.slice(zona.length - state.seleccion.cajas);
   }
 
-  function onZonaClick(name) {
+  function peso(bloque) {
+    return bloque.reduce((a, b) => a + b, 0);
+  }
+
+  function onZonaClick(idx) {
     if (state.won) return;
 
-    if (state.selected === null) {
-      if (state.zonas[name].length === 0) return;
-      state.selected = name;
+    if (!state.seleccion) {
+      const zona = state.zonas[idx];
+      if (!zona.length) return;
+      const arriba = zona[zona.length - 1];
+      if (arriba > capacidad) {
+        setStatus(ui.result, `La caja de ${arriba} kg pasa de tu carga máxima de ${capacidad} kg`, 'ko');
+        return;
+      }
+      state.seleccion = { zona: idx, cajas: 1 };
+      setStatus(ui.result, '', '');
       refresh();
       return;
     }
 
-    if (state.selected === name) {
-      state.selected = null;
+    if (state.seleccion.zona === idx) {
+      // Segundo toque en la misma zona: añadir la caja de debajo si cabe;
+      // si no cabe (o no hay más), se suelta la carga y se vuelve a empezar.
+      const zona = state.zonas[idx];
+      const siguiente = state.seleccion.cajas + 1;
+      const cabeEnKilos = peso(zona.slice(zona.length - siguiente)) <= capacidad;
+      if (siguiente <= zona.length && siguiente <= maxCajas && cabeEnKilos) {
+        state.seleccion.cajas = siguiente;
+      } else {
+        if (siguiente <= zona.length && !cabeEnKilos) {
+          setStatus(ui.result, `Esa caja más no cabe: pasarías de ${capacidad} kg`, 'ko');
+        }
+        state.seleccion = null;
+      }
       refresh();
       return;
     }
 
-    const origen = state.zonas[state.selected];
-    const peso = origen[origen.length - 1];
-    const zonaDestino = state.zonas[name];
-    const top = zonaDestino[zonaDestino.length - 1];
-
-    if (top !== undefined && top < peso) {
+    const bloque = bloqueSeleccionado();
+    const tope = state.zonas[idx][state.zonas[idx].length - 1];
+    if (tope !== undefined && tope < bloque[0]) {
       setStatus(ui.result, 'Esa caja no aguanta tanto peso encima', 'ko');
-      state.selected = null;
+      state.seleccion = null;
       refresh();
       return;
     }
 
-    origen.pop();
-    zonaDestino.push(peso);
+    const origen = state.zonas[state.seleccion.zona];
+    origen.splice(origen.length - bloque.length);
+    state.zonas[idx].push(...bloque);
     state.moves += 1;
-    state.selected = null;
+    state.seleccion = null;
     setStatus(ui.result, '', '');
     refresh();
 
-    if (state.zonas[destino].length === cajas) {
+    if (state.zonas[destino].length === totalCajas) {
       state.won = true;
-      const perfect = state.moves <= minMoves;
-      const message = perfect
-        ? `¡Resuelto en el mínimo de ${state.moves} movimientos!`
-        : `Resuelto en ${state.moves} movimientos (mínimo teórico: ${minMoves}).`;
-      setStatus(ui.status, message, 'ok');
-      celebrate({ ok: perfect, message });
+      const perfecto = minMovimientos == null || state.moves <= minMovimientos;
+      const mensaje = minMovimientos == null
+        ? `¡Almacén ordenado en ${state.moves} movimientos!`
+        : (perfecto
+            ? `¡Resuelto en el mínimo de ${state.moves} movimientos!`
+            : `Resuelto en ${state.moves} movimientos (el mínimo era ${minMovimientos}).`);
+      setStatus(ui.status, mensaje, 'ok');
+      // Primero se da la victoria por buena y luego se celebra: la animación
+      // pinta confeti en un <canvas> y, si por lo que sea fallara, no puede
+      // llevarse por delante el registro del progreso.
       if (hooks && hooks.onSuccess) hooks.onSuccess();
+      try {
+        celebrate({ ok: perfecto, message: mensaje });
+      } catch (err) {
+        console.warn('No se pudo pintar la celebración:', err);
+      }
     }
   }
 
   function refresh() {
-    info.querySelector('.cajas-moves').textContent = state.moves;
+    const partes = [`<span>Movimientos: <strong class="cajas-moves">${state.moves}</strong></span>`];
+    if (Number.isFinite(capacidad)) partes.push(`<span>Carga máxima: <strong>${capacidad} kg</strong></span>`);
+    // El mínimo viene calculado por el solver: con carga múltiple ya no es
+    // el 2^n - 1 de Hanói, así que no se puede deducir del número de cajas.
+    if (minMovimientos != null) partes.push(`<span>Mínimo: <strong>${minMovimientos}</strong></span>`);
+    info.innerHTML = partes.join('');
 
-    zonaNombres.forEach(name => {
-      const { zona, stack } = zonaEls[name];
-      zona.classList.toggle('is-selected', state.selected === name);
+    const bloque = bloqueSeleccionado();
+    carga.textContent = bloque.length
+      ? `Cargando ${peso(bloque)}/${capacidad} kg (${bloque.length} caja${bloque.length === 1 ? '' : 's'})`
+      : '';
+
+    state.zonas.forEach((zona, idx) => {
+      const { zona: zonaEl, stack } = zonaEls[idx];
+      zonaEl.classList.toggle('is-selected', state.seleccion !== null && state.seleccion.zona === idx);
       stack.innerHTML = '';
-      state.zonas[name].forEach(peso => {
+      zona.forEach((pesoCaja, i) => {
         const cajaEl = createElement('div', { class: 'cajas-caja' });
-        cajaEl.style.width = `${40 + peso * (160 / cajas)}px`;
-        cajaEl.textContent = peso;
+        // Ancho por posición en el orden de pesos, no por kilos: con cajas
+        // de 20 kg el ancho proporcional se salía de la pantalla.
+        const rango = pesosOrdenados.indexOf(pesoCaja);
+        const paso = totalCajas > 1 ? 140 / (totalCajas - 1) : 0;
+        cajaEl.style.width = `${60 + rango * paso}px`;
+        cajaEl.textContent = `${pesoCaja} kg`;
+        const seleccionada = state.seleccion !== null && state.seleccion.zona === idx &&
+          i >= zona.length - state.seleccion.cajas;
+        cajaEl.classList.toggle('is-selected', seleccionada);
         stack.appendChild(cajaEl);
       });
     });
   }
+}
+
+// Acepta el esquema nuevo (zonas como pilas de pesos) y el antiguo (un
+// número de cajas y las zonas como nombres), que es el que quedó en
+// archive-pre-relanzamiento.
+function normalizar(config) {
+  if (!config) return null;
+
+  const esquemaAntiguo = Array.isArray(config.zonas) && typeof config.zonas[0] === 'string';
+  if (esquemaAntiguo || !Array.isArray(config.zonas)) {
+    const n = Number.isInteger(config.cajas) && config.cajas > 0 ? config.cajas : 3;
+    const nombres = esquemaAntiguo && config.zonas.length === 3 ? config.zonas : ['Zona A', 'Zona B', 'Zona C'];
+    const idx = nombres.indexOf(config.destino);
+    const inicial = [Array.from({ length: n }, (_, i) => n - i), [], []];
+    return {
+      nombres,
+      destino: idx >= 0 ? idx : 2,
+      capacidad: Infinity,
+      maxCajas: 1,            // Hanói clásico: una caja por viaje
+      minMovimientos: Math.pow(2, n) - 1,
+      inicial
+    };
+  }
+
+  const inicial = config.zonas;
+  if (inicial.length !== 3 || inicial.some((z) => !Array.isArray(z))) return null;
+  if (!inicial.flat().length) return null;
+
+  const nombres = Array.isArray(config.nombresZonas) && config.nombresZonas.length === 3
+    ? config.nombresZonas
+    : ['Zona A', 'Zona B', 'Zona C'];
+  const destino = Number.isInteger(config.destino) && config.destino >= 0 && config.destino < 3
+    ? config.destino
+    : 2;
+  const capacidad = Number.isFinite(config.capacidad) && config.capacidad > 0
+    ? config.capacidad
+    : Math.max(...inicial.flat());
+
+  return {
+    nombres,
+    destino,
+    capacidad,
+    maxCajas: Infinity,
+    minMovimientos: Number.isInteger(config.min_movimientos) ? config.min_movimientos : null,
+    inicial
+  };
 }
 
 async function loadConfig(d) {

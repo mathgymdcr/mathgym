@@ -1922,6 +1922,17 @@ li {
   color: var(--fg);
 }
 
+/* Aviso de lo que lleva la carretilla ahora mismo (mecánica de carga por
+   kilos): ocupa siempre su hueco para que el tablero no dé un salto al
+   cargar y descargar. */
+.cajas-carga {
+  min-height: 1.4em;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .cajas-board {
   display: flex;
   justify-content: space-around;
@@ -1978,6 +1989,14 @@ li {
   font-weight: 700;
   color: #2b2410;
   box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+/* Las cajas que van cargadas en la carretilla se levantan un poco y se
+   marcan, para ver de un vistazo qué se está moviendo. */
+.cajas-caja.is-selected {
+  background: linear-gradient(180deg, #f3d98a, #e0b455);
+  box-shadow: 0 0 0 2px var(--accent), 0 4px 10px rgba(0,0,0,.35);
+  transform: translateX(6px);
 }
 
 .cajas-suelo {
