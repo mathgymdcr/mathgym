@@ -6,6 +6,7 @@ import { isTrasvaseSolvable } from './trasvase-logic.js';
 import { solveLightsOutFor } from './lightsout-logic.js';
 import { solveRelojes } from './relojes-logic.js';
 import { solveHashi, construirPares } from './hashi-logic.js';
+import { pistasDe, resolverNonograma } from './nonograma-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,7 +56,7 @@ class RetoValidator {
     }
     
     // Valid tipo
-    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi'];
+    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma'];
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
     }
@@ -102,6 +103,10 @@ class RetoValidator {
 
       case 'puentes-hashi':
         await this.validateHashiData(reto);
+        break;
+
+      case 'nonograma':
+        await this.validateNonogramaData(reto);
         break;
     }
   }
@@ -435,6 +440,60 @@ class RetoValidator {
         `Puentes-hashi min_puentes=${data.min_puentes} no coincide con los ${total} puentes ` +
         `de la única solución real`
       );
+    }
+  }
+
+  async validateNonogramaData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Nonograma reto missing json_url');
+    }
+
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!Array.isArray(data.grid) || !data.grid.length || !Array.isArray(data.grid[0])) {
+      throw new Error('Nonograma reto sin cuadrícula válida');
+    }
+    const filas = data.grid.length;
+    const columnas = data.grid[0].length;
+    for (const fila of data.grid) {
+      if (!Array.isArray(fila) || fila.length !== columnas) {
+        throw new Error(`Nonograma cuadrícula no rectangular: se esperaban ${columnas} celdas por fila`);
+      }
+      if (fila.some((v) => v !== 0 && v !== 1)) {
+        throw new Error(`Nonograma cuadrícula con valores que no son 0 ni 1: [${fila}]`);
+      }
+    }
+    if (data.rows != null && data.rows !== filas) {
+      throw new Error(`Nonograma rows=${data.rows} no coincide con las ${filas} filas de la cuadrícula`);
+    }
+    if (data.cols != null && data.cols !== columnas) {
+      throw new Error(`Nonograma cols=${data.cols} no coincide con las ${columnas} columnas de la cuadrícula`);
+    }
+    if (!data.grid.flat().some((v) => v === 1)) {
+      throw new Error('Nonograma completamente vacío: no hay nada que dibujar');
+    }
+
+    // Aquí está lo importante: plantillas/nonograma.js da la victoria
+    // comparando celda a celda contra esta cuadrícula, así que unas pistas
+    // con dos soluciones dejarían al jugador sin poder ganar aunque su
+    // dibujo cumpliera todos los números. Se vuelve a resolver desde las
+    // pistas para comprobar que la solución es única y que es exactamente
+    // esta.
+    const { filas: pistasFilas, columnas: pistasColumnas } = pistasDe(data.grid);
+    const res = resolverNonograma(pistasFilas, pistasColumnas, { tope: 2 });
+    if (res.soluciones === 0) {
+      throw new Error(`Nonograma not solvable: las pistas de ${filas}x${columnas} no admiten ninguna solución`);
+    }
+    if (res.soluciones > 1) {
+      throw new Error(
+        `Nonograma ambiguo: las pistas de ${filas}x${columnas} admiten al menos 2 dibujos distintos, ` +
+        `y la plantilla solo da por buena la cuadrícula guardada`
+      );
+    }
+    const iguales = res.primera.every((fila, r) => fila.every((v, c) => v === data.grid[r][c]));
+    if (!iguales) {
+      throw new Error('Nonograma: la única solución de las pistas no es la cuadrícula guardada');
     }
   }
 

@@ -7,6 +7,7 @@ import { buildPattern, solveLightsOut } from './lightsout-logic.js';
 import { generarEnigma } from './einstein-logic.js';
 import { buildRelojesPuzzle, buildRelojesHints } from './relojes-logic.js';
 import { buildHashiPuzzle, buildHashiHints } from './hashi-logic.js';
+import { buildNonogramaPuzzle, buildNonogramaHints } from './nonograma-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +34,8 @@ class MathGymGenerator {
       'trasvase-ecologico': this.generateTrasvase.bind(this),
       'luces-fuera': this.generateLuces.bind(this),
       'relojes-arena': this.generateRelojes.bind(this),
-      'puentes-hashi': this.generateHashi.bind(this)
+      'puentes-hashi': this.generateHashi.bind(this),
+      'nonograma': this.generateNonograma.bind(this)
     };
   }
 
@@ -518,6 +520,50 @@ class MathGymGenerator {
         maxMovesFor2Stars: solucion.total + Math.ceil(solucion.total * 0.3)
       },
       data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateNonograma(seed, fecha) {
+    // La figura, el espejado y la comprobación de unicidad viven en
+    // nonograma-logic.js; el validador reusa el mismo solver para volver a
+    // contar soluciones sobre el JSON ya escrito.
+    const puzzle = buildNonogramaPuzzle(seed);
+    const { variant, rows, cols, grid, figura, dificultad, soloLogica } = puzzle;
+
+    // La plantilla deriva las pistas del propio grid, así que no se duplican
+    // aquí: una sola fuente de verdad para los números que ve el jugador.
+    const config = { variant, rows, cols, grid, figura };
+
+    const dataFileName = `nonograma_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
+    const pintadas = grid.flat().filter((v) => v === 1).length;
+    return {
+      id: `${fecha}-nonograma-001`,
+      tipo: 'nonograma',
+      variant,
+      titulo: 'El Dibujo Oculto',
+      // Ni el título ni el objetivo nombran la figura: descubrirla es el premio.
+      objetivo: `Pinta las celdas que piden las pistas y revela el dibujo escondido en la rejilla de ${rows}x${cols}`,
+      icono_url: 'assets/icono-generico.svg',
+      dificultad,
+      categorias: ['logica', 'deduccion'],
+      hints: buildNonogramaHints(puzzle),
+      objectives: {
+        winCondition: 'grid_matches_solution',
+        // Cada celda pintada es un toque; las marcas con x son opcionales.
+        parMoves: pintadas,
+        maxMovesFor3Stars: pintadas,
+        maxMovesFor2Stars: pintadas + Math.ceil(pintadas * 0.3)
+      },
+      data: { json_url: `data/${dataFileName}` },
+      // Informativo para el validador y el histórico: si el reto exigía
+      // suponer o salía solo con lógica de líneas.
+      solo_logica: soloLogica
     };
   }
 
