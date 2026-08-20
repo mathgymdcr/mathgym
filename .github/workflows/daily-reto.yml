@@ -7,6 +7,18 @@ on:
 
 permissions:
   contents: write # 👈 necesario para que el bot pueda hacer push
+  pages: write # 👈 este workflow despliega su propio contenido (ver nota abajo)
+  id-token: write
+
+# Los pushes hechos con el GITHUB_TOKEN por defecto NO disparan otros
+# workflows (GitHub lo impide para evitar bucles). Por eso el commit del bot
+# nunca lanza test.yml y, como pages.yml depende de test.yml vía
+# workflow_run, tampoco se desplegaba: el reto del día se quedaba en main sin
+# llegar nunca al sitio. La solución es que este workflow publique lo que
+# acaba de generar en vez de esperar a que otro lo haga por él.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   generate:
@@ -32,6 +44,12 @@ jobs:
       - name: Generate daily reto
         run: node scripts/generate-daily-reto.js
 
+      # Puerta de calidad: si el reto recién generado no pasa su propio
+      # validador, el workflow revienta aquí y no se commitea ni se publica
+      # nada roto.
+      - name: Validate generated reto
+        run: node scripts/validate-retos.js --latest
+
       - name: Commit and push changes
         run: |
           git config --local user.email "mathgym-bot@github.com"
@@ -46,3 +64,22 @@ jobs:
           FECHA="$(date +%Y-%m-%d)"
           git commit -m "🎲 Daily reto generated for $FECHA"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/mathgymdcr/mathgym.git HEAD:main
+
+  deploy:
+    needs: generate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Se saca main OTRA VEZ, ya con el commit que acaba de hacer el job
+      # anterior, que es justo el contenido que hay que publicar.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - id: deployment
+        uses: actions/deploy-pages@v4

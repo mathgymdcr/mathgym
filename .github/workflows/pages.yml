@@ -9,6 +9,12 @@ permissions:
   contents: read
   pages: write
   id-token: write
+
+# Mismo grupo que daily-reto.yml: los dos publican en el entorno
+# github-pages, así que se serializan en vez de pelearse por él.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
