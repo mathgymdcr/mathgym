@@ -87,17 +87,10 @@ export const TIPOS = [
     generado: true
   },
   {
-    tipo: 'laser-espejos',
-    nombre: 'El Láser',
-    emoji: '🔦',
-    resumen: 'Coloca espejos en la retícula para desviar el haz desde el emisor hasta la diana esquivando los bloques.',
-    generado: false
-  },
-  {
     tipo: 'laser-triangular',
     nombre: 'El Láser Triangular',
     emoji: '🔺',
-    resumen: 'La misma idea del láser, pero sobre una retícula triangular donde los rebotes van en tres direcciones.',
-    generado: false
+    resumen: 'Coloca espejos para llevar cada rayo hasta su diana sin que los trayectos se crucen: las diagonales giran el haz y los espejos planos lo devuelven.',
+    generado: true
   }
 ];

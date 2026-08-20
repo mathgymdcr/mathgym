@@ -1,8 +1,39 @@
 {
-  "size": 5,
+  "variant": "medio",
+  "size": 6,
   "lasers": [
-    { "emitter": { "row": 0, "col": 0, "dir": "down" }, "target": { "row": 3, "col": 4 } },
-    { "emitter": { "row": 0, "col": 4, "dir": "left" }, "target": { "row": 2, "col": 1 } }
+    {
+      "emitter": {
+        "row": 0,
+        "col": 2,
+        "dir": "se"
+      },
+      "target": {
+        "row": 0,
+        "col": 5
+      }
+    },
+    {
+      "emitter": {
+        "row": 2,
+        "col": 5,
+        "dir": "down"
+      },
+      "target": {
+        "row": 5,
+        "col": 3
+      }
+    }
   ],
-  "blocks": []
+  "blocks": [
+    {
+      "row": 1,
+      "col": 1
+    },
+    {
+      "row": 5,
+      "col": 5
+    }
+  ],
+  "min_espejos": 3
 }

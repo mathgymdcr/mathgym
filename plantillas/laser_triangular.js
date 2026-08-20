@@ -17,16 +17,14 @@
 
 import { celebrate } from './celebration.js';
 import { buildStandardShell, createElement, setStatus } from './shell.js';
-
-const DIR_VECTOR = {
-  up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0],
-  ne: [1, -1], nw: [-1, -1], se: [1, 1], sw: [-1, 1]
-};
+// El trazado de rayos vive fuera, en scripts/laser-triangular-logic.js, para
+// que el juego, el generador diario y el validador usen exactamente el mismo
+// código: con dos copias, cualquier diferencia publicaría retos imposibles.
+import { DIR_VECTOR, simularTodos as trazarTodos } from '../scripts/laser-triangular-logic.js';
 const DIR_ROTATION = {
   right: 0, se: 45, down: 90, sw: 135, left: 180, nw: 225, up: 270, ne: 315
 };
 const LASER_COLORS = ['#ff8c42', '#3ec6ff', '#c084fc', '#7ee787'];
-const EPS = 1e-9;
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
@@ -162,124 +160,10 @@ export async function render(root, data, hooks) {
     }
   }
 
-  // Busca el primer borde de la celda actual (en coordenadas locales 0..1)
-  // que el rayo cruza siguiendo (dx,dy) desde (lx,ly). Prueba las 4 aristas
-  // del cuadrado más las 2 diagonales completas; por convexidad de cada uno
-  // de los 4 triángulos, el cruce más cercano encontrado así es siempre una
-  // arista real del triángulo en el que el rayo se encuentra.
-  function siguienteCruce(lx, ly, dx, dy) {
-    const candidatos = [];
-    const add = (k, line, x, y) => {
-      if (k > EPS && x >= -EPS && x <= 1 + EPS && y >= -EPS && y <= 1 + EPS) {
-        candidatos.push({ k, line, x: Math.min(1, Math.max(0, x)), y: Math.min(1, Math.max(0, y)) });
-      }
-    };
-    if (dy !== 0) {
-      let k = (0 - ly) / dy; add(k, 'top', lx + k * dx, 0);
-      k = (1 - ly) / dy; add(k, 'bottom', lx + k * dx, 1);
-    }
-    if (dx !== 0) {
-      let k = (0 - lx) / dx; add(k, 'left', 0, ly + k * dy);
-      k = (1 - lx) / dx; add(k, 'right', 1, ly + k * dy);
-    }
-    if (dx !== dy) {
-      const k = (lx - ly) / (dy - dx);
-      add(k, 'bs', lx + k * dx, ly + k * dy); // diagonal '\'
-    }
-    if (dx !== -dy) {
-      const k = (1 - lx - ly) / (dx + dy);
-      add(k, 'fs', lx + k * dx, ly + k * dy); // diagonal '/'
-    }
-    if (dy !== 0) {
-      const k = (0.5 - ly) / dy;
-      add(k, 'hc', lx + k * dx, 0.5); // espejo plano horizontal, por el centro
-    }
-    if (dx !== 0) {
-      const k = (0.5 - lx) / dx;
-      add(k, 'vc', 0.5, ly + k * dy); // espejo plano vertical, por el centro
-    }
-    candidatos.sort((a, b) => a.k - b.k);
-    return candidatos[0];
-  }
-
-  // Traza un láser celda a celda con geometría real. Al cruzar una de las
-  // dos diagonales de la celda actual: si esa orientación NO es el espejo
-  // activo de la celda, el rayo la atraviesa sin desviarse; si SÍ lo es,
-  // se refleja con la misma fórmula de siempre ('/' → (-dy,-dx), '\' →
-  // (dy,dx)) y sigue dentro de la misma celda. Al cruzar un borde exterior
-  // pasa a la celda vecina.
-  function simular(laser) {
-    let [dx, dy] = DIR_VECTOR[laser.emitter.dir];
-    let r = laser.emitter.row, c = laser.emitter.col;
-    let lx = 0.501, ly = 0.502; // arranque desplazado del centro, sin puntos singulares para ninguna de las 8 direcciones
-    const squaresPath = [{ row: r, col: c }];
-    // Puntos reales (coordenadas globales, no de celda) para dibujar el
-    // rayo como línea recta: un tramo diagonal cruza varias celdas pero
-    // todos esos puntos quedan alineados, así que se ve como una única
-    // diagonal, no como un escalón de cuadrados.
-    const puntos = [{ x: c + lx, y: r + ly }];
-    const maxSteps = n * n * 12;
-
-    for (let step = 0; step < maxSteps; step++) {
-      const hit = siguienteCruce(lx, ly, dx, dy);
-      if (!hit) return { squaresPath, puntos, resultado: 'bucle' };
-
-      if (hit.line === 'bs' || hit.line === 'fs' || hit.line === 'hc' || hit.line === 'vc') {
-        const m = state.mirrors[r][c];
-        const activa = (hit.line === 'bs' && m === 2) || (hit.line === 'fs' && m === 1) ||
-          (hit.line === 'vc' && m === 3) || (hit.line === 'hc' && m === 4);
-        lx = hit.x; ly = hit.y;
-        puntos.push({ x: c + lx, y: r + ly });
-        if (activa) {
-          if (hit.line === 'bs') { const [ndx, ndy] = [dy, dx]; dx = ndx; dy = ndy; }
-          else if (hit.line === 'fs') { const [ndx, ndy] = [-dy, -dx]; dx = ndx; dy = ndy; }
-          else if (hit.line === 'hc') { dy = -dy; }
-          else { dx = -dx; } // vc
-        }
-        continue;
-      }
-
-      let nr = r, nc = c, nlx = lx, nly = ly;
-      if (hit.line === 'top') { nr = r - 1; nly = 1; nlx = hit.x; }
-      else if (hit.line === 'bottom') { nr = r + 1; nly = 0; nlx = hit.x; }
-      else if (hit.line === 'left') { nc = c - 1; nlx = 1; nly = hit.y; }
-      else if (hit.line === 'right') { nc = c + 1; nlx = 0; nly = hit.y; }
-
-      puntos.push({ x: c + hit.x, y: r + hit.y });
-      if (!dentro(nr, nc)) return { squaresPath, puntos, resultado: 'fuera' };
-      if (bloqueadas.has(`${nr},${nc}`)) return { squaresPath, puntos, resultado: 'bloqueo' };
-      if (nr === laser.target.row && nc === laser.target.col) {
-        squaresPath.push({ row: nr, col: nc });
-        puntos.push({ x: nc + 0.5, y: nr + 0.5 });
-        return { squaresPath, puntos, resultado: 'diana' };
-      }
-      if (esObjetoAjeno(nr, nc, laser)) return { squaresPath, puntos, resultado: 'obstaculo' };
-      r = nr; c = nc; lx = nlx; ly = nly;
-      squaresPath.push({ row: r, col: c });
-    }
-    return { squaresPath, puntos, resultado: 'bucle' };
-  }
-
-  function esObjetoAjeno(r, c, laserActual) {
-    return lasers.some(l => l !== laserActual && (
-      (l.emitter.row === r && l.emitter.col === c) ||
-      (l.target.row === r && l.target.col === c)
-    ));
-  }
-
+  // Un solo trazador para todos: se le pasa la configuración del reto y el
+  // estado actual de los espejos.
   function simularTodos() {
-    const resultados = lasers.map(simular);
-    const ocupacion = new Map();
-    const cruces = new Set();
-    resultados.forEach(({ squaresPath }, idx) => {
-      squaresPath.forEach(({ row, col }) => {
-        const key = `${row},${col}`;
-        const previo = ocupacion.get(key);
-        if (previo !== undefined && previo !== idx) cruces.add(key);
-        ocupacion.set(key, idx);
-      });
-    });
-    return { resultados, cruces };
+    return trazarTodos({ size: n, lasers, blocks: bloqueos }, state.mirrors);
   }
 
   function refresh() {

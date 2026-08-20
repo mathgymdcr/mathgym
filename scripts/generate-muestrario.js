@@ -26,7 +26,8 @@ const SEMILLAS = {
   'puentes-hashi': 20260108,
   'nonograma': 20260110,
   'cajas-apiladas': 20260110,
-  'anillas-encadenadas': 20260112
+  'anillas-encadenadas': 20260112,
+  'laser-triangular': 20260114
 };
 
 async function main() {

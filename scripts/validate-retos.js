@@ -9,6 +9,7 @@ import { solveHashi, construirPares } from './hashi-logic.js';
 import { pistasDe, resolverNonograma } from './nonograma-logic.js';
 import { solveCajas } from './cajas-logic.js';
 import { resolverAnillas } from './anillas-logic.js';
+import { resuelto as laserResuelto, espejosMinimos, crearEspejos, DIR_VECTOR } from './laser-triangular-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -58,7 +59,7 @@ class RetoValidator {
     }
     
     // Valid tipo
-    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas', 'anillas-encadenadas'];
+    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas', 'anillas-encadenadas', 'laser-triangular'];
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
     }
@@ -117,6 +118,10 @@ class RetoValidator {
 
       case 'anillas-encadenadas':
         await this.validateAnillasData(reto);
+        break;
+
+      case 'laser-triangular':
+        await this.validateLaserData(reto);
         break;
     }
   }
@@ -618,6 +623,69 @@ class RetoValidator {
     }
     if (sol.movimientos < data.rings) {
       throw new Error(`Anillas-encadenadas demasiado fácil: se resuelve en ${sol.movimientos} movimientos`);
+    }
+  }
+
+  async validateLaserData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Laser-triangular reto missing json_url');
+    }
+
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!Number.isInteger(data.size) || data.size < 4 || data.size > 9) {
+      throw new Error(`Laser-triangular size fuera de rango 4..9: ${data.size}`);
+    }
+    if (!Array.isArray(data.lasers) || data.lasers.length < 2) {
+      throw new Error('Laser-triangular necesita al menos 2 láseres');
+    }
+
+    const dentro = (p) => p && Number.isInteger(p.row) && Number.isInteger(p.col) &&
+      p.row >= 0 && p.row < data.size && p.col >= 0 && p.col < data.size;
+    const ocupadas = new Set();
+    for (const l of data.lasers) {
+      if (!dentro(l.emitter) || !dentro(l.target)) {
+        throw new Error(`Laser-triangular con emisor o diana fuera del tablero: ${JSON.stringify(l)}`);
+      }
+      if (!DIR_VECTOR[l.emitter.dir]) {
+        throw new Error(`Laser-triangular dirección desconocida: "${l.emitter.dir}"`);
+      }
+      for (const punto of [l.emitter, l.target]) {
+        const clave = `${punto.row},${punto.col}`;
+        if (ocupadas.has(clave)) {
+          throw new Error(`Laser-triangular con dos objetos en la misma celda: ${clave}`);
+        }
+        ocupadas.add(clave);
+      }
+    }
+    for (const b of data.blocks || []) {
+      if (!dentro(b)) throw new Error(`Laser-triangular bloque fuera del tablero: ${JSON.stringify(b)}`);
+      if (ocupadas.has(`${b.row},${b.col}`)) {
+        throw new Error(`Laser-triangular con un bloque encima de un emisor o diana: ${b.row},${b.col}`);
+      }
+    }
+
+    const config = { size: data.size, lasers: data.lasers, blocks: data.blocks || [] };
+
+    // Un reto que ya está resuelto sin tocar nada no es un reto.
+    if (laserResuelto(config, crearEspejos(data.size))) {
+      throw new Error('Laser-triangular ya viene resuelto sin colocar ningún espejo');
+    }
+
+    // Se busca de verdad una solución, con el mismo trazador que usa la
+    // plantilla: si no aparece con min_espejos, el reto es imposible.
+    const declarados = Number.isInteger(data.min_espejos) ? data.min_espejos : 4;
+    const minimo = espejosMinimos(config, declarados);
+    if (minimo === null) {
+      throw new Error(
+        `Laser-triangular not solvable: no hay solución con ${declarados} espejos o menos`
+      );
+    }
+    if (minimo !== declarados) {
+      throw new Error(
+        `Laser-triangular min_espejos=${declarados} pero se resuelve con ${minimo}: el par anunciado no es el real`
+      );
     }
   }
 

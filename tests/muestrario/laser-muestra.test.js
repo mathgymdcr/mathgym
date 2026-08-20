@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import fs from 'node:fs/promises'
 
-// Los dos ejemplos de láser son de los pocos payloads escritos a mano: aquí
-// se comprueba que además de pintarse SE PUEDEN RESOLVER, colocando los
-// espejos previstos y esperando la victoria. Sin esto, un ejemplo imposible
-// pasaría desapercibido.
+// El ejemplo de láser triangular es uno de los pocos payloads escritos a
+// mano: aquí se comprueba que además de pintarse SE PUEDE RESOLVER,
+// colocando los espejos previstos y esperando la victoria. Sin esto, un
+// ejemplo imposible pasaría desapercibido.
 //
 // Cada toque en una celda avanza el tipo de espejo: 1 toque = '/', 2 = '\'.
 
@@ -26,30 +26,29 @@ const clicks = (host, fila, columna, columnas, veces) => {
   for (let i = 0; i < veces; i++) celda.click()
 }
 
-describe('ejemplos de láser del muestrario', () => {
-  it('laser-espejos se resuelve con un espejo por rayo', async () => {
-    const mod = await import('../../plantillas/laser.js')
-    const data = JSON.parse(await fs.readFile('data/muestra/laser-espejos.json', 'utf8'))
-    const host = document.createElement('div')
-    let ganado = 0
-    await mod.render(host, data, { onSuccess: () => { ganado++ } })
-
-    clicks(host, 0, 3, data.cols, 2)   // '\' desvía el rayo naranja hacia abajo
-    clicks(host, 1, 0, data.cols, 1)   // '/' desvía el rayo azul hacia la derecha
-
-    expect(ganado, 'el ejemplo no llega a resolverse').toBe(1)
-  })
-
-  it('laser-triangular se resuelve con un espejo por rayo', async () => {
+describe('ejemplo de láser triangular del muestrario', () => {
+  it('se puede resolver de verdad en la propia plantilla', async () => {
+    const { resolverEspejos } = await import('../../scripts/laser-triangular-logic.js')
     const mod = await import('../../plantillas/laser_triangular.js')
     const data = JSON.parse(await fs.readFile('data/muestra/laser-triangular.json', 'utf8'))
+
+    // La solución no está en el payload (sería el spoiler): se busca con el
+    // mismo buscador que usa el validador y luego se juega en el DOM.
+    const sol = resolverEspejos(
+      { size: data.size, lasers: data.lasers, blocks: data.blocks || [] },
+      data.min_espejos
+    )
+    expect(sol, 'el ejemplo del muestrario no tiene solución').not.toBeNull()
+
     const host = document.createElement('div')
     let ganado = 0
     await mod.render(host, data, { onSuccess: () => { ganado++ } })
 
-    clicks(host, 3, 0, data.size, 2)   // '\' manda el rayo naranja a la derecha
-    clicks(host, 0, 1, data.size, 1)   // '/' manda el rayo azul hacia abajo
+    // Cada toque avanza el tipo de espejo: 1 toque = '/', 2 = '\\', 3 = '|', 4 = '—'.
+    sol.espejos.forEach((fila, r) => fila.forEach((tipo, c) => {
+      if (tipo) clicks(host, r, c, data.size, tipo)
+    }))
 
-    expect(ganado, 'el ejemplo no llega a resolverse').toBe(1)
+    expect(ganado, 'la plantilla no dio la victoria con la solución encontrada').toBe(1)
   })
 })

@@ -10,6 +10,7 @@ import { buildHashiPuzzle, buildHashiHints } from './hashi-logic.js';
 import { buildNonogramaPuzzle, buildNonogramaHints } from './nonograma-logic.js';
 import { buildCajasPuzzle, buildCajasHints } from './cajas-logic.js';
 import { buildAnillasPuzzle, buildAnillasHints } from './anillas-logic.js';
+import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,7 +40,8 @@ class MathGymGenerator {
       'puentes-hashi': this.generateHashi.bind(this),
       'nonograma': this.generateNonograma.bind(this),
       'cajas-apiladas': this.generateCajas.bind(this),
-      'anillas-encadenadas': this.generateAnillas.bind(this)
+      'anillas-encadenadas': this.generateAnillas.bind(this),
+      'laser-triangular': this.generateLaser.bind(this)
     };
   }
 
@@ -653,6 +655,43 @@ class MathGymGenerator {
         parMoves: min_movimientos,
         maxMovesFor3Stars: min_movimientos,
         maxMovesFor2Stars: min_movimientos + Math.ceil(min_movimientos * 0.3)
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateLaser(seed, fecha) {
+    // Construcción inversa: se colocan espejos, se traza el rayo con el mismo
+    // trazador que usa la plantilla y la diana se planta donde acaba. El par
+    // (min_espejos) se comprueba buscando soluciones más cortas.
+    const puzzle = buildLaserPuzzle(seed);
+    const { variant, size, lasers, blocks, min_espejos, dificultad } = puzzle;
+
+    const config = { variant, size, lasers, blocks, min_espejos };
+
+    const dataFileName = `laser_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
+    return {
+      id: `${fecha}-laser-triangular-001`,
+      tipo: 'laser-triangular',
+      variant,
+      titulo: 'Los Espejos del Láser',
+      objetivo: `Coloca espejos para llevar los ${lasers.length} rayos a su diana sin que los trayectos se crucen`,
+      icono_url: 'assets/icono-generico.svg',
+      dificultad,
+      categorias: ['logica', 'geometria'],
+      hints: buildLaserHints(puzzle),
+      objectives: {
+        winCondition: 'all_lasers_on_target',
+        // Cada espejo cuesta al menos un toque; los tipos se recorren en orden.
+        parMoves: min_espejos,
+        maxMovesFor3Stars: min_espejos,
+        maxMovesFor2Stars: min_espejos + 2
       },
       data: { json_url: `data/${dataFileName}` }
     };
