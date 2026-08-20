@@ -5,6 +5,7 @@ import { balanzaScenarios } from './balanza-logic.js';
 import { isTrasvaseSolvable } from './trasvase-logic.js';
 import { solveLightsOutFor } from './lightsout-logic.js';
 import { solveRelojes } from './relojes-logic.js';
+import { solveHashi, construirPares } from './hashi-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,7 +55,7 @@ class RetoValidator {
     }
     
     // Valid tipo
-    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena'];
+    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi'];
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
     }
@@ -97,6 +98,10 @@ class RetoValidator {
 
       case 'relojes-arena':
         await this.validateRelojesData(reto);
+        break;
+
+      case 'puentes-hashi':
+        await this.validateHashiData(reto);
         break;
     }
   }
@@ -359,6 +364,76 @@ class RetoValidator {
       throw new Error(
         `Relojes-arena min_rondas=${data.min_rondas} no coincide con el mínimo real ${sol.rondasTotales} ` +
         `(relojes=[${data.glasses}], target=${data.target}, variante "${variant}")`
+      );
+    }
+  }
+
+  async validateHashiData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Puentes-hashi reto missing json_url');
+    }
+
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!Number.isInteger(data.rows) || !Number.isInteger(data.cols) || data.rows < 2 || data.cols < 2) {
+      throw new Error(`Puentes-hashi tablero inválido: rows=${data.rows}, cols=${data.cols}`);
+    }
+    if (!Array.isArray(data.islands) || data.islands.length < 2) {
+      throw new Error('Puentes-hashi reto necesita al menos 2 islas');
+    }
+
+    const celdas = new Set();
+    for (const isla of data.islands) {
+      if (!Number.isInteger(isla.row) || !Number.isInteger(isla.col) || !Number.isInteger(isla.grado)) {
+        throw new Error(`Puentes-hashi isla mal formada: ${JSON.stringify(isla)}`);
+      }
+      if (isla.row < 0 || isla.row >= data.rows || isla.col < 0 || isla.col >= data.cols) {
+        throw new Error(`Puentes-hashi isla fuera del tablero: ${JSON.stringify(isla)}`);
+      }
+      // 8 es el máximo físico: 4 direcciones x 2 puentes.
+      if (isla.grado < 1 || isla.grado > 8) {
+        throw new Error(`Puentes-hashi grado fuera de rango 1..8: ${JSON.stringify(isla)}`);
+      }
+      const clave = `${isla.row},${isla.col}`;
+      if (celdas.has(clave)) {
+        throw new Error(`Puentes-hashi dos islas en la misma celda: ${clave}`);
+      }
+      celdas.add(clave);
+    }
+
+    // Una isla sin ninguna vecina alineada no podría recibir puentes nunca.
+    const { pares } = construirPares({ rows: data.rows, cols: data.cols, islands: data.islands });
+    const vecinos = data.islands.map(() => 0);
+    pares.forEach((par) => { vecinos[par.a]++; vecinos[par.b]++; });
+    const aislada = vecinos.findIndex((v) => v === 0);
+    if (aislada !== -1) {
+      throw new Error(`Puentes-hashi isla sin vecinas alineadas: ${JSON.stringify(data.islands[aislada])}`);
+    }
+
+    // Se cuentan las soluciones de verdad con el mismo solver que usa el
+    // generador -- no se da por bueno que venga de él. Cero soluciones es un
+    // reto imposible; dos o más es un reto ambiguo, que en hashi se considera
+    // igual de roto porque deja de poder razonarse.
+    const res = solveHashi({ rows: data.rows, cols: data.cols, islands: data.islands }, { tope: 2 });
+    if (res.soluciones === 0) {
+      throw new Error(
+        `Puentes-hashi not solvable: no hay forma de cumplir todos los grados ` +
+        `sin cruces y con todo conectado (${data.islands.length} islas, ${data.rows}x${data.cols})`
+      );
+    }
+    if (res.soluciones > 1) {
+      throw new Error(
+        `Puentes-hashi ambiguo: hay al menos 2 soluciones distintas válidas ` +
+        `(${data.islands.length} islas, ${data.rows}x${data.cols})`
+      );
+    }
+
+    const total = res.primera.reduce((acc, p) => acc + p.count, 0);
+    if (data.min_puentes != null && data.min_puentes !== total) {
+      throw new Error(
+        `Puentes-hashi min_puentes=${data.min_puentes} no coincide con los ${total} puentes ` +
+        `de la única solución real`
       );
     }
   }

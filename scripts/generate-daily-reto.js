@@ -6,6 +6,7 @@ import { solveTrasvase } from './trasvase-logic.js';
 import { buildPattern, solveLightsOut } from './lightsout-logic.js';
 import { generarEnigma } from './einstein-logic.js';
 import { buildRelojesPuzzle, buildRelojesHints } from './relojes-logic.js';
+import { buildHashiPuzzle, buildHashiHints } from './hashi-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,7 +32,8 @@ class MathGymGenerator {
       'poligono-geometrico': this.generatePoligono.bind(this),
       'trasvase-ecologico': this.generateTrasvase.bind(this),
       'luces-fuera': this.generateLuces.bind(this),
-      'relojes-arena': this.generateRelojes.bind(this)
+      'relojes-arena': this.generateRelojes.bind(this),
+      'puentes-hashi': this.generateHashi.bind(this)
     };
   }
 
@@ -470,6 +472,50 @@ class MathGymGenerator {
         parMoves: solucion.rondasTotales,
         maxMovesFor3Stars: solucion.rondasTotales,
         maxMovesFor2Stars: solucion.rondasTotales + 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateHashi(seed, fecha) {
+    // Igual que en relojes: la construcción del archipiélago y la garantía
+    // de solución ÚNICA viven en hashi-logic.js, que el validador reusa para
+    // volver a contar soluciones sobre el JSON ya escrito.
+    const puzzle = buildHashiPuzzle(seed);
+    const { variant, rows, cols, islands, dificultad, solucion } = puzzle;
+
+    const config = {
+      variant,
+      rows,
+      cols,
+      islands,
+      min_puentes: solucion.total
+    };
+
+    const dataFileName = `hashi_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
+    return {
+      id: `${fecha}-puentes-hashi-001`,
+      tipo: 'puentes-hashi',
+      variant,
+      titulo: 'El Archipiélago Conectado',
+      objetivo: `Une las ${islands.length} islas con ${solucion.total} puentes sin que ninguno se cruce`,
+      icono_url: 'assets/icono-generico.svg',
+      dificultad,
+      categorias: ['logica', 'grafos'],
+      hints: buildHashiHints(config, solucion),
+      objectives: {
+        winCondition: 'all_islands_connected',
+        // Cada toque añade un puente simple, así que un puente doble cuesta
+        // dos toques: el par es la suma de puentes de la solución.
+        parMoves: solucion.total,
+        maxMovesFor3Stars: solucion.total,
+        maxMovesFor2Stars: solucion.total + Math.ceil(solucion.total * 0.3)
       },
       data: { json_url: `data/${dataFileName}` }
     };
