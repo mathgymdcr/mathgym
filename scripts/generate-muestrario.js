@@ -25,7 +25,8 @@ const SEMILLAS = {
   'relojes-arena': 20260107,
   'puentes-hashi': 20260108,
   'nonograma': 20260110,
-  'cajas-apiladas': 20260110
+  'cajas-apiladas': 20260110,
+  'anillas-encadenadas': 20260112
 };
 
 async function main() {

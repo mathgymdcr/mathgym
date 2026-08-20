@@ -8,6 +8,7 @@ import { solveRelojes } from './relojes-logic.js';
 import { solveHashi, construirPares } from './hashi-logic.js';
 import { pistasDe, resolverNonograma } from './nonograma-logic.js';
 import { solveCajas } from './cajas-logic.js';
+import { resolverAnillas } from './anillas-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,7 +58,7 @@ class RetoValidator {
     }
     
     // Valid tipo
-    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas'];
+    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas', 'anillas-encadenadas'];
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
     }
@@ -112,6 +113,10 @@ class RetoValidator {
 
       case 'cajas-apiladas':
         await this.validateCajasData(reto);
+        break;
+
+      case 'anillas-encadenadas':
+        await this.validateAnillasData(reto);
         break;
     }
   }
@@ -566,6 +571,53 @@ class RetoValidator {
         `Cajas-apiladas sin gracia: el mínimo (${res.movimientos}) iguala o supera el ${hanoi} de Hanói, ` +
         `así que la capacidad de carga no cambia nada`
       );
+    }
+  }
+
+  async validateAnillasData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Anillas-encadenadas reto missing json_url');
+    }
+
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const esEstado = (v, n) => Array.isArray(v) && v.length === n && v.every((x) => typeof x === 'boolean');
+    if (!Number.isInteger(data.rings) || data.rings < 3 || data.rings > 8) {
+      throw new Error(`Anillas-encadenadas rings fuera de rango 3..8: ${data.rings}`);
+    }
+    if (!esEstado(data.inicial, data.rings)) {
+      throw new Error(`Anillas-encadenadas inicial mal formado para ${data.rings} anillas`);
+    }
+    if (!esEstado(data.objetivo, data.rings)) {
+      throw new Error(`Anillas-encadenadas objetivo mal formado para ${data.rings} anillas`);
+    }
+    if (data.inicial.every((v, i) => v === data.objetivo[i])) {
+      throw new Error('Anillas-encadenadas ya viene resuelto: inicial y objetivo son iguales');
+    }
+
+    const regla = data.regla || 'clasico';
+    if (regla !== 'clasico' && regla !== 'dos-de-golpe') {
+      throw new Error(`Anillas-encadenadas regla desconocida: "${regla}"`);
+    }
+
+    // Mínimo real por BFS. El generador lo calcula con la fórmula del código
+    // de Gray, así que aquí se comprueba por un camino distinto: si la
+    // fórmula fallara, este validador no la acompañaría en el error.
+    const sol = resolverAnillas(data.inicial, data.objetivo, regla);
+    if (!sol) {
+      throw new Error(
+        `Anillas-encadenadas not solvable: no se llega de ${data.inicial.map(Number).join('')} ` +
+        `a ${data.objetivo.map(Number).join('')} con la regla "${regla}"`
+      );
+    }
+    if (data.min_movimientos != null && data.min_movimientos !== sol.movimientos) {
+      throw new Error(
+        `Anillas-encadenadas min_movimientos=${data.min_movimientos} no coincide con el mínimo real ${sol.movimientos}`
+      );
+    }
+    if (sol.movimientos < data.rings) {
+      throw new Error(`Anillas-encadenadas demasiado fácil: se resuelve en ${sol.movimientos} movimientos`);
     }
   }
 

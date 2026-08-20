@@ -1884,6 +1884,50 @@ li {
   border-color: #ffd23b;
 }
 
+/* Fila de referencia con el objetivo, para las variantes en las que no hay
+   que soltarlas todas sino dejarlas en una posición concreta. Son marcas, no
+   anillas jugables: más pequeñas, sin cursor y sin la barra de la que
+   cuelgan. */
+.anillas-objetivo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 4px 0 12px;
+  flex-wrap: wrap;
+}
+
+.anillas-objetivo-label {
+  font-size: 0.85rem;
+  color: var(--muted, #aab3c5);
+}
+
+.anillas-objetivo-row {
+  display: flex;
+  gap: 10px;
+}
+
+.anillas-meta-ring {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid #6c5ce7;
+  background: rgba(108, 92, 231, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.anillas-meta-ring.is-off {
+  opacity: 0.35;
+  border-style: dashed;
+  border-color: var(--card-b);
+  background: transparent;
+}
+
 @keyframes anillasPulse {
   0%, 100% { box-shadow: 0 0 0 rgba(255, 210, 59, 0); }
   50% { box-shadow: 0 0 14px rgba(255, 210, 59, 0.85); }

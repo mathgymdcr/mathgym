@@ -1,4 +1,21 @@
 {
-  "rings": 4,
+  "variant": "configuracion",
+  "rings": 5,
+  "regla": "clasico",
+  "inicial": [
+    true,
+    false,
+    true,
+    false,
+    true
+  ],
+  "objetivo": [
+    false,
+    false,
+    false,
+    true,
+    false
+  ],
+  "min_movimientos": 10,
   "mostrarPistas": true
 }

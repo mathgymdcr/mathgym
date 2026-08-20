@@ -3,6 +3,13 @@
 // (Baguenaudier): misma familia matemática que las Torres de Hanói
 // (movimientos ordenados, mínimo teórico que crece en 2^n) pero con una
 // mecánica de interacción distinta.
+//
+// El payload puede traer un arranque cualquiera (`inicial`), un objetivo que
+// no sea "todas sueltas" (`objetivo`) y la regla `dos-de-golpe`, que permite
+// mover las anillas 1 y 2 en un solo movimiento. Con un arranque arbitrario
+// el mínimo ya no es la fórmula de siempre, así que se lee de
+// `min_movimientos`; scripts/anillas-logic.js lo calcula y el validador lo
+// vuelve a comprobar. Sin esos campos, se comporta como el puzzle clásico.
 
 import { celebrate } from './celebration.js';
 import { buildStandardShell, createElement, setStatus } from './shell.js';
@@ -18,9 +25,17 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  const rings = Number.isInteger(config.rings) && config.rings > 0 ? config.rings : 4;
-  const minMoves = theoreticalMinMoves(rings);
+  const esEstado = (v, n) => Array.isArray(v) && v.length === n && v.every((x) => typeof x === 'boolean');
+
+  const rings = Number.isInteger(config.rings) && config.rings > 0
+    ? config.rings
+    : (Array.isArray(config.inicial) ? config.inicial.length : 4);
+  const inicial = esEstado(config.inicial, rings) ? [...config.inicial] : Array(rings).fill(true);
+  const objetivo = esEstado(config.objetivo, rings) ? [...config.objetivo] : Array(rings).fill(false);
+  const dobleLibre = config.regla === 'dos-de-golpe' && rings >= 2;
+  const minMoves = Number.isInteger(config.min_movimientos) ? config.min_movimientos : theoreticalMinMoves(rings);
   const mostrarPistas = config.mostrarPistas !== false; // niveles más difíciles pueden desactivarlo
+  const objetivoLibre = objetivo.some(Boolean);
 
   const ui = buildStandardShell({
     icon: '🔗',
@@ -28,7 +43,10 @@ export async function render(root, data, hooks) {
     gameClass: 'anillas-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> suelta todas las anillas de la barra.</p>
+      <p><strong>Objetivo:</strong> ${objetivoLibre
+        ? `deja las anillas exactamente en la posición marcada abajo (${objetivo.map((on, i) => (on ? i + 1 : null)).filter(Boolean).join(', ')} puestas y el resto sueltas).`
+        : 'suelta todas las anillas de la barra.'}</p>
+      ${dobleLibre ? '<p><strong>Ventaja de esta variante:</strong> las anillas 1 y 2 se pueden mover <strong>juntas</strong> en un solo movimiento, con el botón de abajo.</p>' : ''}
       <p><strong>Regla:</strong> en cada momento solo hay como mucho dos anillas que se pueden tocar:</p>
       <ul>
         <li>La anilla 1 siempre se puede tocar.</li>
@@ -40,13 +58,13 @@ export async function render(root, data, hooks) {
   root.append(ui.box);
 
   const state = {
-    rings: Array(rings).fill(true), // true = enganchada
+    rings: [...inicial], // true = enganchada
     moves: 0,
     won: false
   };
 
   const info = createElement('div', { class: 'anillas-info' });
-  info.innerHTML = `<span>Movimientos: <strong class="anillas-moves">0</strong></span><span>Mínimo teórico: <strong>${minMoves}</strong></span>`;
+  info.innerHTML = `<span>Movimientos: <strong class="anillas-moves">0</strong></span><span>Mínimo: <strong>${minMoves}</strong></span>`;
   ui.box.appendChild(info);
 
   let hint = null;
@@ -72,11 +90,36 @@ export async function render(root, data, hooks) {
     ringEls.push(ring);
   }
 
+  // Cuando el objetivo no es "todas sueltas" hay que enseñarlo: si no, el
+  // jugador no tiene forma de saber dónde tiene que parar.
+  if (objetivoLibre) {
+    const meta = createElement('div', { class: 'anillas-objetivo' });
+    const etiqueta = createElement('span', { class: 'anillas-objetivo-label' });
+    etiqueta.textContent = 'Objetivo:';
+    meta.appendChild(etiqueta);
+    const fila = createElement('div', { class: 'anillas-objetivo-row' });
+    objetivo.forEach((on, i) => {
+      const marca = createElement('div', { class: `anillas-meta-ring${on ? '' : ' is-off'}` });
+      marca.textContent = i + 1;
+      fila.appendChild(marca);
+    });
+    meta.appendChild(fila);
+    ui.box.appendChild(meta);
+  }
+
   const controls = createElement('div', { class: 'anillas-controls' });
+
+  if (dobleLibre) {
+    const btnDoble = createElement('button', { class: 'btn anillas-doble' });
+    btnDoble.textContent = 'Mover 1 y 2 juntas';
+    btnDoble.addEventListener('click', () => onDobleClick());
+    controls.appendChild(btnDoble);
+  }
+
   const btnReset = createElement('button', { class: 'btn btn-secondary' });
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
-    state.rings = Array(rings).fill(true);
+    state.rings = [...inicial];
     state.moves = 0;
     state.won = false;
     setStatus(ui.result, '', '');
@@ -129,21 +172,44 @@ export async function render(root, data, hooks) {
     state.moves += 1;
     setStatus(ui.result, '', '');
     refresh();
+    comprobarVictoria();
+  }
 
-    if (state.rings.every(on => !on)) {
-      state.won = true;
-      const perfect = state.moves <= minMoves;
-      const message = perfect
-        ? `¡Resuelto en el mínimo de ${state.moves} movimientos!`
-        : `Resuelto en ${state.moves} movimientos (mínimo teórico: ${minMoves}).`;
-      setStatus(ui.status, message, 'ok');
+  // Movimiento de la variante 'dos-de-golpe': las anillas 1 y 2 salen o
+  // entran a la vez y cuenta como UN movimiento. Es legal siempre, y por eso
+  // baja el mínimo respecto al clásico.
+  function onDobleClick() {
+    if (state.won || !dobleLibre) return;
+    state.rings[0] = !state.rings[0];
+    state.rings[1] = !state.rings[1];
+    state.moves += 1;
+    setStatus(ui.result, '', '');
+    refresh();
+    comprobarVictoria();
+  }
+
+  function comprobarVictoria() {
+    if (!state.rings.every((on, i) => on === objetivo[i])) return;
+
+    state.won = true;
+    const perfect = state.moves <= minMoves;
+    const message = perfect
+      ? `¡Resuelto en el mínimo de ${state.moves} movimientos!`
+      : `Resuelto en ${state.moves} movimientos (el mínimo era ${minMoves}).`;
+    setStatus(ui.status, message, 'ok');
+    // Igual que en cajas.js: primero se registra la victoria y después se
+    // celebra, envuelto, para que un fallo del confeti (que pinta en un
+    // <canvas>) no se lleve por delante el progreso del jugador.
+    if (hooks && hooks.onSuccess) hooks.onSuccess();
+    try {
       celebrate({ ok: perfect, message });
-      if (hooks && hooks.onSuccess) hooks.onSuccess();
+    } catch (err) {
+      console.warn('No se pudo pintar la celebración:', err);
     }
   }
 
   function refresh() {
-    info.querySelector('.anillas-moves').textContent = state.moves;
+    info.querySelector('.anillas-moves').textContent = String(state.moves);
     const legal = mostrarPistas ? new Set(legalIndices(state.rings)) : null;
     ringEls.forEach((el, i) => {
       el.classList.toggle('is-off', !state.rings[i]);

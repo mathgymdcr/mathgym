@@ -83,8 +83,8 @@ export const TIPOS = [
     tipo: 'anillas-encadenadas',
     nombre: 'Las Anillas',
     emoji: '⛓️',
-    resumen: 'Un clásico de paciencia: solo se puede soltar una anilla concreta en cada momento, y el número de pasos se dispara.',
-    generado: false
+    resumen: 'Solo se puede tocar una anilla concreta en cada momento: la posición de partida cambia cada día, así que el número de pasos no se aprende de memoria.',
+    generado: true
   },
   {
     tipo: 'laser-espejos',

@@ -9,6 +9,7 @@ import { buildRelojesPuzzle, buildRelojesHints } from './relojes-logic.js';
 import { buildHashiPuzzle, buildHashiHints } from './hashi-logic.js';
 import { buildNonogramaPuzzle, buildNonogramaHints } from './nonograma-logic.js';
 import { buildCajasPuzzle, buildCajasHints } from './cajas-logic.js';
+import { buildAnillasPuzzle, buildAnillasHints } from './anillas-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,7 +38,8 @@ class MathGymGenerator {
       'relojes-arena': this.generateRelojes.bind(this),
       'puentes-hashi': this.generateHashi.bind(this),
       'nonograma': this.generateNonograma.bind(this),
-      'cajas-apiladas': this.generateCajas.bind(this)
+      'cajas-apiladas': this.generateCajas.bind(this),
+      'anillas-encadenadas': this.generateAnillas.bind(this)
     };
   }
 
@@ -608,6 +610,49 @@ class MathGymGenerator {
         parMoves: solucion.movimientos,
         maxMovesFor3Stars: solucion.movimientos,
         maxMovesFor2Stars: solucion.movimientos + Math.ceil(solucion.movimientos * 0.3)
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateAnillas(seed, fecha) {
+    // Anillos chinos con arranque arbitrario: como los 2^n estados forman un
+    // solo camino, cada configuración de partida está a una distancia
+    // distinta y el mínimo deja de ser la fórmula de siempre.
+    const puzzle = buildAnillasPuzzle(seed);
+    const { variant, rings, regla, inicial, objetivo, min_movimientos, mostrarPistas, dificultad } = puzzle;
+
+    const config = { variant, rings, regla, inicial, objetivo, min_movimientos, mostrarPistas };
+
+    const dataFileName = `anillas_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
+    const puestas = objetivo.filter(Boolean).length;
+    const objetivoTxt = puestas
+      ? `Deja las ${rings} anillas en la posición marcada (${puestas} puesta${puestas === 1 ? '' : 's'})`
+      : `Suelta las ${rings} anillas de la barra`;
+
+    return {
+      id: `${fecha}-anillas-encadenadas-001`,
+      tipo: 'anillas-encadenadas',
+      variant,
+      titulo: 'Las Anillas Encadenadas',
+      objetivo: regla === 'dos-de-golpe'
+        ? `${objetivoTxt}, aprovechando que las anillas 1 y 2 se mueven juntas`
+        : objetivoTxt,
+      icono_url: 'assets/icono-generico.svg',
+      dificultad,
+      categorias: ['logica', 'movimiento', 'optimizacion'],
+      hints: buildAnillasHints(puzzle),
+      objectives: {
+        winCondition: 'rings_match_target',
+        parMoves: min_movimientos,
+        maxMovesFor3Stars: min_movimientos,
+        maxMovesFor2Stars: min_movimientos + Math.ceil(min_movimientos * 0.3)
       },
       data: { json_url: `data/${dataFileName}` }
     };
