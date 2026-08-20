@@ -1,0 +1,28 @@
+{
+  "id": "2026-08-20-puentes-hashi-001",
+  "tipo": "puentes-hashi",
+  "variant": "pequeno",
+  "titulo": "El Archipiélago Conectado",
+  "objetivo": "Une las 9 islas con 10 puentes sin que ninguno se cruce",
+  "icono_url": "assets/icono-generico.svg",
+  "dificultad": 2,
+  "categorias": [
+    "logica",
+    "grafos"
+  ],
+  "hints": [
+    "Empieza por la isla de 5 de la fila 3, columna 5: es la de grado más alto del tablero y con 3 vecinas le queda muy poco margen, así que casi todos sus puentes están decididos de entrada.",
+    "En total hay que trazar 10 puentes, de los cuales 2 son dobles. Cuando dudes, mira los cruces: si un puente vertical tapa el paso a uno horizontal, uno de los dos sobra, y muchas veces eso decide el otro.",
+    "Que cuadren todos los números no basta: al final todas las islas tienen que quedar unidas en un solo archipiélago. Si te salen dos grupos separados con las cuentas correctas, hay que deshacer algún puente doble y repartirlo hacia el otro grupo."
+  ],
+  "objectives": {
+    "winCondition": "all_islands_connected",
+    "parMoves": 10,
+    "maxMovesFor3Stars": 10,
+    "maxMovesFor2Stars": 13
+  },
+  "data": {
+    "json_url": "data/hashi_2026-08-20.json"
+  },
+  "fecha": "2026-08-20"
+}
