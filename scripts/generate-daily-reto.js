@@ -5,6 +5,7 @@ import { balanzaMinWeighings } from './balanza-logic.js';
 import { solveTrasvase } from './trasvase-logic.js';
 import { buildPattern, solveLightsOut } from './lightsout-logic.js';
 import { generarEnigma } from './einstein-logic.js';
+import { buildRelojesPuzzle, buildRelojesHints } from './relojes-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +30,8 @@ class MathGymGenerator {
       'balanza-logica': this.generateBalanza.bind(this),
       'poligono-geometrico': this.generatePoligono.bind(this),
       'trasvase-ecologico': this.generateTrasvase.bind(this),
-      'luces-fuera': this.generateLuces.bind(this)
+      'luces-fuera': this.generateLuces.bind(this),
+      'relojes-arena': this.generateRelojes.bind(this)
     };
   }
 
@@ -428,6 +430,49 @@ class MathGymGenerator {
       'Trabajar fila por fila desde arriba suele funcionar bien: para apagar definitivamente una casilla, pulsa la que tiene justo debajo.',
       `El mínimo real para este tablero de ${rows}x${cols} es ${minPulsaciones} pulsaci${minPulsaciones === 1 ? 'ón' : 'ones'} -- una solución óptima nunca pulsa la misma casilla dos veces.`
     ];
+  }
+
+  async generateRelojes(seed, fecha) {
+    // Toda la elección (config, variante, duraciones, objetivo) y la
+    // verificación de solvencia viven en relojes-logic.js, que el validador
+    // reusa para re-comprobar el reto ya escrito.
+    const puzzle = buildRelojesPuzzle(seed);
+    const { glasses, target, variant, dificultad, solucion } = puzzle;
+
+    // tolerance: la plantilla compara el cronómetro con el objetivo con este
+    // margen en minutos. Los tramos son enteros de minutos por construcción,
+    // así que 0.25 solo absorbe el redondeo de la simulación, no un error del
+    // jugador.
+    const config = { variant, glasses, target, tolerance: 0.25, min_rondas: solucion.rondasTotales };
+
+    const dataFileName = `relojes_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(config, null, 2)
+    );
+
+    const relojesTxt = glasses.length > 1
+      ? `${glasses.slice(0, -1).map((g) => `${g} min`).join(', ')} y ${glasses[glasses.length - 1]} min`
+      : `${glasses[0]} min`;
+    return {
+      id: `${fecha}-relojes-arena-001`,
+      tipo: 'relojes-arena',
+      variant,
+      titulo: 'La Arena Exacta',
+      objetivo: `Mide exactamente ${target} ${target === 1 ? 'minuto' : 'minutos'} con relojes de ${relojesTxt}`,
+      icono_url: 'assets/icono-generico.svg',
+      dificultad,
+      categorias: ['logica', 'tiempo'],
+      hints: buildRelojesHints(config, solucion),
+      objectives: {
+        winCondition: 'measure_target_time',
+        parMoves: solucion.rondasTotales,
+        maxMovesFor3Stars: solucion.rondasTotales,
+        maxMovesFor2Stars: solucion.rondasTotales + 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
   }
 
   // PRNG determinista (mulberry32), sin dependencias externas. Misma

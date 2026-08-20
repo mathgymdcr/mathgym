@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { balanzaScenarios } from './balanza-logic.js';
 import { isTrasvaseSolvable } from './trasvase-logic.js';
 import { solveLightsOutFor } from './lightsout-logic.js';
+import { solveRelojes } from './relojes-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -53,7 +54,7 @@ class RetoValidator {
     }
     
     // Valid tipo
-    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera'];
+    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena'];
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
     }
@@ -85,13 +86,17 @@ class RetoValidator {
         await this.validateBalanzaData(reto);
         break;
       case 'poligono-geometrico':
-        this.validatePoligonoData(reto);
+        await this.validatePoligonoData(reto);
         break;
       case 'trasvase-ecologico':
         await this.validateTrasvasData(reto);
         break;
       case 'luces-fuera':
         await this.validateLucesData(reto);
+        break;
+
+      case 'relojes-arena':
+        await this.validateRelojesData(reto);
         break;
     }
   }
@@ -199,14 +204,37 @@ class RetoValidator {
     }
   }
 
-  validatePoligonoData(reto) {
-    const data = reto.data;
-    if (!data.area || !data.perimeter) {
-      throw new Error('Poligono reto missing area or perimeter');
+  async validatePoligonoData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Poligono reto missing json_url');
     }
-    
-    if (data.area <= 0 || data.perimeter <= 0) {
+
+    // Igual que en balanza/trasvase: reto.data solo trae { json_url }, los
+    // parámetros reales viven en el archivo referenciado. Leerlos de
+    // reto.data hacía que este validador fallara siempre para polígono.
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (data.area == null || data.perimeter == null) {
+      throw new Error('Poligono reto missing area or perimeter in data file');
+    }
+
+    if (!(data.area > 0) || !(data.perimeter > 0)) {
       throw new Error('Area and perimeter must be positive');
+    }
+
+    // Un polígono de área A en la retícula necesita al menos el perímetro del
+    // rectángulo más compacto que la contenga, y el perímetro de una figura
+    // sobre retícula es siempre par.
+    if (data.perimeter % 2 !== 0) {
+      throw new Error(`Poligono perimeter=${data.perimeter} debe ser par en una retícula`);
+    }
+    const minPerimetro = 2 * Math.ceil(2 * Math.sqrt(data.area));
+    if (data.perimeter < minPerimetro) {
+      throw new Error(
+        `Poligono imposible: area=${data.area} necesita perímetro >= ${minPerimetro}, ` +
+        `pero pide ${data.perimeter}`
+      );
     }
   }
 
@@ -277,6 +305,61 @@ class RetoValidator {
       if (minMoves == null) {
         throw new Error(`Luces-fuera modo "${modo.id}" not solvable: patron_inicial no tiene solución para objetivo="${modo.objetivo}"`);
       }
+    }
+  }
+
+  async validateRelojesData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Relojes-arena reto missing json_url');
+    }
+
+    const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!Array.isArray(data.glasses) || data.glasses.length < 2) {
+      throw new Error('Relojes-arena reto necesita al menos 2 relojes en glasses');
+    }
+    if (data.glasses.some((g) => !Number.isInteger(g) || g <= 0)) {
+      throw new Error(`Relojes-arena glasses debe ser enteros de minutos > 0: [${data.glasses}]`);
+    }
+    if (!Number.isInteger(data.target) || data.target <= 0) {
+      throw new Error(`Relojes-arena target inválido: ${data.target}`);
+    }
+    if (data.tolerance != null && (typeof data.tolerance !== 'number' || data.tolerance <= 0)) {
+      throw new Error(`Relojes-arena tolerance inválido: ${data.tolerance}`);
+    }
+
+    const variant = data.variant || 'clasico';
+    if (variant !== 'clasico' && variant !== 'diferido') {
+      throw new Error(`Relojes-arena variant desconocida: "${variant}"`);
+    }
+
+    // Solvencia real vía BFS sobre el espacio de estados (mismo módulo que
+    // usa el generador) -- no se asume que, por venir del generador, ya es
+    // correcto.
+    const sol = solveRelojes(data.glasses, data.target, variant);
+    if (!sol) {
+      throw new Error(
+        `Relojes-arena not solvable: no se puede medir target=${data.target} min ` +
+        `con relojes=[${data.glasses}] en variante "${variant}"`
+      );
+    }
+
+    // La variante 'diferido' promete que el objetivo NO sale con el
+    // cronómetro corriendo desde el principio; si sale, el reto está mal
+    // etiquetado y sus pistas mienten.
+    if (variant === 'diferido' && solveRelojes(data.glasses, data.target, 'clasico', { maxRondas: 20 })) {
+      throw new Error(
+        `Relojes-arena variante "diferido" pero target=${data.target} sí es medible desde t=0 ` +
+        `con relojes=[${data.glasses}]`
+      );
+    }
+
+    if (data.min_rondas != null && data.min_rondas !== sol.rondasTotales) {
+      throw new Error(
+        `Relojes-arena min_rondas=${data.min_rondas} no coincide con el mínimo real ${sol.rondasTotales} ` +
+        `(relojes=[${data.glasses}], target=${data.target}, variante "${variant}")`
+      );
     }
   }
 
