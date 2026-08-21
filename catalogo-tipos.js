@@ -9,6 +9,10 @@
 // `titulo` que el generador escribe en cada reto. Antes vivía por triplicado
 // y los tres valores se habían desfasado entre sí.
 //
+// `grupo` es la familia de la home ("grupos musculares"): agrupa los tipos por
+// el tipo de razonamiento que piden, no por su mecánica. El orden de las
+// familias lo fija `GRUPOS`.
+//
 // `icono` es la ruta del icono del tipo: SVG plano en assets/icono-*.svg para
 // todos menos el enigma, que conserva su caricatura en PNG por ser un retrato.
 //
@@ -20,6 +24,7 @@ export const TIPOS = [
   {
     tipo: 'enigma-einstein',
     nombre: 'Resuelve el enigma',
+    grupo: 'Deducción',
     icono: 'assets/einstein-caricature.png',
     resumen: 'Cruza pistas sobre quién vive dónde, con qué mascota y bebiendo qué, hasta que solo quede una combinación posible.',
     generado: true
@@ -27,6 +32,7 @@ export const TIPOS = [
   {
     tipo: 'balanza-logica',
     nombre: 'Descubre el impostor',
+    grupo: 'Deducción',
     icono: 'assets/icono-balanza-logica.svg',
     resumen: 'Encuentra la moneda falsa con el menor número de pesadas: cada una divide el problema si eliges bien los grupos.',
     generado: true
@@ -34,6 +40,7 @@ export const TIPOS = [
   {
     tipo: 'poligono-geometrico',
     nombre: 'Construye el polígono',
+    grupo: 'Visión espacial',
     icono: 'assets/icono-poligono-geometrico.svg',
     resumen: 'Dibuja sobre la retícula una figura que tenga a la vez el área y el perímetro que se piden.',
     generado: true
@@ -41,6 +48,7 @@ export const TIPOS = [
   {
     tipo: 'trasvase-ecologico',
     nombre: 'Mezcla Exacta',
+    grupo: 'Medida y cálculo',
     icono: 'assets/icono-trasvase-ecologico.svg',
     resumen: 'Con dos recipientes sin marcas, consigue medir una cantidad exacta llenando, vaciando y volcando uno en otro.',
     generado: true
@@ -48,6 +56,7 @@ export const TIPOS = [
   {
     tipo: 'luces-fuera',
     nombre: 'Los Cuadrados Luminosos',
+    grupo: 'Secuencias y estados',
     icono: 'assets/icono-luces-fuera.svg',
     resumen: 'Cada pulsación cambia una casilla y sus vecinas: apaga el tablero entero encadenando el efecto.',
     generado: true
@@ -55,6 +64,7 @@ export const TIPOS = [
   {
     tipo: 'relojes-arena',
     nombre: 'Relojes de Arena',
+    grupo: 'Medida y cálculo',
     icono: 'assets/icono-relojes-arena.svg',
     resumen: 'Con relojes de arena que no se pueden parar a media caída, mide un tiempo que ninguno marca por sí solo.',
     generado: true
@@ -62,6 +72,7 @@ export const TIPOS = [
   {
     tipo: 'puentes-hashi',
     nombre: 'Conecta los Chips',
+    grupo: 'Visión espacial',
     icono: 'assets/icono-puentes-hashi.svg',
     resumen: 'Une las islas con puentes sin que ninguno se cruce, dando a cada una exactamente los puentes que pide su número.',
     generado: true
@@ -69,6 +80,7 @@ export const TIPOS = [
   {
     tipo: 'nonograma',
     nombre: 'Objeto Oculto',
+    grupo: 'Deducción',
     icono: 'assets/icono-nonograma.svg',
     resumen: 'Las cifras de cada fila y columna dicen cuántas casillas seguidas pintar: al cuadrar todas aparece un dibujo.',
     generado: true
@@ -76,6 +88,7 @@ export const TIPOS = [
   {
     tipo: 'cajas-apiladas',
     nombre: 'Cajas Apiladas',
+    grupo: 'Secuencias y estados',
     icono: 'assets/icono-cajas-apiladas.svg',
     resumen: 'Reúne las cajas en una zona sin apilar una pesada sobre una ligera, y aprovecha los kilos de la carretilla para llevarte varias de un viaje.',
     generado: true
@@ -83,6 +96,7 @@ export const TIPOS = [
   {
     tipo: 'riego-plantas',
     nombre: 'El Riego',
+    grupo: 'Medida y cálculo',
     icono: 'assets/icono-riego-plantas.svg',
     resumen: 'Cada planta solo bebe ciertos días y nunca dos seguidos: encaja el calendario para que todas reciban sus riegos sin agotar la regadera.',
     generado: true
@@ -90,6 +104,7 @@ export const TIPOS = [
   {
     tipo: 'anillas-encadenadas',
     nombre: 'Anillas Encadenadas',
+    grupo: 'Secuencias y estados',
     icono: 'assets/icono-anillas-encadenadas.svg',
     resumen: 'Solo se puede tocar una anilla concreta en cada momento: la posición de partida cambia cada día, así que el número de pasos no se aprende de memoria.',
     generado: true
@@ -97,6 +112,7 @@ export const TIPOS = [
   {
     tipo: 'laser-triangular',
     nombre: 'Laberinto Láser',
+    grupo: 'Visión espacial',
     icono: 'assets/icono-laser-triangular.svg',
     resumen: 'Coloca espejos para llevar cada rayo hasta su diana sin que los trayectos se crucen: las diagonales giran el haz y los espejos planos lo devuelven.',
     generado: true
@@ -110,3 +126,7 @@ export function tipoInfo(tipo) {
   if (!ficha) throw new Error(`Tipo desconocido en el catálogo: ${tipo}`);
   return ficha;
 }
+
+// Las familias, en el orden en que se pintan. Van de la deducción pura a lo
+// más numérico, que es el orden en que crecen en dificultad de entrada.
+export const GRUPOS = ['Deducción', 'Visión espacial', 'Secuencias y estados', 'Medida y cálculo'];

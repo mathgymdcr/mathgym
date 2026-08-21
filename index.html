@@ -8,114 +8,68 @@
   <link rel="icon" href="assets/logo_mathgym.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Lexend:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-
-  <style>
-    body {
-      overflow-x: hidden;
-    }
-
-    main {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 16px 80px;
-    }
-
-    .hero {
-      max-width: 720px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 32px;
-      margin: 0 auto;
-    }
-
-    .hero h2 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: var(--accent);
-      margin: 0;
-    }
-
-    .hero > p {
-      color: var(--muted);
-      font-size: 1.15rem;
-      line-height: 1.7;
-      margin: 0;
-      max-width: 640px;
-    }
-
-    .hero .deceerre-instructions {
-      flex-direction: column;
-      text-align: center;
-    }
-
-    .hero .deceerre-instructions img {
-      width: 150px;
-      height: 150px;
-    }
-
-    .hero .btn-main {
-      margin-top: 8px;
-    }
-  </style>
 </head>
 
-<body>
-  <!-- CABECERA -->
-  <header class="enigma-header-dark site-header">
-    <img src="assets/logo_mathgym.png" alt="Logo MathGym">
-    <div>
-      <h2>MathGym</h2>
-      <p class="site-header-tagline">Tu gimnasio mental diario 🧩</p>
-    </div>
-  </header>
-  <nav class="site-nav">
-    <span id="streak-badge" class="streak-badge" style="display:none;"></span>
-    <a href="archivo.html" class="btn btn-secondary">📚 Archivo</a>
-    <a href="muestrario.html" class="btn btn-secondary">🎯 Tipos de reto</a>
-  </nav>
+<body class="sala">
 
-  <!-- HERO PRINCIPAL -->
-  <main>
-    <div class="hero">
-      <h2>Entrena tu mente cada día</h2>
-      <p>
-        Bienvenido a <strong>MathGym</strong>, el gimnasio mental donde cada día te espera un nuevo reto matemático o lógico.
-        ¡Ejercita tu pensamiento, supera desafíos y acompaña a <strong>Deceerre</strong> en tu entrenamiento mental!
-      </p>
+  <!-- Trazas de circuito: el mismo motivo que rodea a Deceerre en su PNG. -->
+  <svg class="circuitry" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path d="M0 90 H200 L250 40 H430"/><circle cx="434" cy="40" r="4"/>
+    <path d="M0 210 H120 L170 260 H360 L400 220 H560"/><circle cx="564" cy="220" r="4"/>
+    <path d="M0 430 H90 L140 380 H300"/><circle cx="304" cy="380" r="4"/>
+    <path d="M0 620 H180 L230 670 H400 L440 630 H580"/><circle cx="584" cy="630" r="4"/>
+    <path d="M0 800 H140 L190 750 H340"/><circle cx="344" cy="750" r="4"/>
+    <path d="M1400 60 H1240 L1190 110 H1010"/><circle cx="1006" cy="110" r="4"/>
+    <path d="M1400 250 H1300 L1250 200 H1080 L1040 240 H880"/><circle cx="876" cy="240" r="4"/>
+    <path d="M1400 470 H1230 L1180 520 H1000"/><circle cx="996" cy="520" r="4"/>
+    <path d="M1400 660 H1280 L1230 610 H1060 L1020 650 H900"/><circle cx="896" cy="650" r="4"/>
+    <path d="M1400 840 H1260 L1210 790 H1050"/><circle cx="1046" cy="790" r="4"/>
+    <path d="M300 0 V70 L350 120 V230"/><circle cx="350" cy="234" r="4"/>
+    <path d="M640 0 V110 L590 160 V270"/><circle cx="590" cy="274" r="4"/>
+    <path d="M980 0 V60 L1030 110 V210"/><circle cx="1030" cy="214" r="4"/>
+    <path d="M420 900 V790 L470 740 V640"/><circle cx="470" cy="636" r="4"/>
+    <path d="M760 900 V820 L710 770 V680"/><circle cx="710" cy="676" r="4"/>
+    <path d="M1120 900 V800 L1170 750 V660"/><circle cx="1170" cy="656" r="4"/>
+  </svg>
 
-      <div class="card deceerre-instructions">
-        <img src="assets/deceerre.png" alt="Deceerre entrenador">
-        <div class="instructions-body">
-          <h3>¡Hola, soy Deceerre!</h3>
-          <p>
-            Te guiaré en tus entrenamientos. Cada reto es un nuevo músculo mental por desarrollar.
-            Cuando resuelvas uno, ¡celebraremos juntos tu progreso!
-          </p>
-          <!-- ✅ BOTÓN corregido -->
-          <a href="reto.json" class="btn btn-main" data-action="entrenar">🏋️ Entrenar ahora</a>
+  <div class="wrap">
+
+    <header class="sala-header">
+      <div class="brand">
+        <img class="brand-logo" src="assets/logo_mathgym.png" alt="Logo MathGym">
+        <div>
+          <div class="brand-name display">MathGym</div>
+          <div class="brand-tag">tu gimnasio mental diario</div>
         </div>
       </div>
-    </div>
+      <nav class="sala-nav">
+        <span id="streak-badge" class="streak-badge" style="display:none;"></span>
+        <a href="./" class="active">Hoy</a>
+        <a href="archivo.html">Archivo</a>
+        <a href="muestrario.html">Tipos de reto</a>
+      </nav>
+    </header>
 
-    <!-- ✅ CONTENEDOR donde se montará el reto (oculto hasta cargar) -->
-    <div id="contenedor-interactivo" style="display:none;"></div>
-  </main>
+    <main>
+      <!-- La sala la pinta home.js con el reto del día y el progreso local. -->
+      <div id="sala"></div>
 
-  <footer class="site-footer">
-    © <span id="year"></span> MathGym — Proyecto educativo libre
-  </footer>
+      <!-- Aquí se monta el reto al pulsar "Empezar serie". -->
+      <div id="contenedor-interactivo" style="display:none;"></div>
+    </main>
+
+    <footer class="sala-footer">
+      <span>© <span id="year"></span> MathGym — Proyecto educativo libre</span>
+      <span>Un reto nuevo cada día</span>
+    </footer>
+
+  </div>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
-
-  <!-- ✅ Carga del router y sistema MathGym -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
