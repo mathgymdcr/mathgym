@@ -49,7 +49,11 @@ function ficha(t) {
   card.id = `tipo-${t.tipo}`;
 
   const cabecera = crear('div', 'muestrario-card-head');
-  cabecera.appendChild(crear('span', 'muestrario-emoji', t.emoji));
+  const icono = crear('img', 'muestrario-icono');
+  icono.src = t.icono;
+  icono.alt = '';
+  icono.setAttribute('aria-hidden', 'true');
+  cabecera.appendChild(icono);
   const titulos = crear('div', 'muestrario-titulos');
   titulos.appendChild(crear('h3', null, t.nombre));
   titulos.appendChild(crear('p', 'muestrario-resumen', t.resumen));

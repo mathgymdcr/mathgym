@@ -38,7 +38,7 @@ export async function render(root, data, hooks) {
   const objetivoLibre = objetivo.some(Boolean);
 
   const ui = buildStandardShell({
-    icon: '🔗',
+    icon: 'assets/icono-anillas-encadenadas.svg',
     titulo: 'Anillas Encadenadas',
     gameClass: 'anillas-game',
     instructionsHTML: `

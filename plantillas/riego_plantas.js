@@ -42,7 +42,7 @@ export async function render(root, data, hooks) {
   }
 
   const ui = buildStandardShell({
-    icon: '🌱',
+    icon: 'assets/icono-riego-plantas.svg',
     titulo: 'El Riego',
     gameClass: 'riego-game',
     instructionsHTML: `

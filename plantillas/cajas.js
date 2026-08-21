@@ -34,7 +34,7 @@ export async function render(root, data, hooks) {
     : '<p>Solo puedes mover una caja cada vez.</p>';
 
   const ui = buildStandardShell({
-    icon: '📦',
+    icon: 'assets/icono-cajas-apiladas.svg',
     titulo: 'Cajas Apiladas',
     gameClass: 'cajas-game',
     instructionsHTML: `

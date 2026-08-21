@@ -32,7 +32,7 @@ export async function render(root, data, hooks) {
   }
 
   const ui = buildStandardShell({
-    icon: '🧩',
+    icon: 'assets/icono-nonograma.svg',
     titulo: 'Nonograma',
     gameClass: 'nono-game',
     instructionsHTML: `

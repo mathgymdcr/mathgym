@@ -3,10 +3,11 @@
 //   - "ecologico": agua limitada (sin grifo), regar la planta = comprobar
 //   - "clasico"   ("Jarras Exactas"): grifo infinito (llenar/vaciar), Comprobar genérico
 import { celebrate } from './celebration.js';
+import { pintarIcono } from './shell.js';
 
 const VARIANTS = {
   ecologico: {
-    icon: '💧',
+    icon: 'assets/icono-trasvase-ecologico.svg',
     title: 'Trasvase Ecológico',
     hasTap: false,
     hasPlant: true,
@@ -14,7 +15,7 @@ const VARIANTS = {
     goalLine: target => `Cuando un recipiente tenga exactamente <span class="target-amount">${target}</span>, selecciónalo y pulsa <strong>Regar planta</strong> para comprobar tu respuesta.`
   },
   clasico: {
-    icon: '🏺',
+    icon: 'assets/icono-trasvase-ecologico.svg',
     title: 'Jarras Exactas',
     hasTap: true,
     hasPlant: false,
@@ -237,7 +238,7 @@ export async function render(root, data, hooks) {
 }
 
 function applyVariant(ui, variant, target) {
-  ui.headerIcon.textContent = variant.icon;
+  pintarIcono(ui.headerIcon, variant.icon);
   ui.headerTitle.textContent = variant.title;
   ui.instructionsBody.innerHTML = `<h3>Cómo se juega</h3><p>${variant.intro}</p><p>${variant.goalLine(target + 'L')}</p>`;
   ui.btnFill.style.display = variant.hasTap ? '' : 'none';
