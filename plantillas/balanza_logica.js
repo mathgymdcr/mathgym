@@ -511,7 +511,7 @@ export async function render(root, data, hooks) {
 
     // Cabecera estándar (oscura) + barrido
     const header = createElement('div', { class: 'enigma-header-dark' });
-    const hImg = createElement('img', { src: 'assets/balance-icon.png', alt: 'Icono balanza' });
+    const hImg = createElement('img', { src: 'assets/icono-balanza-logica.svg', alt: '' });
     hImg.onerror = function () { hImg.style.display = 'none'; };
     const h2 = document.createElement('h2'); h2.textContent = 'Descubre el impostor';
     header.appendChild(hImg);

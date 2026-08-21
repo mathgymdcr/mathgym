@@ -16,6 +16,21 @@ export function createElement(tag, attributes = {}) {
   return element;
 }
 
+// Un icono puede ser un emoji o la ruta de una imagen (assets/icono-*.svg).
+// Las rutas se montan como <img> para que el SVG conserve sus colores y su alfa;
+// el emoji se sigue pintando como texto.
+export function pintarIcono(element, icono, alt = '') {
+  if (!element) return;
+  element.textContent = '';
+  if (typeof icono === 'string' && /\.(svg|png)$/i.test(icono)) {
+    const img = createElement('img', { src: icono, alt });
+    if (!alt) img.setAttribute('aria-hidden', 'true');
+    element.appendChild(img);
+  } else {
+    element.textContent = icono;
+  }
+}
+
 export function setStatus(element, text, type = '') {
   if (!element) return;
   element.textContent = text;
@@ -35,7 +50,7 @@ export function buildStandardShell({ icon, titulo, gameClass, instructionsHTML }
 
   const header = createElement('div', { class: 'enigma-header-dark' });
   const headerIcon = createElement('span', { class: 'enigma-header-icon' });
-  headerIcon.textContent = icon;
+  pintarIcono(headerIcon, icon);
   const headerTitle = document.createElement('h2');
   headerTitle.textContent = titulo;
   header.appendChild(headerIcon);

@@ -19,10 +19,10 @@ describe('catálogo del muestrario', () => {
     expect([...new Set(TIPOS.map((t) => t.tipo))].sort()).toEqual([...new Set(registrados)].sort())
   })
 
-  it('describe cada tipo con nombre, emoji y resumen', () => {
+  it('describe cada tipo con nombre, icono y resumen', () => {
     for (const t of TIPOS) {
       expect(t.nombre, t.tipo).toBeTruthy()
-      expect(t.emoji, t.tipo).toBeTruthy()
+      expect(t.icono, t.tipo).toBeTruthy()
       expect(t.resumen.length, t.tipo).toBeGreaterThan(20)
       expect(typeof t.generado, t.tipo).toBe('boolean')
     }

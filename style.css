@@ -391,22 +391,56 @@ li {
   z-index: 1;
 }
 
-.enigma-header-dark img,
+/* Placa del icono de cabecera.
+   NO se recorta: los iconos son SVG anchos y transparentes (la balanza ocupa
+   casi todo el lienzo de lado a lado), y el círculo con object-fit:cover que
+   había aquí antes les comía los bordes. Se excluye .site-header, que tiene su
+   propio logo redondo más abajo. */
+.enigma-header-dark:not(.site-header) > img,
 .enigma-header-dark .enigma-header-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: 2px solid var(--accent);
-  object-fit: cover;
+  width: 56px;
+  height: 56px;
   flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 6px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--card-b);
+  border-radius: 18px;
+  object-fit: contain;
 }
 
 .enigma-header-dark .enigma-header-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,.06);
-  font-size: 1.4rem;
+  font-size: 1.6rem;
+}
+
+.enigma-header-dark .enigma-header-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* En web el icono es protagonista, no una viñeta. */
+@media (min-width: 700px) {
+  .enigma-header-dark:not(.site-header) > img,
+  .enigma-header-dark .enigma-header-icon {
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
+    padding: 8px;
+  }
+  .enigma-header-dark:not(.site-header) h2 { font-size: 1.7rem; }
+}
+
+@media (min-width: 1000px) {
+  .enigma-header-dark:not(.site-header) > img,
+  .enigma-header-dark .enigma-header-icon {
+    width: 92px;
+    height: 92px;
+  }
+  .enigma-header-dark:not(.site-header) h2 { font-size: 2rem; }
 }
 
 .enigma-header-dark h2 {
@@ -1671,37 +1705,6 @@ li {
 }
 
 /* =========================================================
-   Icono y cabecera — Reto Los Cuadrados Luminosos
-   ========================================================= */
-
-   .lightsout-header {
-    background: linear-gradient(135deg, #6c5ce7, #3b82f6);
-  }
-  
-  .lightsout-header .header-avatar,
-  .lightsout-header .header-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.1);
-    border: 3px solid rgba(255,255,255,0.8);
-    background-image: url("assets/icono-lightsout.png");
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    box-shadow:
-      0 0 25px rgba(108,92,231,0.5),
-      0 0 45px rgba(59,130,246,0.4);
-    animation: lightsoutGlow 2.5s ease-in-out infinite alternate;
-    flex-shrink: 0;
-  }
-  
-  @keyframes lightsoutGlow {
-    from { box-shadow: 0 0 25px rgba(108,92,231,0.4); }
-    to   { box-shadow: 0 0 45px rgba(168,85,247,0.7); }
-  }
-
-/* =========================================================
    Relojes de Arena
    ========================================================= */
 
@@ -2580,13 +2583,23 @@ li {
 
 .muestrario-card-head {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
+  align-items: center;
+  gap: 20px;
 }
 
-.muestrario-emoji {
-  font-size: 2rem;
-  line-height: 1;
+.muestrario-icono {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+@media (min-width: 700px) {
+  .muestrario-icono { width: 96px; height: 96px; }
+}
+
+@media (min-width: 1000px) {
+  .muestrario-icono { width: 112px; height: 112px; }
 }
 
 .muestrario-titulos h3 {

@@ -12,6 +12,7 @@
 // reloj se vacía, comparando el cronómetro con el objetivo.
 
 import { celebrate } from './celebration.js';
+import { pintarIcono } from './shell.js';
 
 const SIM_SECONDS_PER_TICK = 2; // 1 minuto de reloj ≈ 3s reales
 const TICK_MS = 100;
@@ -185,7 +186,7 @@ function buildShell() {
 
   const header = createElement('div', { class: 'enigma-header-dark' });
   const headerIcon = createElement('span', { class: 'enigma-header-icon' });
-  headerIcon.textContent = '⏳';
+  pintarIcono(headerIcon, 'assets/icono-relojes-arena.svg');
   const headerTitle = document.createElement('h2');
   headerTitle.textContent = 'Relojes de Arena';
   header.appendChild(headerIcon);

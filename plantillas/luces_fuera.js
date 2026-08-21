@@ -124,7 +124,7 @@ function buildShell(){
   box.innerHTML=`
   <!-- Cabecera estilo "Resuelve el enigma" -->
   <div class="enigma-header-dark">
-    <img src="assets/icono-lightsout.png" alt="Icono Los Cuadrados Luminosos">
+    <img src="assets/icono-luces-fuera.svg" alt="">
     <h2>Los Cuadrados Luminosos</h2>
   </div>
 
