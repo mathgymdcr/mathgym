@@ -99,7 +99,7 @@ export async function render(root, data, hooks) {
   }
   function updateButton(b,on,size){
     b.textContent=on?'●':'○';
-    b.style.background=on?'linear-gradient(135deg,var(--accent),#a855f7)':'rgba(255,255,255,.08)';
+    b.style.background=on?'var(--grad-brand)':'rgba(255,255,255,.08)';
     b.style.color=on?'white':'var(--fg)';
     b.style.width=b.style.height=`${size}px`;
     b.style.borderRadius='12px';
@@ -181,7 +181,7 @@ function renderPatternPreview(pattern,container){
   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
     const d=document.createElement('div');
     d.style=`width:28px;height:28px;border-radius:6px;
-      background:${pattern[r][c]?'linear-gradient(135deg,var(--accent),#a855f7)':'rgba(255,255,255,0.12)'}`;
+      background:${pattern[r][c]?'var(--grad-brand)':'rgba(255,255,255,0.12)'}`;
     grid.append(d);
   }
   container.innerHTML='';container.append(caption,grid);
