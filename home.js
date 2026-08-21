@@ -185,7 +185,8 @@ function pintarGrupos() {
     const fila = el('div', 'exercise-row');
     for (const t of tipos) {
       const ficha = el('a', 'exercise');
-      ficha.href = `muestrario.html#${t.tipo}`;
+      ficha.href = `?tipo=${t.tipo}`;
+      ficha.dataset.tipo = t.tipo;   // por él lo pilla el router, sin parsear la URL
       ficha.appendChild(el('div', 'exercise-name', t.nombre));
       ficha.appendChild(el('div', 'exercise-hint', t.resumen));
       fila.appendChild(ficha);

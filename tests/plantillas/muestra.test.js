@@ -3,13 +3,13 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { TIPOS } from '../../catalogo-tipos.js'
 
-// Este test es la única red que cubre TODAS las plantillas, incluidas las
-// cuatro que no tienen generador y que hasta ahora no probaba nadie: si
-// alguien rompe una, aquí salta.
+// Esta es la única red que cubre TODAS las plantillas montándolas de verdad:
+// si alguien rompe una, aquí salta. Los payloads son los mismos que la
+// portada sirve como ejemplo de prueba de cada tipo.
 
 const raiz = path.resolve(__dirname, '../..')
 
-describe('catálogo del muestrario', () => {
+describe('catálogo de tipos', () => {
   it('cubre exactamente los tipos registrados en plantillas/base.js', async () => {
     const src = await fs.readFile(path.join(raiz, 'plantillas/base.js'), 'utf8')
     const registrados = src.split('\n')
@@ -29,7 +29,7 @@ describe('catálogo del muestrario', () => {
   })
 })
 
-describe('muestras de data/muestra', () => {
+describe('ejemplos de data/muestra', () => {
   let Templates
 
   beforeAll(async () => {

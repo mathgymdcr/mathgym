@@ -1,11 +1,11 @@
 // ===== catalogo-tipos.js =====
-// Catálogo de los tipos de reto: lo consumen muestrario.js (para pintar las
-// fichas), scripts/generate-muestrario.js (para escribir los JSON de
-// ejemplo) y tests/muestrario (para comprobar que no se desfase respecto al
-// mapa `loaders` de plantillas/base.js).
+// Catálogo de los tipos de reto: lo consumen home.js (para pintar la sala de
+// entrenamiento), scripts/generate-muestrario.js (para escribir los JSON de
+// ejemplo que sirve la portada) y tests/plantillas (para comprobar que no se
+// desfase respecto al mapa `loaders` de plantillas/base.js).
 //
 // `nombre` es EL nombre del tipo, el único: lo pintan la cabecera del juego
-// (vía `tipoInfo` en plantillas/shell.js), la ficha del muestrario y el
+// (vía `tipoInfo` en plantillas/shell.js), la ficha de la portada y el
 // `titulo` que el generador escribe en cada reto. Antes vivía por triplicado
 // y los tres valores se habían desfasado entre sí.
 //

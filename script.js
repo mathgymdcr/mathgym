@@ -3,6 +3,7 @@ import './plantillas/base.js';
 import { initRouter } from './router.js';
 import { recordCompletion, getProgress } from './progress.js';
 import { pintarSala } from './home.js';
+import { tipoInfo } from './catalogo-tipos.js';
 
 const $ = id => document.getElementById(id);
 
@@ -19,7 +20,7 @@ function pintarRacha() {
   badge.textContent = `🔥 Racha: ${currentStreak} día${currentStreak === 1 ? '' : 's'}`;
 }
 
-// --- CARGA DEL RETO ---
+// --- CARGA DE DATOS ---
 async function loadReto(fecha) {
   const ruta = fecha ? `retos/${encodeURIComponent(fecha)}.json` : 'reto.json';
   const r = await fetch(ruta, { cache: 'no-cache' });
@@ -27,11 +28,28 @@ async function loadReto(fecha) {
   return r.json();
 }
 
-// --- SALA DE ENTRENAMIENTO (la home) ---
+async function loadMuestra(tipo) {
+  const r = await fetch(`data/muestra/${encodeURIComponent(tipo)}.json`, { cache: 'no-cache' });
+  if (!r.ok) throw new Error(`HTTP ${r.status} al leer el ejemplo de ${tipo}`);
+  return r.json();
+}
+
+// --- CAMBIO DE VISTA ---
+// La sala y el tablero comparten pantalla: solo uno está visible a la vez.
+function mostrarZonaDeJuego(visible) {
+  const cont = $('contenedor-interactivo');
+  const sala = $('sala');
+  if (cont) cont.style.display = visible ? 'block' : 'none';
+  if (sala) sala.style.display = visible ? 'none' : '';
+  return cont;
+}
+
+// --- SALA DE ENTRENAMIENTO (la portada) ---
 // Se pinta con el reto del día ya cargado, para poder anunciar cuál es antes
 // de que nadie pulse nada. Si la carga falla, la sala se pinta igual y lo dice
 // en la ficha del día.
-async function pintarSalaDeHoy() {
+async function mostrarSala() {
+  mostrarZonaDeJuego(false);
   const sala = $('sala');
   if (!sala) return;
   let reto = null;
@@ -43,18 +61,15 @@ async function pintarSalaDeHoy() {
   pintarSala(sala, { reto, progreso: getProgress() });
 }
 
-// --- MONTAJE DEL RETO ---
-async function mount(reto, esRetoDeHoy) {
-  const cont = $('contenedor-interactivo');
+// --- RETO ---
+async function mostrarReto(fecha) {
+  const reto = await loadReto(fecha);
+  const esRetoDeHoy = !fecha;
+  const cont = mostrarZonaDeJuego(true);
   if (!cont) {
     console.error('❌ Falta #contenedor-interactivo en el HTML');
     return;
   }
-
-  // Mostrar el reto y apartar la sala.
-  cont.style.display = 'block';
-  const sala = $('sala');
-  if (sala) sala.style.display = 'none';
 
   cont.innerHTML = '<div class="skeleton">Cargando…</div>';
 
@@ -64,7 +79,6 @@ async function mount(reto, esRetoDeHoy) {
         if (esRetoDeHoy) {
           recordCompletion(reto);
           pintarRacha();
-          pintarSalaDeHoy();   // el carné y la racha reflejan ya el reto de hoy
         }
       }
     });
@@ -74,27 +88,76 @@ async function mount(reto, esRetoDeHoy) {
   }
 }
 
-// --- INICIALIZA ROUTER ---
-const router = initRouter({ mount, loadReto });
+// --- EJEMPLO DE PRUEBA ---
+// El mismo payload fijo que enseñaba el muestrario, montado con la plantilla
+// real. Los hooks van vacíos a propósito: un ejemplo no toca la racha ni el
+// progreso por mucho que se resuelva.
+async function mostrarEjemplo(tipo) {
+  const cont = mostrarZonaDeJuego(true);
+  if (!cont) return;
 
-// --- ARRANQUE ---
-// Sin `?fecha=` la portada es la sala; el router solo monta un reto cuando se
-// pide uno concreto o cuando se pulsa "Empezar serie".
-const hayFecha = new URLSearchParams(window.location.search).has('fecha');
-pintarRacha();
-if (hayFecha) {
-  router.renderCurrent();
-} else {
-  pintarSalaDeHoy();
+  cont.innerHTML = '<div class="skeleton">Cargando ejemplo…</div>';
+  const nombre = tipoInfo(tipo).nombre;
+
+  const barra = document.createElement('div');
+  barra.className = 'aviso-ejemplo';
+  const volver = document.createElement('button');
+  volver.type = 'button';
+  volver.className = 'btn btn-secondary';
+  volver.dataset.action = 'volver';
+  volver.textContent = '← Volver a la sala';
+  const texto = document.createElement('p');
+  texto.textContent = `Ejemplo de ${nombre}: es siempre el mismo, no gasta el reto de hoy ni cuenta para tu racha.`;
+  barra.appendChild(volver);
+  barra.appendChild(texto);
+
+  const host = document.createElement('div');
+
+  try {
+    const data = await loadMuestra(tipo);
+    cont.innerHTML = '';
+    cont.appendChild(barra);
+    cont.appendChild(host);
+    await window.Templates.render(tipo, data, host, {});
+  } catch (err) {
+    cont.innerHTML = '';
+    cont.appendChild(barra);
+    const error = document.createElement('p');
+    error.className = 'error';
+    error.textContent = `No se pudo cargar el ejemplo de ${nombre}: ${err.message}`;
+    cont.appendChild(error);
+    console.error('❌ Error cargando el ejemplo:', err);
+  }
 }
 
-// --- INTERCEPTA EL CLICK EN “ENTRENAR AHORA” ---
-document.addEventListener('click', (ev) => {
-  const btn = ev.target.closest('[data-action="entrenar"]');
-  if (!btn) return;
+// --- ROUTER ---
+const router = initRouter({ mostrarSala, mostrarReto, mostrarEjemplo });
 
-  ev.preventDefault();
-  console.log('🎯 Click en Entrenar detectado');
-  history.pushState({}, '', './');
-  router.renderCurrent();
+pintarRacha();
+router.renderCurrent();
+
+// --- NAVEGACIÓN INTERNA ---
+// Los enlaces de la sala son <a href="?tipo=..."> de verdad, para que se
+// puedan abrir en otra pestaña; aquí se interceptan para no recargar.
+document.addEventListener('click', (ev) => {
+  const volver = ev.target.closest('[data-action="volver"]');
+  if (volver) {
+    ev.preventDefault();
+    router.navigateTo({});
+    return;
+  }
+
+  const entrenar = ev.target.closest('[data-action="entrenar"]');
+  if (entrenar) {
+    ev.preventDefault();
+    router.navigateTo({});
+    mostrarReto(null);
+    return;
+  }
+
+  const ejemplo = ev.target.closest('a[data-tipo]');
+  if (ejemplo && !ev.metaKey && !ev.ctrlKey && ev.button === 0) {
+    ev.preventDefault();
+    router.navigateTo({ tipo: ejemplo.dataset.tipo });
+  }
 }, { capture: true });
