@@ -104,8 +104,8 @@ export async function render(root, data, hooks) {
     ctx.lineWidth = 3;
     
     const grad = ctx.createLinearGradient(0, 0, state.W, state.H);
-    grad.addColorStop(0, '#6C5CE7');
-    grad.addColorStop(1, '#1084C7');
+    grad.addColorStop(0, '#8A2189');  // --brand (canvas no lee var())
+    grad.addColorStop(1, '#1788C7');  // --blue
     ctx.strokeStyle = grad;
     
     ctx.beginPath();
