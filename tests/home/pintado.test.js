@@ -65,13 +65,13 @@ describe('pintarSala', () => {
     expect(counts).toContain('9')
   })
 
-  it('lista los doce tipos repartidos en sus grupos, enlazados al muestrario', () => {
+  it('lista los doce tipos repartidos en sus grupos, enlazados a su ejemplo', () => {
     pintarSala(root, { reto: RETO, progreso: PROGRESO })
     const fichas = root.querySelectorAll('.exercise')
     expect(fichas).toHaveLength(TIPOS.length)
     expect(root.querySelectorAll('.group')).toHaveLength(4)
     for (const ficha of fichas) {
-      expect(ficha.getAttribute('href')).toMatch(/^muestrario\.html#/)
+      expect(ficha.getAttribute('href')).toBe(`?tipo=${ficha.dataset.tipo}`)
     }
   })
 

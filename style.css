@@ -3100,3 +3100,24 @@ section.groups { margin-top: 52px; }
 @media (prefers-reduced-motion: reduce) {
     .sala * { transition: none !important; }
 }
+
+/* Barra de "esto es un ejemplo", encima del tablero de prueba (?tipo=). */
+.aviso-ejemplo {
+    max-width: 1000px;
+    margin: 0 auto 18px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--gold);
+    border-radius: 14px;
+}
+.aviso-ejemplo p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}

@@ -1,5 +1,5 @@
 // ===== scripts/generate-muestrario.js =====
-// Escribe los JSON de ejemplo que usa muestrario.html, uno por tipo con
+// Escribe los JSON de ejemplo que sirve la portada (?tipo=), uno por tipo con
 // generador, en data/muestra/. Los ejemplos salen de los generadores de
 // verdad con una semilla fija: así el muestrario nunca enseña un esquema
 // distinto del que se publica a diario, y basta con volver a lanzar este

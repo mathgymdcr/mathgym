@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import fs from 'node:fs/promises'
 
-// El ejemplo de láser triangular es uno de los pocos payloads escritos a
-// mano: aquí se comprueba que además de pintarse SE PUEDE RESOLVER,
-// colocando los espejos previstos y esperando la victoria. Sin esto, un
-// ejemplo imposible pasaría desapercibido.
+// Del ejemplo de láser triangular se comprueba que además de pintarse SE
+// PUEDE RESOLVER, colocando los espejos previstos y esperando la victoria.
+// Sin esto, un ejemplo imposible pasaría desapercibido en la portada.
 //
 // Cada toque en una celda avanza el tipo de espejo: 1 toque = '/', 2 = '\'.
 
@@ -26,7 +25,7 @@ const clicks = (host, fila, columna, columnas, veces) => {
   for (let i = 0; i < veces; i++) celda.click()
 }
 
-describe('ejemplo de láser triangular del muestrario', () => {
+describe('ejemplo de láser triangular', () => {
   it('se puede resolver de verdad en la propia plantilla', async () => {
     const { resolverEspejos } = await import('../../scripts/laser-triangular-logic.js')
     const mod = await import('../../plantillas/laser_triangular.js')
@@ -38,7 +37,7 @@ describe('ejemplo de láser triangular del muestrario', () => {
       { size: data.size, lasers: data.lasers, blocks: data.blocks || [] },
       data.min_espejos
     )
-    expect(sol, 'el ejemplo del muestrario no tiene solución').not.toBeNull()
+    expect(sol, 'el ejemplo de láser no tiene solución').not.toBeNull()
 
     const host = document.createElement('div')
     let ganado = 0
