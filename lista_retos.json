@@ -7,5 +7,15 @@
       "logica",
       "grafos"
     ]
+  },
+  {
+    "fecha": "2026-08-21",
+    "titulo": "Las Anillas Encadenadas",
+    "dificultad": 3,
+    "categorias": [
+      "logica",
+      "movimiento",
+      "optimizacion"
+    ]
   }
 ]
