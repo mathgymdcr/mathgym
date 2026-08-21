@@ -2,9 +2,7 @@
   "id": "2026-08-21-anillas-encadenadas-001",
   "tipo": "anillas-encadenadas",
   "variant": "clasico",
-  "titulo": "Las Anillas Encadenadas",
-  "objetivo": "Suelta las 5 anillas de la barra",
-  "icono_url": "assets/icono-generico.svg",
+  "titulo": "Anillas Encadenadas",
   "dificultad": 3,
   "categorias": [
     "logica",

@@ -58,8 +58,7 @@ export async function render(root, data, hooks) {
   });
 
   const ui = buildStandardShell({
-    icon: 'assets/icono-laser-triangular.svg',
-    titulo: 'Láseres · Malla Triangular',
+    tipo: 'laser-triangular',
     gameClass: 'laser-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>

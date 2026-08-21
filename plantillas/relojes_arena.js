@@ -13,6 +13,7 @@
 
 import { celebrate } from './celebration.js';
 import { pintarIcono } from './shell.js';
+import { tipoInfo } from '../catalogo-tipos.js';
 
 const SIM_SECONDS_PER_TICK = 2; // 1 minuto de reloj ≈ 3s reales
 const TICK_MS = 100;
@@ -186,9 +187,10 @@ function buildShell() {
 
   const header = createElement('div', { class: 'enigma-header-dark' });
   const headerIcon = createElement('span', { class: 'enigma-header-icon' });
-  pintarIcono(headerIcon, 'assets/icono-relojes-arena.svg');
+  const { nombre, icono } = tipoInfo('relojes-arena');
+  pintarIcono(headerIcon, icono);
   const headerTitle = document.createElement('h2');
-  headerTitle.textContent = 'Relojes de Arena';
+  headerTitle.textContent = nombre;
   header.appendChild(headerIcon);
   header.appendChild(headerTitle);
   box.appendChild(header);

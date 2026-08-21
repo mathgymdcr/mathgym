@@ -32,8 +32,7 @@ export async function render(root, data, hooks) {
   }
 
   const ui = buildStandardShell({
-    icon: 'assets/icono-nonograma.svg',
-    titulo: 'Nonograma',
+    tipo: 'nonograma',
     gameClass: 'nono-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>

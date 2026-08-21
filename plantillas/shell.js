@@ -4,6 +4,8 @@
 // poligono_geometrico.js, etc). Usar en plantillas nuevas; las existentes no se
 // tocan para no arriesgar regresiones en juegos que ya funcionan.
 
+import { tipoInfo } from '../catalogo-tipos.js';
+
 export function createElement(tag, attributes = {}) {
   const element = document.createElement(tag);
   Object.entries(attributes).forEach(([key, value]) => {
@@ -43,16 +45,20 @@ export function setStatus(element, text, type = '') {
  * que comparten todas las plantillas. Devuelve los elementos para que la
  * plantilla añada su propio contenido de juego dentro de `box`.
  *
- * @param {{icon: string, titulo: string, gameClass: string, instructionsHTML: string}} opts
+ * El nombre y el icono no se pasan: salen del catálogo a partir de `tipo`,
+ * que es la única fuente de verdad de ambos.
+ *
+ * @param {{tipo: string, gameClass: string, instructionsHTML: string}} opts
  */
-export function buildStandardShell({ icon, titulo, gameClass, instructionsHTML }) {
+export function buildStandardShell({ tipo, gameClass, instructionsHTML }) {
+  const { nombre, icono } = tipoInfo(tipo);
   const box = createElement('div', { class: `template-box ${gameClass}` });
 
   const header = createElement('div', { class: 'enigma-header-dark' });
   const headerIcon = createElement('span', { class: 'enigma-header-icon' });
-  pintarIcono(headerIcon, icon);
+  pintarIcono(headerIcon, icono);
   const headerTitle = document.createElement('h2');
-  headerTitle.textContent = titulo;
+  headerTitle.textContent = nombre;
   header.appendChild(headerIcon);
   header.appendChild(headerTitle);
   box.appendChild(header);

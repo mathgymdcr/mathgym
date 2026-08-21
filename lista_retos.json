@@ -1,7 +1,7 @@
 [
   {
     "fecha": "2026-08-20",
-    "titulo": "El Archipiélago Conectado",
+    "titulo": "Conecta los Chips",
     "dificultad": 2,
     "categorias": [
       "logica",
@@ -10,7 +10,7 @@
   },
   {
     "fecha": "2026-08-21",
-    "titulo": "Las Anillas Encadenadas",
+    "titulo": "Anillas Encadenadas",
     "dificultad": 3,
     "categorias": [
       "logica",

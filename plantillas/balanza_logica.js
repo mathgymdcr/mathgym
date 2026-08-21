@@ -4,6 +4,7 @@
 // Envío de respuestas: hooks.onSubmit(payload) si existe, tras pulsar "Comprobar".
 
 import { celebrate } from './celebration.js';
+import { tipoInfo } from '../catalogo-tipos.js';
 
 export async function render(root, data, hooks) {
   // ---------- Boot ----------
@@ -510,10 +511,11 @@ export async function render(root, data, hooks) {
     const box = createElement('div', { class: 'template-box balance-game' });
 
     // Cabecera estándar (oscura) + barrido
+    const { nombre, icono } = tipoInfo('balanza-logica');
     const header = createElement('div', { class: 'enigma-header-dark' });
-    const hImg = createElement('img', { src: 'assets/icono-balanza-logica.svg', alt: '' });
+    const hImg = createElement('img', { src: icono, alt: '' });
     hImg.onerror = function () { hImg.style.display = 'none'; };
-    const h2 = document.createElement('h2'); h2.textContent = 'Descubre el impostor';
+    const h2 = document.createElement('h2'); h2.textContent = nombre;
     header.appendChild(hImg);
     header.appendChild(h2);
     box.appendChild(header);

@@ -12,6 +12,7 @@ import { resolverAnillas } from './anillas-logic.js';
 import { resuelto as laserResuelto, espejosMinimos, crearEspejos, DIR_VECTOR } from './laser-triangular-logic.js';
 import { contarSoluciones as contarRiegos, combinacionesPlanta } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
+import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,10 +60,25 @@ class RetoValidator {
       throw new Error('Invalid date format in reto.json');
     }
     
-    // Valid tipo
-    const validTipos = ['enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'trasvase-ecologico', 'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas', 'anillas-encadenadas', 'laser-triangular', 'riego-plantas'];
+    // Valid tipo -- la lista sale del catálogo, que es quien conoce los tipos.
+    const validTipos = TIPOS.map((t) => t.tipo);
     if (!validTipos.includes(reto.tipo)) {
       throw new Error(`Invalid tipo: ${reto.tipo}`);
+    }
+
+    // El titulo es el nombre del tipo, no uno propio: si se separan, el mismo
+    // reto se llama de una forma en el tablero y de otra en el archivo.
+    const nombre = tipoInfo(reto.tipo).nombre;
+    if (reto.titulo !== nombre) {
+      throw new Error(`El titulo "${reto.titulo}" no es el nombre del tipo ${reto.tipo} en el catálogo ("${nombre}")`);
+    }
+
+    // Campos muertos: no los lee nadie desde que el icono lo pone la plantilla
+    // y el objetivo vive en las instrucciones de cada juego.
+    for (const muerto of ['icono_url', 'objetivo']) {
+      if (muerto in reto) {
+        throw new Error(`El campo ${muerto} ya no se usa: quitarlo de reto.json`);
+      }
     }
 
     // dificultad y categorias son opcionales, pero si están presentes deben tener el tipo correcto
@@ -812,3 +828,5 @@ async function main() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
+
+export { RetoValidator };
