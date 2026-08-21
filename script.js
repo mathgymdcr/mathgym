@@ -2,6 +2,7 @@
 import './plantillas/base.js';
 import { initRouter } from './router.js';
 import { recordCompletion, getProgress } from './progress.js';
+import { pintarSala } from './home.js';
 
 const $ = id => document.getElementById(id);
 
@@ -26,6 +27,22 @@ async function loadReto(fecha) {
   return r.json();
 }
 
+// --- SALA DE ENTRENAMIENTO (la home) ---
+// Se pinta con el reto del día ya cargado, para poder anunciar cuál es antes
+// de que nadie pulse nada. Si la carga falla, la sala se pinta igual y lo dice
+// en la ficha del día.
+async function pintarSalaDeHoy() {
+  const sala = $('sala');
+  if (!sala) return;
+  let reto = null;
+  try {
+    reto = await loadReto(null);
+  } catch (err) {
+    console.error('No se pudo cargar el reto del día:', err);
+  }
+  pintarSala(sala, { reto, progreso: getProgress() });
+}
+
 // --- MONTAJE DEL RETO ---
 async function mount(reto, esRetoDeHoy) {
   const cont = $('contenedor-interactivo');
@@ -34,10 +51,10 @@ async function mount(reto, esRetoDeHoy) {
     return;
   }
 
-  // Mostrar contenedor y ocultar la hero de bienvenida
+  // Mostrar el reto y apartar la sala.
   cont.style.display = 'block';
-  const hero = document.querySelector('.hero');
-  if (hero) hero.style.display = 'none';
+  const sala = $('sala');
+  if (sala) sala.style.display = 'none';
 
   cont.innerHTML = '<div class="skeleton">Cargando…</div>';
 
@@ -47,6 +64,7 @@ async function mount(reto, esRetoDeHoy) {
         if (esRetoDeHoy) {
           recordCompletion(reto);
           pintarRacha();
+          pintarSalaDeHoy();   // el carné y la racha reflejan ya el reto de hoy
         }
       }
     });
@@ -59,9 +77,16 @@ async function mount(reto, esRetoDeHoy) {
 // --- INICIALIZA ROUTER ---
 const router = initRouter({ mount, loadReto });
 
-// --- CARGA EL RETO AL INICIAR ---
+// --- ARRANQUE ---
+// Sin `?fecha=` la portada es la sala; el router solo monta un reto cuando se
+// pide uno concreto o cuando se pulsa "Empezar serie".
+const hayFecha = new URLSearchParams(window.location.search).has('fecha');
 pintarRacha();
-router.renderCurrent();
+if (hayFecha) {
+  router.renderCurrent();
+} else {
+  pintarSalaDeHoy();
+}
 
 // --- INTERCEPTA EL CLICK EN “ENTRENAR AHORA” ---
 document.addEventListener('click', (ev) => {
