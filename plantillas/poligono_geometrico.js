@@ -1,6 +1,7 @@
 // plantillas/poligono_geometrico.js
 import { celebrate } from './celebration.js';
 import { pintarIcono } from './shell.js';
+import { tipoInfo } from '../catalogo-tipos.js';
 
 export async function render(root, data, hooks) {
   // Limpiar contenedor
@@ -317,9 +318,10 @@ function buildShell(data) {
   // Cabecera estándar (oscura) + barrido
   const header = createElement('div', { class: 'enigma-header-dark' });
   const headerIcon = createElement('span', { class: 'enigma-header-icon' });
-  pintarIcono(headerIcon, 'assets/icono-poligono-geometrico.svg');
+  const { nombre, icono } = tipoInfo('poligono-geometrico');
+  pintarIcono(headerIcon, icono);
   const headerTitle = document.createElement('h2');
-  headerTitle.textContent = 'Construye el polígono';
+  headerTitle.textContent = nombre;
   header.appendChild(headerIcon);
   header.appendChild(headerTitle);
   box.appendChild(header);

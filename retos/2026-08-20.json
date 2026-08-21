@@ -2,9 +2,7 @@
   "id": "2026-08-20-puentes-hashi-001",
   "tipo": "puentes-hashi",
   "variant": "pequeno",
-  "titulo": "El Archipiélago Conectado",
-  "objetivo": "Une las 9 islas con 10 puentes sin que ninguno se cruce",
-  "icono_url": "assets/icono-generico.svg",
+  "titulo": "Conecta los Chips",
   "dificultad": 2,
   "categorias": [
     "logica",

@@ -12,6 +12,7 @@ import { buildCajasPuzzle, buildCajasHints } from './cajas-logic.js';
 import { buildAnillasPuzzle, buildAnillasHints } from './anillas-logic.js';
 import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
 import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
+import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,7 +74,7 @@ class MathGymGenerator {
     
     console.log(`🎲 Using template: ${template}`);
     
-    const reto = await this.templates[template](seed, fecha);
+    const reto = await this.generarReto(template, seed, fecha);
     reto.fecha = fecha;
     
     // Save main reto.json
@@ -90,6 +91,15 @@ class MathGymGenerator {
     await this.updateRetosList(fecha, reto.titulo, reto.dificultad, reto.categorias);
     
     console.log(`✅ Generated: ${reto.titulo}`);
+    return reto;
+  }
+
+  // Único sitio donde un reto recibe su título, y sale del catálogo: así un
+  // generador nuevo no puede inventarse un nombre propio ni olvidarse de
+  // ponerlo, que es como el mismo tipo acabó llamándose de tres formas.
+  async generarReto(tipo, seed, fecha) {
+    const reto = await this.templates[tipo](seed, fecha);
+    reto.titulo = tipoInfo(tipo).nombre;
     return reto;
   }
 
@@ -174,9 +184,6 @@ class MathGymGenerator {
       // Lo que de verdad varía de un día a otro es la combinación de
       // categorías temáticas (C(12,3) = 220 combinaciones posibles).
       variant: enigma.meta.categoriasElegidas.map((c) => this.slug(c)).join('-'),
-      titulo: 'Enigma de Einstein',
-      objetivo: 'Resuelve el enigma usando las pistas',
-      icono_url: 'assets/einstein-caricature.png',
       dificultad: numPistas <= 9 ? 4 : (numPistas <= 11 ? 3 : 2),
       categorias: ['deduccion', 'logica'],
       hints: this.generateEinsteinHints(enigma),
@@ -246,9 +253,6 @@ class MathGymGenerator {
       id: `${fecha}-balanza-logica-001`,
       tipo: 'balanza-logica',
       variant: config.variant,
-      titulo: 'Reto de la Balanza',
-      objetivo: 'Encuentra las monedas anómalas con el menor número de pesadas',
-      icono_url: 'assets/icono-generico.svg',
       dificultad: 3,
       categorias: ['logica', 'optimizacion'],
       hints: this.generateBalanzaHints(config, minW),
@@ -284,9 +288,6 @@ class MathGymGenerator {
 
     return {
       tipo: 'poligono-geometrico',
-      titulo: 'Polígono Geométrico',
-      objetivo: `Construye un polígono con área ${config.area} y perímetro ${config.perimeter}`,
-      icono_url: 'assets/icono-generico.svg',
       dificultad: 2,
       categorias: ['geometria'],
       data: { json_url: `data/${dataFileName}` }
@@ -343,9 +344,6 @@ class MathGymGenerator {
       id: `${fecha}-trasvase-ecologico-001`,
       tipo: 'trasvase-ecologico',
       variant: config.variant,
-      titulo: 'Trasvase Ecológico',
-      objetivo: `Obtén exactamente ${config.target}L`,
-      icono_url: 'assets/icono-generico.svg',
       dificultad: 2,
       categorias: ['volumen', 'movimiento'],
       hints: this.generateTrasvaseHints(config, minMoves),
@@ -419,9 +417,6 @@ class MathGymGenerator {
       id: `${fecha}-luces-fuera-001`,
       tipo: 'luces-fuera',
       variant: `${rows}x${cols}`,
-      titulo: 'Los Cuadrados Luminosos',
-      objetivo: 'Apaga todas las luces del tablero',
-      icono_url: 'assets/icono-lightsout.png',
       dificultad,
       categorias: ['logica', 'tablero'],
       hints: this.generateLucesHints(rows, cols, minPulsaciones),
@@ -464,16 +459,10 @@ class MathGymGenerator {
       JSON.stringify(config, null, 2)
     );
 
-    const relojesTxt = glasses.length > 1
-      ? `${glasses.slice(0, -1).map((g) => `${g} min`).join(', ')} y ${glasses[glasses.length - 1]} min`
-      : `${glasses[0]} min`;
     return {
       id: `${fecha}-relojes-arena-001`,
       tipo: 'relojes-arena',
       variant,
-      titulo: 'La Arena Exacta',
-      objetivo: `Mide exactamente ${target} ${target === 1 ? 'minuto' : 'minutos'} con relojes de ${relojesTxt}`,
-      icono_url: 'assets/icono-generico.svg',
       dificultad,
       categorias: ['logica', 'tiempo'],
       hints: buildRelojesHints(config, solucion),
@@ -513,9 +502,6 @@ class MathGymGenerator {
       id: `${fecha}-puentes-hashi-001`,
       tipo: 'puentes-hashi',
       variant,
-      titulo: 'El Archipiélago Conectado',
-      objetivo: `Une las ${islands.length} islas con ${solucion.total} puentes sin que ninguno se cruce`,
-      icono_url: 'assets/icono-generico.svg',
       dificultad,
       categorias: ['logica', 'grafos'],
       hints: buildHashiHints(config, solucion),
@@ -554,10 +540,6 @@ class MathGymGenerator {
       id: `${fecha}-nonograma-001`,
       tipo: 'nonograma',
       variant,
-      titulo: 'El Dibujo Oculto',
-      // Ni el título ni el objetivo nombran la figura: descubrirla es el premio.
-      objetivo: `Pinta las celdas que piden las pistas y revela el dibujo escondido en la rejilla de ${rows}x${cols}`,
-      icono_url: 'assets/icono-generico.svg',
       dificultad,
       categorias: ['logica', 'deduccion'],
       hints: buildNonogramaHints(puzzle),
@@ -603,9 +585,6 @@ class MathGymGenerator {
       id: `${fecha}-cajas-apiladas-001`,
       tipo: 'cajas-apiladas',
       variant,
-      titulo: 'El Almacén de Cajas',
-      objetivo: `Reúne las ${total} cajas en la ${nombresZonas[destino]} sin dejar ninguna sobre otra más ligera, cargando como mucho ${capacidad} kg por viaje`,
-      icono_url: 'assets/icono-generico.svg',
       dificultad,
       categorias: ['logica', 'movimiento', 'optimizacion'],
       hints: buildCajasHints(puzzle),
@@ -635,20 +614,10 @@ class MathGymGenerator {
       JSON.stringify(config, null, 2)
     );
 
-    const puestas = objetivo.filter(Boolean).length;
-    const objetivoTxt = puestas
-      ? `Deja las ${rings} anillas en la posición marcada (${puestas} puesta${puestas === 1 ? '' : 's'})`
-      : `Suelta las ${rings} anillas de la barra`;
-
     return {
       id: `${fecha}-anillas-encadenadas-001`,
       tipo: 'anillas-encadenadas',
       variant,
-      titulo: 'Las Anillas Encadenadas',
-      objetivo: regla === 'dos-de-golpe'
-        ? `${objetivoTxt}, aprovechando que las anillas 1 y 2 se mueven juntas`
-        : objetivoTxt,
-      icono_url: 'assets/icono-generico.svg',
       dificultad,
       categorias: ['logica', 'movimiento', 'optimizacion'],
       hints: buildAnillasHints(puzzle),
@@ -682,9 +651,6 @@ class MathGymGenerator {
       id: `${fecha}-laser-triangular-001`,
       tipo: 'laser-triangular',
       variant,
-      titulo: 'Los Espejos del Láser',
-      objetivo: `Coloca espejos para llevar los ${lasers.length} rayos a su diana sin que los trayectos se crucen`,
-      icono_url: 'assets/icono-generico.svg',
       dificultad,
       categorias: ['logica', 'geometria'],
       hints: buildLaserHints(puzzle),
@@ -719,9 +685,6 @@ class MathGymGenerator {
       id: `${fecha}-riego-plantas-001`,
       tipo: 'riego-plantas',
       variant,
-      titulo: 'El Calendario de Riego',
-      objetivo: `Reparte los ${totalRiegos} riegos entre los ${cycles} ciclos sin regar ninguna planta dos días seguidos ni pasar de ${capacity} por ciclo`,
-      icono_url: 'assets/icono-generico.svg',
       dificultad,
       categorias: ['logica', 'planificacion'],
       hints: buildRiegoHints(puzzle),

@@ -2,6 +2,7 @@
 // Estilo estándar MathGym v1.5 · "Resuelve el enigma" · Enigma lógico de Einstein
 
 import { celebrate } from './celebration.js';
+import { tipoInfo } from '../catalogo-tipos.js';
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
@@ -218,12 +219,13 @@ export async function render(root, data, hooks) {
 
 // ---------- Interfaz ----------
 function buildShell() {
+  const { nombre, icono } = tipoInfo('enigma-einstein');
   const box = document.createElement('div');
   box.className = 'template-box';
   box.innerHTML = `
   <div class="enigma-header-dark">
-    <img src="assets/einstein-caricature.png" alt="Icono del reto Einstein">
-    <h2>Resuelve el enigma</h2>
+    <img src="${icono}" alt="Icono del reto Einstein">
+    <h2>${nombre}</h2>
   </div>
 
   <div class="card deceerre-instructions">

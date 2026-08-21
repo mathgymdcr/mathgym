@@ -4,19 +4,16 @@
 //   - "clasico"   ("Jarras Exactas"): grifo infinito (llenar/vaciar), Comprobar genérico
 import { celebrate } from './celebration.js';
 import { pintarIcono } from './shell.js';
+import { tipoInfo } from '../catalogo-tipos.js';
 
 const VARIANTS = {
   ecologico: {
-    icon: 'assets/icono-trasvase-ecologico.svg',
-    title: 'Trasvase Ecológico',
     hasTap: false,
     hasPlant: true,
     intro: 'Trasvasa agua entre los recipientes haciendo clic primero en el origen y luego en el destino.',
     goalLine: target => `Cuando un recipiente tenga exactamente <span class="target-amount">${target}</span>, selecciónalo y pulsa <strong>Regar planta</strong> para comprobar tu respuesta.`
   },
   clasico: {
-    icon: 'assets/icono-trasvase-ecologico.svg',
-    title: 'Jarras Exactas',
     hasTap: true,
     hasPlant: false,
     intro: 'Llena y vacía las jarras desde el grifo, o trasvasa agua entre ellas haciendo clic primero en el origen y luego en el destino.',
@@ -238,8 +235,11 @@ export async function render(root, data, hooks) {
 }
 
 function applyVariant(ui, variant, target) {
-  pintarIcono(ui.headerIcon, variant.icon);
-  ui.headerTitle.textContent = variant.title;
+  // El nombre y el icono son del tipo, no de la variante: lo que cambia entre
+  // `ecologico` y `clasico` son las reglas (grifo, planta), no la identidad.
+  const { nombre, icono } = tipoInfo('trasvase-ecologico');
+  pintarIcono(ui.headerIcon, icono);
+  ui.headerTitle.textContent = nombre;
   ui.instructionsBody.innerHTML = `<h3>Cómo se juega</h3><p>${variant.intro}</p><p>${variant.goalLine(target + 'L')}</p>`;
   ui.btnFill.style.display = variant.hasTap ? '' : 'none';
   ui.plantSection.style.display = variant.hasPlant ? '' : 'none';

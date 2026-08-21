@@ -2,6 +2,7 @@
 // Estilo "Resuelve el enigma" · Tablero ampliado · Control correcto del mínimo (acepta min_pulsaciones o min_movimientos)
 
 import { celebrate } from './celebration.js';
+import { tipoInfo } from '../catalogo-tipos.js';
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
@@ -119,13 +120,14 @@ export async function render(root, data, hooks) {
 
 // ---------- Interfaz ----------
 function buildShell(){
+  const { nombre, icono } = tipoInfo('luces-fuera');
   const box=document.createElement('div');
   box.className='template-box';
   box.innerHTML=`
   <!-- Cabecera estilo "Resuelve el enigma" -->
   <div class="enigma-header-dark">
-    <img src="assets/icono-luces-fuera.svg" alt="">
-    <h2>Los Cuadrados Luminosos</h2>
+    <img src="${icono}" alt="">
+    <h2>${nombre}</h2>
   </div>
 
   <!-- Instrucciones -->

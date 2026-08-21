@@ -34,8 +34,7 @@ export async function render(root, data, hooks) {
   islas.forEach((isla, idx) => islaEnCelda.set(`${isla.row},${isla.col}`, idx));
 
   const ui = buildStandardShell({
-    icon: 'assets/icono-puentes-hashi.svg',
-    titulo: 'Puentes de Hashi',
+    tipo: 'puentes-hashi',
     gameClass: 'hashi-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
