@@ -17,5 +17,14 @@
       "movimiento",
       "optimizacion"
     ]
+  },
+  {
+    "fecha": "2026-08-22",
+    "titulo": "Laberinto Láser",
+    "dificultad": 3,
+    "categorias": [
+      "logica",
+      "geometria"
+    ]
   }
 ]
