@@ -1,0 +1,58 @@
+{
+  "variant": "vivero",
+  "cycles": 8,
+  "capacity": 3,
+  "descanso": true,
+  "plants": [
+    {
+      "id": "Menta",
+      "doses": 3,
+      "ventana": [
+        0,
+        5,
+        7
+      ]
+    },
+    {
+      "id": "Jazmín",
+      "doses": 2,
+      "ventana": [
+        0,
+        7
+      ]
+    },
+    {
+      "id": "Albahaca",
+      "doses": 3,
+      "ventana": [
+        0,
+        1,
+        2,
+        7
+      ]
+    },
+    {
+      "id": "Romero",
+      "doses": 3,
+      "ventana": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "id": "Perejil",
+      "doses": 3,
+      "ventana": [
+        1,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ]
+}
