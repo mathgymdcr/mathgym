@@ -8,7 +8,7 @@
 // El gesto de victoria es el mismo en las dos variantes: seleccionar el
 // matraz con el volumen exacto y verterlo en el reactor.
 import { celebrate } from './celebration.js';
-import { buildStandardShell, createElement, setStatus } from './shell.js';
+import { buildStandardShell, createElement, setStatus, pintarIcono } from './shell.js';
 import { initialLevelsMezcla } from '../scripts/mezcla-logic.js';
 
 const PISTAS_GENERICAS = [
@@ -76,10 +76,8 @@ export async function render(root, data, hooks) {
 
       matraz.appendChild(cuerpo);
 
-      const nivelLabel = createElement('div', { class: 'nivel-label' });
-      nivelLabel.textContent = `${s.levels[index]} mL`;
-      matraz.appendChild(nivelLabel);
-
+      // El nivel no se escribe: los matraces no están graduados, así que lo
+      // que hay dentro se ve por el líquido dibujado y nada más.
       matraz.addEventListener('click', () => handleMatrazClick(index, s, ui));
 
       container.appendChild(matraz);
@@ -128,7 +126,6 @@ export async function render(root, data, hooks) {
     const matraces = uiRef.matracesContainer.querySelectorAll('.matraz');
     matraces.forEach((matraz, index) => {
       updateNivel(matraz.querySelector('.reactivo'), s.levels[index], s.capacities[index]);
-      matraz.querySelector('.nivel-label').textContent = `${s.levels[index]} mL`;
     });
   }
 
@@ -259,7 +256,12 @@ function buildShell(config, grifo) {
 
   const reactorSection = createElement('div', { class: 'mezcla-reactor' });
   const reactorButton = createElement('div', { class: 'reactor-button' });
-  reactorButton.innerHTML = '<div class="reactor-icon">⚗️</div><div class="reactor-text">Verter en el reactor<br><small>(comprobar)</small></div>';
+  const reactorIcon = createElement('div', { class: 'reactor-icon' });
+  pintarIcono(reactorIcon, 'assets/icono-reactor.svg');
+  const reactorText = createElement('div', { class: 'reactor-text' });
+  reactorText.innerHTML = 'Verter en el reactor<br><small>(comprobar)</small>';
+  reactorButton.appendChild(reactorIcon);
+  reactorButton.appendChild(reactorText);
   reactorSection.appendChild(reactorButton);
   ui.box.appendChild(reactorSection);
 
