@@ -1,6 +1,39 @@
 // ===== plantillas/celebration.js =====
 // Celebración compartida (confetti + Deceerre) reutilizada por los 5 retos.
 
+// La estrella se dibuja aquí y no se trae de assets/: es un adorno de la
+// interfaz, no el icono de un tipo, y así no hay que esperar a que cargue
+// justo en el momento de la celebración.
+const SVG_ESTRELLA = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 15 9.1l7.1.8-5.3 4.8 1.5 7-6.3-3.6-6.3 3.6 1.5-7L1.9 9.9 9 9.1Z"/></svg>`;
+
+/**
+ * Añade las estrellas ganadas a la celebración que YA está en pantalla. Se
+ * llama desde fuera (script.js) porque quien sabe la marca es el shell, no la
+ * plantilla: ella solo reporta lo que ha hecho quien juega.
+ */
+export function pintarEstrellas(ganadas, total = 3) {
+  const card = document.querySelector('.celebration-overlay .celebration-card');
+  if (!card) return null;
+
+  const fila = document.createElement('div');
+  fila.className = 'celebration-estrellas';
+  fila.setAttribute('role', 'img');
+  fila.setAttribute('aria-label', `${ganadas} de ${total} estrellas`);
+
+  for (let i = 0; i < total; i++) {
+    const hueco = document.createElement('span');
+    hueco.className = 'estrella' + (i < ganadas ? ' is-ganada' : '');
+    hueco.style.animationDelay = `${i * 220}ms`;
+    hueco.innerHTML = SVG_ESTRELLA;
+    fila.appendChild(hueco);
+  }
+
+  const titulo = card.querySelector('.celebration-title');
+  if (titulo) titulo.insertAdjacentElement('afterend', fila);
+  else card.prepend(fila);
+  return fila;
+}
+
 export function celebrate({ ok = true, title, message } = {}) {
   document.querySelectorAll('.celebration-overlay').forEach(o => o.remove());
 

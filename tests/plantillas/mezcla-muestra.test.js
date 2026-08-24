@@ -67,7 +67,8 @@ describe('ejemplo de mezcla química', () => {
 
     const host = document.createElement('div')
     let ganado = 0
-    await mod.render(host, data, { onSuccess: () => { ganado++ } })
+    let marca = null
+    await mod.render(host, data, { onSuccess: (m) => { ganado++; marca = m } })
 
     const matraces = host.querySelectorAll('.matraz')
     expect(matraces.length).toBe(data.capacities.length)
@@ -101,6 +102,14 @@ describe('ejemplo de mezcla química', () => {
     host.querySelector('.reactor-button').click()
 
     expect(ganado, 'verter el volumen exacto en el reactor no dio la victoria').toBe(1)
+
+    // La plantilla no puntúa: solo reporta lo que ha hecho quien juega, en la
+    // unidad que cuenta el par de su tipo. Las estrellas las calcula el shell.
+    expect(marca).toEqual({ movimientos: camino.pasos.length })
+
+    const { estrellasDe } = await import('../../estrellas.js')
+    const objectives = { parMoves: camino.pasos.length, maxMovesFor3Stars: camino.pasos.length, maxMovesFor2Stars: camino.pasos.length + 2 }
+    expect(estrellasDe(objectives, marca), 'resolverlo en el mínimo son tres estrellas').toBe(3)
   })
 
   it('el reactor rechaza un matraz que no tiene el volumen exacto', async () => {

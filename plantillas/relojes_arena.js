@@ -85,7 +85,7 @@ export async function render(root, data, hooks) {
       state.won = true;
       setStatus(ui.message, `¡Objetivo conseguido en ${elapsedMin.toFixed(1)} min!`, 'ok');
       celebrate({ ok: true, message: `Detuviste la arena justo en ${config.target} minutos` });
-      if (hooks && hooks.onSuccess) hooks.onSuccess();
+      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.rondas || 1 });
     } else {
       setStatus(ui.message, `Un reloj se ha vaciado en ${elapsedMin.toFixed(1)} min. Voltea los relojes y pulsa Iniciar de nuevo.`, 'ko');
     }
@@ -99,6 +99,8 @@ export async function render(root, data, hooks) {
       return;
     }
     state.running = true;
+    // El par del reto son las rondas de la solución: cada arranque es una.
+    state.rondas = (state.rondas || 0) + 1;
     ui.btnStart.disabled = true;
     updateGlasses(ui.glassesContainer, state);
     setStatus(ui.message, 'La arena está cayendo...', '');

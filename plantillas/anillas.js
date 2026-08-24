@@ -199,7 +199,7 @@ export async function render(root, data, hooks) {
     // Igual que en cajas.js: primero se registra la victoria y después se
     // celebra, envuelto, para que un fallo del confeti (que pinta en un
     // <canvas>) no se lleve por delante el progreso del jugador.
-    if (hooks && hooks.onSuccess) hooks.onSuccess();
+    if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.moves });
     try {
       celebrate({ ok: perfect, message });
     } catch (err) {

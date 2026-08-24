@@ -151,7 +151,14 @@ export async function render(root, data, hooks) {
       state.won = true;
       setStatus(ui.status, '¡Todos los láseres llegaron a su diana!', 'ok');
       celebrate({ ok: true, message: '¡Has dirigido los láseres hasta sus dianas!' });
-      if (hooks && hooks.onSuccess) hooks.onSuccess();
+      if (hooks && hooks.onSuccess) {
+        // El par son los espejos de la solución, así que se cuentan los
+        // espejos puestos, no los clics: girar uno hasta dar con su tipo es
+        // parte de jugar, no un gasto.
+        const puestos = state.mirrors.reduce(
+          (total, fila) => total + fila.filter(Boolean).length, 0);
+        hooks.onSuccess({ movimientos: puestos });
+      }
     } else if (cruces.size > 0) {
       setStatus(ui.status, 'Los rayos se cruzan: dos trayectos no pueden compartir celda', 'ko');
     } else {

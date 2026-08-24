@@ -1,5 +1,8 @@
 // ===== progress.js =====
-// Progreso local (rachas) usando localStorage. Sin backend ni cuentas.
+// Progreso local (rachas y estrellas) usando localStorage. Sin backend ni
+// cuentas.
+
+import { MAX_ESTRELLAS } from './estrellas.js';
 
 const STORAGE_KEY = 'mathgym_progress_v1';
 
@@ -37,26 +40,43 @@ function nextDay(fecha) {
 
 // Solo se debe llamar con el reto DEL DÍA (nunca uno cargado vía ?fecha= del archivo),
 // para que la racha refleje visitas diarias reales y no rejugar el histórico.
-export function recordCompletion(reto) {
+// `estrellas` es la marca de ESTA partida (1-3). Rejugar el reto del día
+// vuelve a pasar por aquí: la marca puede subir, nunca bajar, y la racha no se
+// toca dos veces por el mismo día.
+export function recordCompletion(reto, estrellas = MAX_ESTRELLAS) {
   if (!reto || !reto.fecha) return readState();
 
   const state = readState();
-  if (state.completed[reto.fecha]) return state; // ya contabilizado hoy
+  const yaHecho = state.completed[reto.fecha];
+  const previas = yaHecho && Number.isFinite(yaHecho.estrellas) ? yaHecho.estrellas : 0;
 
-  state.completed[reto.fecha] = { tipo: reto.tipo, titulo: reto.titulo };
+  state.completed[reto.fecha] = {
+    tipo: reto.tipo,
+    titulo: reto.titulo,
+    estrellas: Math.max(previas, estrellas)
+  };
 
-  if (state.lastCompletedFecha && nextDay(state.lastCompletedFecha) === reto.fecha) {
-    state.currentStreak += 1;
-  } else {
-    state.currentStreak = 1;
+  // La racha cuenta días, no partidas: solo avanza la primera vez que se
+  // completa una fecha.
+  if (!yaHecho) {
+    if (state.lastCompletedFecha && nextDay(state.lastCompletedFecha) === reto.fecha) {
+      state.currentStreak += 1;
+    } else {
+      state.currentStreak = 1;
+    }
+    state.lastCompletedFecha = reto.fecha;
+    state.bestStreak = Math.max(state.bestStreak, state.currentStreak);
   }
-  state.lastCompletedFecha = reto.fecha;
-  state.bestStreak = Math.max(state.bestStreak, state.currentStreak);
 
   writeState(state);
   return state;
 }
 
 export function getProgress() {
-  return readState();
+  const state = readState();
+  // Derivado, no guardado: así no hay dos fuentes de verdad que puedan
+  // desincronizarse si alguien edita el localStorage a mano.
+  state.totalEstrellas = Object.values(state.completed)
+    .reduce((suma, dia) => suma + (Number.isFinite(dia.estrellas) ? dia.estrellas : 0), 0);
+  return state;
 }

@@ -175,7 +175,9 @@ export async function render(root, data, hooks) {
       setStatus(ui.result, r.msg, r.ok ? 'ok' : 'ko');
       if (r.ok) {
         celebrate({ ok: true });
-        if (hooks && hooks.onSuccess) hooks.onSuccess();
+        if (hooks && hooks.onSuccess) hooks.onSuccess({ fallos: state.fallos || 0 });
+      } else {
+        state.fallos = (state.fallos || 0) + 1;
       }
     });
     ui.btnClear.addEventListener('click', () => {

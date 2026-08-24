@@ -145,7 +145,7 @@ export async function render(root, data, hooks) {
     // un "Matraz N seleccionado" contradice lo que muestra el tablero.
     setStatus(uiRef.message, 'El compuesto ya está en el reactor.', 'ok');
     celebrate({ ok: true, message: `Vertiste ${s.target} mL exactos en el reactor en ${s.moves} movimientos` });
-    if (hooks && hooks.onSuccess) hooks.onSuccess();
+    if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: s.moves });
 
     uiRef.reactorButton.classList.add('celebration');
     setTimeout(() => uiRef.reactorButton.classList.remove('celebration'), 2000);

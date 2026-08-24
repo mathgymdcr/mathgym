@@ -681,6 +681,40 @@ li {
 .celebration-title.is-ok { color: var(--success); }
 .celebration-title.is-warn { color: var(--warning); }
 
+/* Las estrellas de la celebración: aparecen una a una, y las no ganadas se
+   quedan como hueco apagado para que se vea lo que faltó. */
+.celebration-estrellas {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+
+.celebration-estrellas .estrella svg {
+  width: 44px;
+  height: 44px;
+  display: block;
+  fill: rgba(255,255,255,.14);
+}
+
+.celebration-estrellas .estrella.is-ganada {
+  animation: estrellaGanada .5s cubic-bezier(.2,.9,.3,1.4) backwards;
+}
+
+.celebration-estrellas .estrella.is-ganada svg {
+  fill: var(--gold);
+  filter: drop-shadow(0 0 10px rgba(248, 200, 24, .55));
+}
+
+@keyframes estrellaGanada {
+  from { opacity: 0; transform: scale(.2) rotate(-40deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebration-estrellas .estrella.is-ganada { animation: none; }
+}
+
 .celebration-message {
   margin: 0 0 6px;
   opacity: .9;
@@ -716,6 +750,22 @@ li {
     animation: none !important;
   }
 }
+
+/* La meta del reto, encima del tablero: el mínimo deja de estar escondido en
+   una pista. */
+.meta-reto {
+  /* Sin ancho propio: se alinea con la caja del juego, que ocupa el contenedor */
+  margin: 0 0 14px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--card-b);
+  background: rgba(248, 200, 24, .07);
+  color: var(--muted);
+  font-size: .92rem;
+  text-align: center;
+}
+
+.meta-reto strong { color: var(--gold); }
 
 /* Contenedor del juego de polígonos */
 .polygon-game {
@@ -3012,6 +3062,13 @@ section.streak { margin-top: 36px; }
 .punch .dow { font-size: 9.5px; opacity: .75; text-transform: uppercase; }
 .punch .dom { font-size: 14px; font-weight: 700; }
 .punch.done { background: var(--brand); border: 2px solid var(--brand-lift); color: #fff; }
+.punch .punch-estrellas {
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: .5px;
+  color: var(--gold);
+  margin-top: 2px;
+}
 /* Hoy gana al "hecho": es la casilla que el jugador busca primero. */
 .punch.today { background: var(--gold); border: 2px solid var(--gold); color: var(--bg); }
 .punch.today .dow { opacity: .85; }

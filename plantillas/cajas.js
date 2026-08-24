@@ -168,7 +168,7 @@ export async function render(root, data, hooks) {
       // Primero se da la victoria por buena y luego se celebra: la animación
       // pinta confeti en un <canvas> y, si por lo que sea fallara, no puede
       // llevarse por delante el registro del progreso.
-      if (hooks && hooks.onSuccess) hooks.onSuccess();
+      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.moves });
       try {
         celebrate({ ok: perfecto, message: mensaje });
       } catch (err) {

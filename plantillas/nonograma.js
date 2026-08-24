@@ -44,7 +44,7 @@ export async function render(root, data, hooks) {
   root.append(ui.box);
 
   // Estado de cada celda: 0 = vacía, 1 = pintada, 2 = marcada con ×
-  const state = { cells: Array.from({ length: filas }, () => Array(columnas).fill(0)), won: false };
+  const state = { cells: Array.from({ length: filas }, () => Array(columnas).fill(0)), pintadas: 0, won: false };
 
   const boardWrap = createElement('div', { class: 'nono-board-wrap' });
   const board = createElement('div', { class: 'nono-board' });
@@ -88,6 +88,7 @@ export async function render(root, data, hooks) {
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
     state.cells = Array.from({ length: filas }, () => Array(columnas).fill(0));
+    state.pintadas = 0;
     state.won = false;
     setStatus(ui.result, '', '');
     setStatus(ui.status, 'Listo para empezar', 'ok');
@@ -120,13 +121,17 @@ export async function render(root, data, hooks) {
   function onCellClick(r, c) {
     if (state.won) return;
     state.cells[r][c] = (state.cells[r][c] + 1) % 3;
+    // El par del reto son las celdas del dibujo, así que la marca cuenta cada
+    // vez que se RELLENA una: rellenar de más (y corregir) es lo que cuesta
+    // estrellas. Las X de descarte son gratis.
+    if (state.cells[r][c] === 1) state.pintadas += 1;
     refresh();
 
     if (haGanado()) {
       state.won = true;
       setStatus(ui.status, '¡Dibujo completo!', 'ok');
       celebrate({ ok: true, message: '¡Has revelado el dibujo oculto!' });
-      if (hooks && hooks.onSuccess) hooks.onSuccess();
+      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.pintadas });
     }
   }
 
