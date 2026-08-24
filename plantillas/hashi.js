@@ -47,6 +47,7 @@ export async function render(root, data, hooks) {
 
   const state = {
     puentes: new Map(), // "i-j" (i<j) -> 1 o 2
+    tendidos: 0,        // puentes tendidos en total, la marca del reto
     seleccion: -1,
     won: false
   };
@@ -85,6 +86,7 @@ export async function render(root, data, hooks) {
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
     state.puentes.clear();
+    state.tendidos = 0;
     state.seleccion = -1;
     state.won = false;
     setStatus(ui.result, '', '');
@@ -166,6 +168,8 @@ export async function render(root, data, hooks) {
     }
     const key = bridgeKey(a, b);
     const actual = state.puentes.get(key) || 0;
+    // Cada puente que se tiende cuenta, y el par del reto son los puentes de
+    // la solución: rehacer el trazado es lo que cuesta estrellas.
     if (actual === 0) {
       if (cruzaOtroPuente(a, b, cells)) {
         setStatus(ui.status, 'Ese puente cruzaría a otro ya construido', 'ko');
@@ -174,8 +178,10 @@ export async function render(root, data, hooks) {
         return;
       }
       state.puentes.set(key, 1);
+      state.tendidos += 1;
     } else if (actual === 1) {
       state.puentes.set(key, 2);
+      state.tendidos += 1;
     } else {
       state.puentes.delete(key);
     }
@@ -217,7 +223,7 @@ export async function render(root, data, hooks) {
       state.won = true;
       setStatus(ui.status, '¡Todas las islas quedaron conectadas!', 'ok');
       celebrate({ ok: true, message: '¡Has completado el archipiélago!' });
-      if (hooks && hooks.onSuccess) hooks.onSuccess();
+      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.tendidos });
     } else {
       setStatus(ui.status, 'Sigue conectando las islas', 'ok');
     }

@@ -56,6 +56,7 @@ export async function render(root, data, hooks) {
 
   const state = {
     grid: plants.map(() => Array(cycles).fill(false)),
+    regados: 0,   // riegos abiertos en total, la marca del reto
     won: false
   };
 
@@ -164,6 +165,9 @@ export async function render(root, data, hooks) {
   function onCeldaClick(i, j) {
     if (state.won) return;
     state.grid[i][j] = !state.grid[i][j];
+    // El par del reto son los riegos del calendario correcto, así que cuenta
+    // cada riego que se abre: rectificar es lo que cuesta estrellas.
+    if (state.grid[i][j]) state.regados += 1;
     refresh();
   }
 
@@ -198,7 +202,7 @@ export async function render(root, data, hooks) {
       // Primero se registra la victoria y luego se celebra, envuelto: el
       // confeti pinta en un <canvas> y no puede llevarse por delante el
       // progreso del jugador.
-      if (hooks && hooks.onSuccess) hooks.onSuccess();
+      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.regados });
       try {
         celebrate({ ok: true, message: 'Todas las plantas regadas en su punto' });
       } catch (err) {

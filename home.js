@@ -43,12 +43,16 @@ export function diasDelCarne(fechaHoy, completadas = {}) {
   for (let atras = 6; atras >= 0; atras--) {
     const fecha = new Date(Date.UTC(y, m - 1, d - atras));
     const iso = fecha.toISOString().slice(0, 10);
+    const dia = completadas[iso];
     dias.push({
       fecha: iso,
       inicial: INICIALES_DIA[fecha.getUTCDay()],
       diaDelMes: fecha.getUTCDate(),
       esHoy: atras === 0,
-      hecho: Boolean(completadas[iso])
+      hecho: Boolean(dia),
+      // Los días guardados antes de que existieran las estrellas no tienen
+      // marca: se enseñan como completados y sin estrellas, sin inventarlas.
+      estrellas: dia && Number.isFinite(dia.estrellas) ? dia.estrellas : 0
     });
   }
   return dias;
@@ -148,7 +152,12 @@ function pintarCarne(reto, progreso) {
   const cabeza = el('div', 'streak-head');
   cabeza.appendChild(el('h2', null, 'Carné de asistencia'));
   const cuentas = el('div', 'streak-counts');
-  for (const [etiqueta, valor] of [['Racha actual', progreso.currentStreak], ['Mejor racha', progreso.bestStreak]]) {
+  const cuentasVisibles = [
+    ['Racha actual', progreso.currentStreak],
+    ['Mejor racha', progreso.bestStreak],
+    ['Estrellas', progreso.totalEstrellas]
+  ];
+  for (const [etiqueta, valor] of cuentasVisibles) {
     const dato = el('span', null, etiqueta + ' ');
     dato.appendChild(el('b', null, String(valor || 0)));
     cuentas.appendChild(dato);
@@ -162,8 +171,12 @@ function pintarCarne(reto, progreso) {
     const punch = el('div', 'punch' + (dia.esHoy ? ' today' : '') + (dia.hecho ? ' done' : ''));
     punch.appendChild(el('span', 'dow', dia.inicial));
     punch.appendChild(el('span', 'dom', String(dia.diaDelMes)));
+    if (dia.estrellas > 0) {
+      punch.appendChild(el('span', 'punch-estrellas', '★'.repeat(dia.estrellas)));
+    }
     punch.setAttribute('aria-label',
-      dia.fecha + (dia.esHoy ? ' (hoy)' : '') + (dia.hecho ? ' — completado' : ' — sin completar'));
+      dia.fecha + (dia.esHoy ? ' (hoy)' : '')
+      + (dia.hecho ? ` — completado${dia.estrellas ? `, ${dia.estrellas} estrellas` : ''}` : ' — sin completar'));
     carne.appendChild(punch);
   }
   seccion.appendChild(carne);

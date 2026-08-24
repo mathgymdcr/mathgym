@@ -195,7 +195,10 @@ class MathGymGenerator {
       objectives: {
         winCondition: 'unique_solution',
         numPistas,
-        maxErrorsFor3Stars: 0
+        // Aquí no hay movimientos que optimizar: la marca es acertar a la
+        // primera. Dos comprobaciones fallidas todavía dan dos estrellas.
+        maxErrorsFor3Stars: 0,
+        maxErrorsFor2Stars: 2
       },
       data: { json_url: `data/${dataFileName}` }
     };
@@ -295,6 +298,13 @@ class MathGymGenerator {
       tipo: 'poligono-geometrico',
       dificultad: 2,
       categorias: ['geometria'],
+      // Dibujar la figura pedida no tiene par de movimientos: se mide igual
+      // que el enigma, por comprobaciones fallidas.
+      objectives: {
+        winCondition: 'matching_figure',
+        maxErrorsFor3Stars: 0,
+        maxErrorsFor2Stars: 2
+      },
       data: { json_url: `data/${dataFileName}` }
     };
   }
