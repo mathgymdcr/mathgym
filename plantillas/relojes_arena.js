@@ -216,7 +216,7 @@ function buildShell() {
   const glassesContainer = createElement('div', { class: 'sand-glasses' });
   box.appendChild(glassesContainer);
 
-  const controls = createElement('div', { class: 'trasvase-controls' });
+  const controls = createElement('div', { class: 'panel-controls' });
   const btnStart = createElement('button', { class: 'btn' });
   btnStart.textContent = 'Iniciar';
   const btnMark = createElement('button', { class: 'btn btn-secondary' });
@@ -228,7 +228,7 @@ function buildShell() {
   controls.appendChild(btnReset);
   box.appendChild(controls);
 
-  const message = createElement('div', { class: 'trasvase-message' });
+  const message = createElement('div', { class: 'panel-message' });
   message.textContent = 'Voltea los relojes y pulsa Iniciar';
   box.appendChild(message);
 

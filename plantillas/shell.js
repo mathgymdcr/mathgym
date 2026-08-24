@@ -1,6 +1,6 @@
 // ===== plantillas/shell.js =====
 // Helpers compartidos para el patrón cabecera + instrucciones + estado que
-// cada plantilla reconstruye a mano (ver `buildShell` en trasvase_ecologico.js,
+// cada plantilla reconstruye a mano (ver `buildShell` en mezcla_quimica.js,
 // poligono_geometrico.js, etc). Usar en plantillas nuevas; las existentes no se
 // tocan para no arriesgar regresiones en juegos que ya funcionan.
 

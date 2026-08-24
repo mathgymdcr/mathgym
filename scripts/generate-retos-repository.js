@@ -22,7 +22,7 @@ class MathGymAIGenerator {
       { type: 'enigma-einstein', count: 8 },
       { type: 'balanza-logica', count: 8 },
       { type: 'poligono-geometrico', count: 7 },
-      { type: 'trasvase-ecologico', count: 7 }
+      { type: 'mezcla-quimica', count: 7 }
     ];
   }
 
@@ -227,21 +227,22 @@ Responde con JSON:
   "pista": "Sugerencia útil"
 }`,
 
-      'trasvase-ecologico': `
-Crea un problema de trasvase de líquidos:
-- 2-4 recipientes con capacidades diferentes
+      'mezcla-quimica': `
+Crea un problema de síntesis por trasvase entre matraces:
+- 3-4 matraces sin graduar, con capacidades diferentes
 - Objetivo realista y alcanzable
-- Contexto ecológico/científico atractivo
+- Contexto de laboratorio atractivo
 - Máximo 8-10 movimientos para resolver
 
 Responde con JSON:
 {
+  "grifo": true|false,
   "capacities": [capacidad1, capacidad2, capacidad3],
-  "target": objetivo_litros,
+  "target": objetivo_en_mL,
   "initialLevels": [nivel1, nivel2, nivel3],
   "titulo": "Título atractivo",
   "contexto": "Historia/experimento científico",
-  "sustancia": "Agua|Solución|Químico seguro"
+  "sustancia": "Reactivo|Solución|Compuesto seguro"
 }`
     };
 
@@ -282,9 +283,9 @@ Responde con JSON:
         titulo: `Construcción Geométrica ${numero}`,
         objetivo: 'Construye el polígono solicitado'
       },
-      'trasvase-ecologico': {
+      'mezcla-quimica': {
         titulo: `Experimento de Laboratorio ${numero}`,
-        objetivo: 'Consigue la cantidad exacta'
+        objetivo: 'Consigue el volumen exacto'
       }
     };
 
@@ -302,7 +303,7 @@ Responde con JSON:
       'enigma-einstein': 'Resuelve el enigma usando las pistas',
       'balanza-logica': 'Encuentra las monedas anómalas',
       'poligono-geometrico': 'Construye el polígono solicitado',
-      'trasvase-ecologico': 'Obtén la cantidad exacta'
+      'mezcla-quimica': 'Obtén el volumen exacto'
     };
     return objectives[type];
   }
