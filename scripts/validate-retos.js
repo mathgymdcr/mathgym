@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { balanzaScenarios } from './balanza-logic.js';
-import { isTrasvaseSolvable } from './trasvase-logic.js';
+import { solveMezcla, initialLevelsMezcla, MIN_MOVIMIENTOS_MEZCLA } from './mezcla-logic.js';
 import { solveLightsOutFor } from './lightsout-logic.js';
 import { solveRelojes } from './relojes-logic.js';
 import { solveHashi, construirPares } from './hashi-logic.js';
@@ -110,8 +110,8 @@ class RetoValidator {
       case 'poligono-geometrico':
         await this.validatePoligonoData(reto);
         break;
-      case 'trasvase-ecologico':
-        await this.validateTrasvasData(reto);
+      case 'mezcla-quimica':
+        await this.validateMezclaData(reto);
         break;
       case 'luces-fuera':
         await this.validateLucesData(reto);
@@ -255,7 +255,7 @@ class RetoValidator {
       throw new Error('Poligono reto missing json_url');
     }
 
-    // Igual que en balanza/trasvase: reto.data solo trae { json_url }, los
+    // Igual que en balanza/mezcla: reto.data solo trae { json_url }, los
     // parámetros reales viven en el archivo referenciado. Leerlos de
     // reto.data hacía que este validador fallara siempre para polígono.
     const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
@@ -284,9 +284,9 @@ class RetoValidator {
     }
   }
 
-  async validateTrasvasData(reto) {
+  async validateMezclaData(reto) {
     if (!reto.data.json_url) {
-      throw new Error('Trasvase reto missing json_url');
+      throw new Error('Mezcla reto missing json_url');
     }
 
     // Igual que en balanza (ver A.4/A.5 del informe): reto.data solo trae
@@ -295,23 +295,58 @@ class RetoValidator {
     const data = JSON.parse(dataContent);
 
     if (!data.capacities || !data.target || !data.initialLevels) {
-      throw new Error('Trasvase reto missing required fields in data file');
+      throw new Error('Mezcla reto missing required fields in data file');
+    }
+
+    // El eje del dosificador es un booleano explícito: si falta, el solver lo
+    // leería como "sin grifo" en silencio y el reto podría ser imposible.
+    if (typeof data.grifo !== 'boolean') {
+      throw new Error('Mezcla reto missing boolean field `grifo` in data file');
     }
 
     if (!Array.isArray(data.capacities) || data.capacities.length < 2) {
-      throw new Error('Trasvase must have at least 2 containers');
+      throw new Error('Mezcla must have at least 2 matraces');
     }
 
     if (!Array.isArray(data.initialLevels) || data.initialLevels.length !== data.capacities.length) {
-      throw new Error('Trasvase initialLevels must match capacities length');
+      throw new Error('Mezcla initialLevels must match capacities length');
+    }
+
+    // El arranque tiene que ser el que dicta la regla del tipo: con grifo,
+    // matraces en seco; sin él, todo el reactivo en el primero. Un arranque
+    // a mano distinto cambiaría el mínimo publicado sin que nadie se entere.
+    const esperado = initialLevelsMezcla(data.capacities, data.grifo);
+    if (data.initialLevels.join(',') !== esperado.join(',')) {
+      throw new Error(
+        `Mezcla initialLevels [${data.initialLevels}] no coincide con el arranque ` +
+        `del tipo para grifo=${data.grifo}: [${esperado}]`
+      );
     }
 
     // Solvencia: BFS sobre el espacio de estados real (mismo módulo que
     // usa el generador para calcular objectives.parMoves).
-    if (!isTrasvaseSolvable(data)) {
+    const min = solveMezcla(data);
+    if (min === null) {
       throw new Error(
-        `Trasvase reto not solvable: no hay ninguna secuencia de trasvases que alcance ` +
+        `Mezcla reto not solvable: no hay ninguna secuencia de trasvases que alcance ` +
         `target=${data.target} desde capacities=[${data.capacities}] con initialLevels=[${data.initialLevels}]`
+      );
+    }
+
+    // Y que no sea trivial: un objetivo que sale de llenar un matraz y
+    // volcarlo no es un reto, aunque el BFS lo dé por resuelto.
+    if (min < MIN_MOVIMIENTOS_MEZCLA) {
+      throw new Error(
+        `Mezcla reto trivial: se resuelve en ${min} movimiento(s), por debajo del ` +
+        `mínimo de ${MIN_MOVIMIENTOS_MEZCLA} (capacities=[${data.capacities}], target=${data.target})`
+      );
+    }
+
+    // El mínimo publicado tiene que ser el real: es lo que la portada enseña
+    // como par del reto y lo que decide las estrellas.
+    if (reto.objectives && reto.objectives.parMoves !== min) {
+      throw new Error(
+        `Mezcla parMoves=${reto.objectives.parMoves} no coincide con el mínimo real del BFS (${min})`
       );
     }
   }

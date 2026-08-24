@@ -1,11 +1,11 @@
 {
-  "variant": "clasico",
+  "grifo": true,
   "capacities": [
-    7,
-    4,
+    8,
+    5,
     3
   ],
-  "target": 5,
+  "target": 4,
   "initialLevels": [
     0,
     0,

@@ -2,7 +2,12 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { balanzaMinWeighings } from './balanza-logic.js';
-import { solveTrasvase } from './trasvase-logic.js';
+import {
+  solveMezcla,
+  initialLevelsMezcla,
+  CONFIGS_MEZCLA,
+  MIN_MOVIMIENTOS_MEZCLA
+} from './mezcla-logic.js';
 import { buildPattern, solveLightsOut } from './lightsout-logic.js';
 import { generarEnigma } from './einstein-logic.js';
 import { buildRelojesPuzzle, buildRelojesHints } from './relojes-logic.js';
@@ -36,7 +41,7 @@ class MathGymGenerator {
       'enigma-einstein': this.generateEinstein.bind(this),
       'balanza-logica': this.generateBalanza.bind(this),
       'poligono-geometrico': this.generatePoligono.bind(this),
-      'trasvase-ecologico': this.generateTrasvase.bind(this),
+      'mezcla-quimica': this.generateMezcla.bind(this),
       'luces-fuera': this.generateLuces.bind(this),
       'relojes-arena': this.generateRelojes.bind(this),
       'puentes-hashi': this.generateHashi.bind(this),
@@ -294,40 +299,48 @@ class MathGymGenerator {
     };
   }
 
-  async generateTrasvase(seed, fecha) {
-    const configs = [
-      { capacities: [7, 4, 3], target: 5 },
-      { capacities: [8, 5, 3], target: 4 },
-      { capacities: [9, 4, 2], target: 6 },
-      { capacities: [12, 7, 5], target: 9 },
-      { capacities: [10, 6, 4], target: 8 }
-    ];
+  async generateMezcla(seed, fecha) {
+    // Los dos ejes del tipo se sortean por separado, cada uno con su
+    // derivación de seed (y distintas de las que usan los demás
+    // generadores), para que no queden correlacionados entre sí ni con la
+    // elección de capacidades. Como en el resto, se pasan por mulberry32
+    // en vez de mirar la paridad cruda del seed derivado.
+    const grifo = this.mulberry32((seed * 40503 + 12345) >>> 0)() < 0.5;
+    const nMatraces = this.mulberry32((seed * 27077 + 54321) >>> 0)() < 0.5 ? 3 : 4;
 
-    const base = configs[seed % configs.length];
+    // Solo se sortea entre las configuraciones que con ESTE eje de dosificador
+    // tienen solución y además no son triviales: sin grifo todo el reactivo es
+    // el del primer matraz, y hay pares (capacidades, objetivo) que dejan de
+    // ser alcanzables o que se resuelven de un volcado. Filtrar aquí es
+    // determinista y evita publicar un reto que solo cazaría el validador.
+    const candidatos = CONFIGS_MEZCLA.filter((c) => {
+      if (c.capacities.length !== nMatraces) return false;
+      const min = solveMezcla({
+        grifo,
+        capacities: c.capacities,
+        target: c.target,
+        initialLevels: initialLevelsMezcla(c.capacities, grifo)
+      });
+      return min !== null && min >= MIN_MOVIMIENTOS_MEZCLA;
+    });
 
-    // Variante ('ecologico'/'clasico') seedeada por fecha, con una
-    // derivación de seed distinta de la que ya usa configs[] arriba (y
-    // distinta también del multiplicador de anomalySeed en
-    // generateBalanza) -- para que la elección de variante no quede
-    // correlacionada con la de capacidades/target. Igual que con
-    // anomalySeed, se pasa por mulberry32 (no solo un % 2) para no
-    // depender de la paridad cruda del seed derivado.
-    const variantSeed = (seed * 40503 + 12345) >>> 0;
-    const variant = this.mulberry32(variantSeed)() < 0.5 ? 'ecologico' : 'clasico';
+    if (candidatos.length === 0) {
+      throw new Error(
+        `generateMezcla: ninguna configuración de ${nMatraces} matraces sirve ` +
+        `con grifo=${grifo} (seed=${seed}) -- o no tienen solución o se resuelven ` +
+        `en menos de ${MIN_MOVIMIENTOS_MEZCLA} movimientos; revisar la tabla de configs`
+      );
+    }
 
-    // 'clasico' (grifo infinito) arranca con las jarras vacías;
-    // 'ecologico' (agua limitada) arranca con toda el agua en el primer
-    // recipiente. No se puede dejar que initializeGame() de la plantilla
-    // decida esto con su propio fallback, porque el generador siempre
-    // escribe initialLevels explícito en el JSON.
-    const initialLevels = variant === 'clasico'
-      ? base.capacities.map(() => 0)
-      : [base.capacities[0], ...base.capacities.slice(1).map(() => 0)];
+    const base = candidatos[seed % candidatos.length];
+    const config = {
+      grifo,
+      capacities: base.capacities,
+      target: base.target,
+      initialLevels: initialLevelsMezcla(base.capacities, grifo)
+    };
 
-    const config = { variant, capacities: base.capacities, target: base.target, initialLevels };
-
-    // Save data file for trasvase
-    const dataFileName = `trasvase_${fecha}.json`;
+    const dataFileName = `mezcla_${fecha}.json`;
     await fs.mkdir('data', { recursive: true });
     await fs.writeFile(
       path.join('data', dataFileName),
@@ -338,15 +351,17 @@ class MathGymGenerator {
     // un número fijo a mano -- así hints y objectives son específicos de
     // cada capacities/target, y el validador reusa la misma función para
     // comprobar que el reto tiene solución.
-    const minMoves = solveTrasvase(config);
+    const minMoves = solveMezcla(config);
 
     return {
-      id: `${fecha}-trasvase-ecologico-001`,
-      tipo: 'trasvase-ecologico',
-      variant: config.variant,
-      dificultad: 2,
+      id: `${fecha}-mezcla-quimica-001`,
+      tipo: 'mezcla-quimica',
+      // La variante es la etiqueta compuesta de los ejes, al estilo de
+      // enigma-einstein: los ejes de verdad son campos del payload.
+      variant: `${grifo ? 'con-grifo' : 'sin-grifo'}-${nMatraces}`,
+      dificultad: nMatraces === 4 ? 3 : 2,
       categorias: ['volumen', 'movimiento'],
-      hints: this.generateTrasvaseHints(config, minMoves),
+      hints: this.generateMezclaHints(config, minMoves),
       objectives: {
         winCondition: 'reach_target_amount',
         parMoves: minMoves,
@@ -357,12 +372,12 @@ class MathGymGenerator {
     };
   }
 
-  // Pistas específicas de capacities/target/variant -- no un texto genérico.
-  generateTrasvaseHints(cfg, minMoves) {
-    const capsTxt = cfg.capacities.map((c) => `${c}L`).join(', ');
-    const estrategia = cfg.variant === 'clasico'
-      ? `Llena y vacía las jarras de ${capsTxt} desde el grifo, y trasvasa entre ellas para ir acotando la cantidad hasta llegar a ${cfg.target}L exactos.`
-      : `Solo tienes ${cfg.initialLevels[0]}L de agua en total, toda en el primer recipiente -- trasvasa entre los recipientes de ${capsTxt} sin desperdiciarla para llegar a ${cfg.target}L.`;
+  // Pistas específicas de capacities/target/grifo -- no un texto genérico.
+  generateMezclaHints(cfg, minMoves) {
+    const capsTxt = cfg.capacities.map((c) => `${c} mL`).join(', ');
+    const estrategia = cfg.grifo
+      ? `Llena y vacía los matraces de ${capsTxt} en el dosificador, y trasvasa entre ellos para ir acotando el volumen hasta los ${cfg.target} mL exactos.`
+      : `Solo tienes ${cfg.initialLevels.reduce((a, b) => a + b, 0)} mL de reactivo, todo en el primer matraz -- repártelo entre los matraces de ${capsTxt} sin desperdiciarlo para llegar a ${cfg.target} mL.`;
     return [
       estrategia,
       `El mínimo real para este reto es ${minMoves} movimiento${minMoves === 1 ? '' : 's'}.`
@@ -379,7 +394,7 @@ class MathGymGenerator {
 
     // Seed derivado para las pulsaciones que construyen el patrón,
     // distinto del que ya usa `sizes[]` arriba (y de los multiplicadores
-    // ya usados en balanza/trasvase) para que la elección de patrón no
+    // ya usados en balanza/mezcla) para que la elección de patrón no
     // quede correlacionada con la de tamaño.
     const patternSeed = (seed * 1597334677 + 987654321) >>> 0;
     const numPulsaciones = Math.ceil(rows * cols * 0.4);

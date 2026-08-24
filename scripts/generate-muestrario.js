@@ -20,7 +20,7 @@ const SEMILLAS = {
   'enigma-einstein': 20260102,
   'balanza-logica': 20260103,
   'poligono-geometrico': 20260104,
-  'trasvase-ecologico': 20260105,
+  'mezcla-quimica': 20260106,   // con-grifo-3: la combinación llana, que el ejemplo es una vitrina
   'luces-fuera': 20260107,
   'relojes-arena': 20260107,
   'puentes-hashi': 20260108,

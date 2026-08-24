@@ -6,7 +6,7 @@
 {
   "fecha": "YYYY-MM-DD",
   "titulo": "string",
-  "tipo": "relojes-arena | trasvase-ecologico | ...",
+  "tipo": "relojes-arena | mezcla-quimica | ...",
   "dificultad": "entero 1-5, opcional",
   "categorias": ["array de strings, opcional"],
   "data": { /* payload específico por plantilla */ }
@@ -46,4 +46,4 @@ const loaders = {
 ## Plantillas incluidas (ejemplos)
 - `multiple` → elección múltiple con `opciones[]` y `correcta`.
 - `relojes-arena` → describe plan para medir tiempo con relojes.
-- `trasvase-ecologico` → plantea el clásico de jarras.
+- `mezcla-quimica` → sintetizar un volumen exacto trasvasando entre matraces sin graduar.

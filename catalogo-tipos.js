@@ -46,11 +46,11 @@ export const TIPOS = [
     generado: true
   },
   {
-    tipo: 'trasvase-ecologico',
+    tipo: 'mezcla-quimica',
     nombre: 'Mezcla Exacta',
     grupo: 'Medida y cálculo',
-    icono: 'assets/icono-trasvase-ecologico.svg',
-    resumen: 'Con dos recipientes sin marcas, consigue medir una cantidad exacta llenando, vaciando y volcando uno en otro.',
+    icono: 'assets/icono-mezcla-quimica.svg',
+    resumen: 'Con matraces sin graduar, sintetiza un volumen exacto de reactivo llenando, vaciando y trasvasando de uno a otro.',
     generado: true
   },
   {
