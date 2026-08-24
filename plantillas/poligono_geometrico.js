@@ -278,9 +278,10 @@ export async function render(root, data, hooks) {
         if (areaOk && perimeterOk) {
           setStatus(ui.result, `Correcto! A=${area.toFixed(1)}, P=${perimeter}`, 'ok');
           celebrate({ ok: true });
-          if (hooks && hooks.onSuccess) hooks.onSuccess();
+          if (hooks && hooks.onSuccess) hooks.onSuccess({ fallos: state.fallos || 0 });
         } else {
           setStatus(ui.result, `No coincide. A=${area.toFixed(2)}, P=${perimeter}`, 'ko');
+          state.fallos = (state.fallos || 0) + 1;
         }
       });
     }

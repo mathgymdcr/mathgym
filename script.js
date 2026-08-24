@@ -2,6 +2,8 @@
 import './plantillas/base.js';
 import { initRouter } from './router.js';
 import { recordCompletion, getProgress } from './progress.js';
+import { estrellasDe, parDe } from './estrellas.js';
+import { pintarEstrellas } from './plantillas/celebration.js';
 import { pintarSala } from './home.js';
 import { tipoInfo } from './catalogo-tipos.js';
 
@@ -61,6 +63,21 @@ async function mostrarSala() {
   pintarSala(sala, { reto, progreso: getProgress() });
 }
 
+// La meta del reto, encima del tablero. Hasta ahora el mínimo solo se veía en
+// la ficha de la sala (antes de jugar) y escondido en una pista; teniéndolo
+// delante, cada plantilla con su propio contador de movimientos ya dice a qué
+// distancia vas. Los tipos que se miden por fallos no tienen meta que enseñar:
+// "0 fallos de 0" antes de fallar no dice nada.
+function pintarMeta(cont, reto) {
+  const par = parDe(reto.objectives);
+  if (!par) return;
+  const meta = document.createElement('p');
+  meta.className = 'meta-reto';
+  meta.innerHTML = `Las <strong>3 estrellas</strong> son para quien lo resuelva en `
+    + `<strong>${par.valor} ${par.unidad}</strong>.`;
+  cont.prepend(meta);
+}
+
 // --- RETO ---
 async function mostrarReto(fecha) {
   const reto = await loadReto(fecha);
@@ -75,13 +92,18 @@ async function mostrarReto(fecha) {
 
   try {
     await window.Templates.render(reto.tipo, reto.data || {}, cont, {
-      onSuccess() {
+      // `marca` es lo que ha hecho quien juega, en la unidad que cuenta el par
+      // de su tipo: { movimientos }, { pesadas } o { fallos }.
+      onSuccess(marca) {
+        const estrellas = estrellasDe(reto.objectives, marca);
+        pintarEstrellas(estrellas);
         if (esRetoDeHoy) {
-          recordCompletion(reto);
+          recordCompletion(reto, estrellas);
           pintarRacha();
         }
       }
     });
+    pintarMeta(cont, reto);
   } catch (err) {
     cont.innerHTML = `<p class="error">Error al cargar el reto (${reto.tipo}): ${err.message}</p>`;
     console.error('❌ Error cargando plantilla:', err);

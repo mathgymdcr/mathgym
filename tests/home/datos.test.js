@@ -49,6 +49,28 @@ describe('diasDelCarne', () => {
     expect(dias.filter((d) => d.esHoy)).toHaveLength(1)
   })
 
+  it('lleva las estrellas de cada día completado', () => {
+    const dias = diasDelCarne('2026-08-21', {
+      '2026-08-19': { tipo: 'nonograma', estrellas: 3 },
+      '2026-08-20': { tipo: 'mezcla-quimica', estrellas: 1 }
+    })
+    expect(dias.find((d) => d.fecha === '2026-08-19').estrellas).toBe(3)
+    expect(dias.find((d) => d.fecha === '2026-08-20').estrellas).toBe(1)
+  })
+
+  it('un día completado antes de que existieran las estrellas se queda a cero', () => {
+    // No se le inventan: sigue contando como completado para la racha.
+    const dias = diasDelCarne('2026-08-21', { '2026-08-19': { tipo: 'nonograma' } })
+    const dia = dias.find((d) => d.fecha === '2026-08-19')
+    expect(dia.hecho).toBe(true)
+    expect(dia.estrellas).toBe(0)
+  })
+
+  it('un día sin hacer no tiene estrellas', () => {
+    const dias = diasDelCarne('2026-08-21', {})
+    expect(dias.every((d) => d.estrellas === 0)).toBe(true)
+  })
+
   it('marca hecho el día que está en el progreso', () => {
     const dias = diasDelCarne('2026-08-21', { '2026-08-19': { tipo: 'nonograma' } })
     expect(dias.find((d) => d.fecha === '2026-08-19').hecho).toBe(true)
