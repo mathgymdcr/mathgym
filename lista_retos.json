@@ -35,5 +35,14 @@
       "logica",
       "planificacion"
     ]
+  },
+  {
+    "fecha": "2026-08-24",
+    "titulo": "Resuelve el enigma",
+    "dificultad": 4,
+    "categorias": [
+      "deduccion",
+      "logica"
+    ]
   }
 ]

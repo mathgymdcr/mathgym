@@ -1,0 +1,133 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Estación": [
+      "Primavera",
+      "Verano",
+      "Otoño",
+      "Invierno"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ]
+  },
+  "clues": [
+    "María toca el violín.",
+    "Miguel no toca el saxofón.",
+    "Miguel no prefiere el otoño.",
+    "Quien prefiere el otoño toca el acordeón.",
+    "Pedro practica judo.",
+    "Sofía no practica escalada.",
+    "Quien toca el violín practica natación.",
+    "Quien prefiere la primavera no practica escalada.",
+    "Pedro prefiere el verano."
+  ],
+  "solution": {
+    "María": {
+      "Estación": "Primavera",
+      "Instrumento": "Violín",
+      "Deporte": "Natación"
+    },
+    "Pedro": {
+      "Estación": "Verano",
+      "Instrumento": "Saxofón",
+      "Deporte": "Judo"
+    },
+    "Sofía": {
+      "Estación": "Otoño",
+      "Instrumento": "Acordeón",
+      "Deporte": "Ciclismo"
+    },
+    "Miguel": {
+      "Estación": "Invierno",
+      "Instrumento": "Piano",
+      "Deporte": "Escalada"
+    }
+  },
+  "meta": {
+    "categoriasElegidas": [
+      "Estación",
+      "Instrumento",
+      "Deporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 1,
+        "positiva": true
+      }
+    ]
+  }
+}
