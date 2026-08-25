@@ -1,0 +1,11 @@
+{
+  "variant": "oddUnknown",
+  "N": 5,
+  "maxWeighings": 3,
+  "anomalies": [
+    {
+      "i": 0,
+      "sign": -1
+    }
+  ]
+}
