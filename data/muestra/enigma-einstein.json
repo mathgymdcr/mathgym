@@ -6,78 +6,81 @@
       "Sofía",
       "Miguel"
     ],
-    "Profesión": [
-      "Periodista",
-      "Dentista",
-      "Electricista",
-      "Taxista"
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro"
     ],
     "Flor": [
       "Rosas",
       "Tulipanes",
       "Orquídeas",
       "Girasoles"
-    ],
-    "Camiseta": [
-      "Roja",
-      "Azul",
-      "Verde",
-      "Amarilla"
     ]
   },
   "clues": [
-    "Pedro cultiva orquídeas.",
-    "María no cultiva girasoles.",
-    "María no viste camiseta azul.",
-    "Quien es dentista no viste camiseta roja.",
-    "Quien es electricista no viste camiseta roja.",
-    "Quien es dentista no cultiva tulipanes.",
-    "Quien es taxista no cultiva tulipanes.",
-    "Quien es dentista no viste camiseta verde.",
-    "Quien cultiva rosas viste camiseta azul.",
-    "Sofía no viste camiseta azul.",
-    "Quien es periodista cultiva rosas.",
-    "Quien es taxista no cultiva orquídeas."
+    "Sofía cultiva orquídeas.",
+    "Miguel no tiene un pájaro.",
+    "María no lee biografía.",
+    "Quien lee cómic tiene un perro.",
+    "Quien lee biografía tiene un pájaro.",
+    "María no tiene un perro.",
+    "Quien tiene un gato no cultiva orquídeas.",
+    "Quien tiene un perro cultiva tulipanes.",
+    "Quien lee biografía cultiva rosas.",
+    "Sofía no lee poesía."
   ],
   "solution": {
     "María": {
-      "Profesión": "Electricista",
-      "Flor": "Tulipanes",
-      "Camiseta": "Verde"
+      "Lectura": "Poesía",
+      "Mascota": "Gato",
+      "Flor": "Girasoles"
     },
     "Pedro": {
-      "Profesión": "Dentista",
-      "Flor": "Orquídeas",
-      "Camiseta": "Amarilla"
+      "Lectura": "Biografía",
+      "Mascota": "Pájaro",
+      "Flor": "Rosas"
     },
     "Sofía": {
-      "Profesión": "Taxista",
-      "Flor": "Girasoles",
-      "Camiseta": "Roja"
+      "Lectura": "Ensayo",
+      "Mascota": "Pez",
+      "Flor": "Orquídeas"
     },
     "Miguel": {
-      "Profesión": "Periodista",
-      "Flor": "Rosas",
-      "Camiseta": "Azul"
+      "Lectura": "Cómic",
+      "Mascota": "Perro",
+      "Flor": "Tulipanes"
     }
   },
   "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
     "categoriasElegidas": [
-      "Profesión",
-      "Flor",
-      "Camiseta"
+      "Lectura",
+      "Mascota",
+      "Flor"
     ],
     "pistasEstructuradas": [
       {
         "cA": 0,
-        "vA": 1,
-        "cB": 2,
+        "vA": 2,
+        "cB": 3,
         "vB": 2,
         "positiva": true
       },
       {
         "cA": 0,
-        "vA": 0,
+        "vA": 3,
         "cB": 2,
         "vB": 3,
         "positiva": false
@@ -85,40 +88,33 @@
       {
         "cA": 0,
         "vA": 0,
-        "cB": 3,
-        "vB": 1,
-        "positiva": false
-      },
-      {
-        "cA": 1,
-        "vA": 1,
-        "cB": 3,
-        "vB": 0,
-        "positiva": false
-      },
-      {
-        "cA": 1,
-        "vA": 2,
-        "cB": 3,
-        "vB": 0,
+        "cB": 1,
+        "vB": 3,
         "positiva": false
       },
       {
         "cA": 1,
         "vA": 1,
         "cB": 2,
-        "vB": 1,
-        "positiva": false
+        "vB": 0,
+        "positiva": true
       },
       {
         "cA": 1,
         "vA": 3,
         "cB": 2,
-        "vB": 1,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
         "positiva": false
       },
       {
-        "cA": 1,
+        "cA": 2,
         "vA": 1,
         "cB": 3,
         "vB": 2,
@@ -132,24 +128,17 @@
         "positiva": true
       },
       {
-        "cA": 0,
-        "vA": 2,
-        "cB": 3,
-        "vB": 1,
-        "positiva": false
-      },
-      {
         "cA": 1,
-        "vA": 0,
-        "cB": 2,
+        "vA": 3,
+        "cB": 3,
         "vB": 0,
         "positiva": true
       },
       {
-        "cA": 1,
-        "vA": 3,
-        "cB": 2,
-        "vB": 2,
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 0,
         "positiva": false
       }
     ]

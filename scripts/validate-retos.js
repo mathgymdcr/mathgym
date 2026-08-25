@@ -161,16 +161,33 @@ class RetoValidator {
       throw new Error('Invalid Einstein data structure');
     }
     
-    // Validate 4x4 structure
+    // Forma del tablero: `filas x casas`, contando a Persona como fila.
+    // Se DERIVA del payload y luego se contrasta con la que el generador
+    // declaró, en vez de creerse ninguna de las dos por su cuenta.
     const categories = Object.keys(data.categories);
-    if (categories.length !== 4) {
-      throw new Error('Einstein puzzle must have exactly 4 categories');
+    const filas = categories.length;
+    const casas = Array.isArray(data.categories[categories[0]])
+      ? data.categories[categories[0]].length
+      : 0;
+    if (filas < 4 || filas > 5 || casas < 4 || casas > 5) {
+      throw new Error(
+        `Einstein puzzle con forma fuera de catálogo: ${filas}x${casas} ` +
+        `(se admiten 4x4, 5x4, 4x5 y 5x5)`
+      );
     }
-    
+
     for (const cat of categories) {
-      if (!Array.isArray(data.categories[cat]) || data.categories[cat].length !== 4) {
-        throw new Error(`Category ${cat} must have exactly 4 items`);
+      if (!Array.isArray(data.categories[cat]) || data.categories[cat].length !== casas) {
+        throw new Error(`Category ${cat} must have exactly ${casas} items`);
       }
+    }
+
+    const declarada = (data.meta && data.meta.forma) || null;
+    if (declarada && (declarada.filas !== filas || declarada.casas !== casas)) {
+      throw new Error(
+        `Einstein reto con forma declarada ${declarada.filas}x${declarada.casas} ` +
+        `pero tablero de ${filas}x${casas}`
+      );
     }
 
     if (!Array.isArray(data.clues) || data.clues.length === 0) {
@@ -196,7 +213,7 @@ class RetoValidator {
       );
     }
 
-    const numSoluciones = contarSolucionesDesdePistas(pistas);
+    const numSoluciones = contarSolucionesDesdePistas(pistas, { filas, casas });
     if (numSoluciones !== 1) {
       throw new Error(
         `Einstein reto sin solución única: las pistas admiten ${numSoluciones} ` +

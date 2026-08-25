@@ -17,7 +17,9 @@ import { TIPOS } from '../catalogo-tipos.js';
 // Semillas elegidas para que el ejemplo de cada tipo sea de los pequeños:
 // el muestrario es una vitrina, no el reto del día.
 const SEMILLAS = {
-  'enigma-einstein': 20260102,
+  // 4x4: el enigma se sortea entre cuatro tamaños y la vitrina enseña el
+  // pequeño, no el 5x5 de 18 pistas.
+  'enigma-einstein': 20260104,
   'balanza-logica': 20260103,
   'poligono-geometrico': 20260104,
   'mezcla-quimica': 20260106,   // con-grifo-3: la combinación llana, que el ejemplo es una vitrina
