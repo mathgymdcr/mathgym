@@ -18,29 +18,36 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  const allCategories = Object.keys(config.categories || {});
-  // Hoy el puzzle es siempre Persona + 3 categorías temáticas. Si algún
-  // día se generan 5 (variante "5x4"), esto avisa en vez de descartar la
-  // categoría sobrante en silencio: con slice(0,4) el tablero pintaría 4
-  // filas mientras `solution` traería 5 valores por grupo, y
-  // validateSolution nunca cuadraría -> "Hay un error" permanente y sin
-  // pista de por qué.
-  if (allCategories.length !== 4) {
+  const categoryKeys = Object.keys(config.categories || {});
+  // El tablero se describe como filas x casas y las filas cuentan a
+  // Persona: 4x4, 5x4, 4x5 o 5x5. Ambas medidas salen del propio reto en
+  // vez de estar puestas a mano, pero se comprueban antes de pintar: un
+  // payload con categorías de distinta longitud dejaría filas a medias
+  // mientras `solution` trae un valor por casa, y validateSolution no
+  // cuadraría nunca -> "Hay un error" permanente y sin pista de por qué.
+  const BOARD_SIZE = categoryKeys.length
+    ? (config.categories[categoryKeys[0]] || []).length
+    : 0;
+  const desigual = categoryKeys.find(
+    (k) => !Array.isArray(config.categories[k]) || config.categories[k].length !== BOARD_SIZE
+  );
+  if (categoryKeys.length < 2 || BOARD_SIZE < 2 || desigual) {
     setStatus(
       ui.result,
-      `Error: este reto trae ${allCategories.length} categorías y la plantilla solo soporta 4 (Persona + 3)`,
+      desigual
+        ? `Error: la categoría "${desigual}" no trae ${BOARD_SIZE} valores como el resto`
+        : `Error: este reto trae un tablero de ${categoryKeys.length}x${BOARD_SIZE}, que no es un enigma`,
       'ko'
     );
     return;
   }
 
-  const categoryKeys = allCategories;
   const categories = {};
-  for (const k of categoryKeys) {
-    categories[k] = Array.isArray(config.categories[k]) ? config.categories[k].slice(0, 4) : [];
-  }
-
-  const BOARD_SIZE = 4;
+  for (const k of categoryKeys) categories[k] = [...config.categories[k]];
+  // El nº de casas manda en el reparto de la rejilla y en el tamaño de
+  // celda (ver style.css): con 5 el tablero necesita más ancho y celdas
+  // algo menores, o habría que arrastrarlo de lado para ver la quinta.
+  ui.setCasas(BOARD_SIZE);
   setCategoriesLine(ui.categoriesLine, categoryKeys);
   renderClues(ui.cluesContainer, config.clues || []);
   const gameState = { selected: null, board: Array(BOARD_SIZE).fill(0).map(() => ({})) };
@@ -171,7 +178,7 @@ export async function render(root, data, hooks) {
 
   function setupEventListeners(ui, state, cats, n, cfg) {
     ui.btnValidate.addEventListener('click', () => {
-      const r = validateSolution(state, cats, cfg.solution);
+      const r = validateSolution(state, cats, cfg.solution, n);
       setStatus(ui.result, r.msg, r.ok ? 'ok' : 'ko');
       if (r.ok) {
         celebrate({ ok: true });
@@ -264,11 +271,13 @@ function buildShell() {
   };
 
   // Responsivo
+  const grid = box.querySelector('.ein-grid');
   function applyLayout() {
-    const grid = box.querySelector('.ein-grid');
     const w = window.innerWidth || document.documentElement.clientWidth;
-    grid.style.gridTemplateColumns = (w > 980) ? '1fr 1.2fr 1fr' : '1fr';
+    const anchas = grid.dataset.casas === '5' ? '1fr 1.6fr 1fr' : '1fr 1.2fr 1fr';
+    grid.style.gridTemplateColumns = (w > 980) ? anchas : '1fr';
   }
+  refs.setCasas = (casas) => { grid.dataset.casas = String(casas); applyLayout(); };
   applyLayout();
   window.addEventListener('resize', applyLayout);
 
@@ -307,8 +316,8 @@ function setCategoriesLine(el, categoryKeys) {
     : (nombres[0] || '');
 }
 
-function validateSolution(state, cats, sol) {
-  const S = 4, u = [], solC = [];
+function validateSolution(state, cats, sol, casas) {
+  const S = casas, u = [], solC = [];
   for (let i = 0; i < S; i++) {
     const vals = [];
     for (const [cat] of Object.entries(cats)) {

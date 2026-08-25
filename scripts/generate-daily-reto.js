@@ -9,7 +9,7 @@ import {
   MIN_MOVIMIENTOS_MEZCLA
 } from './mezcla-logic.js';
 import { buildPattern, solveLightsOut } from './lightsout-logic.js';
-import { generarEnigma } from './einstein-logic.js';
+import { generarEnigma, dificultadDe } from './einstein-logic.js';
 import { buildRelojesPuzzle, buildRelojesHints } from './relojes-logic.js';
 import { buildHashiPuzzle, buildHashiHints } from './hashi-logic.js';
 import { buildNonogramaPuzzle, buildNonogramaHints } from './nonograma-logic.js';
@@ -168,6 +168,8 @@ class MathGymGenerator {
       // La necesita validate-retos.js para re-verificar la unicidad sobre
       // el archivo realmente publicado, en vez de fiarse del generador.
       meta: {
+        tamano: enigma.meta.tamano,
+        forma: enigma.meta.forma,
         categoriasElegidas: enigma.meta.categoriasElegidas,
         pistasEstructuradas: enigma.meta.pistasEstructuradas
       }
@@ -186,10 +188,14 @@ class MathGymGenerator {
     return {
       id: `${fecha}-enigma-einstein-001`,
       tipo: 'enigma-einstein',
-      // Lo que de verdad varía de un día a otro es la combinación de
-      // categorías temáticas (C(12,3) = 220 combinaciones posibles).
-      variant: enigma.meta.categoriasElegidas.map((c) => this.slug(c)).join('-'),
-      dificultad: numPistas <= 9 ? 4 : (numPistas <= 11 ? 3 : 2),
+      // De un día a otro varían el tamaño del tablero (4x4 / 5x4 / 4x5 /
+      // 5x5, sorteado con sesgo al 4x4) y la combinación de categorías
+      // temáticas que lo llenan.
+      variant: [enigma.meta.tamano, ...enigma.meta.categoriasElegidas.map((c) => this.slug(c))].join('-'),
+      // La dificultad ya no sale de una tabla única: cada tamaño tiene la
+      // suya, porque un 5x5 con 15 pistas no es más fácil que un 4x4 con
+      // 12 por traer más pistas. Ver `dificultadDe` en einstein-logic.js.
+      dificultad: dificultadDe(enigma.meta.tamano, numPistas),
       categorias: ['deduccion', 'logica'],
       hints: this.generateEinsteinHints(enigma),
       objectives: {
@@ -210,7 +216,7 @@ class MathGymGenerator {
     return [
       `Empieza por las pistas que asignan directamente un valor a una persona: siempre hay al menos una, y es el punto de entrada más rápido.`,
       `Las pistas en negativo ("no bebe café") sirven para descartar, no para colocar: úsalas para ir tachando combinaciones imposibles.`,
-      `Este enigma relaciona ${cats.join(', ')} y tiene solución única con las ${enigma.meta.numPistas} pistas dadas.`
+      `Este enigma es de ${enigma.meta.tamano}: ${enigma.meta.forma.casas} casas y ${cats.length} categorías (${cats.join(', ')}), con solución única a partir de las ${enigma.meta.numPistas} pistas dadas.`
     ];
   }
 

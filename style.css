@@ -1657,6 +1657,26 @@ li {
   border-collapse: separate;
   border-spacing: 4px;
 }
+/* Con 5 casas la fila mide 5x80 px y no cabe en un móvil: el tablero ya
+   vive dentro de un contenedor con scroll horizontal propio (.ein-board >
+   div), y el `min-width` es lo que impide que la tabla se estruje hasta
+   volverse ilegible en vez de dejar que ese scroll haga su trabajo. */
+#contenedor-interactivo .ein-table .cell,
+#contenedor-interactivo .ein-table th.house-header {
+  min-width: 64px;
+}
+/* Con 5 casas la fila entera son 5x80 px y no cabe ni en la columna del
+   tablero ni en un móvil. La celda encoge -- sigue siendo un blanco
+   cómodo de tocar -- y la rejilla le cede ancho a costa de las pistas
+   (ver applyLayout en plantillas/enigma_einstein.js). */
+#contenedor-interactivo .ein-grid[data-casas="5"] .ein-table .cell {
+  width: 64px;
+  height: 64px;
+}
+#contenedor-interactivo .ein-grid[data-casas="5"] .ein-table .cell,
+#contenedor-interactivo .ein-grid[data-casas="5"] .ein-table th.house-header {
+  min-width: 56px;
+}
 #contenedor-interactivo .ein-table .cell {
   width: 80px;
   height: 80px;
