@@ -5,6 +5,12 @@
 
 import { celebrate } from './celebration.js';
 import { tipoInfo } from '../catalogo-tipos.js';
+// El vocabulario del reto (nombres de variante, n_monedas/k_impostoras/
+// max_pesadas) y la cota de pesadas viven en un solo sitio, compartidos
+// con el generador y el validador. Esta plantilla tenía copia propia de
+// las dos cosas, y la del mínimo usaba Math.ceil(log/log 3), que se pasa
+// por uno cuando los escenarios son potencia exacta de 3.
+import { leerConfigBalanza, balanzaMinWeighings } from '../scripts/balanza-logic.js';
 
 export async function render(root, data, hooks) {
   // ---------- Boot ----------
@@ -15,24 +21,24 @@ export async function render(root, data, hooks) {
   // ---------- Config ----------
   let config;
   try {
-    config = await loadConfig(data);
+    config = leerConfigBalanza(await loadConfig(data));
   } catch (err) {
     setStatus(ui.status, 'Error al cargar datos: ' + (err && err.message ? err.message : err), 'ko');
     return;
   }
-  if (!config || !config.variant || !config.N) {
-    setStatus(ui.status, 'Error: Falta configuración (variant, N).', 'ko');
+  if (!config || !config.variant || !config.n_monedas) {
+    setStatus(ui.status, 'Error: Falta configuración (variant, n_monedas).', 'ko');
     return;
   }
-  if (!config.maxWeighings) config.maxWeighings = 4;
-  if (config.variant === 'heaviest' || config.variant === 'lightest' || config.variant === 'oddUnknown') config.k = 1;
+  if (!config.max_pesadas) config.max_pesadas = 4;
+  if (config.variant === 'pesada' || config.variant === 'ligera' || config.variant === 'desconocida') config.k_impostoras = 1;
 
   // ---------- Estado ----------
   const state = {
-    N: config.N,
+    n_monedas: config.n_monedas,
     variant: config.variant,
-    k: config.k || 1,
-    maxWeighings: config.maxWeighings,
+    k_impostoras: config.k_impostoras || 1,
+    max_pesadas: config.max_pesadas,
     coins: [],                 // {i, element, side: 'left'|'right'|null}
     anomalies: [],             // [{i, sign: +1|-1}]
     weighings: 0,
@@ -67,7 +73,7 @@ export async function render(root, data, hooks) {
       return;
     }
     s.anomalies = [];
-    var idxs = Array.from({ length: s.N }, function (_, i) { return i; });
+    var idxs = Array.from({ length: s.n_monedas }, function (_, i) { return i; });
     function pick(n) {
       var pool = idxs.slice(), out = [];
       for (var j = 0; j < n; j++) {
@@ -77,29 +83,29 @@ export async function render(root, data, hooks) {
       return out;
     }
     switch (cfg.variant) {
-      case 'heaviest':
+      case 'pesada':
         s.anomalies.push({ i: pick(1)[0], sign: 1 }); break;
-      case 'lightest':
+      case 'ligera':
         s.anomalies.push({ i: pick(1)[0], sign: -1 }); break;
-      case 'oddUnknown': {
+      case 'desconocida': {
         var ii = pick(1)[0];
         var sg = Math.random() < 0.5 ? 1 : -1;
         s.anomalies.push({ i: ii, sign: sg });
         break;
       }
-      case 'kHeaviest':
-        pick(s.k).forEach(function (i) { s.anomalies.push({ i: i, sign: 1 }); }); break;
-      case 'kLightest':
-        pick(s.k).forEach(function (i) { s.anomalies.push({ i: i, sign: -1 }); }); break;
-      case 'kOddUnknown':
-        pick(s.k).forEach(function (i) { s.anomalies.push({ i: i, sign: Math.random() < 0.5 ? 1 : -1 }); }); break;
+      case 'pesadas-multiples':
+        pick(s.k_impostoras).forEach(function (i) { s.anomalies.push({ i: i, sign: 1 }); }); break;
+      case 'ligeras-multiples':
+        pick(s.k_impostoras).forEach(function (i) { s.anomalies.push({ i: i, sign: -1 }); }); break;
+      case 'desconocidas-multiples':
+        pick(s.k_impostoras).forEach(function (i) { s.anomalies.push({ i: i, sign: Math.random() < 0.5 ? 1 : -1 }); }); break;
     }
   }
 
   function renderCoins(container, s) {
     container.innerHTML = '';
     s.coins = [];
-    for (var i = 0; i < s.N; i++) {
+    for (var i = 0; i < s.n_monedas; i++) {
       var coin = createElement('div', { class: 'balance-coin', 'data-index': i });
       coin.textContent = (i + 1).toString();
       (function (idx, el) {
@@ -224,7 +230,7 @@ export async function render(root, data, hooks) {
 
     // No bloqueamos nunca el botón de pesar.
     // Si supera el mínimo teórico, solo avisamos, sin impedir continuar.
-    var optimal = optimalWeighings(config);
+    var optimal = balanzaMinWeighings(config);
     if (s.weighings > optimal) {
       setStatus(ui.message, 'Puedes resolverlo en ' + optimal + ' pesadas o menos. ¡Intenta optimizar!', 'info');
     }
@@ -252,14 +258,14 @@ export async function render(root, data, hooks) {
   function renderAnswerSelector(container, s) {
     container.innerHTML = '';
     var v = s.variant;
-    if (v === 'heaviest' || v === 'lightest') {
-      renderSingle(container, s, v === 'heaviest' ? 'pesada' : 'ligera');
-    } else if (v === 'oddUnknown') {
+    if (v === 'pesada' || v === 'ligera') {
+      renderSingle(container, s, v === 'pesada' ? 'pesada' : 'ligera');
+    } else if (v === 'desconocida') {
       renderOddUnknown(container, s);
-    } else if (v === 'kHeaviest' || v === 'kLightest') {
-      renderMulti(container, s, s.k, v === 'kHeaviest' ? 'pesadas' : 'ligeras');
-    } else if (v === 'kOddUnknown') {
-      renderKOdd(container, s, s.k);
+    } else if (v === 'pesadas-multiples' || v === 'ligeras-multiples') {
+      renderMulti(container, s, s.k_impostoras, v === 'pesadas-multiples' ? 'pesadas' : 'ligeras');
+    } else if (v === 'desconocidas-multiples') {
+      renderKOdd(container, s, s.k_impostoras);
     }
   }
 
@@ -269,7 +275,7 @@ export async function render(root, data, hooks) {
     container.appendChild(title);
 
     var wrap = createElement('div', { class: 'answer-coins' });
-    for (var i = 0; i < s.N; i++) {
+    for (var i = 0; i < s.n_monedas; i++) {
       (function (idx) {
         var c = createElement('div', { class: 'answer-coin' });
         c.textContent = (idx + 1).toString();
@@ -291,7 +297,7 @@ export async function render(root, data, hooks) {
     container.appendChild(title);
 
     var wrap = createElement('div', { class: 'answer-coins' });
-    for (var i = 0; i < s.N; i++) {
+    for (var i = 0; i < s.n_monedas; i++) {
       (function (idx) {
         var c = createElement('div', { class: 'answer-coin' });
         c.textContent = (idx + 1).toString();
@@ -325,7 +331,7 @@ export async function render(root, data, hooks) {
     var wrap = createElement('div', { class: 'answer-coins' });
     var set = label === 'pesadas' ? s.answer.heavy : s.answer.light;
 
-    for (var i = 0; i < s.N; i++) {
+    for (var i = 0; i < s.n_monedas; i++) {
       (function (idx) {
         var c = createElement('div', { class: 'answer-coin' });
         c.textContent = (idx + 1).toString();
@@ -356,7 +362,7 @@ export async function render(root, data, hooks) {
     var hw = createElement('div', { class: 'answer-coins' });
     var lw = createElement('div', { class: 'answer-coins' });
 
-    for (var i = 0; i < s.N; i++) {
+    for (var i = 0; i < s.n_monedas; i++) {
       (function (idx) {
         var h = createElement('div', { class: 'answer-coin' });
         h.textContent = (idx + 1).toString();
@@ -392,11 +398,11 @@ export async function render(root, data, hooks) {
     if (target.has(index)) {
       target.delete(index);
       clicked.classList.remove('selected');
-    } else if (total < s.k) {
+    } else if (total < s.k_impostoras) {
       target.add(index);
       clicked.classList.add('selected');
     } else {
-      setStatus(ui.message, 'Solo puedes marcar ' + s.k + ' monedas en total', 'info');
+      setStatus(ui.message, 'Solo puedes marcar ' + s.k_impostoras + ' monedas en total', 'info');
     }
   }
 
@@ -413,7 +419,7 @@ export async function render(root, data, hooks) {
     }
 
     var ok = sameAnswer(user, s.anomalies);
-    var optimal = optimalWeighings(cfg);
+    var optimal = balanzaMinWeighings(cfg);
 
     // Celebración o mensaje de mejora
     if (ok) {
@@ -439,9 +445,9 @@ export async function render(root, data, hooks) {
     var payload = {
       type: 'balance',
       variant: s.variant,
-      N: s.N,
-      k: s.k,
-      maxWeighings: s.maxWeighings,
+      n_monedas: s.n_monedas,
+      k_impostoras: s.k_impostoras,
+      max_pesadas: s.max_pesadas,
       weighings: s.weighings,
       optimal: optimal,
       userAnswer: user.slice(),
@@ -456,17 +462,17 @@ export async function render(root, data, hooks) {
   function buildUserAnswer(s) {
     var v = s.variant;
     var out = [];
-    if (v === 'heaviest' && s.answer.single !== null) {
+    if (v === 'pesada' && s.answer.single !== null) {
       out = [{ i: s.answer.single, sign: 1 }];
-    } else if (v === 'lightest' && s.answer.single !== null) {
+    } else if (v === 'ligera' && s.answer.single !== null) {
       out = [{ i: s.answer.single, sign: -1 }];
-    } else if (v === 'oddUnknown' && s.answer.single !== null) {
+    } else if (v === 'desconocida' && s.answer.single !== null) {
       out = [{ i: s.answer.single, sign: s.answer.singleSign }];
-    } else if (v === 'kHeaviest') {
+    } else if (v === 'pesadas-multiples') {
       out = Array.from(s.answer.heavy).map(function (i) { return { i: i, sign: 1 }; });
-    } else if (v === 'kLightest') {
+    } else if (v === 'ligeras-multiples') {
       out = Array.from(s.answer.light).map(function (i) { return { i: i, sign: -1 }; });
-    } else if (v === 'kOddUnknown') {
+    } else if (v === 'desconocidas-multiples') {
       out = []
         .concat(Array.from(s.answer.heavy).map(function (i) { return { i: i, sign: 1 }; }))
         .concat(Array.from(s.answer.light).map(function (i) { return { i: i, sign: -1 }; }));
@@ -479,31 +485,6 @@ export async function render(root, data, hooks) {
     var sa = a.map(function (x) { return x.i + ':' + x.sign; }).sort().join('|');
     var sb = b.map(function (x) { return x.i + ':' + x.sign; }).sort().join('|');
     return sa === sb;
-  }
-
-  function optimalWeighings(cfg) {
-    var states = 0;
-    switch (cfg.variant) {
-      case 'heaviest':
-      case 'lightest':
-        states = cfg.N; break;
-      case 'oddUnknown':
-        states = 2 * cfg.N; break;
-      case 'kHeaviest':
-      case 'kLightest':
-        states = nCr(cfg.N, cfg.k); break;
-      case 'kOddUnknown':
-        states = nCr(cfg.N, cfg.k) * Math.pow(2, cfg.k); break;
-    }
-    return Math.ceil(Math.log(states) / Math.log(3));
-  }
-
-  function nCr(n, r) {
-    if (r < 0 || r > n) return 0;
-    if (r === 0 || r === n) return 1;
-    var res = 1;
-    for (var i = 1; i <= r; i++) res = (res * (n - r + i)) / i;
-    return Math.round(res);
   }
 
   // ========================= UI HELPERS =========================
@@ -592,12 +573,12 @@ export async function render(root, data, hooks) {
   function updateInstructions(el, cfg) {
     var t = '';
     switch (cfg.variant) {
-      case 'heaviest': t = 'De estas ' + cfg.N + ' monedas, una es más pesada que el resto.'; break;
-      case 'lightest': t = 'De estas ' + cfg.N + ' monedas, una es más ligera que el resto.'; break;
-      case 'oddUnknown': t = 'De estas ' + cfg.N + ' monedas, una tiene un peso distinto al resto.'; break;
-      case 'kHeaviest': t = 'De estas ' + cfg.N + ' monedas, hay ' + cfg.k + ' más pesadas que el resto.'; break;
-      case 'kLightest': t = 'De estas ' + cfg.N + ' monedas, hay ' + cfg.k + ' más ligeras que el resto.'; break;
-      case 'kOddUnknown': t = 'De estas ' + cfg.N + ' monedas, hay ' + cfg.k + ' con peso distinto (más pesadas o más ligeras).'; break;
+      case 'pesada': t = 'De estas ' + cfg.n_monedas + ' monedas, una es más pesada que el resto.'; break;
+      case 'ligera': t = 'De estas ' + cfg.n_monedas + ' monedas, una es más ligera que el resto.'; break;
+      case 'desconocida': t = 'De estas ' + cfg.n_monedas + ' monedas, una tiene un peso distinto al resto.'; break;
+      case 'pesadas-multiples': t = 'De estas ' + cfg.n_monedas + ' monedas, hay ' + cfg.k_impostoras + ' más pesadas que el resto.'; break;
+      case 'ligeras-multiples': t = 'De estas ' + cfg.n_monedas + ' monedas, hay ' + cfg.k_impostoras + ' más ligeras que el resto.'; break;
+      case 'desconocidas-multiples': t = 'De estas ' + cfg.n_monedas + ' monedas, hay ' + cfg.k_impostoras + ' con peso distinto (más pesadas o más ligeras).'; break;
     }
     el.textContent = t;
   }

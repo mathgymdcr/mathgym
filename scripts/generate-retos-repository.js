@@ -201,10 +201,10 @@ Crea un problema de balanza único:
 
 Responde con JSON:
 {
-  "variant": "oddUnknown|heaviest|lightest|kHeaviest|kLightest",
-  "N": numero_monedas,
-  "k": numero_anomalas,
-  "maxWeighings": max_pesadas,
+  "variant": "desconocida|pesada|ligera|pesadas-multiples|ligeras-multiples",
+  "n_monedas": numero_monedas,
+  "k_impostoras": numero_anomalas,
+  "max_pesadas": max_pesadas,
   "titulo": "Título atractivo",
   "contexto": "Historia/contexto del problema",
   "objetivo": "Descripción del objetivo"

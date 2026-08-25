@@ -1,7 +1,7 @@
 {
-  "variant": "oddUnknown",
-  "N": 7,
-  "maxWeighings": 3,
+  "variant": "desconocida",
+  "n_monedas": 7,
+  "max_pesadas": 3,
   "anomalies": [
     {
       "i": 0,
