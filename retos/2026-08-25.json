@@ -1,7 +1,7 @@
 {
   "id": "2026-08-25-balanza-logica-001",
   "tipo": "balanza-logica",
-  "variant": "oddUnknown",
+  "variant": "desconocida",
   "dificultad": 3,
   "categorias": [
     "logica",

@@ -226,12 +226,16 @@ class MathGymGenerator {
   }
 
   async generateBalanza(seed, fecha) {
+    // El payload va entero en español, como el resto del proyecto. Los
+    // retos publicados antes traen `oddUnknown` / `N` / `k` /
+    // `maxWeighings`; quien los traduce al abrirlos es
+    // `leerConfigBalanza`, en balanza-logic.js.
     const configs = [
-      { variant: 'oddUnknown', N: 5, maxWeighings: 3 },
-      { variant: 'heaviest', N: 6, k: 1, maxWeighings: 3 },
-      { variant: 'lightest', N: 7, k: 1, maxWeighings: 3 },
-      { variant: 'oddUnknown', N: 7, maxWeighings: 3 },
-      { variant: 'kHeaviest', N: 8, k: 2, maxWeighings: 4 }
+      { variant: 'desconocida', n_monedas: 5, max_pesadas: 3 },
+      { variant: 'pesada', n_monedas: 6, k_impostoras: 1, max_pesadas: 3 },
+      { variant: 'ligera', n_monedas: 7, k_impostoras: 1, max_pesadas: 3 },
+      { variant: 'desconocida', n_monedas: 7, max_pesadas: 3 },
+      { variant: 'pesadas-multiples', n_monedas: 8, k_impostoras: 2, max_pesadas: 4 }
     ];
 
     const config = configs[seed % configs.length];
@@ -273,7 +277,7 @@ class MathGymGenerator {
       objectives: {
         winCondition: 'identify_anomalies',
         maxWeighingsFor3Stars: minW,
-        maxWeighingsFor2Stars: Math.min(config.maxWeighings, minW + 1)
+        maxWeighingsFor2Stars: Math.min(config.max_pesadas, minW + 1)
       },
       data: { json_url: `data/${dataFileName}` }
     };
@@ -745,7 +749,7 @@ class MathGymGenerator {
   // usando el PRNG seedeado `rand` en vez de Math.random(). Mantener
   // ambas en sync si cambia la lógica de una de ellas.
   generateBalanzaAnomalies(cfg, rand) {
-    const idxs = Array.from({ length: cfg.N }, (_, i) => i);
+    const idxs = Array.from({ length: cfg.n_monedas }, (_, i) => i);
     const pick = (n) => {
       const pool = idxs.slice();
       const out = [];
@@ -758,26 +762,26 @@ class MathGymGenerator {
 
     const anomalies = [];
     switch (cfg.variant) {
-      case 'heaviest':
+      case 'pesada':
         anomalies.push({ i: pick(1)[0], sign: 1 });
         break;
-      case 'lightest':
+      case 'ligera':
         anomalies.push({ i: pick(1)[0], sign: -1 });
         break;
-      case 'oddUnknown': {
+      case 'desconocida': {
         const ii = pick(1)[0];
         const sg = rand() < 0.5 ? 1 : -1;
         anomalies.push({ i: ii, sign: sg });
         break;
       }
-      case 'kHeaviest':
-        pick(cfg.k).forEach((i) => anomalies.push({ i, sign: 1 }));
+      case 'pesadas-multiples':
+        pick(cfg.k_impostoras).forEach((i) => anomalies.push({ i, sign: 1 }));
         break;
-      case 'kLightest':
-        pick(cfg.k).forEach((i) => anomalies.push({ i, sign: -1 }));
+      case 'ligeras-multiples':
+        pick(cfg.k_impostoras).forEach((i) => anomalies.push({ i, sign: -1 }));
         break;
-      case 'kOddUnknown':
-        pick(cfg.k).forEach((i) => anomalies.push({ i, sign: rand() < 0.5 ? 1 : -1 }));
+      case 'desconocidas-multiples':
+        pick(cfg.k_impostoras).forEach((i) => anomalies.push({ i, sign: rand() < 0.5 ? 1 : -1 }));
         break;
     }
     return anomalies;
@@ -785,19 +789,19 @@ class MathGymGenerator {
 
   // Pistas específicas de la variante y de N/k -- no un texto genérico.
   generateBalanzaHints(cfg, minW) {
-    const N = cfg.N, k = cfg.k || 1;
+    const N = cfg.n_monedas, k = cfg.k_impostoras || 1;
     const plural = (n, s) => (n === 1 ? s : s + 's');
     const estrategia = {
-      heaviest: `Divide las ${N} monedas en tres grupos lo más iguales posible y compara dos en la balanza: el lado que baja contiene la moneda pesada, o si equilibran, está en el grupo que dejaste fuera.`,
-      lightest: `Divide las ${N} monedas en tres grupos lo más iguales posible y compara dos en la balanza: el lado que sube contiene la moneda ligera, o si equilibran, está en el grupo que dejaste fuera.`,
-      oddUnknown: `Como no sabes si la moneda distinta pesa más o menos, deja siempre algunas monedas fuera de la primera pesada -- necesitas poder comparar su comportamiento en pesadas distintas para deducir el signo.`,
-      kHeaviest: `Hay ${k} ${plural(k, 'moneda')} más ${plural(k, 'pesada')} entre las ${N} -- reparte muchas monedas en cada plato para que el resultado te diga de un vistazo cuántas de las pesadas cayeron en cada lado.`,
-      kLightest: `Hay ${k} ${plural(k, 'moneda')} más ${plural(k, 'ligera')} entre las ${N} -- reparte muchas monedas en cada plato para que el resultado te diga de un vistazo cuántas de las ligeras cayeron en cada lado.`,
-      kOddUnknown: `Hay ${k} monedas distintas entre las ${N}, y cada una puede pesar más o menos por separado -- es la variante más exigente, aprovecha cada pesada para acotar a la vez cuántas sospechosas quedan y su signo.`
+      'pesada': `Divide las ${N} monedas en tres grupos lo más iguales posible y compara dos en la balanza: el lado que baja contiene la moneda pesada, o si equilibran, está en el grupo que dejaste fuera.`,
+      'ligera': `Divide las ${N} monedas en tres grupos lo más iguales posible y compara dos en la balanza: el lado que sube contiene la moneda ligera, o si equilibran, está en el grupo que dejaste fuera.`,
+      'desconocida': `Como no sabes si la moneda distinta pesa más o menos, deja siempre algunas monedas fuera de la primera pesada -- necesitas poder comparar su comportamiento en pesadas distintas para deducir el signo.`,
+      'pesadas-multiples': `Hay ${k} ${plural(k, 'moneda')} más ${plural(k, 'pesada')} entre las ${N} -- reparte muchas monedas en cada plato para que el resultado te diga de un vistazo cuántas de las pesadas cayeron en cada lado.`,
+      'ligeras-multiples': `Hay ${k} ${plural(k, 'moneda')} más ${plural(k, 'ligera')} entre las ${N} -- reparte muchas monedas en cada plato para que el resultado te diga de un vistazo cuántas de las ligeras cayeron en cada lado.`,
+      'desconocidas-multiples': `Hay ${k} monedas distintas entre las ${N}, y cada una puede pesar más o menos por separado -- es la variante más exigente, aprovecha cada pesada para acotar a la vez cuántas sospechosas quedan y su signo.`
     };
     return [
       estrategia[cfg.variant] || 'Compara grupos de monedas para descartar sospechosas en cada pesada.',
-      `El mínimo teórico para este reto es ${minW} ${plural(minW, 'pesada')} (tienes ${cfg.maxWeighings}, con ${cfg.maxWeighings - minW} de margen).`
+      `El mínimo teórico para este reto es ${minW} ${plural(minW, 'pesada')} (tienes ${cfg.max_pesadas}, con ${cfg.max_pesadas - minW} de margen).`
     ];
   }
 }

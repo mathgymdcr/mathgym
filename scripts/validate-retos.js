@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { balanzaScenarios } from './balanza-logic.js';
+import { balanzaScenarios, leerConfigBalanza } from './balanza-logic.js';
 import { solveMezcla, initialLevelsMezcla, MIN_MOVIMIENTOS_MEZCLA } from './mezcla-logic.js';
 import { solveLightsOutFor } from './lightsout-logic.js';
 import { solveRelojes } from './relojes-logic.js';
@@ -236,33 +236,42 @@ class RetoValidator {
     const dataContent = await fs.readFile(dataPath, 'utf8');
     const data = JSON.parse(dataContent);
 
-    if (!data.variant || !data.N || !data.maxWeighings) {
-      throw new Error('Balanza reto missing required fields (variant/N/maxWeighings) in data file');
+    // El payload va en español (`variant` en kebab, `n_monedas`,
+    // `k_impostoras`, `max_pesadas`); los publicados antes traen las
+    // claves viejas y `leerConfigBalanza` las traduce, así que a partir
+    // de aquí solo existe un idioma.
+    const cfg = leerConfigBalanza(data);
+
+    if (!cfg.variant || !cfg.n_monedas || !cfg.max_pesadas) {
+      throw new Error(
+        'Balanza reto missing required fields (variant/n_monedas/max_pesadas) in data file'
+      );
     }
 
-    if (data.N < 3 || data.N > 10) {
-      throw new Error('Balanza N must be between 3 and 10');
+    if (cfg.n_monedas < 3 || cfg.n_monedas > 10) {
+      throw new Error('Balanza n_monedas must be between 3 and 10');
     }
 
-    if (!Array.isArray(data.anomalies) || data.anomalies.length === 0) {
+    if (!Array.isArray(cfg.anomalies) || cfg.anomalies.length === 0) {
       throw new Error('Balanza reto missing anomalies (instancia sin fijar -- ver fix de A.4)');
     }
 
-    // Solvencia: cota de teoría de la información. Con maxWeighings
+    // Solvencia: cota de teoría de la información. Con max_pesadas
     // pesadas de 3 resultados cada una (izq/der/equilibrio) se pueden
-    // distinguir como mucho 3^maxWeighings escenarios; si hay más
+    // distinguir como mucho 3^max_pesadas escenarios; si hay más
     // escenarios posibles que eso, el reto NO tiene solución garantizada
     // dentro del número de pesadas que anuncia.
-    const scenarios = balanzaScenarios(data);
+    const scenarios = balanzaScenarios(cfg);
     if (scenarios == null) {
-      throw new Error(`Balanza reto has unknown variant: ${data.variant}`);
+      throw new Error(`Balanza reto has unknown variant: ${cfg.variant}`);
     }
-    const maxDistinguishable = Math.pow(3, data.maxWeighings);
+    const maxDistinguishable = Math.pow(3, cfg.max_pesadas);
     if (scenarios > maxDistinguishable) {
       throw new Error(
-        `Balanza reto not solvable within maxWeighings: ${scenarios} escenarios posibles ` +
-        `(variant=${data.variant}, N=${data.N}, k=${data.k || 1}) requieren más de ` +
-        `${data.maxWeighings} pesadas (3^${data.maxWeighings}=${maxDistinguishable} < ${scenarios})`
+        `Balanza reto not solvable within max_pesadas: ${scenarios} escenarios posibles ` +
+        `(variant=${cfg.variant}, n_monedas=${cfg.n_monedas}, k_impostoras=${cfg.k_impostoras || 1}) ` +
+        `requieren más de ${cfg.max_pesadas} pesadas ` +
+        `(3^${cfg.max_pesadas}=${maxDistinguishable} < ${scenarios})`
       );
     }
   }

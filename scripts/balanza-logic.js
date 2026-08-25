@@ -1,7 +1,44 @@
 // ===== scripts/balanza-logic.js =====
-// Matemática pura del reto de balanza-lógica, compartida entre el
-// generador y el validador para que la cota de solvencia no pueda
-// divergir entre los dos (ver A.4 / sección 5 del informe de auditoría).
+// Matemática pura del reto de balanza-lógica y lectura de su payload,
+// compartidas entre el generador, el validador y la plantilla para que
+// ni la cota de solvencia ni los nombres de las variantes puedan
+// divergir entre ellos (ver A.4 / sección 5 del informe de auditoría).
+
+// ---------------------------------------------------------------------
+// EL PAYLOAD, EN ESPAÑOL
+// ---------------------------------------------------------------------
+// El reto se describe en el mismo idioma que el resto del proyecto: la
+// variante en kebab y los parámetros como `n_monedas` / `k_impostoras`
+// / `max_pesadas`. Los retos publicados antes traen `oddUnknown`, `N`,
+// `k` y `maxWeighings`, así que `leerConfigBalanza` traduce al entrar y
+// es el ÚNICO sitio donde conviven los dos idiomas: generador,
+// validador y plantilla trabajan ya solo con el nuevo.
+const VARIANTES_VIEJAS = {
+  oddUnknown: 'desconocida',
+  heaviest: 'pesada',
+  lightest: 'ligera',
+  kHeaviest: 'pesadas-multiples',
+  kLightest: 'ligeras-multiples',
+  kOddUnknown: 'desconocidas-multiples'
+};
+
+export const VARIANTES_BALANZA = Object.values(VARIANTES_VIEJAS);
+
+export function leerConfigBalanza(raw) {
+  if (!raw) return raw;
+  const { variant, N, k, maxWeighings, ...resto } = raw;
+  const cfg = { ...resto };
+  // Una variante desconocida se deja pasar sin tocar: quien valida es el
+  // validador, y un nombre inventado tiene que llegarle tal cual para
+  // que lo cace en vez de convertirse aquí en un `undefined` mudo.
+  if (variant != null) cfg.variant = VARIANTES_VIEJAS[variant] || variant;
+  if (raw.n_monedas != null || N != null) cfg.n_monedas = raw.n_monedas != null ? raw.n_monedas : N;
+  if (raw.k_impostoras != null || k != null) cfg.k_impostoras = raw.k_impostoras != null ? raw.k_impostoras : k;
+  if (raw.max_pesadas != null || maxWeighings != null) {
+    cfg.max_pesadas = raw.max_pesadas != null ? raw.max_pesadas : maxWeighings;
+  }
+  return cfg;
+}
 
 // Combinaciones de k elementos entre n, sin dependencias externas.
 export function nCk(n, k) {
@@ -15,23 +52,24 @@ export function nCk(n, k) {
 }
 
 // Nº de escenarios posibles a distinguir (qué moneda(s) son anómalas y,
-// si aplica, su signo) para un config de balanza. Es lo que la cota de
-// teoría de la información (3^W >= escenarios) necesita como entrada;
-// mantener en sync con generateBalanzaAnomalies de generate-daily-reto.js
-// y plantillas/balanza_logica.js si cambian las variantes soportadas.
+// si aplica, su signo) para un config de balanza YA LEÍDO con
+// `leerConfigBalanza`. Es lo que la cota de teoría de la información
+// (3^W >= escenarios) necesita como entrada; mantener en sync con
+// generateBalanzaAnomalies de generate-daily-reto.js si cambian las
+// variantes soportadas (la plantilla ya no tiene copia propia).
 export function balanzaScenarios(cfg) {
-  const N = cfg.N, k = cfg.k || 1;
+  const n = cfg.n_monedas, k = cfg.k_impostoras || 1;
   switch (cfg.variant) {
-    case 'heaviest':
-    case 'lightest':
-      return N;
-    case 'oddUnknown':
-      return 2 * N;
-    case 'kHeaviest':
-    case 'kLightest':
-      return nCk(N, k);
-    case 'kOddUnknown':
-      return nCk(N, k) * Math.pow(2, k);
+    case 'pesada':
+    case 'ligera':
+      return n;
+    case 'desconocida':
+      return 2 * n;
+    case 'pesadas-multiples':
+    case 'ligeras-multiples':
+      return nCk(n, k);
+    case 'desconocidas-multiples':
+      return nCk(n, k) * Math.pow(2, k);
     default:
       return null;
   }
