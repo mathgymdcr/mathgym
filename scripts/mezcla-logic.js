@@ -7,11 +7,22 @@ function stateKey(levels) {
   return levels.join(',');
 }
 
-// Estados alcanzables desde `levels` con un solo movimiento:
-// - vaciar cualquier matraz con reactivo (acción siempre disponible, la
-//   use la variante que la use -- ver btnEmpty en mezcla_quimica.js)
-// - trasvasar entre cualquier par (origen, destino)
-// - si hay dosificador (`grifo`): llenar cualquier matraz no lleno
+// Objetivos del reto, siempre como lista. Los retos de un solo compuesto
+// se escribieron con `target` a secas y siguen valiendo.
+export function objetivosMezcla(cfg) {
+  if (Array.isArray(cfg.targets)) return cfg.targets;
+  return cfg.target != null ? [cfg.target] : [];
+}
+
+// Con varios objetivos el reto se sintetiza EN CADENA: cada compuesto se
+// vierte en el reactor -- que vacía el matraz -- y el siguiente arranca
+// de las sobras del anterior. El orden lo elige quien juega, así que el
+// estado lleva un mapa de bits con los objetivos ya vertidos.
+//
+// Verter NO es gratis: es una acción más, como llenar o trasvasar, y así
+// lo cuenta también la plantilla. Y es opcional: un matraz que ya tiene
+// el volumen exacto puede reservarse para más tarde, porque ese reactivo
+// quizá haga falta para construir otro objetivo antes de gastarlo.
 function nextStates(levels, capacities, grifo) {
   const out = [];
   const n = levels.length;
@@ -50,34 +61,56 @@ function nextStates(levels, capacities, grifo) {
   return out;
 }
 
-// BFS desde initialLevels hasta el primer estado con algún matraz en
-// `target`. Devuelve el nº mínimo de movimientos, o null si no es
-// alcanzable -- el espacio de estados es finito (cada nivel está acotado
-// por su capacidad), así que el BFS siempre termina.
+// BFS desde initialLevels hasta tener TODOS los objetivos vertidos.
+// Devuelve el nº mínimo de movimientos, o null si no es alcanzable -- el
+// espacio de estados es finito (cada nivel está acotado por su capacidad,
+// y los objetivos vertidos son un subconjunto), así que siempre termina.
 //
-// El dosificador se lee del campo booleano `grifo`, uno de los tres ejes
-// del tipo (los otros dos son el nº de matraces -- la longitud de
-// `capacities` -- y, cuando se implemente, el nº de objetivos).
+// Los tres ejes del tipo son el dosificador (`grifo`), el nº de matraces
+// (la longitud de `capacities`) y el nº de objetivos (`targets`).
 export function solveMezcla(cfg) {
-  const { capacities, target, initialLevels } = cfg;
+  const { capacities, initialLevels } = cfg;
   const grifo = cfg.grifo === true;
+  const objetivos = objetivosMezcla(cfg);
+  if (objetivos.length === 0) return null;
 
-  if (initialLevels.includes(target)) return 0;
+  // Un objetivo que no cabe en ningún matraz no se alcanza nunca; sin este
+  // corte el BFS recorrería el espacio entero para decir que no.
+  const capMax = Math.max(...capacities);
+  if (objetivos.some((t) => t > capMax)) return null;
 
-  const visited = new Set([stateKey(initialLevels)]);
-  let frontier = [initialLevels];
+  const completo = (1 << objetivos.length) - 1;
+  const clave = (levels, mask) => stateKey(levels) + '#' + mask;
+
+  const visited = new Set([clave(initialLevels, 0)]);
+  let frontier = [[initialLevels, 0]];
   let moves = 0;
 
   while (frontier.length > 0) {
     moves++;
     const nextFrontier = [];
-    for (const levels of frontier) {
+    for (const [levels, mask] of frontier) {
+      // Verter: cualquier matraz cuyo nivel case con un objetivo pendiente.
+      for (let i = 0; i < levels.length; i++) {
+        for (let t = 0; t < objetivos.length; t++) {
+          if (mask & (1 << t)) continue;
+          if (levels[i] !== objetivos[t]) continue;
+          const next = levels.slice();
+          next[i] = 0;
+          const nextMask = mask | (1 << t);
+          if (nextMask === completo) return moves;
+          const k = clave(next, nextMask);
+          if (visited.has(k)) continue;
+          visited.add(k);
+          nextFrontier.push([next, nextMask]);
+        }
+      }
+      // Llenar, vaciar y trasvasar: no tocan los objetivos ya vertidos.
       for (const next of nextStates(levels, capacities, grifo)) {
-        const key = stateKey(next);
-        if (visited.has(key)) continue;
-        visited.add(key);
-        if (next.includes(target)) return moves;
-        nextFrontier.push(next);
+        const k = clave(next, mask);
+        if (visited.has(k)) continue;
+        visited.add(k);
+        nextFrontier.push([next, mask]);
       }
     }
     frontier = nextFrontier;
@@ -113,6 +146,13 @@ export const CONFIGS_MEZCLA = [
 // más fácil caer ahí sin darse cuenta. Generador y validador comparten el
 // umbral para que ninguna tabla de configuraciones lo esquive.
 export const MIN_MOVIMIENTOS_MEZCLA = 3;
+
+// Con varios objetivos el listón sube en proporción: si dos compuestos se
+// sacan con el trabajo de uno, el segundo no está aportando nada y el
+// reto solo es más largo de teclear.
+export function minimoExigidoMezcla(nObjetivos) {
+  return MIN_MOVIMIENTOS_MEZCLA * Math.max(1, nObjetivos);
+}
 
 // Arranque del reto, parte de la definición del puzzle y no de la interfaz:
 // con dosificador se empieza en seco (siempre se puede llenar); sin él, todo

@@ -2,8 +2,11 @@ import { describe, it, expect } from 'vitest'
 import { solveMezcla, isMezclaSolvable, initialLevelsMezcla } from '../../scripts/mezcla-logic.js'
 
 // El motor es un BFS sobre el espacio de estados: cada movimiento es vaciar un
-// matraz, trasvasar entre dos, o -- solo si hay dosificador (`grifo`) -- llenar
-// uno hasta arriba. La meta es que ALGÚN matraz quede con `target` mL exactos.
+// matraz, trasvasar entre dos, verter en el reactor, o -- solo si hay
+// dosificador (`grifo`) -- llenar uno hasta arriba. La meta es haber vertido
+// todos los objetivos; verter cuenta como movimiento, igual que en la
+// plantilla, así que un reto de un objetivo cuesta un movimiento más que
+// llegar a tenerlo en un matraz.
 
 describe('solveMezcla, con dosificador', () => {
   const conGrifo = (extra = {}) => ({
@@ -16,16 +19,16 @@ describe('solveMezcla, con dosificador', () => {
 
   it('resuelve el clásico de 7/4/3 para 5 mL', () => {
     // llena el 4 -> lo vuelca en el 7 -> el 7 llena el 3 (le queda 1) ->
-    // llena el 4 -> lo vuelca otra vez en el 7: 1 + 4 = 5.
-    expect(solveMezcla(conGrifo())).toBe(5)
+    // llena el 4 -> lo vuelca otra vez en el 7: 1 + 4 = 5, y verterlo.
+    expect(solveMezcla(conGrifo())).toBe(6)
   })
 
-  it('no gasta ningún movimiento si el objetivo ya está servido', () => {
-    expect(solveMezcla(conGrifo({ initialLevels: [5, 0, 0] }))).toBe(0)
+  it('un objetivo servido de salida solo cuesta verterlo', () => {
+    expect(solveMezcla(conGrifo({ initialLevels: [5, 0, 0] }))).toBe(1)
   })
 
   it('llena directo cuando el objetivo es una capacidad entera', () => {
-    expect(solveMezcla(conGrifo({ target: 4 }))).toBe(1)
+    expect(solveMezcla(conGrifo({ target: 4 }))).toBe(2)
   })
 
   it('con dosificador, cualquier objetivo múltiplo del mcd es alcanzable', () => {
@@ -53,8 +56,8 @@ describe('solveMezcla, sin dosificador', () => {
 
   it('reparte los 8 mL de partida hasta dejar 4 en un matraz', () => {
     // Ojo: no es el clásico de 7 movimientos, que parte los 8 en 4+4. Aquí
-    // basta con que UN matraz llegue a 4, y eso sale en 6.
-    expect(solveMezcla(sinGrifo())).toBe(6)
+    // basta con que UN matraz llegue a 4, y eso sale en 6, más el vertido.
+    expect(solveMezcla(sinGrifo())).toBe(7)
   })
 
   it('no puede alcanzar un objetivo mayor que el reactivo disponible', () => {

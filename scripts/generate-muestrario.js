@@ -22,7 +22,9 @@ const SEMILLAS = {
   'enigma-einstein': 20260104,
   'balanza-logica': 20260103,
   'poligono-geometrico': 20260104,
-  'mezcla-quimica': 20260106,   // con-grifo-3: la combinación llana, que el ejemplo es una vitrina
+  // con-grifo-3-1objetivos: la combinación llana de los tres ejes (el de
+  // objetivos incluido), que el ejemplo es una vitrina y no el reto del día.
+  'mezcla-quimica': 20260121,
   'luces-fuera': 20260107,
   'relojes-arena': 20260107,
   'puentes-hashi': 20260108,

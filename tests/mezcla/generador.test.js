@@ -5,7 +5,9 @@ import {
   solveMezcla,
   initialLevelsMezcla,
   CONFIGS_MEZCLA,
-  MIN_MOVIMIENTOS_MEZCLA
+  MIN_MOVIMIENTOS_MEZCLA,
+  minimoExigidoMezcla,
+  objetivosMezcla
 } from '../../scripts/mezcla-logic.js'
 
 const SEEDS = [20260831, 20260918, 20261210, 20270501, 21, 44, 97, 20280707]
@@ -81,9 +83,16 @@ describe('generateMezcla', () => {
       expect(payload.capacities.length, `seed ${seed}`).toBeGreaterThanOrEqual(3)
       expect(payload.initialLevels, `seed ${seed}`)
         .toEqual(initialLevelsMezcla(payload.capacities, payload.grifo))
+      // Los objetivos van siempre como lista, aunque sea de uno.
+      expect(Array.isArray(payload.targets), `seed ${seed}`).toBe(true)
+      expect(payload.targets.length, `seed ${seed}`).toBeGreaterThanOrEqual(1)
+      expect(payload.targets.length, `seed ${seed}`).toBeLessThanOrEqual(2)
+      expect(new Set(payload.targets).size, `seed ${seed}`).toBe(payload.targets.length)
       // La variante es solo la etiqueta compuesta de esos ejes.
-      expect(reto.variant, `seed ${seed}`)
-        .toBe(`${payload.grifo ? 'con-grifo' : 'sin-grifo'}-${payload.capacities.length}`)
+      expect(reto.variant, `seed ${seed}`).toBe(
+        `${payload.grifo ? 'con-grifo' : 'sin-grifo'}-${payload.capacities.length}` +
+        `-${payload.targets.length}objetivos`
+      )
     }
   })
 
@@ -92,16 +101,38 @@ describe('generateMezcla', () => {
       const { reto, payload } = await generar(seed)
       const min = solveMezcla(payload)
       expect(min, `seed ${seed}`).not.toBeNull()
-      expect(min, `seed ${seed}`).toBeGreaterThanOrEqual(MIN_MOVIMIENTOS_MEZCLA)
+      // Con dos compuestos el listón sube: si salen con el trabajo de uno,
+      // el segundo solo alarga el reto.
+      expect(min, `seed ${seed}`)
+        .toBeGreaterThanOrEqual(minimoExigidoMezcla(objetivosMezcla(payload).length))
       expect(reto.objectives.parMoves, `seed ${seed}`).toBe(min)
       expect(reto.hints.join(' '), `seed ${seed}`).toContain(`${min} movimiento`)
     }
   })
 
-  it('la dificultad sigue al número de matraces', async () => {
+  it('la dificultad sigue al número de matraces y al de objetivos', async () => {
     for (const seed of SEEDS) {
       const { reto, payload } = await generar(seed)
-      expect(reto.dificultad, `seed ${seed}`).toBe(payload.capacities.length === 4 ? 3 : 2)
+      const esperada = (payload.capacities.length === 4 ? 3 : 2) + (payload.targets.length - 1)
+      expect(reto.dificultad, `seed ${seed}`).toBe(esperada)
+    }
+  })
+
+  it('el eje de objetivos varía de verdad entre fechas', async () => {
+    const vistos = new Set()
+    for (let seed = 20260901; seed < 20260913; seed++) {
+      vistos.add((await generar(seed)).payload.targets.length)
+    }
+    expect([...vistos].sort()).toEqual([1, 2])
+  })
+
+  it('las pistas nombran todos los compuestos del reto', async () => {
+    for (const seed of SEEDS) {
+      const { reto, payload } = await generar(seed)
+      const texto = reto.hints.join(' ')
+      for (const t of payload.targets) {
+        expect(texto, `seed ${seed}, objetivo ${t}`).toContain(`${t} mL`)
+      }
     }
   })
 

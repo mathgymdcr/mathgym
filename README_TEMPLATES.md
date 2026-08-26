@@ -46,4 +46,4 @@ const loaders = {
 ## Plantillas incluidas (ejemplos)
 - `multiple` → elección múltiple con `opciones[]` y `correcta`.
 - `relojes-arena` → describe plan para medir tiempo con relojes.
-- `mezcla-quimica` → sintetizar un volumen exacto trasvasando entre matraces sin graduar.
+- `mezcla-quimica` → sintetizar los volúmenes exactos de `targets` trasvasando entre matraces sin graduar, uno o dos y en el orden que quiera quien juega.

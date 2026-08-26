@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import fs from 'node:fs/promises'
+import { objetivosMezcla } from '../../scripts/mezcla-logic.js'
 
 // Del ejemplo de mezcla química se comprueba que además de pintarse SE PUEDE
 // RESOLVER: se busca el camino con el mismo BFS que usa el validador y se
@@ -16,7 +17,9 @@ beforeAll(() => {
 })
 
 // Camino de movimientos (no solo su número) hasta que algún matraz tenga el
-// objetivo, en el mismo modelo de estados que scripts/mezcla-logic.js.
+// objetivo, en el mismo modelo de estados que scripts/mezcla-logic.js. El
+// vertido en el reactor no entra aquí: se cuenta aparte, porque es el gesto
+// que se comprueba a mano al final.
 function caminoHastaObjetivo({ capacities, target, initialLevels, grifo }) {
   const key = (l) => l.join(',')
   const vecinos = (levels) => {
@@ -62,7 +65,14 @@ describe('ejemplo de mezcla química', () => {
     const mod = await import('../../plantillas/mezcla_quimica.js')
     const data = JSON.parse(await fs.readFile('data/muestra/mezcla-quimica.json', 'utf8'))
 
-    const camino = caminoHastaObjetivo(data)
+    // El ejemplo de la vitrina es de un solo compuesto (ver SEMILLAS en
+    // scripts/generate-muestrario.js), venga escrito como `target` o como
+    // lista de un elemento.
+    const objetivos = objetivosMezcla(data)
+    expect(objetivos.length, 'la vitrina enseña un solo compuesto').toBe(1)
+    const [target] = objetivos
+
+    const camino = caminoHastaObjetivo({ ...data, target })
     expect(camino, 'el ejemplo de mezcla no tiene solución').not.toBeNull()
 
     const host = document.createElement('div')
@@ -76,9 +86,8 @@ describe('ejemplo de mezcla química', () => {
     const btn = (texto) => [...host.querySelectorAll('button')]
       .find((b) => b.textContent.includes(texto))
 
-    // Tras «Llenar» el matraz sigue seleccionado (lo normal es llenar y
-    // volcar acto seguido), así que la selección se lee del DOM en vez de
-    // darla por supuesta: si hay otro marcado, se deselecciona antes.
+    // La selección se lee del DOM en vez de darla por supuesta: si hay otro
+    // matraz marcado, se deselecciona antes de marcar el que toca.
     const seleccionar = (i) => {
       const marcado = host.querySelector('.matraz.selected')
       if (marcado === matraces[i]) return
@@ -97,7 +106,7 @@ describe('ejemplo de mezcla química', () => {
     // verterlo en el reactor. Antes de eso no puede haber victoria.
     expect(ganado, 'la plantilla dio la victoria sin pasar por el reactor').toBe(0)
 
-    const exacto = camino.final.indexOf(data.target)
+    const exacto = camino.final.indexOf(target)
     seleccionar(exacto)
     host.querySelector('.reactor-button').click()
 
@@ -105,10 +114,13 @@ describe('ejemplo de mezcla química', () => {
 
     // La plantilla no puntúa: solo reporta lo que ha hecho quien juega, en la
     // unidad que cuenta el par de su tipo. Las estrellas las calcula el shell.
-    expect(marca).toEqual({ movimientos: camino.pasos.length })
+    // Verter cuenta como movimiento (igual que en solveMezcla), así que es un
+    // movimiento más que los pasos del camino.
+    const minimo = camino.pasos.length + 1
+    expect(marca).toEqual({ movimientos: minimo })
 
     const { estrellasDe } = await import('../../estrellas.js')
-    const objectives = { parMoves: camino.pasos.length, maxMovesFor3Stars: camino.pasos.length, maxMovesFor2Stars: camino.pasos.length + 2 }
+    const objectives = { parMoves: minimo, maxMovesFor3Stars: minimo, maxMovesFor2Stars: minimo + 2 }
     expect(estrellasDe(objectives, marca), 'resolverlo en el mínimo son tres estrellas').toBe(3)
   })
 
@@ -120,9 +132,12 @@ describe('ejemplo de mezcla química', () => {
     let ganado = 0
     await mod.render(host, data, { onSuccess: () => { ganado++ } })
 
-    // Un matraz recién llenado tiene su capacidad, no el objetivo.
+    // Un matraz recién llenado tiene su capacidad, no el objetivo. Llenar
+    // deselecciona (como vaciar), así que hay que volver a marcarlo para
+    // poder verterlo.
     host.querySelectorAll('.matraz')[0].click()
     ;[...host.querySelectorAll('button')].find((b) => b.textContent.includes('Llenar')).click()
+    host.querySelectorAll('.matraz')[0].click()
     host.querySelector('.reactor-button').click()
 
     expect(ganado).toBe(0)

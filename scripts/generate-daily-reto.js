@@ -6,7 +6,8 @@ import {
   solveMezcla,
   initialLevelsMezcla,
   CONFIGS_MEZCLA,
-  MIN_MOVIMIENTOS_MEZCLA
+  minimoExigidoMezcla,
+  objetivosMezcla
 } from './mezcla-logic.js';
 import { buildPattern, solveLightsOut } from './lightsout-logic.js';
 import { generarEnigma, dificultadDe } from './einstein-logic.js';
@@ -327,37 +328,76 @@ class MathGymGenerator {
     // en vez de mirar la paridad cruda del seed derivado.
     const grifo = this.mulberry32((seed * 40503 + 12345) >>> 0)() < 0.5;
     const nMatraces = this.mulberry32((seed * 27077 + 54321) >>> 0)() < 0.5 ? 3 : 4;
+    const nObjetivos = this.mulberry32((seed * 31627 + 11119) >>> 0)() < 0.5 ? 1 : 2;
 
     // Solo se sortea entre las configuraciones que con ESTE eje de dosificador
     // tienen solución y además no son triviales: sin grifo todo el reactivo es
     // el del primer matraz, y hay pares (capacidades, objetivo) que dejan de
     // ser alcanzables o que se resuelven de un volcado. Filtrar aquí es
     // determinista y evita publicar un reto que solo cazaría el validador.
-    const candidatos = CONFIGS_MEZCLA.filter((c) => {
-      if (c.capacities.length !== nMatraces) return false;
-      const min = solveMezcla({
-        grifo,
-        capacities: c.capacities,
-        target: c.target,
-        initialLevels: initialLevelsMezcla(c.capacities, grifo)
-      });
-      return min !== null && min >= MIN_MOVIMIENTOS_MEZCLA;
+    const exigido = minimoExigidoMezcla(nObjetivos);
+    const arranque = (capacities) => initialLevelsMezcla(capacities, grifo);
+    const minimoDe = (capacities, targets) => solveMezcla({
+      grifo, capacities, targets, initialLevels: arranque(capacities)
     });
 
-    if (candidatos.length === 0) {
+    // El segundo compuesto no está en la tabla: se busca aquí entre los
+    // volúmenes que caben en algún matraz. Encadenar es lo que hace
+    // interesante al eje -- el segundo objetivo arranca de las sobras del
+    // primero --, y el orden de prueba se sortea con el seed en vez de ir
+    // de 1 en adelante: probando en orden saldría casi siempre el mismo
+    // volumen pequeño y el eje perdería la variedad que justifica tenerlo.
+    const randExtra = this.mulberry32((seed * 19937 + 7717) >>> 0);
+    const objetivosDe = (c) => {
+      if (nObjetivos === 1) {
+        const min = minimoDe(c.capacities, [c.target]);
+        return min !== null && min >= exigido ? [c.target] : null;
+      }
+      // Un volumen que es la capacidad de un matraz sale de llenarlo y
+      // verterlo: dos movimientos y ninguna deducción. La tabla ya evita
+      // eso en el primer objetivo; el segundo tiene que cumplirlo igual, o
+      // el reto de dos compuestos sería el de uno con propina.
+      const capMax = Math.max(...c.capacities);
+      const extras = [];
+      for (let v = 1; v <= capMax; v++) {
+        if (v !== c.target && !c.capacities.includes(v)) extras.push(v);
+      }
+      for (let i = extras.length - 1; i > 0; i--) {
+        const j = Math.floor(randExtra() * (i + 1));
+        [extras[i], extras[j]] = [extras[j], extras[i]];
+      }
+      for (const extra of extras) {
+        const targets = [c.target, extra];
+        const min = minimoDe(c.capacities, targets);
+        if (min !== null && min >= exigido) return targets;
+      }
+      return null;
+    };
+
+    // Las configuraciones se recorren rotadas por el seed y se para en la
+    // primera que sirve, en vez de evaluarlas todas: cada intento cuesta
+    // un BFS y el reparto sigue siendo determinista.
+    const pool = CONFIGS_MEZCLA.filter((c) => c.capacities.length === nMatraces);
+    let base = null;
+    for (let i = 0; i < pool.length && !base; i++) {
+      const c = pool[(seed + i) % pool.length];
+      const targets = objetivosDe(c);
+      if (targets) base = { capacities: c.capacities, targets };
+    }
+
+    if (!base) {
       throw new Error(
         `generateMezcla: ninguna configuración de ${nMatraces} matraces sirve ` +
-        `con grifo=${grifo} (seed=${seed}) -- o no tienen solución o se resuelven ` +
-        `en menos de ${MIN_MOVIMIENTOS_MEZCLA} movimientos; revisar la tabla de configs`
+        `con grifo=${grifo} y ${nObjetivos} objetivo(s) (seed=${seed}) -- o no tienen ` +
+        `solución o se resuelven en menos de ${exigido} movimientos; revisar la tabla de configs`
       );
     }
 
-    const base = candidatos[seed % candidatos.length];
     const config = {
       grifo,
       capacities: base.capacities,
-      target: base.target,
-      initialLevels: initialLevelsMezcla(base.capacities, grifo)
+      targets: base.targets,
+      initialLevels: arranque(base.capacities)
     };
 
     const dataFileName = `mezcla_${fecha}.json`;
@@ -378,8 +418,10 @@ class MathGymGenerator {
       tipo: 'mezcla-quimica',
       // La variante es la etiqueta compuesta de los ejes, al estilo de
       // enigma-einstein: los ejes de verdad son campos del payload.
-      variant: `${grifo ? 'con-grifo' : 'sin-grifo'}-${nMatraces}`,
-      dificultad: nMatraces === 4 ? 3 : 2,
+      variant: `${grifo ? 'con-grifo' : 'sin-grifo'}-${nMatraces}-${nObjetivos}objetivos`,
+      // Un compuesto más es una vuelta más de deducción, no solo más
+      // teclas: sube un punto sobre lo que ya marca el nº de matraces.
+      dificultad: (nMatraces === 4 ? 3 : 2) + (nObjetivos - 1),
       categorias: ['volumen', 'movimiento'],
       hints: this.generateMezclaHints(config, minMoves),
       objectives: {
@@ -395,11 +437,17 @@ class MathGymGenerator {
   // Pistas específicas de capacities/target/grifo -- no un texto genérico.
   generateMezclaHints(cfg, minMoves) {
     const capsTxt = cfg.capacities.map((c) => `${c} mL`).join(', ');
+    const objetivos = objetivosMezcla(cfg);
+    const objTxt = objetivos.map((t) => `${t} mL`).join(' y ');
     const estrategia = cfg.grifo
-      ? `Llena y vacía los matraces de ${capsTxt} en el dosificador, y trasvasa entre ellos para ir acotando el volumen hasta los ${cfg.target} mL exactos.`
-      : `Solo tienes ${cfg.initialLevels.reduce((a, b) => a + b, 0)} mL de reactivo, todo en el primer matraz -- repártelo entre los matraces de ${capsTxt} sin desperdiciarlo para llegar a ${cfg.target} mL.`;
+      ? `Llena y vacía los matraces de ${capsTxt} en el dosificador, y trasvasa entre ellos para ir acotando el volumen hasta los ${objTxt} exactos.`
+      : `Solo tienes ${cfg.initialLevels.reduce((a, b) => a + b, 0)} mL de reactivo, todo en el primer matraz -- repártelo entre los matraces de ${capsTxt} sin desperdiciarlo para llegar a ${objTxt}.`;
+    const cadena = objetivos.length > 1
+      ? [`Los ${objetivos.length} compuestos se sintetizan en cadena y en el orden que quieras: el reactor vacía el matraz que le viertes, así que el segundo arranca de lo que hayas dejado en los demás. Piensa cuál conviene verter primero.`]
+      : [];
     return [
       estrategia,
+      ...cadena,
       `El mínimo real para este reto es ${minMoves} movimiento${minMoves === 1 ? '' : 's'}.`
     ];
   }

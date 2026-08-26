@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { balanzaScenarios, leerConfigBalanza } from './balanza-logic.js';
-import { solveMezcla, initialLevelsMezcla, MIN_MOVIMIENTOS_MEZCLA } from './mezcla-logic.js';
+import { solveMezcla, initialLevelsMezcla, minimoExigidoMezcla, objetivosMezcla } from './mezcla-logic.js';
 import { solveLightsOutFor } from './lightsout-logic.js';
 import { solveRelojes } from './relojes-logic.js';
 import { solveHashi, construirPares } from './hashi-logic.js';
@@ -320,7 +320,10 @@ class RetoValidator {
     const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
     const data = JSON.parse(dataContent);
 
-    if (!data.capacities || !data.target || !data.initialLevels) {
+    // Los objetivos van como lista (`targets`); los retos de un solo
+    // compuesto se escribieron con `target` a secas y siguen valiendo.
+    const objetivos = objetivosMezcla(data);
+    if (!data.capacities || objetivos.length === 0 || !data.initialLevels) {
       throw new Error('Mezcla reto missing required fields in data file');
     }
 
@@ -354,17 +357,21 @@ class RetoValidator {
     const min = solveMezcla(data);
     if (min === null) {
       throw new Error(
-        `Mezcla reto not solvable: no hay ninguna secuencia de trasvases que alcance ` +
-        `target=${data.target} desde capacities=[${data.capacities}] con initialLevels=[${data.initialLevels}]`
+        `Mezcla reto not solvable: no hay ninguna secuencia de trasvases que sintetice ` +
+        `targets=[${objetivos}] desde capacities=[${data.capacities}] con initialLevels=[${data.initialLevels}]`
       );
     }
 
     // Y que no sea trivial: un objetivo que sale de llenar un matraz y
-    // volcarlo no es un reto, aunque el BFS lo dé por resuelto.
-    if (min < MIN_MOVIMIENTOS_MEZCLA) {
+    // volcarlo no es un reto, aunque el BFS lo dé por resuelto. Con varios
+    // compuestos el listón sube en proporción, o el segundo solo alargaría
+    // el reto sin aportar deducción.
+    const exigido = minimoExigidoMezcla(objetivos.length);
+    if (min < exigido) {
       throw new Error(
-        `Mezcla reto trivial: se resuelve en ${min} movimiento(s), por debajo del ` +
-        `mínimo de ${MIN_MOVIMIENTOS_MEZCLA} (capacities=[${data.capacities}], target=${data.target})`
+        `Mezcla reto trivial: sus ${objetivos.length} objetivo(s) se sintetizan en ` +
+        `${min} movimiento(s), por debajo del mínimo de ${exigido} ` +
+        `(capacities=[${data.capacities}], targets=[${objetivos}])`
       );
     }
 
