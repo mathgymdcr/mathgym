@@ -5,7 +5,9 @@
     5,
     3
   ],
-  "target": 4,
+  "targets": [
+    4
+  ],
   "initialLevels": [
     0,
     0,

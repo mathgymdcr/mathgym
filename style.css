@@ -933,8 +933,8 @@ li {
   margin: 0 auto;
 }
 
-/* Objetivo */
-.mezcla-objective {
+/* Compuestos por sintetizar: uno o dos, y con dos hay que ver cuál queda */
+.mezcla-objetivos {
   background: rgba(255,255,255,.04);
   border: 1px solid var(--card-b);
   border-radius: 12px;
@@ -943,10 +943,48 @@ li {
   text-align: center;
 }
 
-.mezcla-objective p {
-  margin: 0;
+.objetivos-titulo {
+  margin: 0 0 10px;
   color: var(--muted);
   font-size: 1.1rem;
+}
+
+.objetivos-lista {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.objetivo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 120px;
+  padding: 10px 16px;
+  border: 1px solid var(--card-b);
+  border-radius: 10px;
+  background: rgba(255,255,255,.03);
+}
+
+.objetivo.hecho {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.objetivo.hecho .target-amount {
+  color: var(--success);
+  text-decoration: line-through;
+}
+
+.objetivo-estado {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.objetivo.hecho .objetivo-estado {
+  color: var(--success);
 }
 
 .target-amount {

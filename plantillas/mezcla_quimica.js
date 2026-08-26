@@ -1,15 +1,18 @@
 // plantillas/mezcla_quimica.js
-// Síntesis de un volumen exacto trasvasando reactivo entre matraces sin
-// graduar. Dos de los tres ejes del tipo se leen del payload:
+// Síntesis de volúmenes exactos trasvasando reactivo entre matraces sin
+// graduar. Los tres ejes del tipo se leen del payload:
 //   - `grifo`: si hay dosificador, se puede llenar un matraz hasta arriba
 //     y vaciarlo cuantas veces haga falta; sin él, el reactivo de partida
 //     es todo el que hay.
 //   - nº de matraces: la longitud de `capacities` (3 o 4).
-// El gesto de victoria es el mismo en las dos variantes: seleccionar el
-// matraz con el volumen exacto y verterlo en el reactor.
+//   - nº de objetivos: la longitud de `targets` (1 o 2).
+// El gesto es el mismo en todas: seleccionar el matraz con el volumen
+// exacto y verterlo en el reactor. Con varios compuestos se sintetizan EN
+// CADENA y en el orden que quiera quien juega -- el reactor vacía el
+// matraz, así que el siguiente arranca de lo que quede en los demás.
 import { celebrate } from './celebration.js';
 import { buildStandardShell, createElement, setStatus, pintarIcono } from './shell.js';
-import { initialLevelsMezcla } from '../scripts/mezcla-logic.js';
+import { initialLevelsMezcla, objetivosMezcla } from '../scripts/mezcla-logic.js';
 
 const PISTAS_GENERICAS = [
   'Llena del todo el matraz más pequeño y vuélcalo en uno mayor.',
@@ -28,24 +31,29 @@ export async function render(root, data, hooks) {
     return;
   }
 
-  if (!config.capacities || !config.target) {
+  const objetivos = objetivosMezcla(config);
+  if (!config.capacities || objetivos.length === 0) {
     root.innerHTML = '<div class="feedback ko">Error: Faltan capacidades y objetivo</div>';
     return;
   }
 
   const grifo = config.grifo === true;
-  const ui = buildShell(config, grifo);
+  const ui = buildShell(config, grifo, objetivos);
   root.append(ui.box);
 
   const state = {
     capacities: config.capacities,
     levels: initialLevels(config, grifo),
-    target: config.target,
+    objetivos,
+    // Índices de `objetivos` ya vertidos: con dos compuestos del mismo
+    // volumen hay que distinguirlos por posición, no por valor.
+    vertidos: [],
     selected: null,
     moves: 0
   };
 
   renderMatraces(ui.matracesContainer, state);
+  renderObjetivos(ui.objetivosContainer, state);
   setupEventListeners(ui, state, config, grifo);
 
   setStatus(ui.status, 'Laboratorio listo', 'ok');
@@ -82,6 +90,39 @@ export async function render(root, data, hooks) {
 
       container.appendChild(matraz);
     });
+  }
+
+  // Los compuestos pedidos, a la vista: con dos objetivos hay que poder
+  // mirar cuál queda, y el vertido no los tacha por valor sino por
+  // posición -- dos compuestos pueden pedir el mismo volumen.
+  function renderObjetivos(container, s) {
+    container.innerHTML = '';
+
+    const titulo = createElement('p', { class: 'objetivos-titulo' });
+    titulo.textContent = s.objetivos.length === 1
+      ? 'Compuesto por sintetizar:'
+      : 'Compuestos por sintetizar, en el orden que quieras:';
+    container.appendChild(titulo);
+
+    const lista = createElement('div', { class: 'objetivos-lista' });
+    s.objetivos.forEach((volumen, i) => {
+      const hecho = s.vertidos.includes(i);
+      const ficha = createElement('div', {
+        class: hecho ? 'objetivo hecho' : 'objetivo',
+        'data-objetivo': i
+      });
+
+      const cantidad = createElement('span', { class: 'target-amount' });
+      cantidad.textContent = `${volumen} mL`;
+      ficha.appendChild(cantidad);
+
+      const estado = createElement('span', { class: 'objetivo-estado' });
+      estado.textContent = hecho ? 'ya en el reactor' : 'pendiente';
+      ficha.appendChild(estado);
+
+      lista.appendChild(ficha);
+    });
+    container.appendChild(lista);
   }
 
   function updateNivel(reactivoElement, level, capacity) {
@@ -140,11 +181,17 @@ export async function render(root, data, hooks) {
   }
 
   function handleVictory(uiRef, s) {
-    setStatus(uiRef.result, `¡Compuesto sintetizado! ${s.target} mL en ${s.moves} movimientos`, 'ok');
+    const varios = s.objetivos.length > 1;
+    const resumen = s.objetivos.map((t) => `${t} mL`).join(' y ');
+    setStatus(uiRef.result, varios
+      ? `¡Compuestos sintetizados! ${resumen} en ${s.moves} movimientos`
+      : `¡Compuesto sintetizado! ${resumen} en ${s.moves} movimientos`, 'ok');
     // El pie se queda si no: al verter se deselecciona el matraz, y dejar ahí
     // un "Matraz N seleccionado" contradice lo que muestra el tablero.
-    setStatus(uiRef.message, 'El compuesto ya está en el reactor.', 'ok');
-    celebrate({ ok: true, message: `Vertiste ${s.target} mL exactos en el reactor en ${s.moves} movimientos` });
+    setStatus(uiRef.message, varios
+      ? 'Todos los compuestos están ya en el reactor.'
+      : 'El compuesto ya está en el reactor.', 'ok');
+    celebrate({ ok: true, message: `Vertiste ${resumen} exactos en el reactor en ${s.moves} movimientos` });
     if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: s.moves });
 
     uiRef.reactorButton.classList.add('celebration');
@@ -171,10 +218,16 @@ export async function render(root, data, hooks) {
           setStatus(uiRef.message, 'Selecciona un matraz primero', 'ko');
           return;
         }
-        s.levels[s.selected] = s.capacities[s.selected];
+        // Llenar deselecciona, igual que vaciar: el gesto de verter es
+        // seleccionar el matraz y pulsar el reactor, y dejar la selección
+        // puesta obligaría a pulsar el matraz dos veces para volver a él.
+        const lleno = s.selected;
+        s.levels[lleno] = s.capacities[lleno];
         s.moves++;
+        s.selected = null;
+        clearHighlight(uiRef.matracesContainer);
         updateUI(uiRef, s);
-        setStatus(uiRef.message, `Matraz ${s.selected + 1} lleno hasta el borde. Movimientos: ${s.moves}`, 'ok');
+        setStatus(uiRef.message, `Matraz ${lleno + 1} lleno hasta el borde. Movimientos: ${s.moves}`, 'ok');
       });
     }
 
@@ -183,24 +236,46 @@ export async function render(root, data, hooks) {
         setStatus(uiRef.message, 'Selecciona primero el matraz que quieres verter', 'ko');
         return;
       }
-      if (s.levels[s.selected] === s.target) {
-        s.levels[s.selected] = 0;
-        s.selected = null;
-        clearHighlight(uiRef.matracesContainer);
-        updateUI(uiRef, s);
-        handleVictory(uiRef, s);
-      } else {
+      // Si dos compuestos piden el mismo volumen da igual cuál se dé por
+      // vertido: se apunta el primero que siga pendiente.
+      const pendiente = s.objetivos.findIndex(
+        (volumen, i) => !s.vertidos.includes(i) && volumen === s.levels[s.selected]
+      );
+      if (pendiente === -1) {
         setStatus(uiRef.message, 'Ese matraz no tiene el volumen exacto. El reactor no admite aproximaciones.', 'ko');
+        return;
       }
+
+      s.levels[s.selected] = 0;
+      s.vertidos.push(pendiente);
+      // Verter cuenta como movimiento, igual que llenar o trasvasar: es lo
+      // que cuenta el BFS que fija el mínimo del reto (mezcla-logic.js).
+      s.moves++;
+      s.selected = null;
+      clearHighlight(uiRef.matracesContainer);
+      updateUI(uiRef, s);
+      renderObjetivos(uiRef.objetivosContainer, s);
+
+      if (s.vertidos.length === s.objetivos.length) {
+        handleVictory(uiRef, s);
+        return;
+      }
+
+      const quedan = s.objetivos.length - s.vertidos.length;
+      setStatus(uiRef.message,
+        `Compuesto de ${s.objetivos[pendiente]} mL vertido; el reactor ha vaciado el matraz. ` +
+        `Queda${quedan === 1 ? '' : 'n'} ${quedan} por sintetizar. Movimientos: ${s.moves}`, 'ok');
     });
 
     uiRef.btnReset.addEventListener('click', () => {
       s.levels = initialLevels(cfg, hasGrifo);
       s.selected = null;
       s.moves = 0;
+      s.vertidos = [];
 
       clearHighlight(uiRef.matracesContainer);
       updateUI(uiRef, s);
+      renderObjetivos(uiRef.objetivosContainer, s);
       setStatus(uiRef.message, 'Laboratorio reiniciado', 'ok');
       setStatus(uiRef.result, '', '');
     });
@@ -214,8 +289,8 @@ export async function render(root, data, hooks) {
   }
 }
 
-function buildShell(config, grifo) {
-  const target = `<span class="target-amount">${config.target} mL</span>`;
+function buildShell(config, grifo, objetivos) {
+  const objTxt = objetivos.map((t) => `<span class="target-amount">${t} mL</span>`).join(' y ');
   const intro = grifo
     ? 'Llena los matraces en el dosificador o vacíalos en el fregadero, y trasvasa reactivo entre ellos pulsando primero el matraz de origen y luego el de destino.'
     : `Solo dispones de ${config.initialLevels ? config.initialLevels.reduce((a, b) => a + b, 0) : config.capacities[0]} mL de reactivo: no hay dosificador, así que trasvasa entre los matraces pulsando primero el de origen y luego el de destino, sin desperdiciarlo.`;
@@ -227,9 +302,13 @@ function buildShell(config, grifo) {
       <h3>Cómo se juega</h3>
       <p>${intro}</p>
       <p>Los matraces no están graduados: al volcar uno en otro pasa todo lo que quepa, ni una gota más.</p>
-      <p>Cuando un matraz tenga exactamente ${target}, selecciónalo y pulsa <strong>Verter en el reactor</strong>.</p>
+      <p>Cuando un matraz tenga exactamente ${objTxt}, selecciónalo y pulsa <strong>Verter en el reactor</strong>.</p>
+      ${objetivos.length > 1 ? `<p>Los ${objetivos.length} compuestos se sintetizan en cadena y en el orden que quieras: el reactor vacía el matraz que le viertes, así que el siguiente arranca de lo que hayas dejado en los demás.</p>` : ''}
     `
   });
+
+  const objetivosContainer = createElement('div', { class: 'mezcla-objetivos' });
+  ui.box.appendChild(objetivosContainer);
 
   const matracesContainer = createElement('div', { class: 'mezcla-matraces' });
   ui.box.appendChild(matracesContainer);
@@ -269,7 +348,7 @@ function buildShell(config, grifo) {
   message.textContent = 'Selecciona un matraz para empezar';
   ui.box.appendChild(message);
 
-  return { ...ui, matracesContainer, btnFill, btnEmpty, btnReset, btnHint, reactorButton, message };
+  return { ...ui, objetivosContainer, matracesContainer, btnFill, btnEmpty, btnReset, btnHint, reactorButton, message };
 }
 
 async function loadConfig(data) {
@@ -281,7 +360,7 @@ async function loadConfig(data) {
     return await response.json();
   }
 
-  if (data && (data.capacities || data.target)) {
+  if (data && (data.capacities || data.target || data.targets)) {
     return data;
   }
 
