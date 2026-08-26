@@ -28,7 +28,10 @@ const SEMILLAS = {
   'luces-fuera': 20260107,
   'relojes-arena': 20260107,
   'puentes-hashi': 20260108,
-  'nonograma': 20260110,
+  // pequeno (monocromo): el nonograma sortea también el eje de color, y la
+  // vitrina enseña la combinación llana -- la regla de contacto entre
+  // colores se aprende en el reto del día, no en el ejemplo de entrada.
+  'nonograma': 20260104,
   'cajas-apiladas': 20260110,
   'anillas-encadenadas': 20260112,
   'laser-triangular': 20260114,

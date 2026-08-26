@@ -46,4 +46,5 @@ const loaders = {
 ## Plantillas incluidas (ejemplos)
 - `multiple` → elección múltiple con `opciones[]` y `correcta`.
 - `relojes-arena` → describe plan para medir tiempo con relojes.
+- `nonograma` → pinta el dibujo oculto a partir de las pistas; con `paleta` en el payload va en color, y ahí dos bloques de colores distintos pueden ir pegados.
 - `mezcla-quimica` → sintetizar los volúmenes exactos de `targets` trasvasando entre matraces sin graduar, uno o dos y en el orden que quiera quien juega.

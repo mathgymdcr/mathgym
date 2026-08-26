@@ -2280,6 +2280,36 @@ li {
   border-color: var(--card-b);
 }
 
+/* Barra de color del nonograma multicolor: elige con qué se pinta. En el
+   monocromo no se monta, y el resto del tablero queda igual. */
+.nono-paleta {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.nono-color {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--card-b);
+  border-radius: 10px;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.nono-color:hover {
+  transform: translateY(-2px);
+}
+
+/* El activo se marca con el borde y un anillo, no solo con el color: dos
+   colores de la paleta ya compiten entre sí ahí. */
+.nono-color.is-active {
+  border-color: var(--fg);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.18);
+}
+
 .nono-controls {
   display: flex;
   justify-content: center;

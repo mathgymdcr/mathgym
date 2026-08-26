@@ -605,11 +605,13 @@ class MathGymGenerator {
     // nonograma-logic.js; el validador reusa el mismo solver para volver a
     // contar soluciones sobre el JSON ya escrito.
     const puzzle = buildNonogramaPuzzle(seed);
-    const { variant, rows, cols, grid, figura, dificultad, soloLogica } = puzzle;
+    const { variant, rows, cols, grid, paleta, figura, dificultad, soloLogica } = puzzle;
 
     // La plantilla deriva las pistas del propio grid, así que no se duplican
-    // aquí: una sola fuente de verdad para los números que ve el jugador.
-    const config = { variant, rows, cols, grid, figura };
+    // aquí: una sola fuente de verdad para los números que ve el jugador. La
+    // paleta solo va en los retos en color: sin ella, el grid es de 0 y 1 y
+    // el reto se juega en monocromo, como todo lo publicado hasta hoy.
+    const config = { variant, rows, cols, grid, ...(paleta ? { paleta } : {}), figura };
 
     const dataFileName = `nonograma_${fecha}.json`;
     await fs.mkdir('data', { recursive: true });
@@ -618,7 +620,7 @@ class MathGymGenerator {
       JSON.stringify(config, null, 2)
     );
 
-    const pintadas = grid.flat().filter((v) => v === 1).length;
+    const pintadas = grid.flat().filter((v) => v > 0).length;
     return {
       id: `${fecha}-nonograma-001`,
       tipo: 'nonograma',

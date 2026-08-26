@@ -6,7 +6,7 @@ import { solveMezcla, initialLevelsMezcla, minimoExigidoMezcla, objetivosMezcla 
 import { solveLightsOutFor } from './lightsout-logic.js';
 import { solveRelojes } from './relojes-logic.js';
 import { solveHashi, construirPares } from './hashi-logic.js';
-import { pistasDe, resolverNonograma } from './nonograma-logic.js';
+import { pistasDe, pistasColorDe, resolverNonograma } from './nonograma-logic.js';
 import { solveCajas } from './cajas-logic.js';
 import { resolverAnillas } from './anillas-logic.js';
 import { resuelto as laserResuelto, espejosMinimos, crearEspejos, DIR_VECTOR } from './laser-triangular-logic.js';
@@ -560,12 +560,25 @@ class RetoValidator {
     }
     const filas = data.grid.length;
     const columnas = data.grid[0].length;
+    // Sin paleta el reto es monocromo y el grid solo admite 0 y 1; con ella,
+    // cada celda es 0 (vacía) o el índice 1..n de un color de la paleta.
+    const color = Array.isArray(data.paleta);
+    const maxColor = color ? data.paleta.length : 1;
+    if (color && data.paleta.length < 2) {
+      throw new Error(
+        `Nonograma en color con una paleta de ${data.paleta.length}: con un solo color es un monocromo teñido`
+      );
+    }
     for (const fila of data.grid) {
       if (!Array.isArray(fila) || fila.length !== columnas) {
         throw new Error(`Nonograma cuadrícula no rectangular: se esperaban ${columnas} celdas por fila`);
       }
-      if (fila.some((v) => v !== 0 && v !== 1)) {
-        throw new Error(`Nonograma cuadrícula con valores que no son 0 ni 1: [${fila}]`);
+      if (fila.some((v) => !Number.isInteger(v) || v < 0 || v > maxColor)) {
+        throw new Error(
+          color
+            ? `Nonograma con un color fuera de la paleta de ${maxColor}: [${fila}]`
+            : `Nonograma cuadrícula con valores que no son 0 ni 1: [${fila}]`
+        );
       }
     }
     if (data.rows != null && data.rows !== filas) {
@@ -574,7 +587,7 @@ class RetoValidator {
     if (data.cols != null && data.cols !== columnas) {
       throw new Error(`Nonograma cols=${data.cols} no coincide con las ${columnas} columnas de la cuadrícula`);
     }
-    if (!data.grid.flat().some((v) => v === 1)) {
+    if (!data.grid.flat().some((v) => v > 0)) {
       throw new Error('Nonograma completamente vacío: no hay nada que dibujar');
     }
 
@@ -584,7 +597,9 @@ class RetoValidator {
     // dibujo cumpliera todos los números. Se vuelve a resolver desde las
     // pistas para comprobar que la solución es única y que es exactamente
     // esta.
-    const { filas: pistasFilas, columnas: pistasColumnas } = pistasDe(data.grid);
+    const { filas: pistasFilas, columnas: pistasColumnas } = color
+      ? pistasColorDe(data.grid)
+      : pistasDe(data.grid);
     const res = resolverNonograma(pistasFilas, pistasColumnas, { tope: 2 });
     if (res.soluciones === 0) {
       throw new Error(`Nonograma not solvable: las pistas de ${filas}x${columnas} no admiten ninguna solución`);

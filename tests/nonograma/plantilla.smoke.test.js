@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildNonogramaPuzzle, pistasDe } from '../../scripts/nonograma-logic.js'
+import { buildNonogramaPuzzle, pistasColorDe } from '../../scripts/nonograma-logic.js'
 
 // Contrato entre el payload del generador y plantillas/nonograma.js, que
 // deriva las pistas del `grid` por su cuenta.
@@ -14,6 +14,7 @@ describe('plantillas/nonograma.js con el payload del generador', () => {
       rows: p.rows,
       cols: p.cols,
       grid: p.grid,
+      ...(p.paleta ? { paleta: p.paleta } : {}),
       figura: p.figura
     }, {})
 
@@ -22,8 +23,8 @@ describe('plantillas/nonograma.js con el payload del generador', () => {
     expect(root.querySelectorAll('.nono-clue-col')).toHaveLength(p.cols)
     expect(root.querySelector('.feedback.ko')).toBeNull()
 
-    const { filas } = pistasDe(p.grid)
+    const { filas } = pistasColorDe(p.grid)
     const primeraPista = [...root.querySelectorAll('.nono-clue-row')][0].textContent
-    expect(primeraPista).toBe(filas[0].join(''))
+    expect(primeraPista).toBe(filas[0].map((b) => b.n).join(''))
   })
 })
