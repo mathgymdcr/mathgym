@@ -1053,8 +1053,10 @@ describe('validatePoligonoData', () => {
   })
 
   it('rechaza el reparto ambiguo en dos figuras', async () => {
-    // (12,24) con ambas-convexas admite varios repartos.
-    const reto = await retoCon({ area: 12, perimeter: 24, gridSize: 8, n_figuras: 2, formas: 'ambas-convexas' })
+    // (9,20) con una-de-cada admite TRES repartos -- (3,8)+(6,12),
+    // (4,8)+(5,12) y (4,10)+(5,10) -- asi que no hay nada que deducir.
+    // Verificado por enumeracion.
+    const reto = await retoCon({ area: 9, perimeter: 20, gridSize: 8, n_figuras: 2, formas: 'una-de-cada' })
     await expect(new RetoValidator().validatePoligonoData(reto)).rejects.toThrow(/reparto/)
   })
 })
