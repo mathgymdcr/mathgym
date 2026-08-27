@@ -1,2 +1,5 @@
 node_modules/
 .DS_Store
+
+# Espacio de trabajo del proceso de ejecución de planes (artefactos locales)
+.superpowers/
