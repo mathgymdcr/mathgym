@@ -2,6 +2,12 @@
 import { celebrate } from './celebration.js';
 import { pintarIcono } from './shell.js';
 import { tipoInfo } from '../catalogo-tipos.js';
+import {
+  claveArista,
+  nodosDeArista,
+  figurasDeAristas,
+  medidasDeFigura
+} from '../scripts/poligono-logic.js';
 
 export async function render(root, data, hooks) {
   // Limpiar contenedor
@@ -28,7 +34,17 @@ export async function render(root, data, hooks) {
   // Actualizar el objetivo mostrado (buildShell se ejecutó antes de cargar config)
   const instructionsP = ui.box.querySelector('.polygon-instructions p');
   if (instructionsP) {
-    instructionsP.innerHTML = `<strong>Objetivo:</strong> Área = ${config.area}, Perímetro = ${config.perimeter}`;
+    const totales = (config.n_figuras ?? 1) > 1 ? ' (totales de las dos figuras)' : '';
+    const forma = {
+      'libre': '',
+      'convexa': ' · sin entrantes',
+      'concava': ' · con al menos un entrante',
+      'ambas-convexas': ' · las dos sin entrantes',
+      'una-de-cada': ' · una sin entrantes y otra con al menos uno',
+      'ambas-concavas': ' · las dos con al menos un entrante'
+    }[config.formas ?? 'libre'] || '';
+    instructionsP.innerHTML =
+      `<strong>Objetivo:</strong> Área = ${config.area}, Perímetro = ${config.perimeter}${totales}${forma}`;
   }
 
   // Inicializar variables del juego
@@ -37,6 +53,7 @@ export async function render(root, data, hooks) {
   // Renderizar componentes
   setupCanvas(ui.canvases, gameState);
   buildNodes(ui.nodesLayer, gameState);
+  buildEdges(ui.nodesLayer, gameState, ui);
   setupEventListeners(ui, gameState, config);
 
   setStatus(ui.status, 'Listo para construir', 'ok');
@@ -55,10 +72,16 @@ export async function render(root, data, hooks) {
       H,
       pad,
       step,
-      path: [],
-      closed: false,
+      // El tablero es un CONJUNTO DE ARISTAS, no una secuencia de nodos:
+      // así se puede borrar un segmento de en medio (una secuencia se
+      // partiría en dos) y dos figuras son dos componentes conexas.
+      aristas: new Set(),
+      inicio: null,
+      activo: null,
       history: [],
       future: [],
+      nFiguras: config.n_figuras ?? 1,
+      formas: config.formas ?? 'libre',
       targetArea: config.area,
       targetPerimeter: config.perimeter
     };
@@ -98,26 +121,24 @@ export async function render(root, data, hooks) {
 
   function drawLines(ctx, state) {
     ctx.clearRect(0, 0, state.W, state.H);
-    if (state.path.length === 0) return;
-    
+    if (state.aristas.size === 0) return;
+
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = 3;
-    
+
     const grad = ctx.createLinearGradient(0, 0, state.W, state.H);
     grad.addColorStop(0, '#8A2189');  // --brand (canvas no lee var())
     grad.addColorStop(1, '#1788C7');  // --blue
     ctx.strokeStyle = grad;
-    
-    ctx.beginPath();
-    ctx.moveTo(state.path[0].x, state.path[0].y);
-    for (let i = 1; i < state.path.length; i++) {
-      ctx.lineTo(state.path[i].x, state.path[i].y);
+
+    for (const clave of state.aristas) {
+      const [a, b] = nodosDeArista(clave);
+      ctx.beginPath();
+      ctx.moveTo(state.pad + a.c * state.step, state.pad + a.r * state.step);
+      ctx.lineTo(state.pad + b.c * state.step, state.pad + b.r * state.step);
+      ctx.stroke();
     }
-    if (state.closed) {
-      ctx.lineTo(state.path[0].x, state.path[0].y);
-    }
-    ctx.stroke();
   }
 
   function buildNodes(container, state) {
@@ -131,6 +152,8 @@ export async function render(root, data, hooks) {
         const dot = createElement('div', { class: 'polygon-node' });
         dot.style.left = x + 'px';
         dot.style.top = y + 'px';
+        // Por encima de la capa de segmentos, que se monta después.
+        dot.style.zIndex = '2';
         dot.dataset.r = r;
         dot.dataset.c = c;
         dot.dataset.x = x;
@@ -142,122 +165,178 @@ export async function render(root, data, hooks) {
     }
   }
 
+  // Nodos con grado 1: los cabos por los que se puede seguir dibujando.
+  function extremosDe(state) {
+    const grado = new Map();
+    for (const clave of state.aristas) {
+      for (const n of clave.split('-')) grado.set(n, (grado.get(n) || 0) + 1);
+    }
+    return [...grado.entries()]
+      .filter(([, g]) => g === 1)
+      .map(([k]) => {
+        const [r, c] = k.split(',').map(Number);
+        return { r, c };
+      });
+  }
+
   function onNodeClick(e, state, ui) {
-    if (state.closed) return;
-    
     const dot = e.currentTarget;
-    const r = +dot.dataset.r;
-    const c = +dot.dataset.c;
-    const x = +dot.dataset.x;
-    const y = +dot.dataset.y;
-    const node = { r, c, x, y };
-    
-    if (state.path.length === 0) {
-      pushHistory(state);
-      state.path.push(node);
+    const nodo = { r: +dot.dataset.r, c: +dot.dataset.c };
+    const vecino = (p) => Math.abs(p.r - nodo.r) + Math.abs(p.c - nodo.c) === 1;
+
+    const cabos = extremosDe(state);
+    // Primer clic del trazo: solo marca por dónde se empieza. Ojo, la
+    // condición tiene que mirar `inicio`: sin aristas todavía, el segundo
+    // clic cumpliría igual "no hay cabos" y volvería a mover el inicio en
+    // vez de trazar el primer lado.
+    if (state.aristas.size === 0 && !state.inicio) {
+      state.inicio = nodo;
       refresh(ui, state);
       return;
     }
-    
-    const start = state.path[0];
-    const last = state.path[state.path.length - 1];
-    
-    // Cerrar polígono
-    if (r === start.r && c === start.c && state.path.length >= 3) {
-      pushHistory(state);
-      state.closed = true;
-      refresh(ui, state);
+
+    // Cuando el nodo pulsado toca los DOS cabos -- al cerrar la figura, sin
+    // ir más lejos -- hay que seguir por el que se venía trazando. Con
+    // `find` a secas se elegía el otro, y la figura quedaba con un hueco
+    // que ya no se podía cerrar.
+    const esCabo = (p) => cabos.some((q) => q.r === p.r && q.c === p.c);
+    const desde = (state.activo && esCabo(state.activo) && vecino(state.activo))
+      ? state.activo
+      : (cabos.find(vecino)
+        || (state.inicio && vecino(state.inicio) ? state.inicio : null));
+    if (!desde) {
+      // Sin nada dibujado, un clic lejos del inicio simplemente lo mueve.
+      if (state.aristas.size === 0) {
+        state.inicio = nodo;
+        refresh(ui, state);
+      }
       return;
     }
-    
-    // Verificar adyacencia (Manhattan distance = 1)
-    const adjacent = (Math.abs(r - last.r) + Math.abs(c - last.c)) === 1;
-    if (!adjacent) return;
-    
+
+    const clave = claveArista(desde, nodo);
+    if (state.aristas.has(clave)) return;
+
+    // Ningún nodo puede pasar de grado 2: eso es lo que impide los cruces,
+    // y con ellos el área por shoelace de un polígono que se corta a sí
+    // mismo, que no significa nada.
+    const prueba = new Set([...state.aristas, clave]);
+    if (figurasDeAristas(prueba).invalido) return;
+
     pushHistory(state);
-    state.path.push(node);
+    state.aristas = prueba;
+    state.inicio = null;
+    state.activo = nodo;
     refresh(ui, state);
   }
 
+  // Pulsar un segmento dibujado lo quita. Poner es cosa de los nodos.
+  // Quitar una arista de un ciclo lo deja como cadena abierta con dos
+  // cabos, y desde cualquiera se sigue dibujando: es el gesto de hacerle
+  // un saliente o un entrante a la figura.
+  function onEdgeClick(clave, state, ui) {
+    if (!state.aristas.has(clave)) return;
+    pushHistory(state);
+    const nuevas = new Set(state.aristas);
+    nuevas.delete(clave);
+    state.aristas = nuevas;
+    state.inicio = null;
+    state.activo = null;
+    refresh(ui, state);
+  }
+
+  function buildEdges(container, state, ui) {
+    const grosor = 14;   // área de pulsación generosa; la línea pintada es más fina
+    for (let r = 0; r < state.N; r++) {
+      for (let c = 0; c < state.N; c++) {
+        for (const [dr, dc] of [[0, 1], [1, 0]]) {
+          const r2 = r + dr, c2 = c + dc;
+          if (r2 >= state.N || c2 >= state.N) continue;
+
+          const el = createElement('div', { class: 'polygon-edge' });
+          el.dataset.arista = claveArista({ r, c }, { r: r2, c: c2 });
+          const x = state.pad + c * state.step;
+          const y = state.pad + r * state.step;
+          el.style.position = 'absolute';
+          el.style.left = `${x - (dc ? 0 : grosor / 2)}px`;
+          el.style.top = `${y - (dr ? 0 : grosor / 2)}px`;
+          el.style.width = `${dc ? state.step : grosor}px`;
+          el.style.height = `${dr ? state.step : grosor}px`;
+          el.style.zIndex = '1';
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', () => onEdgeClick(el.dataset.arista, state, ui));
+          container.appendChild(el);
+        }
+      }
+    }
+  }
+
+  function marcaAristas(container, state) {
+    container.querySelectorAll('.polygon-edge').forEach((el) => {
+      el.classList.toggle('puesta', state.aristas.has(el.dataset.arista));
+    });
+  }
+
   function highlightAdjacent(container, state) {
-    container.querySelectorAll('.polygon-node').forEach(el => {
+    container.querySelectorAll('.polygon-node').forEach((el) => {
       el.classList.remove('adj', 'selected');
     });
-    
-    if (state.path.length === 0) return;
-    
-    const last = state.path[state.path.length - 1];
-    const selected = container.querySelector(
-      `.polygon-node[data-r="${last.r}"][data-c="${last.c}"]`
-    );
-    if (selected) selected.classList.add('selected');
-    
-    const coords = [
-      [last.r - 1, last.c],
-      [last.r + 1, last.c],
-      [last.r, last.c - 1],
-      [last.r, last.c + 1]
-    ];
-    
-    coords.forEach(([rr, cc]) => {
-      if (rr >= 0 && rr < state.N && cc >= 0 && cc < state.N) {
-        const el = container.querySelector(
-          `.polygon-node[data-r="${rr}"][data-c="${cc}"]`
-        );
+
+    const cabos = state.aristas.size === 0 && state.inicio
+      ? [state.inicio]
+      : extremosDe(state);
+
+    for (const cabo of cabos) {
+      const sel = container.querySelector(
+        `.polygon-node[data-r="${cabo.r}"][data-c="${cabo.c}"]`
+      );
+      if (sel) sel.classList.add('selected');
+
+      const alrededor = [
+        [cabo.r - 1, cabo.c], [cabo.r + 1, cabo.c],
+        [cabo.r, cabo.c - 1], [cabo.r, cabo.c + 1]
+      ];
+      for (const [rr, cc] of alrededor) {
+        if (rr < 0 || rr >= state.N || cc < 0 || cc >= state.N) continue;
+        if (state.aristas.has(claveArista(cabo, { r: rr, c: cc }))) continue;
+        const el = container.querySelector(`.polygon-node[data-r="${rr}"][data-c="${cc}"]`);
         if (el) el.classList.add('adj');
       }
-    });
+    }
   }
 
   function refresh(ui, state) {
     const gctx = ui.canvases.grid.getContext('2d');
     const lctx = ui.canvases.lines.getContext('2d');
-    
+
     drawGrid(gctx, state);
     drawLines(lctx, state);
+    marcaAristas(ui.nodesLayer, state);
     highlightAdjacent(ui.nodesLayer, state);
     updateMessage(ui.message, state);
   }
 
   function updateMessage(messageEl, state) {
-    if (!state.path.length) {
-      messageEl.textContent = 'Haz clic en un nodo para empezar. Se iluminan los adyacentes.';
+    if (!messageEl) return;
+
+    if (state.aristas.size === 0) {
+      messageEl.textContent = state.inicio
+        ? 'Ya tienes por dónde empezar: pulsa un nodo vecino para trazar el primer lado.'
+        : 'Haz clic en un nodo para empezar. Se iluminan los adyacentes.';
       return;
     }
-    if (!state.closed) {
-      messageEl.textContent = 'Sigue construyendo. Solo movimientos a nodos adyacentes.';
+
+    const { ciclos, abiertas } = figurasDeAristas(state.aristas);
+    if (abiertas > 0) {
+      messageEl.textContent = 'Sigue hasta cerrar la figura. Pulsa un segmento dibujado para borrarlo.';
       return;
     }
-    messageEl.textContent = 'Pulsa Validar para verificar tu polígono.';
-  }
-
-  function calculateArea(state) {
-    if (!state.closed || state.path.length < 3) return 0;
-    let area = 0;
-    for (let i = 0; i < state.path.length; i++) {
-      const j = (i + 1) % state.path.length;
-      area += state.path[i].x * state.path[j].y - state.path[j].x * state.path[i].y;
-    }
-    return Math.abs(area) / 2 / (state.step * state.step);
-  }
-
-  function calculatePerimeter(state) {
-    if (!state.closed || state.path.length < 2) return 0;
-    let perimeter = 0;
-    for (let i = 0; i < state.path.length; i++) {
-      const j = (i + 1) % state.path.length;
-      const dr = Math.abs(state.path[i].r - state.path[j].r);
-      const dc = Math.abs(state.path[i].c - state.path[j].c);
-      perimeter += dr + dc;
-    }
-    return perimeter;
+    messageEl.textContent = ciclos.length === state.nFiguras
+      ? 'Pulsa Validar para comprobar.'
+      : `Llevas ${ciclos.length} de ${state.nFiguras} figuras cerradas.`;
   }
 
   function pushHistory(state) {
-    state.history.push(JSON.stringify({
-      path: state.path.map(p => ({ ...p })),
-      closed: state.closed
-    }));
+    state.history.push(JSON.stringify([...state.aristas]));
     if (state.history.length > 100) state.history.shift();
     state.future.length = 0;
   }
@@ -265,23 +344,43 @@ export async function render(root, data, hooks) {
   function setupEventListeners(ui, state, config) {
     if (ui.btnValidate) {
       ui.btnValidate.addEventListener('click', () => {
-        if (!state.closed) {
-          setStatus(ui.result, 'El polígono no está cerrado', 'ko');
+        const { ciclos, invalido } = figurasDeAristas(state.aristas);
+        if (invalido || ciclos.length !== state.nFiguras) {
+          state.fallos = (state.fallos || 0) + 1;
+          const plural = state.nFiguras > 1 ? 's' : '';
+          setStatus(ui.result,
+            `Necesitas ${state.nFiguras} figura${plural} cerrada${plural}.`, 'ko');
           return;
         }
-        
-        const area = calculateArea(state);
-        const perimeter = calculatePerimeter(state);
-        const areaOk = Math.abs(area - state.targetArea) < 1e-6;
-        const perimeterOk = perimeter === state.targetPerimeter;
-        
-        if (areaOk && perimeterOk) {
-          setStatus(ui.result, `Correcto! A=${area.toFixed(1)}, P=${perimeter}`, 'ok');
+
+        // Área, perímetro y convexidad los decide poligono-logic.js, el
+        // mismo módulo que usan el generador y el validador: dos copias con
+        // cualquier diferencia publicarían retos imposibles de cumplir.
+        const medidas = ciclos.map(medidasDeFigura);
+        const area = medidas.reduce((acc, m) => acc + m.area, 0);
+        const perimetro = medidas.reduce((acc, m) => acc + m.perimetro, 0);
+        const convexas = medidas.filter((m) => m.convexa).length;
+
+        const cumpleForma = {
+          'libre': () => true,
+          'convexa': () => convexas === 1,
+          'concava': () => convexas === 0,
+          'ambas-convexas': () => convexas === 2,
+          'una-de-cada': () => convexas === 1,
+          'ambas-concavas': () => convexas === 0
+        }[state.formas];
+
+        const ok = area === state.targetArea
+          && perimetro === state.targetPerimeter
+          && (cumpleForma ? cumpleForma() : true);
+
+        if (ok) {
+          setStatus(ui.result, `Correcto! A=${area}, P=${perimetro}`, 'ok');
           celebrate({ ok: true });
           if (hooks && hooks.onSuccess) hooks.onSuccess({ fallos: state.fallos || 0 });
         } else {
-          setStatus(ui.result, `No coincide. A=${area.toFixed(2)}, P=${perimeter}`, 'ko');
           state.fallos = (state.fallos || 0) + 1;
+          setStatus(ui.result, `No coincide. A=${area}, P=${perimetro}`, 'ko');
         }
       });
     }
@@ -289,13 +388,10 @@ export async function render(root, data, hooks) {
     if (ui.btnUndo) {
       ui.btnUndo.addEventListener('click', () => {
         if (state.history.length) {
-          const lastState = JSON.parse(state.history.pop());
-          state.future.push(JSON.stringify({
-            path: state.path.map(p => ({ ...p })),
-            closed: state.closed
-          }));
-          state.path = lastState.path;
-          state.closed = lastState.closed;
+          state.future.push(JSON.stringify([...state.aristas]));
+          state.aristas = new Set(JSON.parse(state.history.pop()));
+          state.inicio = null;
+          state.activo = null;
           refresh(ui, state);
         }
       });
@@ -304,8 +400,9 @@ export async function render(root, data, hooks) {
     if (ui.btnReset) {
       ui.btnReset.addEventListener('click', () => {
         pushHistory(state);
-        state.path = [];
-        state.closed = false;
+        state.aristas = new Set();
+        state.inicio = null;
+        state.activo = null;
         refresh(ui, state);
       });
     }
@@ -355,7 +452,7 @@ function buildShell(data) {
 
   // Controls
   const controls = createElement('div', { class: 'polygon-controls' });
-  const btnValidate = createElement('button', { class: 'btn' });
+  const btnValidate = createElement('button', { class: 'btn', id: 'polygon-validate' });
   btnValidate.textContent = 'Validar';
   const btnUndo = createElement('button', { class: 'btn btn-secondary' });
   btnUndo.textContent = 'Deshacer';
