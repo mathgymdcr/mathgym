@@ -211,3 +211,106 @@ export function repartos(areaTotal, perimetroTotal, formas) {
   }
   return salida;
 }
+
+// ---------- El tablero como conjunto de aristas ----------
+// La plantilla dibuja aristas, no una secuencia de nodos: así se puede
+// borrar un segmento de en medio (una secuencia se partiría en dos) y dos
+// figuras son simplemente dos componentes conexas.
+//
+// Estas funciones las importa también la plantilla. Igual que el trazador
+// de láser: si el juego decidiera por su cuenta qué es convexo y el
+// generador por otra vía, se publicarían retos imposibles de cumplir.
+
+export function claveArista(a, b) {
+  const [p, q] = (a.r < b.r || (a.r === b.r && a.c < b.c)) ? [a, b] : [b, a];
+  return `${p.r},${p.c}-${q.r},${q.c}`;
+}
+
+export function nodosDeArista(clave) {
+  return clave.split('-').map((s) => {
+    const [r, c] = s.split(',').map(Number);
+    return { r, c };
+  });
+}
+
+export function figurasDeAristas(aristas) {
+  const vecinos = new Map();   // "r,c" -> [ "r,c", ... ]
+  for (const clave of aristas) {
+    const [a, b] = nodosDeArista(clave);
+    const ka = `${a.r},${a.c}`, kb = `${b.r},${b.c}`;
+    if (!vecinos.has(ka)) vecinos.set(ka, []);
+    if (!vecinos.has(kb)) vecinos.set(kb, []);
+    vecinos.get(ka).push(kb);
+    vecinos.get(kb).push(ka);
+  }
+
+  // Grado > 2 es un cruce: no es una figura simple. Es lo que impide el
+  // ocho que la versión por secuencia de nodos sí dejaba dibujar, y con el
+  // que el área por shoelace daba un número sin significado.
+  for (const lista of vecinos.values()) {
+    if (lista.length > 2) return { ciclos: [], abiertas: 0, invalido: true };
+  }
+
+  const ciclos = [];
+  let abiertas = 0;
+  const vistos = new Set();
+
+  for (const inicio of vecinos.keys()) {
+    if (vistos.has(inicio)) continue;
+
+    // Recorre la componente para saber si es ciclo (todos grado 2) o cadena
+    // abierta, que es un estado normal a medio dibujar y no un error.
+    const componente = [];
+    const pila = [inicio];
+    let esCiclo = true;
+    while (pila.length) {
+      const k = pila.pop();
+      if (vistos.has(k)) continue;
+      vistos.add(k);
+      componente.push(k);
+      if (vecinos.get(k).length !== 2) esCiclo = false;
+      for (const v of vecinos.get(k)) if (!vistos.has(v)) pila.push(v);
+    }
+
+    if (!esCiclo) { abiertas++; continue; }
+
+    // Camina el ciclo en orden para poder medirlo.
+    const orden = [];
+    let previo = null;
+    let actual = componente[0];
+    do {
+      orden.push(actual);
+      const [x, y] = vecinos.get(actual);
+      const siguiente = (x === previo) ? y : x;
+      previo = actual;
+      actual = siguiente;
+    } while (actual !== componente[0]);
+
+    ciclos.push(orden.map((k) => {
+      const [r, c] = k.split(',').map(Number);
+      return { r, c };
+    }));
+  }
+
+  return { ciclos, abiertas, invalido: false };
+}
+
+export function medidasDeFigura(ciclo) {
+  const n = ciclo.length;
+
+  let doble = 0;
+  for (let i = 0; i < n; i++) {
+    const a = ciclo[i], b = ciclo[(i + 1) % n];
+    doble += a.c * b.r - b.c * a.r;
+  }
+
+  // Un ciclo rectilíneo simple es convexo si y solo si tiene exactamente
+  // cuatro esquinas: cualquier quinta obliga a un ángulo de 270°.
+  let esquinas = 0;
+  for (let i = 0; i < n; i++) {
+    const prev = ciclo[(i - 1 + n) % n], act = ciclo[i], sig = ciclo[(i + 1) % n];
+    if (act.r - prev.r !== sig.r - act.r || act.c - prev.c !== sig.c - act.c) esquinas++;
+  }
+
+  return { area: Math.abs(doble) / 2, perimetro: n, convexa: esquinas === 4 };
+}
