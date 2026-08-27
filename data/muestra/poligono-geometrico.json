@@ -1,5 +1,7 @@
 {
-  "area": 9,
-  "perimeter": 12,
-  "gridSize": 8
+  "gridSize": 8,
+  "n_figuras": 2,
+  "area": 14,
+  "perimeter": 22,
+  "formas": "ambas-concavas"
 }

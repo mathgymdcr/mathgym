@@ -21,7 +21,10 @@ const SEMILLAS = {
   // pequeño, no el 5x5 de 18 pistas.
   'enigma-einstein': 20260104,
   'balanza-logica': 20260103,
-  'poligono-geometrico': 20260104,
+  // 20260104 daba el reto minimo del tipo (dos trominos de 3 celdas, con
+  // el reparto 3+3 forzado y nada que deducir). Este saca un reparto 3+11,
+  // que no se ve venir, y dos figuras que se dibujan bien.
+  'poligono-geometrico': 20260112,
   // con-grifo-3-1objetivos: la combinación llana de los tres ejes (el de
   // objetivos incluido), que el ejemplo es una vitrina y no el reto del día.
   'mezcla-quimica': 20260121,
