@@ -1,6 +1,6 @@
 // ===== plantillas/hashi.js =====
-// Puentes de Hashi (Hashiwokakero) · Conecta todas las islas con puentes
-// horizontales/verticales hasta que el número de cada isla coincida con
+// Puentes de Hashi (Hashiwokakero) · Conecta todos los chips con puentes
+// horizontales/verticales hasta que el número de cada chip coincida con
 // la cantidad de puentes que le llegan, formando un único archipiélago
 // conectado y sin que ningún puente cruce a otro.
 
@@ -26,7 +26,7 @@ export async function render(root, data, hooks) {
   const configValida = filas > 0 && columnas > 0 && islas.length >= 2 &&
     islas.every(i => Number.isInteger(i.row) && Number.isInteger(i.col) && i.grado > 0);
   if (!configValida) {
-    root.innerHTML = '<div class="feedback ko">Error: Reto de puentes mal configurado (se requieren al menos dos islas con fila, columna y grado)</div>';
+    root.innerHTML = '<div class="feedback ko">Error: Reto de puentes mal configurado (se requieren al menos dos chips con fila, columna y grado)</div>';
     return;
   }
 
@@ -38,9 +38,9 @@ export async function render(root, data, hooks) {
     gameClass: 'hashi-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> une todas las islas con puentes rectos (horizontales o verticales) hasta que el número de cada isla coincida con la cantidad de puentes que le llegan.</p>
-      <p>Toca una isla y luego otra alineada con ella para trazar un puente. Vuelve a tocar el mismo par para añadir un segundo puente paralelo; una tercera vez lo borra.</p>
-      <p>Los puentes no pueden cruzarse ni pasar por encima de otra isla, y al final todas las islas deben quedar conectadas en un único archipiélago.</p>
+      <p><strong>Objetivo:</strong> une todos los chips con puentes rectos (horizontales o verticales) hasta que el número de cada chip coincida con la cantidad de puentes que le llegan.</p>
+      <p>Toca un chip y luego otro alineado con él para trazar un puente. Vuelve a tocar el mismo par para añadir un segundo puente paralelo; una tercera vez lo borra.</p>
+      <p>Los puentes no pueden cruzarse ni pasar por encima de otro chip, y al final todos los chips deben quedar conectados en una sola red.</p>
     `
   });
   root.append(ui.box);
@@ -72,7 +72,7 @@ export async function render(root, data, hooks) {
       if (idx !== undefined) {
         cell.classList.add('is-island');
         const btn = createElement('button', { class: 'hashi-island-btn', type: 'button' });
-        btn.textContent = String(islas[idx].grado);
+        pintarChip(btn, islas[idx].grado);
         btn.addEventListener('click', () => onIslandClick(idx));
         cell.appendChild(btn);
         islandEls[idx] = cell;
@@ -221,11 +221,11 @@ export async function render(root, data, hooks) {
     const todasCumplen = islas.every((isla, idx) => grados[idx] === isla.grado);
     if (todasCumplen && conectado()) {
       state.won = true;
-      setStatus(ui.status, '¡Todas las islas quedaron conectadas!', 'ok');
-      celebrate({ ok: true, message: '¡Has completado el archipiélago!' });
+      setStatus(ui.status, '¡Todos los chips quedaron conectados!', 'ok');
+      celebrate({ ok: true, message: '¡Has completado la red!' });
       if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.tendidos });
     } else {
-      setStatus(ui.status, 'Sigue conectando las islas', 'ok');
+      setStatus(ui.status, 'Sigue conectando los chips', 'ok');
     }
   }
 
@@ -271,4 +271,58 @@ async function loadConfig(d) {
     return r.json();
   }
   return d;
+}
+
+// --- El chip ---------------------------------------------------------------
+// Ficha dibujada en SVG: disco exterior, aro con muescas (las cuñas de una
+// ficha de verdad), disco interior y el número centrado.
+//
+// El tamaño va con el grado y el color por tramos. Los tres colores son
+// RELLENOS que ya existen en la paleta -- no se inventan ocho, que se
+// pelearían con una paleta corta a propósito, y sobre todo no se tocan el
+// verde y el rojo, que son del estado del juego y se pintan en el aro de
+// fuera (ver .hashi-cell.is-satisfied / .is-over en style.css).
+const TRAMOS = [
+  // `muesca` y `texto` van SIEMPRE en el tono que contrasta con el cuerpo:
+  // sobre el oro, el blanco da 1.7:1 y desaparece. Las muescas en un tono
+  // parecido al cuerpo no se leen a 26px -- parecen un borde raído -- así
+  // que son de alto contraste, como las cuñas de una ficha de verdad.
+  { hasta: 2, nombre: 'bajo',  cuerpo: '#1788c7', muesca: '#f4f8fb', texto: '#fff' },
+  { hasta: 5, nombre: 'medio', cuerpo: '#8a2189', muesca: '#f7eef7', texto: '#fff' },
+  { hasta: 8, nombre: 'alto',  cuerpo: '#f8c818', muesca: '#141b26', texto: '#141b26' }
+];
+
+export function tramoDeGrado(grado) {
+  return TRAMOS.find((t) => grado <= t.hasta) || TRAMOS[TRAMOS.length - 1];
+}
+
+export function ladoDeGrado(grado) {
+  const g = Math.min(Math.max(grado, 1), 8);
+  return 26 + Math.round(((g - 1) / 7) * 12);   // 26px con grado 1, 38px con grado 8
+}
+
+function pintarChip(btn, grado) {
+  const tramo = tramoDeGrado(grado);
+  const lado = ladoDeGrado(grado);
+  btn.dataset.grado = String(grado);
+  btn.dataset.tramo = tramo.nombre;
+  btn.style.width = `${lado}px`;
+  btn.style.height = `${lado}px`;
+
+  // Seis cuñas en el aro: dash y hueco iguales reparten la circunferencia
+  // en doce tramos y se pintan seis. El aro es grueso (18 de 100) porque a
+  // 26px cualquier cosa más fina se pierde.
+  const radioAro = 41, grosorAro = 18;
+  const cuna = (2 * Math.PI * radioAro) / 12;
+
+  btn.innerHTML = `
+    <svg viewBox="0 0 100 100" width="${lado}" height="${lado}" aria-hidden="true" focusable="false">
+      <circle cx="50" cy="50" r="50" fill="${tramo.cuerpo}"></circle>
+      <circle cx="50" cy="50" r="${radioAro}" fill="none" stroke="${tramo.muesca}"
+              stroke-width="${grosorAro}" stroke-dasharray="${cuna} ${cuna}"></circle>
+      <circle cx="50" cy="50" r="32" fill="${tramo.cuerpo}"></circle>
+      <circle cx="50" cy="50" r="32" fill="none" stroke="${tramo.muesca}" stroke-width="4"></circle>
+      <text x="50" y="50" fill="${tramo.texto}" font-size="40" font-weight="700"
+            text-anchor="middle" dominant-baseline="central">${grado}</text>
+    </svg>`;
 }
