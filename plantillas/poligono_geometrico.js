@@ -55,6 +55,10 @@ export async function render(root, data, hooks) {
   buildNodes(ui.nodesLayer, gameState);
   buildEdges(ui.nodesLayer, gameState, ui);
   setupEventListeners(ui, gameState, config);
+  // Pinta el estado inicial: sin esto el mensaje de "haz clic en un nodo
+  // para empezar" no aparece hasta el primer clic, que es justo cuando ya
+  // no hace falta.
+  refresh(ui, gameState);
 
   setStatus(ui.status, 'Listo para construir', 'ok');
 

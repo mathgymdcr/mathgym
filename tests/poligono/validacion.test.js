@@ -52,6 +52,11 @@ describe('validatePoligonoData', () => {
     await expect(new RetoValidator().validatePoligonoData(reto)).rejects.toThrow(/formas/)
   })
 
+  it('rechaza un n_figuras que no sea 1 ni 2, en vez de tratarlo como 2', async () => {
+    const reto = await retoCon({ area: 24, perimeter: 30, gridSize: 8, n_figuras: 3, formas: 'una-de-cada' })
+    await expect(new RetoValidator().validatePoligonoData(reto)).rejects.toThrow(/n_figuras/)
+  })
+
   it('rechaza el reparto ambiguo en dos figuras', async () => {
     // (9,20) con una-de-cada admite TRES repartos -- (3,8)+(6,12),
     // (4,8)+(5,12) y (4,10)+(5,10) -- asi que no hay nada que deducir.
