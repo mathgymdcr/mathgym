@@ -296,6 +296,12 @@ class RetoValidator {
     const nFiguras = data.n_figuras ?? 1;
     const formas = data.formas ?? 'libre';
 
+    // Sin esto, un n_figuras de 3 caeria en la rama de dos y se validaria
+    // como si fueran dos, que es peor que fallar.
+    if (nFiguras !== 1 && nFiguras !== 2) {
+      throw new Error(`Poligono n_figuras=${nFiguras} no soportado: solo 1 o 2`);
+    }
+
     if (nFiguras === 1) {
       // Realizabilidad de verdad, no una condición necesaria: comprueba
       // paridad, cota inferior y cota superior de una vez.
