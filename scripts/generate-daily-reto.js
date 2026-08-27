@@ -10,6 +10,7 @@ import {
   objetivosMezcla
 } from './mezcla-logic.js';
 import { buildLucesPuzzle, buildLucesHints } from './lightsout-logic.js';
+import { buildPoligonoPuzzle, buildPoligonoHints } from './poligono-logic.js';
 import { generarEnigma, dificultadDe } from './einstein-logic.js';
 import { buildRelojesPuzzle, buildRelojesHints } from './relojes-logic.js';
 import { buildHashiPuzzle, buildHashiHints } from './hashi-logic.js';
@@ -285,19 +286,12 @@ class MathGymGenerator {
   }
 
   async generatePoligono(seed, fecha) {
-    const configs = [
-      { area: 9, perimeter: 12 },
-      { area: 6, perimeter: 10 },
-      { area: 12, perimeter: 14 },
-      { area: 8, perimeter: 12 },
-      { area: 15, perimeter: 16 },
-      { area: 10, perimeter: 14 }
-    ];
+    // Los dos ejes (nº de figuras y forma), el catálogo de instancias y la
+    // comprobación de que el reparto es único viven en poligono-logic.js,
+    // que el validador reusa para re-comprobar el reto ya escrito.
+    const puzzle = buildPoligonoPuzzle(seed);
+    const { variant, dificultad, config } = puzzle;
 
-    const config = configs[seed % configs.length];
-    config.gridSize = 8;
-
-    // Save data file for poligono
     const dataFileName = `poligono_${fecha}.json`;
     await fs.mkdir('data', { recursive: true });
     await fs.writeFile(
@@ -306,9 +300,12 @@ class MathGymGenerator {
     );
 
     return {
+      id: `${fecha}-poligono-geometrico-001`,
       tipo: 'poligono-geometrico',
-      dificultad: 2,
+      variant,
+      dificultad,
       categorias: ['geometria'],
+      hints: buildPoligonoHints(puzzle),
       // Dibujar la figura pedida no tiene par de movimientos: se mide igual
       // que el enigma, por comprobaciones fallidas.
       objectives: {
