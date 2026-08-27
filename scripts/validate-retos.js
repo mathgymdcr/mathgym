@@ -412,12 +412,32 @@ class RetoValidator {
         throw new Error(`Luces-fuera modo "${modo.id}" patron_inicial no coincide con tamano`);
       }
 
+      // El objetivo `pattern_match` dibuja su diana en el tablero, así que
+      // tiene que tener la forma del tablero: sin esto, una diana mal
+      // dimensionada revienta más abajo con un TypeError ilegible.
+      if (modo.objetivo === 'pattern_match') {
+        const diana = modo.patron_objetivo;
+        if (!Array.isArray(diana) || diana.length !== rows || diana.some((row) => !Array.isArray(row) || row.length !== cols)) {
+          throw new Error(`Luces-fuera modo "${modo.id}" patron_objetivo no coincide con tamano`);
+        }
+      }
+
       // Solvencia real vía GF(2) (mismo módulo que usa el generador para
       // calcular objectives.parMoves) -- no se asume que, por venir del
       // generador, ya es correcto.
       const minMoves = solveLightsOutFor(modo);
       if (minMoves == null) {
         throw new Error(`Luces-fuera modo "${modo.id}" not solvable: patron_inicial no tiene solución para objetivo="${modo.objetivo}"`);
+      }
+
+      // Y el mínimo declarado tiene que ser el real, como ya se cruza en
+      // mezcla: de él salen los umbrales de estrellas, así que un parMoves
+      // equivocado se publica como un reto que nadie puede bordar (o que
+      // se borda sin esforzarse) sin que falle nada visible.
+      if (reto.objectives && reto.objectives.parMoves !== minMoves) {
+        throw new Error(
+          `Luces-fuera modo "${modo.id}" parMoves=${reto.objectives.parMoves} no coincide con el mínimo real (${minMoves})`
+        );
       }
     }
   }
