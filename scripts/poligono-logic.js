@@ -314,3 +314,118 @@ export function medidasDeFigura(ciclo) {
 
   return { area: Math.abs(doble) / 2, perimetro: n, convexa: esquinas === 4 };
 }
+
+// ---------- Construcción del reto ----------
+
+// PRNG determinista (mulberry32), sin dependencias externas. Duplicado a
+// propósito para que este módulo sea autocontenido.
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export const VARIANTES = [
+  'una-convexa', 'una-concava', 'dos-convexas', 'dos-una-de-cada', 'dos-concavas'
+];
+
+const SPEC = {
+  'una-convexa':     { n: 1, formas: 'convexa',        dificultad: 2 },
+  'una-concava':     { n: 1, formas: 'concava',        dificultad: 3 },
+  'dos-convexas':    { n: 2, formas: 'ambas-convexas', dificultad: 3 },
+  'dos-una-de-cada': { n: 2, formas: 'una-de-cada',    dificultad: 4 },
+  'dos-concavas':    { n: 2, formas: 'ambas-concavas', dificultad: 4 }
+};
+
+// Catálogo de instancias, derivado y memoizado. NO se escribe a mano: si
+// cambian LADO o AREA_MAX, se recalcula solo.
+let _catalogo = null;
+
+function catalogo() {
+  if (_catalogo) return _catalogo;
+  const cat = {};
+
+  for (const forma of ['convexa', 'concava']) {
+    cat[forma] = [];
+    for (let a = AREA_MIN; a <= AREA_MAX; a++) {
+      for (const p of perimetrosDe(a)) {
+        if (clasifica(a, p)[forma]) cat[forma].push([a, p]);
+      }
+    }
+  }
+
+  // El total mínimo de dos figuras es 2*AREA_MIN celdas y dos perímetros
+  // mínimos; el máximo, dos figuras de AREA_MAX estiradas al máximo.
+  for (const formas of FORMAS_DOS) {
+    cat[formas] = [];
+    for (let at = 2 * AREA_MIN; at <= 2 * AREA_MAX; at++) {
+      for (let pt = 4 * Math.ceil(Math.sqrt(AREA_MIN)); pt <= 2 * (2 * AREA_MAX + 2); pt += 2) {
+        if (repartos(at, pt, formas).length === 1) cat[formas].push([at, pt]);
+      }
+    }
+  }
+
+  _catalogo = cat;
+  return _catalogo;
+}
+
+// Cada eje con su propia máscara, y sorteado con el PRNG. Nunca `seed % n`:
+// selectTemplate reparte con `seed % 12`, así que el tipo recibe una sola
+// clase módulo 12 y cualquier módulo divisor de 12 queda constante -- es lo
+// que dejaba el tipo publicando un único reto, A=12 P=14, durante años.
+export function buildPoligonoPuzzle(seed) {
+  const variant = VARIANTES[
+    Math.floor(mulberry32((seed ^ 0x7a3c91d5) >>> 0)() * VARIANTES.length)
+  ];
+  const spec = SPEC[variant];
+  const opciones = catalogo()[spec.formas];
+  const [area, perimeter] = opciones[
+    Math.floor(mulberry32((seed ^ 0x1e6b4f27) >>> 0)() * opciones.length)
+  ];
+
+  const solucion = spec.n === 2
+    ? repartos(area, perimeter, spec.formas)[0]
+    : [[area, perimeter]];
+
+  return {
+    variant,
+    dificultad: spec.dificultad,
+    config: {
+      gridSize: LADO + 1,
+      n_figuras: spec.n,
+      area,
+      perimeter,
+      formas: spec.formas
+    },
+    solucion
+  };
+}
+
+// Las pistas NO pueden decir el reparto: es la respuesta. Dicen lo que
+// ayuda a deducirlo -- la paridad, el mínimo por área, y que aquí convexo
+// significa rectángulo, que es la llave del modo `una-de-cada` y no es
+// evidente para quien juega.
+export function buildPoligonoHints(puzzle) {
+  const { config } = puzzle;
+  const comun = [
+    'El perímetro de una figura sobre la retícula siempre es par: cada tramo que sube tiene que bajar, y cada uno que va a la derecha tiene que volver.',
+    'Aquí solo se dan pasos horizontales y verticales, así que una figura sin entrantes es forzosamente un rectángulo. Para que deje de serlo hace falta al menos una esquina hacia dentro.'
+  ];
+
+  if (config.n_figuras === 1) {
+    const min = 2 * Math.ceil(2 * Math.sqrt(config.area));
+    return [
+      ...comun,
+      `Con ${config.area} celdas, el perímetro más pequeño posible es ${min}: cuanto más compacta la figura, menos borde tiene. Te piden ${config.perimeter}.`
+    ];
+  }
+
+  return [
+    ...comun,
+    `Los números son los totales de las dos figuras juntas. Reparte primero las ${config.area} celdas y el perímetro ${config.perimeter} entre las dos, y comprueba que cada mitad se puede dibujar de verdad: solo hay un reparto que cumpla lo que se pide.`
+  ];
+}
