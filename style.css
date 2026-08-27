@@ -2680,34 +2680,47 @@ li {
 .hashi-island-btn {
   position: relative;
   z-index: 2;
-  width: 32px;
-  height: 32px;
+  /* El tamaño lo pone la plantilla, que lo deriva del grado del chip. */
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  border: 2px solid var(--accent);
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.95rem;
+  background: none;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  line-height: 0;
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.hashi-island-btn svg {
+  display: block;
 }
 
 .hashi-island-btn:hover {
-  background: rgba(255, 255, 255, 0.14);
+  filter: brightness(1.18);
 }
 
+/* Los tres estados van en un aro POR FUERA del chip, nunca en su relleno:
+   el cuerpo lleva el color del tramo de grado, y si los estados pintaran
+   ahí se perderían los dos. */
 .hashi-cell.is-island.is-selected .hashi-island-btn {
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.75);
 }
 
 .hashi-cell.is-island.is-satisfied .hashi-island-btn {
-  background: rgba(53, 208, 127, 0.35);
-  border-color: var(--success);
+  box-shadow: 0 0 0 3px var(--success);
 }
 
 .hashi-cell.is-island.is-over .hashi-island-btn {
-  background: rgba(255, 59, 59, 0.35);
-  border-color: #ff3b3b;
+  box-shadow: 0 0 0 3px #ff3b3b;
+}
+
+/* Seleccionado y satisfecho a la vez: el halo blanco por dentro y el verde
+   por fuera, para que no se tape uno al otro. */
+.hashi-cell.is-island.is-selected.is-satisfied .hashi-island-btn {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.75), 0 0 0 6px var(--success);
+}
+
+.hashi-cell.is-island.is-selected.is-over .hashi-island-btn {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.75), 0 0 0 6px #ff3b3b;
 }
 
 @media (max-width: 560px) {
@@ -2716,9 +2729,8 @@ li {
   }
 
   .hashi-island-btn {
-    width: 27px;
-    height: 27px;
-    font-size: 0.82rem;
+    /* El tamaño lo pone la plantilla; aquí solo se encoge proporcionalmente. */
+    transform: scale(0.85);
   }
 }
 
