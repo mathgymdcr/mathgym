@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { balanzaScenarios, leerConfigBalanza } from './balanza-logic.js';
 import { solveMezcla, initialLevelsMezcla, minimoExigidoMezcla, objetivosMezcla } from './mezcla-logic.js';
 import { solveLightsOutFor } from './lightsout-logic.js';
+import { alcanzable, clasifica, repartos } from './poligono-logic.js';
 import { solveRelojes } from './relojes-logic.js';
 import { solveHashi, construirPares } from './hashi-logic.js';
 import { pistasDe, pistasColorDe, resolverNonograma } from './nonograma-logic.js';
@@ -281,9 +282,8 @@ class RetoValidator {
       throw new Error('Poligono reto missing json_url');
     }
 
-    // Igual que en balanza/mezcla: reto.data solo trae { json_url }, los
-    // parámetros reales viven en el archivo referenciado. Leerlos de
-    // reto.data hacía que este validador fallara siempre para polígono.
+    // reto.data solo trae { json_url }: los parámetros reales viven en el
+    // archivo referenciado.
     const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
     const data = JSON.parse(dataContent);
 
@@ -291,21 +291,37 @@ class RetoValidator {
       throw new Error('Poligono reto missing area or perimeter in data file');
     }
 
-    if (!(data.area > 0) || !(data.perimeter > 0)) {
-      throw new Error('Area and perimeter must be positive');
+    // Los retos publicados no traen estos campos: se leen como una figura
+    // sin restricción de forma, que es exactamente el juego de antes.
+    const nFiguras = data.n_figuras ?? 1;
+    const formas = data.formas ?? 'libre';
+
+    if (nFiguras === 1) {
+      // Realizabilidad de verdad, no una condición necesaria: comprueba
+      // paridad, cota inferior y cota superior de una vez.
+      if (!alcanzable(data.area, data.perimeter)) {
+        throw new Error(
+          `Poligono imposible: no hay figura alcanzable con area=${data.area} y perimetro=${data.perimeter}`
+        );
+      }
+      if (formas === 'libre') return;
+      if (!clasifica(data.area, data.perimeter)[formas]) {
+        throw new Error(
+          `Poligono formas="${formas}" insatisfacible para area=${data.area} perimetro=${data.perimeter}`
+        );
+      }
+      return;
     }
 
-    // Un polígono de área A en la retícula necesita al menos el perímetro del
-    // rectángulo más compacto que la contenga, y el perímetro de una figura
-    // sobre retícula es siempre par.
-    if (data.perimeter % 2 !== 0) {
-      throw new Error(`Poligono perimeter=${data.perimeter} debe ser par en una retícula`);
-    }
-    const minPerimetro = 2 * Math.ceil(2 * Math.sqrt(data.area));
-    if (data.perimeter < minPerimetro) {
+    // Con dos figuras los números son totales, así que no describen una
+    // sola figura y `alcanzable` no aplica. Lo que se deduce es el reparto,
+    // y por eso tiene que haber exactamente uno: ni cero (imposible) ni
+    // varios (ambiguo). Es lo mismo que hace riego contando calendarios.
+    const posibles = repartos(data.area, data.perimeter, formas);
+    if (posibles.length !== 1) {
       throw new Error(
-        `Poligono imposible: area=${data.area} necesita perímetro >= ${minPerimetro}, ` +
-        `pero pide ${data.perimeter}`
+        `Poligono reparto no unico: area=${data.area} perimetro=${data.perimeter} ` +
+        `formas="${formas}" admite ${posibles.length} repartos`
       );
     }
   }
