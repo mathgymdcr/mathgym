@@ -175,3 +175,39 @@ export function clasifica(area, perimetro) {
   }
   return enumeraPoliominos().get(`${area},${perimetro}`) || { convexa: false, concava: false };
 }
+
+// ---------- Repartir un objetivo entre dos figuras ----------
+
+export const FORMAS_DOS = ['ambas-convexas', 'una-de-cada', 'ambas-concavas'];
+
+const COMBOS = {
+  'ambas-convexas': (x, y) => x.convexa && y.convexa,
+  'una-de-cada': (x, y) => (x.convexa && y.concava) || (x.concava && y.convexa),
+  'ambas-concavas': (x, y) => x.concava && y.concava
+};
+
+// Todos los repartos de (areaTotal, perimetroTotal) en dos figuras que
+// cumplen la restricción de forma. El reto solo es válido si esto devuelve
+// exactamente uno: lo que hay que deducir es CÓMO se parte, y con varios
+// repartos posibles no habría nada que deducir.
+export function repartos(areaTotal, perimetroTotal, formas) {
+  const ok = COMBOS[formas];
+  if (!ok) throw new Error(`repartos: formas desconocida "${formas}"`);
+
+  const salida = [];
+  for (let a1 = AREA_MIN; a1 <= AREA_MAX; a1++) {
+    const a2 = areaTotal - a1;
+    if (a2 < a1 || a2 < AREA_MIN || a2 > AREA_MAX) continue;
+    if (a1 + a2 > LADO * LADO) continue;
+
+    for (const p1 of perimetrosDe(a1)) {
+      const p2 = perimetroTotal - p1;
+      if (!alcanzable(a2, p2)) continue;
+      // Pareja no ordenada: (a,p)+(a,q) y (a,q)+(a,p) son el mismo reparto.
+      if (a1 === a2 && p2 < p1) continue;
+      if (!ok(clasifica(a1, p1), clasifica(a2, p2))) continue;
+      salida.push([[a1, p1], [a2, p2]]);
+    }
+  }
+  return salida;
+}
