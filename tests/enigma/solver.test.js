@@ -19,7 +19,7 @@ describe('contarSolucionesDesdePistas: forma explícita', () => {
 
 // ---------------------------------------------------------------------
 // El solver contra la fuerza bruta. Mismo trato que en láser triangular
-// (`espejosMinimos` vs `espejosMinimosExhaustivo`) o en anillas (fórmula
+// (`piezasMinimas` vs `piezasMinimasExhaustivo`) o en anillas (fórmula
 // vs BFS): la implementación rápida solo vale si coincide con la lenta y
 // obviamente correcta, sobre puzzles sorteados, no sobre casos elegidos.
 // ---------------------------------------------------------------------

@@ -2427,11 +2427,11 @@ li {
   z-index: 0;
 }
 
-/* Solo z-index: NO tocar "position" aquí. Cada hijo (flecha, icono,
-   insignia, espejo) ya declara su propia position (relative o absolute)
+/* Solo z-index: NO tocar "position" aquí. Cada hijo (boquilla, diana,
+   insignia, pieza) ya declara su propia position (relative o absolute)
    en su regla específica; si esta regla también fijara position, al tener
    más especificidad (dos clases) pisaría ese valor -- por ejemplo
-   .laser-mirror pasaría de "absolute" a "relative" y perdería el centrado
+   .laser-pieza pasaría de "absolute" a "relative" y perdería el centrado
    exacto por top/left/transform. */
 .laser-board-mesh .laser-cell > * {
   z-index: 1;
@@ -2476,12 +2476,20 @@ li {
   animation: laserEmitterPulse 1.8s ease-in-out infinite;
 }
 
-.laser-arrow {
-  position: relative;
-  z-index: 2;
-  display: inline-block;
-  color: var(--laser-color, #ff6b35);
-  font-size: 1.3rem;
+/* Boquilla del emisor: un triangulo macizo apuntando a --laser-dir-rot.
+   Sustituye al emoji ➤, que desentonaba con el resto de tableros. Sin
+   top/left: .laser-cell es flex con align/justify-content: center, así que
+   un hijo absoluto sin offset toma esa posición estática -- ya centrada --
+   por spec. .laser-pieza sí fija top/left porque además necesita rotar
+   sobre ese punto con transform; .laser-badge sí lo fija porque su sitio
+   NO es el centro, sino la esquina. */
+.laser-emisor {
+  position: absolute;
+  width: 62%;
+  height: 62%;
+  background: var(--laser-color, #ff6b35);
+  clip-path: polygon(100% 50%, 15% 100%, 35% 50%, 15% 0%);
+  transform: rotate(var(--laser-dir-rot, 0deg));
   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--laser-color, #ff6b35) 90%, transparent));
 }
 
@@ -2514,11 +2522,18 @@ li {
   100% { transform: scale(1.8); opacity: 0; }
 }
 
-.laser-target-icon {
-  position: relative;
-  z-index: 2;
-  font-size: 1.2rem;
+/* Diana: la FORMA identifica el color, para que el reto se pueda jugar sin
+   distinguirlos. El tinte va aparte, en --laser-color. */
+.laser-diana {
+  position: absolute;
+  width: 46%;
+  height: 46%;
+  background: var(--laser-color, #ffd23b);
 }
+.laser-diana[data-forma="circulo"]   { border-radius: 50%; }
+.laser-diana[data-forma="triangulo"] { clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
+.laser-diana[data-forma="cuadrado"]  { border-radius: 2px; }
+.laser-diana[data-forma="rombo"]     { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
 
 .laser-cell.is-target.is-hit {
   background: radial-gradient(circle, rgba(53, 208, 127, 0.4), transparent 70%);
@@ -2535,7 +2550,10 @@ li {
 /* Espejos: barra reflectante en vez de un carácter de texto. Ancho al
    142% (raíz de 2) para que llegue exactamente de esquina a esquina de la
    celda, como un espejo plano real, no una barra corta centrada */
-.laser-mirror {
+.laser-pieza[data-pieza="slash"],
+.laser-pieza[data-pieza="backslash"],
+.laser-pieza[data-pieza="vert"],
+.laser-pieza[data-pieza="horiz"] {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -2546,27 +2564,50 @@ li {
   border-radius: 2px;
 }
 
-.laser-cell.is-slash .laser-mirror {
+.laser-pieza[data-pieza="slash"] {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-.laser-cell.is-backslash .laser-mirror {
+.laser-pieza[data-pieza="backslash"] {
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
 /* Espejos planos horizontal/vertical (laser_triangular.js): van de lado a
    lado de la celda (100%, no 142%, porque no son diagonales) */
-.laser-cell.is-horiz .laser-mirror,
-.laser-cell.is-vert .laser-mirror {
+.laser-pieza[data-pieza="horiz"],
+.laser-pieza[data-pieza="vert"] {
   width: 100%;
 }
 
-.laser-cell.is-horiz .laser-mirror {
+.laser-pieza[data-pieza="horiz"] {
   transform: translate(-50%, -50%) rotate(0deg);
 }
 
-.laser-cell.is-vert .laser-mirror {
+.laser-pieza[data-pieza="vert"] {
   transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* Prisma: triangulo hueco con el borde en degradado azul -> rojo, que es
+   justo lo que hace con el rayo. */
+.laser-pieza[data-pieza="prisma"] {
+  position: absolute;
+  width: 66%;
+  height: 66%;
+  background: linear-gradient(135deg, #3ec6ff, #ff5d5d);
+  clip-path: polygon(50% 8%, 96% 92%, 4% 92%, 50% 8%, 50% 26%, 22% 82%, 78% 82%, 50% 26%);
+}
+
+/* Condensador: dos arcos que convergen en un punto. */
+.laser-pieza[data-pieza="condensador"] {
+  position: absolute;
+  width: 66%;
+  height: 66%;
+  border: 2px solid #c084fc;
+  border-radius: 50%;
+  border-left-color: #3ec6ff;
+  border-right-color: #ff5d5d;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
 }
 
 /* Trayecto del rayo: degradado con pulso en el color de su propio láser
@@ -2612,18 +2653,91 @@ li {
 
 .laser-controls {
   display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
   justify-content: center;
   margin-top: 16px;
 }
 
+.laser-btn-lanzar {
+  font-weight: 600;
+}
+
+/* Donde el rayo se apaga: contra un emisor o contra un bloque. */
+.laser-cell.is-choque {
+  animation: laserChoque 0.9s ease-in-out infinite;
+  border-color: #ff5d5d;
+}
+
+@keyframes laserChoque {
+  0%, 100% { box-shadow: inset 0 0 6px color-mix(in srgb, #ff5d5d 40%, transparent); }
+  50%      { box-shadow: inset 0 0 14px color-mix(in srgb, #ff5d5d 90%, transparent); }
+}
+
+/* El rayo avanza en vez de aparecer de golpe. --laser-largo lo fija la
+   plantilla con getTotalLength(). */
+.laser-beam-line.is-lanzando {
+  stroke-dasharray: var(--laser-largo);
+  stroke-dashoffset: var(--laser-largo);
+  animation: laserAvanza 0.45s ease-out forwards;
+}
+
+@keyframes laserAvanza {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Bandeja abierta: existencias infinitas de cada pieza, asi que sin
+   contadores. touch-action: none para que arrastrar no haga scroll. */
+.laser-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 0 0 12px;
+  touch-action: none;
+}
+
+.laser-tray-pieza {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: grab;
+  touch-action: none;
+}
+
+.laser-tray-pieza:hover { border-color: rgba(255, 255, 255, 0.4); }
+
+/* Pieza armada: el siguiente toque en una celda la coloca. */
+.laser-tray-pieza.is-armada {
+  border-color: #ffd23b;
+  box-shadow: 0 0 10px color-mix(in srgb, #ffd23b 60%, transparent);
+}
+
+.laser-tray-pieza:active { cursor: grabbing; }
+
+/* Las piezas de la bandeja se dibujan con las mismas reglas que las del
+   tablero, y se centran igual que .laser-emisor (ver el comentario de
+   ahi): .laser-tray-pieza ahora es flex con align/justify-content:
+   center, asi que un hijo absoluto SIN top/left cae ya centrado por
+   spec -- que es el caso de prisma y condensador. Los cuatro espejos SI
+   fijan su propio top/left/transform (ademas rotan sobre ese punto), y
+   ese valor no lo toca esta regla.
+   Antes habia aqui un `inset: 0; margin: auto;` con la misma
+   especificidad que el top/left de los espejos y declarado despues en el
+   archivo, asi que ganaba y les pisaba el top/left sin pisar su
+   transform: translate(-50%,-50%) -- el resultado era una barra
+   descentrada unos 31px, sin overflow:hidden en el boton que la recortara. */
+.laser-board { touch-action: none; }
+
 @media (max-width: 560px) {
   .laser-board {
     --laser-cell-size: 30px;
-  }
-
-  .laser-arrow,
-  .laser-target-icon {
-    font-size: 1rem;
   }
 }
 
@@ -2632,8 +2746,20 @@ li {
   .laser-cell.is-target::before,
   .laser-cell.is-target::after,
   .laser-cell.is-path,
-  .laser-cell.is-crossing {
+  .laser-cell.is-crossing,
+  .laser-cell.is-choque,
+  .laser-emisor,
+  .laser-diana {
     animation: none;
+  }
+
+  /* Sin animación de avance: quien tenga esto activado ve el rayo entero de
+     golpe en vez de ninguno (stroke-dashoffset se quedaría en su valor
+     inicial si la animación nunca llega a 'to'). */
+  .laser-beam-line.is-lanzando {
+    animation: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
   }
 }
 

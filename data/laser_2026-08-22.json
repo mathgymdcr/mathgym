@@ -10,7 +10,7 @@
       },
       "target": {
         "row": 5,
-        "col": 1
+        "col": 0
       }
     },
     {
@@ -20,7 +20,7 @@
         "dir": "left"
       },
       "target": {
-        "row": 0,
+        "row": 1,
         "col": 5
       }
     }
@@ -35,5 +35,5 @@
       "col": 5
     }
   ],
-  "min_espejos": 2
+  "min_espejos": 4
 }
