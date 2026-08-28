@@ -79,8 +79,11 @@ describe('prisma', () => {
     const c = normalizaConfig({ ...BASE, targets: [{ row: 0, col: 5, color: 'rojo' }, { row: 5, col: 4, color: 'rojo' }] })
     const { tramos } = simularHaz(c, conPrisma(), c.lasers[0])
     const azul = tramos.find((t) => t.color === 'azul')
-    if (azul.squaresPath.some((p) => p.row === 0 && p.col === 5)) {
-      expect(azul.resultado).toBe('diana-ajena')
-    }
+    // Trayecto determinista (documentado en el informe de la tarea): el hijo
+    // azul llega a (0,5), que aqui es diana rojo. Se afirma el trayecto antes
+    // de afirmar el resultado para que, si el trazador cambia y deja de pasar
+    // por ahi, el test falle en vez de callarse.
+    expect(azul.squaresPath.some((p) => p.row === 0 && p.col === 5)).toBe(true)
+    expect(azul.resultado).toBe('diana-ajena')
   })
 })
