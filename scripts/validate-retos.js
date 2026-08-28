@@ -10,7 +10,7 @@ import { solveHashi, construirPares } from './hashi-logic.js';
 import { pistasDe, pistasColorDe, resolverNonograma } from './nonograma-logic.js';
 import { solveCajas } from './cajas-logic.js';
 import { resolverAnillas } from './anillas-logic.js';
-import { resuelto as laserResuelto, piezasMinimas, crearPiezas, DIR_VECTOR } from './laser-triangular-logic.js';
+import { resuelto as laserResuelto, piezasMinimas, crearPiezas, normalizaConfig, MODOS, COLORES, DIR_VECTOR } from './laser-triangular-logic.js';
 import { contarSoluciones as contarRiegos, combinacionesPlanta } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
@@ -779,58 +779,93 @@ class RetoValidator {
 
     const dataContent = await fs.readFile(reto.data.json_url, 'utf8');
     const data = JSON.parse(dataContent);
+    // normalizaConfig entiende tanto el esquema viejo (lasers[].target, sin
+    // modo ni colores) como el nuevo (modo + targets separados): así los
+    // payloads ya publicados en data/ siguen validando sin tocarlos.
+    const c = normalizaConfig(data);
 
-    if (!Number.isInteger(data.size) || data.size < 4 || data.size > 9) {
-      throw new Error(`Laser-triangular size fuera de rango 4..9: ${data.size}`);
+    if (!Number.isInteger(c.size) || c.size < 4 || c.size > 9) {
+      throw new Error(`Laser-triangular size fuera de rango 4..9: ${c.size}`);
     }
-    if (!Array.isArray(data.lasers) || data.lasers.length < 2) {
-      throw new Error('Laser-triangular necesita al menos 2 láseres');
+    if (!MODOS.includes(c.modo)) {
+      throw new Error(`Laser-triangular modo desconocido: "${c.modo}"`);
+    }
+    if (!c.lasers.length || !c.targets.length) {
+      throw new Error('Laser-triangular necesita al menos un emisor y una diana');
+    }
+    if (c.modo === 'prisma') {
+      if (c.lasers.length !== 1 || c.targets.length !== 2) {
+        throw new Error('Laser-triangular modo prisma: hace falta un emisor y dos dianas');
+      }
+      if (c.targets[0].color === c.targets[1].color) {
+        throw new Error('Laser-triangular modo prisma: las dos dianas tienen el mismo color');
+      }
+    }
+    if (c.modo === 'condensador') {
+      if (c.lasers.length !== 1 || c.targets.length !== 1 || c.targets[0].color !== 'magenta') {
+        throw new Error('Laser-triangular modo condensador: hace falta un emisor y una unica diana magenta');
+      }
+    }
+    for (const t of c.targets) {
+      const conocido = COLORES.includes(t.color) || /^neutro-\d+$/.test(t.color);
+      if (!conocido) throw new Error(`Laser-triangular color de diana desconocido: "${t.color}"`);
     }
 
+    // Se conservan tal cual las comprobaciones de siempre: emisores y dianas
+    // dentro del tablero, sin dos objetos en la misma celda, bloques fuera
+    // de esas celdas, direcciones conocidas.
     const dentro = (p) => p && Number.isInteger(p.row) && Number.isInteger(p.col) &&
-      p.row >= 0 && p.row < data.size && p.col >= 0 && p.col < data.size;
+      p.row >= 0 && p.row < c.size && p.col >= 0 && p.col < c.size;
     const ocupadas = new Set();
-    for (const l of data.lasers) {
-      if (!dentro(l.emitter) || !dentro(l.target)) {
-        throw new Error(`Laser-triangular con emisor o diana fuera del tablero: ${JSON.stringify(l)}`);
+    for (const l of c.lasers) {
+      if (!dentro(l.emitter)) {
+        throw new Error(`Laser-triangular con emisor fuera del tablero: ${JSON.stringify(l)}`);
       }
       if (!DIR_VECTOR[l.emitter.dir]) {
         throw new Error(`Laser-triangular dirección desconocida: "${l.emitter.dir}"`);
       }
-      for (const punto of [l.emitter, l.target]) {
-        const clave = `${punto.row},${punto.col}`;
-        if (ocupadas.has(clave)) {
-          throw new Error(`Laser-triangular con dos objetos en la misma celda: ${clave}`);
-        }
-        ocupadas.add(clave);
+      const clave = `${l.emitter.row},${l.emitter.col}`;
+      if (ocupadas.has(clave)) {
+        throw new Error(`Laser-triangular con dos objetos en la misma celda: ${clave}`);
       }
+      ocupadas.add(clave);
     }
-    for (const b of data.blocks || []) {
+    for (const t of c.targets) {
+      if (!dentro(t)) {
+        throw new Error(`Laser-triangular con diana fuera del tablero: ${JSON.stringify(t)}`);
+      }
+      const clave = `${t.row},${t.col}`;
+      if (ocupadas.has(clave)) {
+        throw new Error(`Laser-triangular con dos objetos en la misma celda: ${clave}`);
+      }
+      ocupadas.add(clave);
+    }
+    for (const b of c.blocks || []) {
       if (!dentro(b)) throw new Error(`Laser-triangular bloque fuera del tablero: ${JSON.stringify(b)}`);
       if (ocupadas.has(`${b.row},${b.col}`)) {
         throw new Error(`Laser-triangular con un bloque encima de un emisor o diana: ${b.row},${b.col}`);
       }
     }
 
-    const config = { size: data.size, lasers: data.lasers, blocks: data.blocks || [] };
-
     // Un reto que ya está resuelto sin tocar nada no es un reto.
-    if (laserResuelto(config, crearPiezas(data.size))) {
-      throw new Error('Laser-triangular ya viene resuelto sin colocar ningún espejo');
+    if (laserResuelto(c, crearPiezas(c.size))) {
+      throw new Error('Laser-triangular ya viene resuelto sin colocar ninguna pieza');
     }
 
     // Se busca de verdad una solución, con el mismo trazador que usa la
-    // plantilla: si no aparece con min_espejos, el reto es imposible.
-    const declarados = Number.isInteger(data.min_espejos) ? data.min_espejos : 4;
-    const minimo = piezasMinimas(config, declarados);
+    // plantilla: si no aparece con min_piezas, el reto es imposible. Los
+    // payloads viejos solo llevan min_espejos.
+    const declarados = Number.isInteger(data.min_piezas) ? data.min_piezas
+      : (Number.isInteger(data.min_espejos) ? data.min_espejos : 4);
+    const minimo = piezasMinimas(c, declarados);
     if (minimo === null) {
       throw new Error(
-        `Laser-triangular not solvable: no hay solución con ${declarados} espejos o menos`
+        `Laser-triangular not solvable: no hay solución con ${declarados} piezas o menos`
       );
     }
     if (minimo !== declarados) {
       throw new Error(
-        `Laser-triangular min_espejos=${declarados} pero se resuelve con ${minimo}: el par anunciado no es el real`
+        `Laser-triangular min_piezas=${declarados} pero se resuelve con ${minimo}: el par anunciado no es el real`
       );
     }
   }

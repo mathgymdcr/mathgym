@@ -675,13 +675,13 @@ class MathGymGenerator {
   }
 
   async generateLaser(seed, fecha) {
-    // Construcción inversa: se colocan espejos, se traza el rayo con el mismo
+    // Construcción inversa: se colocan piezas, se traza el rayo con el mismo
     // trazador que usa la plantilla y la diana se planta donde acaba. El par
-    // (min_espejos) se comprueba buscando soluciones más cortas.
+    // (min_piezas) se comprueba buscando soluciones más cortas.
     const puzzle = buildLaserPuzzle(seed);
-    const { variant, size, lasers, blocks, min_espejos, dificultad } = puzzle;
+    const { variant, modo, size, lasers, targets, blocks, min_piezas, dificultad } = puzzle;
 
-    const config = { variant, size, lasers, blocks, min_espejos };
+    const config = { variant, modo, size, lasers, targets, blocks, min_piezas };
 
     const dataFileName = `laser_${fecha}.json`;
     await fs.mkdir('data', { recursive: true });
@@ -699,10 +699,10 @@ class MathGymGenerator {
       hints: buildLaserHints(puzzle),
       objectives: {
         winCondition: 'all_lasers_on_target',
-        // Cada espejo cuesta al menos un toque; los tipos se recorren en orden.
-        parMoves: min_espejos,
-        maxMovesFor3Stars: min_espejos,
-        maxMovesFor2Stars: min_espejos + 2
+        // Cada pieza cuesta al menos un toque; los tipos se recorren en orden.
+        parMoves: min_piezas,
+        maxMovesFor3Stars: min_piezas,
+        maxMovesFor2Stars: min_piezas + 2
       },
       data: { json_url: `data/${dataFileName}` }
     };
