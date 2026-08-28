@@ -15,10 +15,22 @@ const seedsReales = () => {
 }
 
 describe('ejes de laser-triangular', () => {
-  it('el tamano no cambia respecto a lo publicado: misma mascara', () => {
-    // Si esta mascara cambia, las fechas ya publicadas cambian de tamano.
+  // El archivo NO es reproducible (ver la nota de memoria): regenerar una
+  // fecha ya publicada da otro puzzle, y de hecho tamanoDeSeed(20260822) da
+  // 'grande' mientras que data/laser_2026-08-22.json quedo publicado con
+  // size: 6 (medio) -- el tamano publicado de una fecha pasada no sale de
+  // esta mascara ni antes ni despues de esta prueba. Lo que protege es que
+  // la mascara no cambie por accidente y resiembre que tamano le toca a
+  // cada fecha TODAVIA no generada. Por eso se fijan valores literales
+  // sobre seeds concretos en vez de comprobar solo el tipo del resultado:
+  // la version anterior aceptaba `typeof tamanoDeSeed(seed) === 'string'`,
+  // que sigue en verde aunque se cambie la mascara entera.
+  it('la mascara del tamano no cambia: valores fijados sobre seeds concretas', () => {
     expect(VARIANTES).toEqual(['pequeno', 'medio', 'grande'])
-    expect(typeof tamanoDeSeed(20260114)).toBe('string')
+    expect(tamanoDeSeed(20260114)).toBe('medio')
+    expect(tamanoDeSeed(20260830)).toBe('pequeno')
+    expect(tamanoDeSeed(33)).toBe('grande')
+    expect(tamanoDeSeed(88)).toBe('medio')
   })
 
   it('sobre fechas reales salen los tres tamanos y los tres modos', () => {
