@@ -36,6 +36,53 @@ describe('condensador', () => {
     expect(salida.resultado).toBe('diana')
   })
 
+  it('una segunda llegada del MISMO color no mezcla: sigue recta y con su color', () => {
+    // Anillo pequeno: el mismo rayo (un unico laser) pasa DOS veces por el
+    // condensador en (2,1). La primera vez (previo === undefined) ya la
+    // cubre el test anterior; este cubre la rama previo !== undefined &&
+    // previo === seg.color, que es la unica que distingue "no mezclar" de
+    // "mezclar" -- sin ella, cambiar la comparacion de color por "cualquier
+    // segunda llegada mezcla" (ver mutacion en el informe) deja los otros
+    // tres tests en verde igual.
+    //
+    // Trazado real (comprobado con un script en el scratchpad, no viene del
+    // brief): emisor (2,0) 'right', condensador en (2,1), y tres espejos
+    // \ / \ en (2,2)(3,2)(3,1) que devuelven el rayo al propio (2,1):
+    //   tramo0 (2,0)(2,1)                         resultado 'condensador' (1a llegada)
+    //   tramo1 (2,1)(2,2)(3,2)(3,1)(2,1)           resultado 'condensador' (2a llegada, mismo color)
+    //   tramo2 (2,1)(1,1)(0,1)                     resultado 'fuera'
+    const size = 5
+    const c = normalizaConfig({
+      size,
+      modo: 'condensador',
+      lasers: [{ emitter: { row: 2, col: 0, dir: 'right' }, color: 'neutro' }],
+      targets: [{ row: 4, col: 4, color: 'imposible' }],
+      blocks: []
+    })
+    const piezas = crearPiezas(size)
+    piezas[2][1] = PIEZA.CONDENSADOR
+    piezas[2][2] = PIEZA.BACKSLASH
+    piezas[3][2] = PIEZA.SLASH
+    piezas[3][1] = PIEZA.BACKSLASH
+
+    const { tramos } = simularHaz(c, piezas, c.lasers[0])
+    // Se afirma primero que hay de verdad DOS tramos que terminan/arrancan
+    // en la celda del condensador (2,1) -- la segunda llegada real -- antes
+    // de comprobar que no mezclo.
+    const llegadas = tramos.filter((t) => t.squaresPath[t.squaresPath.length - 1].row === 2 &&
+      t.squaresPath[t.squaresPath.length - 1].col === 1)
+    expect(llegadas).toHaveLength(2)
+    const segundaLlegada = tramos.find((t) => t.squaresPath.length > 1 &&
+      t.squaresPath[t.squaresPath.length - 1].row === 2 && t.squaresPath[t.squaresPath.length - 1].col === 1)
+    expect(segundaLlegada.resultado).toBe('condensador')
+    // Y el tramo que sale despues de esa segunda llegada sigue con el mismo
+    // color, no magenta.
+    const salida = tramos.find((t) => t.squaresPath[0].row === 2 && t.squaresPath[0].col === 1 && t !== tramos[0])
+    expect(salida).toBeDefined()
+    expect(salida.color).toBe(c.lasers[0].color)
+    expect(tramos.some((t) => t.resultado === 'condensador-mezcla')).toBe(false)
+  })
+
   it('dos colores distintos salen como uno magenta, en la direccion del ultimo en llegar', () => {
     const c = normalizaConfig(BASE)
     const piezas = crearPiezas(c.size)
@@ -123,6 +170,10 @@ describe('condensador', () => {
     // demuestra que el tope es lo que esta cortando, no que el rayo se
     // hubiera parado solo.
     expect(tramos.length).toBe(4 * size * size)
-    expect(tramos.every((t) => typeof t.resultado === 'string')).toBe(true)
+    // El rayo es siempre el mismo color ('neutro'): en las 100 llegadas al
+    // condensador ninguna debe mezclar. Si la comparacion de color se
+    // rompiera (ver mutacion en el informe), esta asercion es la que lo
+    // detecta -- no basta con que el bucle termine.
+    expect(tramos.every((t) => t.resultado !== 'condensador-mezcla')).toBe(true)
   })
 })
