@@ -265,7 +265,7 @@ export async function render(root, data, hooks) {
           if (Math.hypot(dx, dy) < UMBRAL_ARRASTRE) return;
           if (state.won) { recogida = null; return; }
           state.piezas[r][c] = PIEZA.VACIO;
-          refresh();
+          apagaTrazo(); // levantar una pieza tambien cambia el tablero
           armar(recogida.tipo);
           state.arrastrando = true;
         });
