@@ -748,6 +748,10 @@ export function buildLaserHints(puzzle) {
   const { tramos } = simularTodos(config, crearPiezas(size));
   const idx = tramos.findIndex((t) => t.resultado !== 'diana');
   const i = idx === -1 ? 0 : idx;
+  // lasers[i] indexado por indice de TRAMO, no de laser: vale porque en un
+  // tablero vacio (sin piezas, como aqui) cada laser produce exactamente un
+  // tramo, asi que los dos indices coinciden. Dejaria de valer si algun dia
+  // se pidiera esto sobre un tablero con piezas ya puestas.
   const laser = lasers[i];
   const recorrido = tramos[i].squaresPath.length;
 
