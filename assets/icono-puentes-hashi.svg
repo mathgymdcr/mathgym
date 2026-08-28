@@ -2,10 +2,57 @@
   <g fill="none" stroke="#140A3C" stroke-width="7" stroke-linejoin="round" stroke-linecap="round" transform="translate(100 100) scale(1.2026) translate(-100.00 -103.50)">
     <path d="M56 46 H144 M56 66 H144 M46 56 V144 M66 56 V144 M66 154 H134" stroke-width="15"/>
     <path d="M56 46 H144 M56 66 H144 M46 56 V144 M66 56 V144 M66 154 H134" stroke="#F0FCFC" stroke-width="6"/>
-    <circle cx="56" cy="56" r="25" fill="#1788C7"/>
-    <circle cx="144" cy="56" r="25" fill="#F8C818"/>
-    <circle cx="56" cy="154" r="22" fill="#F0FCFC"/>
-    <circle cx="144" cy="154" r="22" fill="#8A2189"/>
-
+    <rect x="40" y="22" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="40" y="76" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="22" y="40" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="76" y="40" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="52" y="22" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="52" y="76" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="22" y="52" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="76" y="52" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="64" y="22" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="64" y="76" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="22" y="64" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="76" y="64" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="31" y="31" width="50" height="50" rx="7" fill="#1788C7"/>
+    <rect x="128" y="22" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="128" y="76" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="110" y="40" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="164" y="40" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="140" y="22" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="140" y="76" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="110" y="52" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="164" y="52" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="152" y="22" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="152" y="76" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="110" y="64" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="164" y="64" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="119" y="31" width="50" height="50" rx="7" fill="#F8C818"/>
+    <rect x="41" y="123" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="41" y="171" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="25" y="139" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="73" y="139" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="52" y="123" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="52" y="171" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="25" y="150" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="73" y="150" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="63" y="123" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="63" y="171" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="25" y="161" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="73" y="161" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="34" y="132" width="44" height="44" rx="7" fill="#1788C7"/>
+    <rect x="129" y="123" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="129" y="171" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="113" y="139" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="161" y="139" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="140" y="123" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="140" y="171" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="113" y="150" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="161" y="150" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="151" y="123" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="151" y="171" width="8" height="14" fill="#F0FCFC" stroke="none"/>
+    <rect x="113" y="161" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="161" y="161" width="14" height="8" fill="#F0FCFC" stroke="none"/>
+    <rect x="122" y="132" width="44" height="44" rx="7" fill="#8A2189"/>
   </g>
 </svg>
