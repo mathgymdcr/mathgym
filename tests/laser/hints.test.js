@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildLaserPuzzle, buildLaserHints } from '../../scripts/laser-triangular-logic.js'
+import { buildLaserPuzzle, buildLaserHints, modoDeSeed } from '../../scripts/laser-triangular-logic.js'
 
 const SEEDS = [20260830, 20260915, 12, 33]
 const conPistas = (seed) => {
@@ -48,7 +48,7 @@ describe('buildLaserHints', () => {
     for (const seed of SEEDS) {
       const { p, hints } = conPistas(seed)
       const texto = hints.join(' ')
-      p.solucion.espejos.forEach((fila, r) => fila.forEach((v, c) => {
+      p.solucion.piezas.forEach((fila, r) => fila.forEach((v, c) => {
         if (!v) return
         expect(texto, `seed ${seed}: desvela la celda ${r + 1},${c + 1}`)
           .not.toContain(`fila ${r + 1}, columna ${c + 1}`)
@@ -59,5 +59,15 @@ describe('buildLaserHints', () => {
   it('es determinista para el mismo puzzle', () => {
     const p = buildLaserPuzzle(20260830)
     expect(buildLaserHints(p)).toEqual(buildLaserHints(p))
+  })
+
+  it('en modo prisma la segunda pista menciona el prisma, y la tercera sigue mencionando min_piezas', () => {
+    const seed = [20260830, 20260915, 20261207, 20270422, 12, 33, 88, 20280606, 101, 202, 303, 404]
+      .find((s) => modoDeSeed(s) === 'prisma')
+    expect(seed, 'no hay seed de prueba para prisma').toBeDefined()
+    const { p, hints } = conPistas(seed)
+    expect(p.modo).toBe('prisma')
+    expect(hints[1].toLowerCase()).toContain('prisma')
+    expect(hints[2]).toContain(String(p.min_piezas))
   })
 })

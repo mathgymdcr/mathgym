@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { buildLaserPuzzle, piezasMinimas, piezasMinimasExhaustivo, resuelto, crearPiezas } from '../../scripts/laser-triangular-logic.js'
+import { buildLaserPuzzle, piezasMinimas, piezasMinimasExhaustivo, resuelto, crearPiezas, normalizaConfig, modoDeSeed, MODOS } from '../../scripts/laser-triangular-logic.js'
 
 const SEEDS = [20260830, 20260915, 20261207, 20270422, 12, 33, 88, 20280606]
 
-const config = (p) => ({ size: p.size, lasers: p.lasers, blocks: p.blocks })
+// Incluye `targets` y `modo`: desde que el generador construye los tres
+// modos, la diana ya no vive en `lasers[].target` (ver normalizaConfig).
+const config = (p) => ({ size: p.size, modo: p.modo, lasers: p.lasers, targets: p.targets, blocks: p.blocks })
 
 describe('buildLaserPuzzle', () => {
   it('es determinista: el mismo seed da exactamente el mismo puzzle', () => {
@@ -14,7 +16,7 @@ describe('buildLaserPuzzle', () => {
   it('la solución que guarda resuelve el reto de verdad', () => {
     for (const seed of SEEDS) {
       const p = buildLaserPuzzle(seed)
-      expect(resuelto(config(p), p.solucion.espejos), `seed ${seed}`).toBe(true)
+      expect(resuelto(config(p), p.solucion.piezas), `seed ${seed}`).toBe(true)
     }
   })
 
@@ -37,22 +39,27 @@ describe('buildLaserPuzzle', () => {
   })
 
   it('coloca emisores y dianas dentro del tablero y sin pisarse', () => {
+    // SEEDS mezcla los tres modos (el eje de modo es independiente del
+    // numero de seed), así que ni el número de emisores ni el de dianas es
+    // fijo: clásico tiene 2 emisores y 2 dianas, prisma 1 y 2, condensador
+    // 1 y 1. Lo que sí vale siempre es que todo esté dentro del tablero y
+    // que ningún objeto comparta celda con otro.
     for (const seed of SEEDS) {
       const p = buildLaserPuzzle(seed)
-      expect(p.lasers.length, `seed ${seed}`).toBeGreaterThanOrEqual(2)
+      expect(p.lasers.length, `seed ${seed}`).toBeGreaterThanOrEqual(1)
+      expect(p.targets.length, `seed ${seed}`).toBeGreaterThanOrEqual(1)
       const ocupadas = new Set()
-      for (const l of p.lasers) {
-        for (const punto of [l.emitter, l.target]) {
-          expect(punto.row).toBeGreaterThanOrEqual(0)
-          expect(punto.row).toBeLessThan(p.size)
-          expect(punto.col).toBeGreaterThanOrEqual(0)
-          expect(punto.col).toBeLessThan(p.size)
-          const clave = `${punto.row},${punto.col}`
-          expect(ocupadas.has(clave), `seed ${seed}: dos objetos en ${clave}`).toBe(false)
-          ocupadas.add(clave)
-        }
-        expect(l.emitter.dir, `seed ${seed}`).toBeTruthy()
+      const puntos = [...p.lasers.map((l) => l.emitter), ...p.targets]
+      for (const punto of puntos) {
+        expect(punto.row).toBeGreaterThanOrEqual(0)
+        expect(punto.row).toBeLessThan(p.size)
+        expect(punto.col).toBeGreaterThanOrEqual(0)
+        expect(punto.col).toBeLessThan(p.size)
+        const clave = `${punto.row},${punto.col}`
+        expect(ocupadas.has(clave), `seed ${seed}: dos objetos en ${clave}`).toBe(false)
+        ocupadas.add(clave)
       }
+      for (const l of p.lasers) expect(l.emitter.dir, `seed ${seed}`).toBeTruthy()
       for (const b of p.blocks || []) {
         expect(ocupadas.has(`${b.row},${b.col}`), `seed ${seed}: bloque sobre un objeto`).toBe(false)
       }
@@ -81,8 +88,54 @@ describe('buildLaserPuzzle', () => {
       expect(esperado, `variante desconocida: ${p.variant}`).toBeDefined()
       expect(p.size).toBe(esperado)
       expect(p.dificultad).toBeGreaterThanOrEqual(2)
-      expect(p.dificultad).toBeLessThanOrEqual(4)
+      // Base 2/3/4 segun tamano, +1 fuera de clasico (con tope 5): el rango
+      // completo, mezclando modos, es 2..5.
+      expect(p.dificultad).toBeLessThanOrEqual(5)
     }
     expect([...vistas].sort()).toEqual(['grande', 'medio', 'pequeno'])
+  })
+})
+
+// Un seed por modo, encontrado barriendo: se fijan aqui para que los tests no
+// dependan de que el barrido siga dando lo mismo.
+const SEED_DE_MODO = Object.fromEntries(
+  MODOS.map((m) => [m, [20260830, 20260915, 20261207, 20270422, 12, 33, 88, 20280606, 101, 202, 303, 404]
+    .find((s) => modoDeSeed(s) === m)])
+)
+
+describe('buildLaserPuzzle en los tres modos', () => {
+  for (const modo of MODOS) {
+    it(`${modo}: genera, es resoluble y el par anunciado es el real`, () => {
+      const seed = SEED_DE_MODO[modo]
+      expect(seed, `no hay seed de prueba para ${modo}`).toBeDefined()
+      const p = buildLaserPuzzle(seed)
+      expect(p.modo).toBe(modo)
+      const c = normalizaConfig(p)
+      expect(resuelto(c, crearPiezas(p.size)), 'viene resuelto de fabrica').toBe(false)
+      expect(resuelto(c, p.solucion.piezas)).toBe(true)
+      expect(piezasMinimas(c, p.min_piezas - 1), 'se resuelve con menos').toBeNull()
+    })
+  }
+
+  it('prisma: un emisor y dos dianas de colores distintos', () => {
+    const p = buildLaserPuzzle(SEED_DE_MODO.prisma)
+    expect(p.lasers).toHaveLength(1)
+    expect(p.targets).toHaveLength(2)
+    expect(new Set(p.targets.map((t) => t.color)).size).toBe(2)
+  })
+
+  it('condensador: un emisor y una unica diana magenta', () => {
+    const p = buildLaserPuzzle(SEED_DE_MODO.condensador)
+    expect(p.lasers).toHaveLength(1)
+    expect(p.targets).toHaveLength(1)
+    expect(p.targets[0].color).toBe('magenta')
+  })
+
+  it('la dificultad sube un punto fuera de clasico, con tope en 5', () => {
+    for (const modo of MODOS) {
+      const p = buildLaserPuzzle(SEED_DE_MODO[modo])
+      expect(p.dificultad).toBeGreaterThanOrEqual(1)
+      expect(p.dificultad).toBeLessThanOrEqual(5)
+    }
   })
 })

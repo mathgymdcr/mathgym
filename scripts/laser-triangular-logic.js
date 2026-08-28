@@ -479,130 +479,223 @@ export function varianteDeSeed(seed) {
 }
 const TAMANO = { pequeno: 5, medio: 6, grande: 7 };
 const DIRECCIONES = Object.keys(DIR_VECTOR);
-const MAX_INTENTOS = 600;
 
 const elegir = (rand, arr) => arr[Math.floor(rand() * arr.length)];
 
-// Traza un único láser aislado (sin el resto del tablero todavía construido),
-// para explorar direcciones y candidatas durante la construcción del reto.
-// Usa el mismo simularHaz que el juego: no hay una segunda implementación de
-// trazado. Como el láser va solo en su config, el único tramo que produce es
-// el suyo.
-function trazaSuelto(size, espejos, laser) {
-  const config = normalizaConfig({ size, lasers: [laser], blocks: [] });
-  return simularHaz(config, espejos, config.lasers[0]).tramos[0];
-}
-
-// Construcción inversa: se coloca el emisor, se ponen espejos y se traza el
-// rayo con el trazador de verdad; la diana se planta donde el rayo acaba.
-// Así la solución existe por construcción y es la que el jugador tiene que
-// reencontrar.
-function construirLaser(rand, size, espejos, ocupadas, prohibidas, maxEspejos) {
-  const libre = (r, c) => r >= 0 && r < size && c >= 0 && c < size && !ocupadas.has(`${r},${c}`);
-
-  // El emisor tampoco puede caer sobre el trayecto de un rayo ya construido:
-  // sería un objeto en medio y lo cortaría, tirando abajo la solución que ya
-  // teníamos montada.
+// Elige celda y direccion del emisor. La direccion no se elige a ciegas: se
+// prueban las ocho y se descartan las que sacan el rayo del tablero en dos
+// celdas, que era el 83% de los descartes.
+function colocaEmisor(rand, size, piezas, ocupadas = new Set()) {
   const fila = Math.floor(rand() * size), col = Math.floor(rand() * size);
-  if (!libre(fila, col) || prohibidas.has(`${fila},${col}`)) return null;
-
-  // La dirección no se elige a ciegas: se prueban las ocho y se descartan las
-  // que sacan el rayo del tablero en dos celdas, que era de lejos el motivo
-  // más común de intento fallido (el 83% de los descartes).
-  const laser = { emitter: { row: fila, col, dir: 'right' }, target: { row: -1, col: -1 } };
+  if (ocupadas.has(`${fila},${col}`)) return null;
+  const laser = { emitter: { row: fila, col, dir: 'right' }, color: 'neutro' };
+  const base = { size, modo: 'clasico', lasers: [laser], targets: [], blocks: [] };
   const conRecorrido = DIRECCIONES.filter((dir) => {
     laser.emitter.dir = dir;
-    return trazaSuelto(size, espejos, laser).squaresPath.length >= 3;
+    return simularHaz(base, piezas, laser).tramos[0].squaresPath.length >= 3;
   });
   if (!conRecorrido.length) return null;
-  laser.emitter.dir = elegir(rand, conRecorrido);
+  return { row: fila, col, dir: elegir(rand, conRecorrido) };
+}
+
+// Bloques decorativos que ademas cierran caminos alternativos, siempre fuera
+// de los trayectos y de los objetos. Es el bucle de hoy, tal cual.
+function colocaBloques(rand, size, hecho) {
+  const vetadas = new Set();
+  hecho.lasers.forEach((l) => vetadas.add(`${l.emitter.row},${l.emitter.col}`));
+  hecho.targets.forEach((t) => vetadas.add(`${t.row},${t.col}`));
+  const base = { size, modo: hecho.modo, lasers: hecho.lasers, targets: hecho.targets, blocks: [] };
+  hecho.lasers.forEach((l) => simularHaz(base, hecho.piezas, l).tramos
+    .forEach((t) => t.squaresPath.forEach((p) => vetadas.add(`${p.row},${p.col}`))));
+
+  const blocks = [];
+  for (let k = 0; k < size; k++) {
+    const r = Math.floor(rand() * size), c = Math.floor(rand() * size);
+    if (vetadas.has(`${r},${c}`) || hecho.piezas[r][c] !== PIEZA.VACIO) continue;
+    if (blocks.some((b) => b.row === r && b.col === c)) continue;
+    blocks.push({ row: r, col: c });
+    if (blocks.length === 2) break;
+  }
+  return blocks;
+}
+
+// Un laser con sus espejos, en construccion inversa: se coloca el emisor, se
+// ponen espejos en su camino y la diana se planta donde el rayo termina. Es
+// el cuerpo de `construirLaser` de hoy, reescrito sobre `colocaEmisor` y sin
+// la parte de bloques (que ahora hace `colocaBloques` una vez, no por laser).
+// `vetadas` son las celdas -- emisor, diana o camino -- que ya usa OTRO
+// laser; se pasan tal cual a `colocaEmisor` porque para elegir emisor da
+// igual el motivo por el que una celda esta prohibida.
+function construirUnLaser(rand, size, piezas, vetadas, maxEspejos, color) {
+  const emisor = colocaEmisor(rand, size, piezas, vetadas);
+  if (!emisor) return null;
+  const laser = { emitter: emisor, color };
+  const base = { size, modo: 'clasico', lasers: [laser], targets: [], blocks: [] };
 
   const puestos = [];
   const cuantos = 1 + Math.floor(rand() * maxEspejos);
   for (let k = 0; k < cuantos; k++) {
-    const { squaresPath } = trazaSuelto(size, espejos, laser);
+    const { squaresPath } = simularHaz(base, piezas, laser).tramos[0];
     // Se evita la celda del emisor y las que ya usa otro rayo.
     const candidatas = squaresPath.slice(1).filter(({ row, col: c }) =>
-      !ocupadas.has(`${row},${c}`) && !prohibidas.has(`${row},${c}`) && espejos[row][c] === 0);
+      !vetadas.has(`${row},${c}`) && piezas[row][c] === PIEZA.VACIO);
     if (!candidatas.length) break;
     const celda = elegir(rand, candidatas);
-    espejos[celda.row][celda.col] = 1 + Math.floor(rand() * 4);
+    piezas[celda.row][celda.col] = elegir(rand, [PIEZA.SLASH, PIEZA.BACKSLASH, PIEZA.VERT, PIEZA.HORIZ]);
     puestos.push(celda);
   }
   if (!puestos.length) return null;
 
-  const { squaresPath } = trazaSuelto(size, espejos, laser);
+  const { squaresPath } = simularHaz(base, piezas, laser).tramos[0];
   if (squaresPath.length < 4) return null;
 
   const fin = squaresPath[squaresPath.length - 1];
-  if (!libre(fin.row, fin.col) || (fin.row === fila && fin.col === col)) return null;
-  if (prohibidas.has(`${fin.row},${fin.col}`)) return null;   // cortaría el otro rayo
-  if (espejos[fin.row][fin.col] !== 0) return null;
+  if (vetadas.has(`${fin.row},${fin.col}`) || (fin.row === emisor.row && fin.col === emisor.col)) return null;
+  if (piezas[fin.row][fin.col] !== PIEZA.VACIO) return null;
 
-  laser.target = { row: fin.row, col: fin.col };
-  return { laser, espejos: puestos, camino: squaresPath };
+  return { laser, target: { row: fin.row, col: fin.col, color }, camino: squaresPath };
 }
+
+// Los dos laseres clasicos, cada uno con su color propio (para que la regla
+// de cruce distinga "mi diana" de "la diana ajena"), montados sobre
+// `construirUnLaser` y `colocaBloques`.
+function construirClasico(rand, size) {
+  const piezas = crearPiezas(size);
+  const vetadas = new Set();
+  const lasers = [];
+  const targets = [];
+
+  for (let i = 0; i < 2; i++) {
+    const hecho = construirUnLaser(rand, size, piezas, vetadas, 2, `neutro-${i + 1}`);
+    if (!hecho) return null;
+    lasers.push(hecho.laser);
+    targets.push(hecho.target);
+    vetadas.add(`${hecho.laser.emitter.row},${hecho.laser.emitter.col}`);
+    vetadas.add(`${hecho.target.row},${hecho.target.col}`);
+    // El rayo ya trazado puede dejar huerfano un espejo de un laser anterior
+    // (uno que giraba antes de llegar a el, tras colocar uno posterior): ese
+    // espejo no esta en `camino` y por tanto no entra en `vetadas`. Por eso
+    // la comprobacion de que ningun espejo pisa un emisor o diana se hace
+    // aparte, al final, sobre el tablero completo -- ver mas abajo.
+    hecho.camino.forEach(({ row, col }) => vetadas.add(`${row},${col}`));
+  }
+
+  // Ningun espejo -- ni el huerfano de arriba -- puede acabar en la celda de
+  // un emisor o una diana: `celdasLibres` las excluye, asi que la busqueda de
+  // minimos nunca podria reproducir esa pieza y el par anunciado quedaria mal.
+  const ocupadas = [...lasers.map((l) => l.emitter), ...targets];
+  if (ocupadas.some((p) => piezas[p.row][p.col] !== PIEZA.VACIO)) return null;
+
+  return { modo: 'clasico', size, lasers, targets, piezas };
+}
+
+// Construccion inversa, igual que en clasico: se colocan las piezas, se traza
+// con el trazador de verdad y las dianas se plantan donde acaban los rayos.
+// Asi la solucion existe por construccion.
+function construirPrisma(rand, size) {
+  const piezas = crearPiezas(size);
+  const emisor = colocaEmisor(rand, size, piezas);          // reusa la logica de clasico
+  if (!emisor) return null;
+  const laser = { emitter: emisor, color: 'neutro' };
+  const base = { size, modo: 'prisma', lasers: [laser], targets: [], blocks: [] };
+
+  // El prisma va en el tronco, nunca en la celda del emisor.
+  const tronco = simularHaz(base, piezas, laser).tramos[0].squaresPath.slice(1);
+  if (!tronco.length) return null;
+  const sitio = elegir(rand, tronco);
+  piezas[sitio.row][sitio.col] = PIEZA.PRISMA;
+
+  // Un espejo opcional en el camino de cada hijo, para que no sean dos rectas.
+  for (let k = 0; k < 2; k++) {
+    const hijos = simularHaz(base, piezas, laser).tramos.filter((t) => t.color !== 'neutro');
+    if (hijos.length < 2) return null;
+    const hijo = hijos[k];
+    const libres = hijo.squaresPath.slice(1).filter((p) => piezas[p.row][p.col] === PIEZA.VACIO);
+    if (!libres.length || rand() < 0.3) continue;
+    const celda = elegir(rand, libres);
+    piezas[celda.row][celda.col] = elegir(rand, [PIEZA.SLASH, PIEZA.BACKSLASH, PIEZA.VERT, PIEZA.HORIZ]);
+  }
+
+  const hijos = simularHaz(base, piezas, laser).tramos.filter((t) => t.color !== 'neutro');
+  if (hijos.length !== 2) return null;
+  const targets = hijos.map((h) => {
+    const fin = h.squaresPath[h.squaresPath.length - 1];
+    return { row: fin.row, col: fin.col, color: h.color };
+  });
+  if (targets[0].row === targets[1].row && targets[0].col === targets[1].col) return null;
+  if (targets.some((t) => piezas[t.row][t.col] !== PIEZA.VACIO)) return null;
+  if (targets.some((t) => t.row === emisor.row && t.col === emisor.col)) return null;
+
+  return { modo: 'prisma', size, lasers: [laser], targets, piezas };
+}
+
+// Como prisma, pero los dos hijos se llevan a una celda comun donde va el
+// condensador; el rayo magenta que sale de ahi termina en la unica diana.
+function construirCondensador(rand, size) {
+  const previo = construirPrisma(rand, size);
+  if (!previo) return null;
+  const { lasers, piezas } = previo;
+  const base = { size, modo: 'condensador', lasers, targets: [], blocks: [] };
+
+  const hijos = simularHaz(base, piezas, lasers[0]).tramos.filter((t) => t.color !== 'neutro');
+  if (hijos.length !== 2) return null;
+  const enAzul = new Set(hijos[0].squaresPath.map((p) => `${p.row},${p.col}`));
+  const comunes = hijos[1].squaresPath.filter((p) =>
+    enAzul.has(`${p.row},${p.col}`) && piezas[p.row][p.col] === PIEZA.VACIO);
+  if (!comunes.length) return null;                  // sin celda comun, se descarta
+  const sitio = elegir(rand, comunes);
+  piezas[sitio.row][sitio.col] = PIEZA.CONDENSADOR;
+
+  const magenta = simularHaz(base, piezas, lasers[0]).tramos.find((t) => t.color === 'magenta');
+  if (!magenta) return null;
+  const fin = magenta.squaresPath[magenta.squaresPath.length - 1];
+  if (piezas[fin.row][fin.col] !== PIEZA.VACIO) return null;
+  if (fin.row === lasers[0].emitter.row && fin.col === lasers[0].emitter.col) return null;
+
+  return { modo: 'condensador', size, lasers, targets: [{ row: fin.row, col: fin.col, color: 'magenta' }], piezas };
+}
+
+// Cuantos intentos de seed (mulberry32(seed + intento*15485863)) hacen falta
+// para que cada modo encuentre un reto valido. Medido barriendo seed=1..300
+// (ver informe de la Task 7): clasico necesita en media 123.6 intentos (max
+// 553 en ese barrido); prisma 13.6 (max 70); condensador -- que exige que
+// los dos hijos del prisma compartan una celda libre, con mucho el mas
+// exigente -- 335.8 (max 1300). Con 600 fallaban 13 de los 89 seeds de
+// condensador; 2000 deja los tres modos en cero fallos sobre esos 300 seeds,
+// con margen sobre el maximo observado.
+const MAX_INTENTOS = 2000;
 
 export function buildLaserPuzzle(seed) {
   const variant = tamanoDeSeed(seed);
+  const modo = modoDeSeed(seed);
   const size = TAMANO[variant];
+  const construir = { clasico: construirClasico, prisma: construirPrisma, condensador: construirCondensador }[modo];
 
   for (let intento = 0; intento < MAX_INTENTOS; intento++) {
     const rand = mulberry32((seed + intento * 15485863) >>> 0);
-    const espejos = crearPiezas(size);
-    const ocupadas = new Set();
-    const prohibidas = new Set();
-    const lasers = [];
-    let total = 0;
+    const hecho = construir(rand, size);
+    if (!hecho) continue;
 
-    let ok = true;
-    for (let i = 0; i < 2; i++) {
-      const construido = construirLaser(rand, size, espejos, ocupadas, prohibidas, 2);
-      if (!construido) { ok = false; break; }
-      const { laser, espejos: puestos, camino } = construido;
-      lasers.push(laser);
-      total += puestos.length;
-      ocupadas.add(`${laser.emitter.row},${laser.emitter.col}`);
-      ocupadas.add(`${laser.target.row},${laser.target.col}`);
-      // El segundo rayo no puede pasar por donde pasa el primero: la
-      // plantilla considera cruce cualquier celda compartida.
-      camino.forEach(({ row, col }) => prohibidas.add(`${row},${col}`));
-    }
-    if (!ok || total < 2 || total > 3) continue;
+    const blocks = colocaBloques(rand, size, hecho);      // como hoy: fuera de trayectos y objetos
+    const config = { size, modo, lasers: hecho.lasers, targets: hecho.targets, blocks };
+    const total = hecho.piezas.flat().filter(Boolean).length;
+    if (total < 2 || total > 4) continue;
 
-    // Bloques decorativos que además cierran caminos alternativos, siempre
-    // fuera de los trayectos y de los objetos.
-    const blocks = [];
-    for (let intentosBloque = 0; intentosBloque < size; intentosBloque++) {
-      const r = Math.floor(rand() * size), c = Math.floor(rand() * size);
-      const clave = `${r},${c}`;
-      if (ocupadas.has(clave) || prohibidas.has(clave) || espejos[r][c] !== 0) continue;
-      if (blocks.some((b) => b.row === r && b.col === c)) continue;
-      blocks.push({ row: r, col: c });
-      if (blocks.length === 2) break;
-    }
+    if (resuelto(config, crearPiezas(size))) continue;     // no puede venir resuelto
+    if (!resuelto(config, hecho.piezas)) continue;         // la solucion tiene que valer
+    if (piezasMinimas(config, total - 1) !== null) continue; // el par tiene que ser el minimo
 
-    const config = { size, lasers, blocks };
-    // Colocar la diana cambió el recorrido (el rayo ahora se detiene ahí) y
-    // el segundo rayo pudo alterar el primero: se comprueba de verdad.
-    if (!resuelto(config, espejos)) continue;
-
-    // El par solo vale si no hay una solución más corta.
-    if (piezasMinimas(config, total - 1) !== null) continue;
-
+    const base = size === 5 ? 2 : (size === 6 ? 3 : 4);
     return {
-      variant,
-      size,
-      lasers,
-      blocks,
-      min_espejos: total,
-      dificultad: size === 5 ? 2 : (size === 6 ? 3 : 4),
-      solucion: { espejos: espejos.map((f) => [...f]) },
+      variant, modo, size, lasers: hecho.lasers, targets: hecho.targets, blocks,
+      min_piezas: total,
+      min_espejos: total,                                   // lo sigue leyendo generate-daily-reto
+      dificultad: Math.min(5, base + (modo === 'clasico' ? 0 : 1)),
+      solucion: { piezas: hecho.piezas.map((f) => [...f]) },
       intentos: intento + 1
     };
   }
-
-  throw new Error(`No se pudo generar un reto de láser triangular para seed=${seed}`);
+  throw new Error(`No se pudo generar un reto de laser triangular para seed=${seed}, modo=${modo}`);
 }
 
 // --- Pistas ---------------------------------------------------------------
@@ -615,11 +708,19 @@ const NOMBRE_DIR = {
 
 // Tres pistas derivadas del tablero concreto, sin decir en qué celda va cada
 // espejo: eso es justo lo que hay que descubrir.
-export function buildLaserHints(puzzle) {
-  const { size, lasers, blocks, min_espejos } = puzzle;
-  const config = { size, lasers, blocks };
+// La segunda pista depende del modo: en clasico habla de los cuatro
+// espejos, en prisma y condensador de las piezas que solo existen ahi.
+const SEGUNDA_PISTA = {
+  clasico: 'Los cuatro espejos no hacen lo mismo: las diagonales / y \\ desvian el rayo 90 grados cuando le llegan de frente, y los planos | y — lo devuelven por donde vino. Un rayo que llega paralelo a un espejo lo atraviesa sin enterarse.',
+  prisma: 'El prisma parte el rayo en dos: uno sale 45 grados a la izquierda en azul y otro 45 grados a la derecha en rojo, y la direccion de entrada no continua recta. Cada diana solo la enciende un rayo de su color, asi que lo primero es decidir por donde entra el rayo al prisma.',
+  condensador: 'Aqui hacen falta las dos piezas: el prisma parte el rayo en azul y rojo, y el condensador los vuelve a juntar en magenta, que es el color de la unica diana. Los dos rayos tienen que llegar a la misma celda, y solo esa celda puede compartirla dos rayos.'
+};
 
-  // Se traza sin espejos para poder contar por dónde va cada rayo "de fábrica".
+export function buildLaserHints(puzzle) {
+  const { size, modo, lasers, targets, blocks, min_piezas } = puzzle;
+  const config = { size, modo, lasers, targets, blocks };
+
+  // Se traza sin piezas para poder contar por dónde va cada rayo "de fábrica".
   const { tramos } = simularTodos(config, crearPiezas(size));
   const idx = tramos.findIndex((t) => t.resultado !== 'diana');
   const i = idx === -1 ? 0 : idx;
@@ -630,11 +731,10 @@ export function buildLaserHints(puzzle) {
     `tal cual está el tablero recorre ${recorrido} celda${recorrido === 1 ? '' : 's'} y ${tramos[i].resultado === 'fuera' ? 'se sale del tablero' : 'se queda cortado'}. ` +
     'Mira dónde tendría que torcer para acabar en su diana.';
 
-  const segunda = 'Los cuatro espejos no hacen lo mismo: las diagonales / y \\ desvían el rayo 90 grados cuando le llegan de frente, ' +
-    'y los planos | y — lo devuelven por donde vino. Un rayo que llega paralelo a un espejo lo atraviesa sin enterarse, así que la orientación importa tanto como la celda.';
+  const segunda = SEGUNDA_PISTA[modo];
 
-  const tercera = `Bastan ${min_espejos} espejos bien puestos: si necesitas más, seguramente estás corrigiendo un rayo que ya iba bien. ` +
-    'Y ojo, que los dos trayectos no pueden cruzarse: si comparten una sola celda, el reto no se da por resuelto aunque los dos lleguen a su diana.';
+  const tercera = `Bastan ${min_piezas} piezas bien puestas: si necesitas más, seguramente estás corrigiendo un rayo que ya iba bien. ` +
+    'Y ojo, que los rayos no pueden cruzarse fuera del prisma o el condensador: si comparten una celda que no sea una de esas dos piezas, el reto no se da por resuelto aunque todo llegue a su diana.';
 
   return [primera, segunda, tercera];
 }
