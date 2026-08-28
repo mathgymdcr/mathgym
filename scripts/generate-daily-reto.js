@@ -699,7 +699,7 @@ class MathGymGenerator {
       hints: buildLaserHints(puzzle),
       objectives: {
         winCondition: 'all_lasers_on_target',
-        // Cada pieza cuesta al menos un toque; los tipos se recorren en orden.
+        // Cada pieza cuesta al menos un toque.
         parMoves: min_piezas,
         maxMovesFor3Stars: min_piezas,
         maxMovesFor2Stars: min_piezas + 2

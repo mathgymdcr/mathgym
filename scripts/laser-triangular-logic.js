@@ -713,7 +713,6 @@ export function buildLaserPuzzle(seed) {
     return {
       variant, modo, size, lasers: hecho.lasers, targets: hecho.targets, blocks,
       min_piezas: total,
-      min_espejos: total,                                   // lo sigue leyendo generate-daily-reto
       dificultad: Math.min(5, base + (modo === 'clasico' ? 0 : 1)),
       solucion: { piezas: hecho.piezas.map((f) => [...f]) },
       intentos: intento + 1

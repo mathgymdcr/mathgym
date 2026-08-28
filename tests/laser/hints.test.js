@@ -33,7 +33,7 @@ describe('buildLaserHints', () => {
   it('alguna pista dice cuántos espejos hacen falta', () => {
     for (const seed of SEEDS) {
       const { p, hints } = conPistas(seed)
-      expect(hints.join(' '), `seed ${seed}`).toContain(String(p.min_espejos))
+      expect(hints.join(' '), `seed ${seed}`).toContain(String(p.min_piezas))
     }
   })
 

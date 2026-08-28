@@ -23,10 +23,10 @@ describe('buildLaserPuzzle', () => {
   it('no se resuelve con menos espejos de los que dice', () => {
     for (const seed of SEEDS) {
       const p = buildLaserPuzzle(seed)
-      expect(p.min_espejos, `seed ${seed}`).toBeGreaterThanOrEqual(2)
+      expect(p.min_piezas, `seed ${seed}`).toBeGreaterThanOrEqual(2)
       expect(
-        piezasMinimas(config(p), p.min_espejos - 1),
-        `seed ${seed}: se resuelve con menos de ${p.min_espejos} espejos`
+        piezasMinimas(config(p), p.min_piezas - 1),
+        `seed ${seed}: se resuelve con menos de ${p.min_piezas} espejos`
       ).toBeNull()
     }
   })
