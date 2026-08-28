@@ -70,5 +70,14 @@
       "volumen",
       "movimiento"
     ]
+  },
+  {
+    "fecha": "2026-08-28",
+    "titulo": "Los Cuadrados Luminosos",
+    "dificultad": 3,
+    "categorias": [
+      "logica",
+      "tablero"
+    ]
   }
 ]
