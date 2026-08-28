@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import fs from 'node:fs/promises'
-import { simularTodos, resuelto, crearEspejos, DIR_VECTOR } from '../../scripts/laser-triangular-logic.js'
+import { simularTodos, resuelto, crearPiezas, DIR_VECTOR } from '../../scripts/laser-triangular-logic.js'
 
 // El trazador sale de plantillas/laser_triangular.js para que el juego, el
 // generador y el validador usen exactamente el mismo código: si el generador
@@ -27,13 +27,13 @@ describe('trazador de la malla triangular', () => {
   })
 
   it('sin espejos, ningún rayo llega a su diana', () => {
-    const { resultados } = simularTodos(TABLERO, crearEspejos(TABLERO.size))
+    const { resultados } = simularTodos(TABLERO, crearPiezas(TABLERO.size))
     expect(resultados.every((r) => r.resultado === 'diana')).toBe(false)
-    expect(resuelto(TABLERO, crearEspejos(TABLERO.size))).toBe(false)
+    expect(resuelto(TABLERO, crearPiezas(TABLERO.size))).toBe(false)
   })
 
   it('con los espejos previstos, los dos rayos llegan y no se cruzan', () => {
-    const espejos = crearEspejos(TABLERO.size)
+    const espejos = crearPiezas(TABLERO.size)
     espejos[3][0] = 2   // '\\' manda el rayo naranja hacia la derecha
     espejos[0][1] = 1   // '/' manda el rayo azul hacia abajo
 
@@ -44,7 +44,7 @@ describe('trazador de la malla triangular', () => {
   })
 
   it('un rayo que se sale del tablero no cuenta como diana', () => {
-    const espejos = crearEspejos(TABLERO.size)
+    const espejos = crearPiezas(TABLERO.size)
     espejos[3][0] = 1   // '/' en vez de '\\': lo manda fuera
     const { resultados } = simularTodos(TABLERO, espejos)
     expect(resultados[0].resultado).not.toBe('diana')
@@ -53,8 +53,8 @@ describe('trazador de la malla triangular', () => {
   it('un espejo paralelo al rayo lo deja pasar sin desviarlo', () => {
     // El rayo naranja baja por la columna 0; un espejo vertical '|' en su
     // camino es paralelo a su trayectoria, así que no lo toca.
-    const sinNada = crearEspejos(TABLERO.size)
-    const conVertical = crearEspejos(TABLERO.size)
+    const sinNada = crearPiezas(TABLERO.size)
+    const conVertical = crearPiezas(TABLERO.size)
     conVertical[2][0] = 3
     const a = simularTodos(TABLERO, sinNada).resultados[0]
     const b = simularTodos(TABLERO, conVertical).resultados[0]

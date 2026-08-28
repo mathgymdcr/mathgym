@@ -10,7 +10,7 @@ import { solveHashi, construirPares } from './hashi-logic.js';
 import { pistasDe, pistasColorDe, resolverNonograma } from './nonograma-logic.js';
 import { solveCajas } from './cajas-logic.js';
 import { resolverAnillas } from './anillas-logic.js';
-import { resuelto as laserResuelto, espejosMinimos, crearEspejos, DIR_VECTOR } from './laser-triangular-logic.js';
+import { resuelto as laserResuelto, espejosMinimos, crearPiezas, DIR_VECTOR } from './laser-triangular-logic.js';
 import { contarSoluciones as contarRiegos, combinacionesPlanta } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
@@ -815,7 +815,7 @@ class RetoValidator {
     const config = { size: data.size, lasers: data.lasers, blocks: data.blocks || [] };
 
     // Un reto que ya está resuelto sin tocar nada no es un reto.
-    if (laserResuelto(config, crearEspejos(data.size))) {
+    if (laserResuelto(config, crearPiezas(data.size))) {
       throw new Error('Laser-triangular ya viene resuelto sin colocar ningún espejo');
     }
 

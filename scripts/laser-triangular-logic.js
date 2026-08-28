@@ -18,7 +18,45 @@ export const DIR_VECTOR = {
 
 const EPS = 1e-9;
 
-export function crearEspejos(size) {
+export const COLORES = ['neutro', 'azul', 'rojo', 'magenta'];
+
+// 0 = vacio, 1..4 espejos, 5 prisma, 6 condensador.
+export const PIEZA = {
+  VACIO: 0, SLASH: 1, BACKSLASH: 2, VERT: 3, HORIZ: 4, PRISMA: 5, CONDENSADOR: 6
+};
+
+// En clasico el jugador solo tiene espejos: si la busqueda de minimos pudiera
+// usar prisma ahi, anunciaria un par que el jugador no puede alcanzar.
+export function tiposDisponibles(modo) {
+  return modo === 'clasico'
+    ? [PIEZA.SLASH, PIEZA.BACKSLASH, PIEZA.VERT, PIEZA.HORIZ]
+    : [PIEZA.SLASH, PIEZA.BACKSLASH, PIEZA.VERT, PIEZA.HORIZ, PIEZA.PRISMA, PIEZA.CONDENSADOR];
+}
+
+// Unico sitio que conoce el esquema viejo (`lasers[].target`, sin colores ni
+// modo). Todo lo demas -- trazador, generador, validador -- ve solo el nuevo.
+// En clasico cada laser recibe un color propio para que la regla de cruce sea
+// una sola en los tres modos.
+export function normalizaConfig(config) {
+  const modo = config.modo || 'clasico';
+  // `variant` (el TAMANO: pequeno/medio/grande) viaja intacto: la plantilla lo
+  // lee para decidir si traza el rayo sola. No confundirlo con la variante
+  // combinada de `varianteDeSeed`, que solo existe para el test de reparto.
+  const variant = config.variant;
+  if (Array.isArray(config.targets)) {
+    return { size: config.size, variant, modo, lasers: config.lasers, targets: config.targets, blocks: config.blocks || [] };
+  }
+  const lasers = [];
+  const targets = [];
+  (config.lasers || []).forEach((l, i) => {
+    const color = `neutro-${i + 1}`;
+    lasers.push({ emitter: { ...l.emitter }, color });
+    targets.push({ row: l.target.row, col: l.target.col, color });
+  });
+  return { size: config.size, variant, modo, lasers, targets, blocks: config.blocks || [] };
+}
+
+export function crearPiezas(size) {
   return Array.from({ length: size }, () => Array(size).fill(0));
 }
 
@@ -181,7 +219,7 @@ export function espejosMinimos(config, tope) {
 // Igual que espejosMinimos pero devolviendo la colocación encontrada, para
 // poder comprobar de punta a punta que la plantilla da la victoria con ella.
 export function resolverEspejos(config, tope) {
-  const espejos = crearEspejos(config.size);
+  const espejos = crearPiezas(config.size);
   if (resuelto(config, espejos)) return { espejos, total: 0 };
 
   const libres = new Set(celdasLibres(config).map((c) => `${c.row},${c.col}`));
@@ -221,7 +259,7 @@ export function resolverEspejos(config, tope) {
 // solo en los tests, como contraste de la anterior.
 export function espejosMinimosExhaustivo(config, tope) {
   const libres = celdasLibres(config);
-  const espejos = crearEspejos(config.size);
+  const espejos = crearPiezas(config.size);
 
   if (resuelto(config, espejos)) return 0;
 
@@ -335,7 +373,7 @@ export function buildLaserPuzzle(seed) {
 
   for (let intento = 0; intento < MAX_INTENTOS; intento++) {
     const rand = mulberry32((seed + intento * 15485863) >>> 0);
-    const espejos = crearEspejos(size);
+    const espejos = crearPiezas(size);
     const ocupadas = new Set();
     const prohibidas = new Set();
     const lasers = [];
@@ -406,7 +444,7 @@ export function buildLaserHints(puzzle) {
   const config = { size, lasers, blocks };
 
   // Se traza sin espejos para poder contar por dónde va cada rayo "de fábrica".
-  const { resultados } = simularTodos(config, crearEspejos(size));
+  const { resultados } = simularTodos(config, crearPiezas(size));
   const idx = resultados.findIndex((r) => r.resultado !== 'diana');
   const i = idx === -1 ? 0 : idx;
   const laser = lasers[i];

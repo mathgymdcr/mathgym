@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildLaserPuzzle, espejosMinimos, espejosMinimosExhaustivo, resuelto, crearEspejos } from '../../scripts/laser-triangular-logic.js'
+import { buildLaserPuzzle, espejosMinimos, espejosMinimosExhaustivo, resuelto, crearPiezas } from '../../scripts/laser-triangular-logic.js'
 
 const SEEDS = [20260830, 20260915, 20261207, 20270422, 12, 33, 88, 20280606]
 
@@ -32,7 +32,7 @@ describe('buildLaserPuzzle', () => {
   it('no se resuelve sin poner ningún espejo', () => {
     for (const seed of SEEDS) {
       const p = buildLaserPuzzle(seed)
-      expect(resuelto(config(p), crearEspejos(p.size)), `seed ${seed}`).toBe(false)
+      expect(resuelto(config(p), crearPiezas(p.size)), `seed ${seed}`).toBe(false)
     }
   })
 
