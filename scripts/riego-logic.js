@@ -135,8 +135,27 @@ function calendarioAleatorio(rand, cfg) {
   return calendario;
 }
 
+// El eje se sortea con el PRNG, NO con aritmética sobre el seed.
+//
+// `selectTemplate` es `templates[seed % 12]`, así que este tipo solo recibe
+// una clase módulo 12. Dentro de ella, `seed % n` es constante para todo n
+// divisor de 12 -- y también lo es `Math.floor(seed / k) % 2`, porque los
+// seeds se diferencian en múltiplos de 12. Así el tipo publicaba SIEMPRE la
+// misma variante, con las otras escritas y ninguna alcanzable.
+function eligeEje(opciones, seed, mascara) {
+  return opciones[Math.floor(mulberry32((seed ^ mascara) >>> 0)() * opciones.length)];
+}
+
+export function configDeSeed(seed) {
+  return eligeEje(VARIANTES, seed, 0x5a92e6d1);
+}
+
+export function varianteDeSeed(seed) {
+  return configDeSeed(seed).nombre;
+}
+
 export function buildRiegoPuzzle(seed) {
-  const cfg = VARIANTES[seed % VARIANTES.length];
+  const cfg = configDeSeed(seed);
 
   for (let intento = 0; intento < MAX_INTENTOS; intento++) {
     const rand = mulberry32((seed + intento * 86243) >>> 0);

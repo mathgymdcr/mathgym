@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildCajasPuzzle, solveCajas } from '../../scripts/cajas-logic.js'
+import { buildCajasPuzzle, solveCajas, VARIANTES, varianteDeSeed } from '../../scripts/cajas-logic.js'
 
 const SEEDS = [20260824, 20260907, 20261120, 20270305, 5, 13, 91, 20280214]
 
@@ -59,15 +59,20 @@ describe('buildCajasPuzzle', () => {
     // previsible. Si todas las fechas de una variante salieran con el mismo
     // número de movimientos, el jugador habitual lo aprendería de memoria
     // igual que se aprende el 2^n - 1 de Hanói.
-    for (const [variante, resto] of [['ligero', 0], ['medio', 1], ['pesado', 2]]) {
-      const base = 20260800
-      const primero = base + ((resto - (base % 3)) + 3) % 3
+    // Los seeds de cada variante se buscan preguntando por la variante, no
+    // calculándolos con `seed % 3`: el eje se sortea con el PRNG justo para
+    // que no sea aritmética sobre el seed.
+    for (const variante of VARIANTES) {
       const minimos = new Set()
-      for (let k = 0; k < 20; k++) {
-        const p = buildCajasPuzzle(primero + k * 3)
+      let vistos = 0
+      for (let seed = 20260800; seed < 20261000 && vistos < 20; seed++) {
+        if (varianteDeSeed(seed) !== variante) continue
+        vistos++
+        const p = buildCajasPuzzle(seed)
         expect(p.variant).toBe(variante)
         minimos.add(p.solucion.movimientos)
       }
+      expect(vistos, `${variante}: no salió ninguna vez`).toBeGreaterThan(10)
       expect(minimos.size, `${variante}: siempre ${[...minimos]}`).toBeGreaterThanOrEqual(3)
     }
   })

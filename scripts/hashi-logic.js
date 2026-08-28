@@ -315,8 +315,27 @@ function construirArchipielago(rand, cfg) {
 
 // Elige variante y puzzle de forma determinista a partir del seed de fecha.
 // Reintenta hasta dar con uno de solución ÚNICA: el estándar del Hashi.
+// El eje se sortea con el PRNG, NO con aritmética sobre el seed.
+//
+// `selectTemplate` es `templates[seed % 12]`, así que este tipo solo recibe
+// una clase módulo 12. Dentro de ella, `seed % n` es constante para todo n
+// divisor de 12 -- y también lo es `Math.floor(seed / k) % 2`, porque los
+// seeds se diferencian en múltiplos de 12. Así el tipo publicaba SIEMPRE la
+// misma variante, con las otras escritas y ninguna alcanzable.
+function eligeEje(opciones, seed, mascara) {
+  return opciones[Math.floor(mulberry32((seed ^ mascara) >>> 0)() * opciones.length)];
+}
+
+// VARIANTES (arriba) es el mapa de configuraciones; esto es solo la lista de
+// nombres, que es lo que se sortea.
+export const NOMBRES_VARIANTE = Object.keys(VARIANTES);
+
+export function varianteDeSeed(seed) {
+  return eligeEje(NOMBRES_VARIANTE, seed, 0x71b3d40f);
+}
+
 export function buildHashiPuzzle(seed) {
-  const variant = seed % 2 === 0 ? 'pequeno' : 'clasico';
+  const variant = varianteDeSeed(seed);
   const cfg = VARIANTES[variant];
 
   for (let intento = 0; intento < MAX_INTENTOS; intento++) {

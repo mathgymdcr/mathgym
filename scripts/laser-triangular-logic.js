@@ -257,7 +257,22 @@ function mulberry32(seed) {
   };
 }
 
-const VARIANTES = ['pequeno', 'medio', 'grande'];
+// El eje se sortea con el PRNG, NO con aritmética sobre el seed.
+//
+// `selectTemplate` es `templates[seed % 12]`, así que este tipo solo recibe
+// una clase módulo 12. Dentro de ella, `seed % 3` es constante -- y también
+// lo es `Math.floor(seed / k) % 2`, porque los seeds se diferencian en
+// múltiplos de 12. Con `VARIANTES[seed % 3]` el tipo publicaba SIEMPRE la
+// misma variante y las otras dos no eran alcanzables desde ninguna fecha.
+function eligeEje(opciones, seed, mascara) {
+  return opciones[Math.floor(mulberry32((seed ^ mascara) >>> 0)() * opciones.length)];
+}
+
+export const VARIANTES = ['pequeno', 'medio', 'grande'];
+
+export function varianteDeSeed(seed) {
+  return eligeEje(VARIANTES, seed, 0x24c7b0e9);
+}
 const TAMANO = { pequeno: 5, medio: 6, grande: 7 };
 const DIRECCIONES = Object.keys(DIR_VECTOR);
 const MAX_INTENTOS = 600;
@@ -315,7 +330,7 @@ function construirLaser(rand, size, espejos, ocupadas, prohibidas, maxEspejos) {
 }
 
 export function buildLaserPuzzle(seed) {
-  const variant = VARIANTES[seed % VARIANTES.length];
+  const variant = varianteDeSeed(seed);
   const size = TAMANO[variant];
 
   for (let intento = 0; intento < MAX_INTENTOS; intento++) {

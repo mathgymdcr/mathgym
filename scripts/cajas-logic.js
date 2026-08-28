@@ -96,7 +96,22 @@ function mulberry32(seed) {
   };
 }
 
-const VARIANTES = ['ligero', 'medio', 'pesado'];
+// El eje se sortea con el PRNG, NO con aritmética sobre el seed.
+//
+// `selectTemplate` es `templates[seed % 12]`, así que este tipo solo recibe
+// una clase módulo 12. Dentro de ella, `seed % 3` es constante -- y también
+// lo es `Math.floor(seed / k) % 2`, porque los seeds se diferencian en
+// múltiplos de 12. Con `VARIANTES[seed % 3]` el tipo publicaba SIEMPRE la
+// misma variante y las otras dos no eran alcanzables desde ninguna fecha.
+function eligeEje(opciones, seed, mascara) {
+  return opciones[Math.floor(mulberry32((seed ^ mascara) >>> 0)() * opciones.length)];
+}
+
+export const VARIANTES = ['ligero', 'medio', 'pesado'];
+
+export function varianteDeSeed(seed) {
+  return eligeEje(VARIANTES, seed, 0x6d1e58b3);
+}
 const CAJAS_POR_VARIANTE = { ligero: 4, medio: 5, pesado: 6 };
 const DIFICULTAD_POR_VARIANTE = { ligero: 2, medio: 3, pesado: 4 };
 const MAX_INTENTOS = 300;
@@ -106,7 +121,7 @@ const MAX_INTENTOS = 300;
 // capacidad sirva para algo (mínimo por debajo del 2^n - 1 de Hanói) y que
 // aun así no se resuelva de dos tirones.
 export function buildCajasPuzzle(seed) {
-  const variant = VARIANTES[seed % VARIANTES.length];
+  const variant = varianteDeSeed(seed);
   const n = CAJAS_POR_VARIANTE[variant];
   const hanoi = Math.pow(2, n) - 1;
 
