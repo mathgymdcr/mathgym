@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import fs from 'node:fs/promises'
 
 // happy-dom no implementa <canvas> y la celebracion pinta confeti en uno.
 beforeAll(() => {
@@ -54,6 +53,40 @@ describe('boton de disparo', () => {
     const host = await montar({ ...CLASICO, variant: 'pequeno' })
     expect(host.querySelector('.laser-btn-lanzar')).toBeNull()
     expect(host.querySelector('.laser-beams').children.length).toBeGreaterThan(0)
+  })
+
+  // Dos aserciones que una ronda anterior dejó pendientes por falta de un
+  // test que las ejercitara -- el código (apagaTrazo() en el pointermove que
+  // levanta una pieza, y en el manejador de Reiniciar) ya existía, pero sin
+  // cobertura.
+  it('levantar una pieza colocada al arrastrarla tambien apaga el rayo disparado', async () => {
+    const host = await montar(CLASICO)
+    host.querySelector('.laser-tray-pieza[data-pieza="slash"]').click()
+    const libre = [...host.querySelectorAll('.laser-cell')]
+      .find((c) => !c.className.match(/is-emitter|is-target|is-block/))
+    libre.click()
+    host.querySelector('.laser-btn-lanzar').click()
+    expect(host.querySelector('.laser-beams').children.length).toBeGreaterThan(0)
+
+    // Se levanta la pieza recién colocada arrastrándola (pointerdown +
+    // pointermove más allá de UMBRAL_ARRASTRE, sin necesidad de soltar).
+    libre.dispatchEvent(new MouseEvent('pointerdown', { clientX: 0, clientY: 0 }))
+    libre.dispatchEvent(new MouseEvent('pointermove', { clientX: 0, clientY: 20 }))
+
+    expect(host.querySelector('.laser-beams').children).toHaveLength(0)
+  })
+
+  it('Reiniciar apaga el rayo disparado', async () => {
+    const host = await montar(CLASICO)
+    host.querySelector('.laser-tray-pieza[data-pieza="slash"]').click()
+    const libre = [...host.querySelectorAll('.laser-cell')]
+      .find((c) => !c.className.match(/is-emitter|is-target|is-block/))
+    libre.click()
+    host.querySelector('.laser-btn-lanzar').click()
+    expect(host.querySelector('.laser-beams').children.length).toBeGreaterThan(0)
+
+    host.querySelector('.btn-secondary').click()
+    expect(host.querySelector('.laser-beams').children).toHaveLength(0)
   })
 
   it('la victoria solo se canta al disparar, no al colocar la ultima pieza', async () => {

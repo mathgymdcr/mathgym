@@ -225,4 +225,71 @@ describe('bandeja de piezas', () => {
       document.elementFromPoint = elementFromPointOriginal
     }
   })
+
+  // setPointerCapture retargetea TODO evento posterior del gesto -- incluido
+  // el 'click' de compatibilidad que el navegador dispara detrás de
+  // pointerdown+pointerup -- al elemento donde empezó el gesto. Capturado en
+  // un navegador real, para un arrastre de la celda (3,1) a la (2,1):
+  //   pointerdown target=3,1 / pointermove x5 target=3,1 / pointerup target=3,1
+  //   / lostpointercapture target=3,1 / click target=3,1
+  // Las tres pruebas de abajo reproducen ese patrón a mano (happy-dom no
+  // retargetea eventos de verdad): pointerdown en A, pointermove más allá de
+  // UMBRAL_ARRASTRE, se apunta elementFromPoint al destino, pointerup, y
+  // luego el 'click' retargeteado se dispara EN A -- el origen, no el
+  // destino -- que es justo lo que hace la captura.
+  describe('el click retargeteado por setPointerCapture tras un arrastre', () => {
+    const arrastra = (origen, destino, elementFromPointStub) => {
+      const elementFromPointOriginal = document.elementFromPoint
+      origen.dispatchEvent(new MouseEvent('pointerdown', { clientX: 0, clientY: 0 }))
+      origen.dispatchEvent(new MouseEvent('pointermove', { clientX: 0, clientY: 20 })) // > UMBRAL_ARRASTRE (6px)
+      document.elementFromPoint = elementFromPointStub
+      origen.dispatchEvent(new MouseEvent('pointerup', { clientX: 0, clientY: 20 }))
+      origen.dispatchEvent(new MouseEvent('click')) // el retargeteo: SIEMPRE en el origen
+      document.elementFromPoint = elementFromPointOriginal
+    }
+
+    it('arrastrar una pieza de una celda a otra no la deja en las dos', async () => {
+      const host = await montar(PRISMA)
+      const [A, B] = [...host.querySelectorAll('.laser-cell')].filter(
+        (c) => !c.className.match(/is-emitter|is-target|is-block/))
+
+      host.querySelector('.laser-tray-pieza[data-pieza="slash"]').click()
+      A.click()
+      expect(A.querySelector('.laser-pieza')?.dataset.pieza).toBe('slash')
+
+      arrastra(A, B, () => B)
+
+      expect(B.querySelector('.laser-pieza')?.dataset.pieza, 'la pieza no llegó a B').toBe('slash')
+      expect(A.querySelector('.laser-pieza'), 'el click retargeteado volvió a colocar una pieza en A').toBeNull()
+    })
+
+    it('arrastrar una pieza fuera del tablero la retira sin volver a colocarla', async () => {
+      const host = await montar(PRISMA)
+      const [A] = [...host.querySelectorAll('.laser-cell')].filter(
+        (c) => !c.className.match(/is-emitter|is-target|is-block/))
+
+      host.querySelector('.laser-tray-pieza[data-pieza="slash"]').click()
+      A.click()
+      expect(A.querySelector('.laser-pieza')?.dataset.pieza).toBe('slash')
+
+      // Fuera del tablero: nada bajo el punto de soltar.
+      arrastra(A, null, () => null)
+
+      expect(A.querySelector('.laser-pieza'), 'el click retargeteado volvió a colocar la pieza en A').toBeNull()
+    })
+
+    it('un arrastre que vuelve a la misma celda no la vacía por el click retargeteado', async () => {
+      const host = await montar(PRISMA)
+      const [A] = [...host.querySelectorAll('.laser-cell')].filter(
+        (c) => !c.className.match(/is-emitter|is-target|is-block/))
+
+      host.querySelector('.laser-tray-pieza[data-pieza="slash"]').click()
+      A.click()
+      expect(A.querySelector('.laser-pieza')?.dataset.pieza).toBe('slash')
+
+      arrastra(A, A, () => A)
+
+      expect(A.querySelector('.laser-pieza')?.dataset.pieza, 'el click retargeteado retiró la pieza que el arrastre ya había vuelto a dejar en A').toBe('slash')
+    })
+  })
 })

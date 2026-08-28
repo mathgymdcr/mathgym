@@ -165,6 +165,18 @@ export async function render(root, data, hooks) {
   // así no queda nada armado por un simple toque de "quitar pieza".
   let recogida = null; // { r, c, tipo, x, y } o null
   const UMBRAL_ARRASTRE = 6; // px
+  // setPointerCapture retargetea TODOS los eventos posteriores del gesto al
+  // elemento donde empezó -- incluido el 'click' de compatibilidad que el
+  // navegador dispara detrás de todo pointerdown+pointerup. Sin esta
+  // bandera, ese click retargeteado vuelve a entrar en onCellClick con
+  // state.armada todavía viva (nunca se limpia tras colocar) y repite la
+  // colocación en el ORIGEN del arrastre: la pieza queda en las dos celdas,
+  // o se borra si el arrastre volvió al mismo sitio, o reaparece si se soltó
+  // fuera del tablero. gestoConsumido se pone a true en soltarArrastre,
+  // antes de tocar elementFromPoint (para cubrir también soltar fuera del
+  // tablero), y se limpia al empezar cada gesto nuevo -- así solo se come el
+  // click que de verdad viene retargeteado, nunca un toque suelto posterior.
+  let gestoConsumido = false;
 
   // Bandeja: existencias infinitas de cada pieza disponible en este modo, en
   // vez del ciclo de cinco estados por clic que no escalaba a seis piezas.
@@ -176,13 +188,25 @@ export async function render(root, data, hooks) {
     btn.setAttribute('aria-label', ETIQUETA_PIEZA[tipo]);
     btn.setAttribute('aria-pressed', 'false');
     btn.appendChild(piezaSpan(tipo));
-    btn.addEventListener('click', () => armar(tipo));
+    btn.addEventListener('click', () => {
+      // Un arrastre que arranca en la bandeja retargetea su click de
+      // compatibilidad al propio botón (la captura está en él), no a la
+      // celda destino -- así que es AQUÍ donde ese click hay que consumirlo,
+      // no en la celda. Re-armar el mismo tipo es idempotente de todos
+      // modos, pero sin este reset la bandera se queda colgada (no hubo
+      // pointerdown de por medio que la limpiara) y se come el siguiente
+      // toque real que llegue como click plano, sin pointerdown -- p.ej.
+      // activar una celda por teclado, o el propio .click() de los tests.
+      gestoConsumido = false;
+      armar(tipo);
+    });
     // Arrastre con Pointer Events: un solo camino de codigo para raton, dedo
     // y lapiz. happy-dom no implementa setPointerCapture ni elementFromPoint
     // de forma util, asi que se comprueba que existan antes de usarlos -- una
     // plantilla que lanzase aqui se llevaria por delante tests/plantillas/,
     // que monta las doce plantillas y es la unica red que las cubre todas.
     btn.addEventListener('pointerdown', (ev) => {
+      gestoConsumido = false;
       armar(tipo);
       state.arrastrando = true;
       if (typeof btn.setPointerCapture === 'function') {
@@ -194,7 +218,7 @@ export async function render(root, data, hooks) {
     // sistema) nunca llega pointerup: sin esto, arrastrando se queda en
     // true y el siguiente pointerup suelto en cualquier sitio coloca la
     // pieza donde no tocaba.
-    btn.addEventListener('pointercancel', () => { state.arrastrando = false; });
+    btn.addEventListener('pointercancel', () => { state.arrastrando = false; gestoConsumido = false; });
     trayButtons.push(btn);
     tray.appendChild(btn);
   });
@@ -244,13 +268,20 @@ export async function render(root, data, hooks) {
       } else if (bloqueadas.has(`${r},${c}`)) {
         cell.classList.add('is-block');
       } else {
-        cell.addEventListener('click', () => onCellClick(r, c));
+        cell.addEventListener('click', () => {
+          // Ver la nota junto a la declaración de gestoConsumido: este click
+          // puede ser el de compatibilidad que el navegador retargetea al
+          // origen de un arrastre, no un toque nuevo.
+          if (gestoConsumido) { gestoConsumido = false; return; }
+          onCellClick(r, c);
+        });
         // Una pieza ya colocada tambien se arrastra, pero solo se retira de
         // su celda y se arma cuando el gesto CONFIRMA ser un arrastre (el
         // puntero se mueve más allá de UMBRAL_ARRASTRE) -- no en el propio
         // pointerdown. Un toque simple (sin mover) no debe tocar el estado
         // aquí: lo retira el 'click' normal de arriba, sin dejar nada armado.
         cell.addEventListener('pointerdown', (ev) => {
+          gestoConsumido = false;
           if (state.won) return;
           const actual = state.piezas[r][c];
           if (actual === PIEZA.VACIO) return;
@@ -278,6 +309,7 @@ export async function render(root, data, hooks) {
         cell.addEventListener('pointercancel', () => {
           recogida = null;
           state.arrastrando = false;
+          gestoConsumido = false;
         });
       }
       board.appendChild(cell);
@@ -334,6 +366,12 @@ export async function render(root, data, hooks) {
   function soltarArrastre(ev) {
     if (!state.arrastrando) return;
     state.arrastrando = false;
+    // Se marca ANTES de mirar qué hay bajo el punto de soltar, y sin
+    // condicionarlo a que se encuentre una celda: soltar fuera del tablero
+    // (elementFromPoint no encuentra '.laser-cell') es justo el caso en el
+    // que, sin esto, el click retargeteado coloca la pieza igualmente en el
+    // origen -- el arrastre "para quitarla" no haría nada.
+    gestoConsumido = true;
     if (typeof document.elementFromPoint !== 'function') return;
     const bajo = document.elementFromPoint(ev.clientX, ev.clientY);
     const celda = bajo && bajo.closest && bajo.closest('.laser-cell');
@@ -354,26 +392,45 @@ export async function render(root, data, hooks) {
     // "sin disparar" y aquí no hay nada más que hacer hasta pulsar el botón.
     if (!autoTraza) return;
 
-    if (resuelto(config, state.piezas)) {
-      state.won = true;
-      setStatus(ui.status, '¡Todos los rayos llegaron a su diana!', 'ok');
-      celebrate({ ok: true, message: '¡Has dirigido los rayos hasta sus dianas!' });
-      if (hooks && hooks.onSuccess) {
-        // El par son los espejos de la solución, así que se cuentan las
-        // piezas puestas, no los clics: girar una hasta dar con su tipo es
-        // parte de jugar, no un gasto.
-        const puestos = state.piezas.reduce(
-          (total, fila) => total + fila.filter(Boolean).length, 0);
-        hooks.onSuccess({ movimientos: puestos });
-      }
-    } else {
-      const { cruces } = simularTodos();
-      if (cruces.size > 0) {
-        setStatus(ui.status, 'Los rayos se cruzan: dos trayectos no pueden compartir celda', 'ko');
-      } else {
-        setStatus(ui.status, 'Sigue ajustando los espejos', 'ok');
-      }
+    if (resuelto(config, state.piezas)) { declararVictoria(); return; }
+    const { cruces, tramos } = simularTodos();
+    const estado = mensajeDeEstado(tramos, cruces);
+    setStatus(ui.status, estado ? estado.texto : 'Sigue ajustando los espejos', estado ? estado.tipo : 'ok');
+  }
+
+  // Par son los espejos de la solución, así que se cuentan las piezas
+  // puestas, no los clics: girar una hasta dar con su tipo es parte de
+  // jugar, no un gasto. Compartida por onCellClick (pequeño) y lanzar
+  // (medio/grande) -- antes cada una tenía su propia copia del bloque de
+  // victoria y las dos habían ido divergiendo.
+  function declararVictoria() {
+    state.won = true;
+    setStatus(ui.status, '¡Todos los rayos llegaron a su diana!', 'ok');
+    celebrate({ ok: true, message: '¡Has dirigido los rayos hasta sus dianas!' });
+    if (hooks && hooks.onSuccess) {
+      const puestas = state.piezas.reduce((t, fila) => t + fila.filter(Boolean).length, 0);
+      hooks.onSuccess({ movimientos: puestas });
     }
+  }
+
+  // Ladder de estado "no resuelto todavía" compartido por onCellClick
+  // (pequeño) y lanzar (medio/grande) -- antes solo lanzar preguntaba por
+  // 'emisor' antes que por cruces, y onCellClick se había quedado con la
+  // versión vieja que solo miraba cruces, así que un rayo absorbido por
+  // OTRO emisor (que también deja una celda visitada por dos tramos)
+  // informaba "los rayos se cruzan" en pequeño, en vez del mensaje
+  // correcto. Devuelve null cuando ninguno de los dos casos aplica, para
+  // que cada llamador ponga su propio mensaje genérico -- difieren entre
+  // pequeño (sigue invitando a seguir ajustando, en 'ok') y medio/grande
+  // (ya se disparó y falló, en 'ko').
+  function mensajeDeEstado(tramos, cruces) {
+    if (tramos.some((t) => t.resultado === 'emisor')) {
+      return { texto: 'El rayo choca con un emisor y se apaga', tipo: 'ko' };
+    }
+    if (cruces.size > 0) {
+      return { texto: 'Los rayos se cruzan: dos trayectos no pueden compartir celda', tipo: 'ko' };
+    }
+    return null;
   }
 
   // Un solo trazador para todos: se le pasa la configuración del reto (ya
@@ -405,26 +462,9 @@ export async function render(root, data, hooks) {
     state.trazado = true;
     refresh();
     const { cruces, tramos } = simularTodos();
-    if (resuelto(config, state.piezas)) {
-      state.won = true;
-      setStatus(ui.status, '¡Todos los rayos llegaron a su diana!', 'ok');
-      celebrate({ ok: true, message: '¡Has dirigido los rayos hasta sus dianas!' });
-      if (hooks && hooks.onSuccess) {
-        const puestas = state.piezas.reduce((t, fila) => t + fila.filter(Boolean).length, 0);
-        hooks.onSuccess({ movimientos: puestas });
-      }
-      // Nota de la Task 2: un rayo absorbido por OTRO emisor también deja una
-      // celda visitada por dos tramos, así que también cuenta como 'cruce'.
-      // Hay que preguntar primero por 'emisor' o el aviso sería el
-      // equivocado ("se cruzan" cuando el problema real es que chocó con un
-      // emisor).
-    } else if (tramos.some((t) => t.resultado === 'emisor')) {
-      setStatus(ui.status, 'El rayo choca con un emisor y se apaga', 'ko');
-    } else if (cruces.size > 0) {
-      setStatus(ui.status, 'Los rayos se cruzan: dos trayectos no pueden compartir celda', 'ko');
-    } else {
-      setStatus(ui.status, 'Todavia no. Mueve alguna pieza y vuelve a lanzar', 'ko');
-    }
+    if (resuelto(config, state.piezas)) { declararVictoria(); return; }
+    const estado = mensajeDeEstado(tramos, cruces);
+    setStatus(ui.status, estado ? estado.texto : 'Todavia no. Mueve alguna pieza y vuelve a lanzar', estado ? estado.tipo : 'ko');
   }
 
   function refresh() {
