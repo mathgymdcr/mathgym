@@ -2699,6 +2699,9 @@ li {
 
 .laser-tray-pieza {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 44px;
   height: 44px;
   border: 2px solid rgba(255, 255, 255, 0.18);
@@ -2719,9 +2722,17 @@ li {
 .laser-tray-pieza:active { cursor: grabbing; }
 
 /* Las piezas de la bandeja se dibujan con las mismas reglas que las del
-   tablero: una sola definicion de cada forma. */
-.laser-tray-pieza .laser-pieza { inset: 0; margin: auto; }
-
+   tablero, y se centran igual que .laser-emisor (ver el comentario de
+   ahi): .laser-tray-pieza ahora es flex con align/justify-content:
+   center, asi que un hijo absoluto SIN top/left cae ya centrado por
+   spec -- que es el caso de prisma y condensador. Los cuatro espejos SI
+   fijan su propio top/left/transform (ademas rotan sobre ese punto), y
+   ese valor no lo toca esta regla.
+   Antes habia aqui un `inset: 0; margin: auto;` con la misma
+   especificidad que el top/left de los espejos y declarado despues en el
+   archivo, asi que ganaba y les pisaba el top/left sin pisar su
+   transform: translate(-50%,-50%) -- el resultado era una barra
+   descentrada unos 31px, sin overflow:hidden en el boton que la recortara. */
 .laser-board { touch-action: none; }
 
 @media (max-width: 560px) {
