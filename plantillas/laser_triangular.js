@@ -56,12 +56,16 @@ export async function render(root, data, hooks) {
   const bloqueos = Array.isArray(config.blocks) ? config.blocks : [];
 
   const dentro = (r, c) => r >= 0 && r < n && c >= 0 && c < n;
-  const configValida = n > 0 && lasers.length >= 2 && targets.length === lasers.length &&
+  // El numero de emisores y de dianas NO tiene por que coincidir: en modo
+  // prisma un emisor reparte en dos dianas, en condensador dos emisores
+  // pueden converger en una. Lo unico exigible aqui es que haya al menos uno
+  // de cada y que todos esten dentro del tablero.
+  const configValida = n > 0 && lasers.length >= 1 && targets.length >= 1 &&
     lasers.every(l => l.emitter && DIR_VECTOR[l.emitter.dir] &&
       dentro(l.emitter.row, l.emitter.col)) &&
     targets.every(t => dentro(t.row, t.col));
   if (!configValida) {
-    root.innerHTML = '<div class="feedback ko">Error: Reto de láseres mal configurado (se requieren al menos dos láseres válidos)</div>';
+    root.innerHTML = '<div class="feedback ko">Error: Reto de láseres mal configurado (se requiere al menos un láser y una diana válidos)</div>';
     return;
   }
 
