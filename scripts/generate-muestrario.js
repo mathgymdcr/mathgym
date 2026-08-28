@@ -37,7 +37,10 @@ const SEMILLAS = {
   'nonograma': 20260104,
   'cajas-apiladas': 20260110,
   'anillas-encadenadas': 20260112,
-  'laser-triangular': 20260114,
+  // prisma medio: el ejemplo de la sala tiene que ensenar la mecanica nueva
+  // (no clasico), y medio para que aparezca el boton de lanzar (ver
+  // README_TEMPLATES / Task 12) en vez del trazado automatico de pequeno.
+  'laser-triangular': 20260102,
   'riego-plantas': 20260116
 };
 

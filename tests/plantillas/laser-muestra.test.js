@@ -41,10 +41,10 @@ describe('ejemplo de láser triangular', () => {
 
     // La solución no está en el payload (sería el spoiler): se busca con el
     // mismo buscador que usa el validador y luego se juega en el DOM.
-    const sol = resolverPiezas(
-      { size: data.size, lasers: data.lasers, blocks: data.blocks || [] },
-      data.min_espejos
-    )
+    // resolverPiezas normaliza `data` entero (normalizaConfig): pasar solo un
+    // subconjunto se quedaba sin `targets` ni `modo`, que no existían en el
+    // esquema clásico de antes de la Task 13.
+    const sol = resolverPiezas(data, data.min_piezas ?? data.min_espejos)
     expect(sol, 'el ejemplo de láser no tiene solución').not.toBeNull()
 
     const host = document.createElement('div')

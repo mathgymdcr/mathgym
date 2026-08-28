@@ -1,39 +1,38 @@
 {
   "variant": "medio",
+  "modo": "prisma",
   "size": 6,
   "lasers": [
     {
       "emitter": {
-        "row": 0,
-        "col": 2,
-        "dir": "se"
+        "row": 5,
+        "col": 3,
+        "dir": "nw"
       },
-      "target": {
-        "row": 0,
-        "col": 5
-      }
+      "color": "neutro"
+    }
+  ],
+  "targets": [
+    {
+      "row": 0,
+      "col": 0,
+      "color": "azul"
     },
     {
-      "emitter": {
-        "row": 2,
-        "col": 5,
-        "dir": "down"
-      },
-      "target": {
-        "row": 5,
-        "col": 3
-      }
+      "row": 0,
+      "col": 1,
+      "color": "rojo"
     }
   ],
   "blocks": [
     {
-      "row": 1,
-      "col": 1
+      "row": 5,
+      "col": 4
     },
     {
-      "row": 5,
+      "row": 4,
       "col": 5
     }
   ],
-  "min_espejos": 3
+  "min_piezas": 2
 }

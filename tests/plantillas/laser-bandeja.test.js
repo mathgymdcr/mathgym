@@ -91,7 +91,10 @@ describe('bandeja de piezas', () => {
   it('soltar un arrastre sobre un emisor, una diana o un bloque no coloca nada ni corrompe la partida', async () => {
     const { resolverPiezas } = await import('../../scripts/laser-triangular-logic.js')
     const data = await muestra()
-    const sol = resolverPiezas({ size: data.size, lasers: data.lasers, blocks: data.blocks || [] }, data.min_espejos)
+    // resolverPiezas normaliza `data` entero (normalizaConfig), no una copia
+    // parcial: desde que la muestra puede ser prisma/condensador hace falta
+    // `targets` y `modo`, que un subconjunto a mano se dejaba fuera.
+    const sol = resolverPiezas(data, data.min_piezas ?? data.min_espejos)
     expect(sol, 'el ejemplo de láser no tiene solución').not.toBeNull()
     const piezasSolucion = sol.piezas.flat().filter(Boolean).length
 
@@ -139,7 +142,7 @@ describe('bandeja de piezas', () => {
   it('ganada la partida, arrastrar una pieza ya colocada no la retira del tablero', async () => {
     const { resolverPiezas } = await import('../../scripts/laser-triangular-logic.js')
     const data = await muestra()
-    const sol = resolverPiezas({ size: data.size, lasers: data.lasers, blocks: data.blocks || [] }, data.min_espejos)
+    const sol = resolverPiezas(data, data.min_piezas ?? data.min_espejos)
     expect(sol, 'el ejemplo de láser no tiene solución').not.toBeNull()
 
     let ganado = 0
