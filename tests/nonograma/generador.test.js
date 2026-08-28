@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { MathGymGenerator } from '../../scripts/generate-daily-reto.js'
 import {
   buildNonogramaPuzzle,
   pistasDe,
@@ -104,12 +105,24 @@ describe('buildNonogramaPuzzle', () => {
     }
   })
 
-  it('usa figuras distintas para fechas consecutivas del mismo tamaño', () => {
+  it('no repite el dibujo en dos retos seguidos del tipo', () => {
     // Dos retos seguidos con el mismo dibujo se notarían enseguida.
+    //
+    // Ojo: hay que barrer las fechas que de verdad le tocan a nonograma, no
+    // seeds consecutivos. El tipo sale una vez cada doce días, así que
+    // 20260801 y 20260802 no son dos retos seguidos suyos -- solo uno de
+    // ellos llega a publicarse, si acaso.
+    const g = new MathGymGenerator()
     const figuras = []
-    for (let d = 1; d <= 12; d++) figuras.push(buildNonogramaPuzzle(20260800 + d).figura)
+    const d = new Date(Date.UTC(2026, 0, 1))
+    for (let i = 0; i < 1460; i++) {
+      const seed = g.dateToSeed(d.toISOString().slice(0, 10))
+      if (g.selectTemplate(seed) === 'nonograma') figuras.push(buildNonogramaPuzzle(seed).figura)
+      d.setUTCDate(d.getUTCDate() + 1)
+    }
+    expect(figuras.length).toBeGreaterThan(20)
     for (let i = 1; i < figuras.length; i++) {
-      expect(figuras[i], `posición ${i}`).not.toBe(figuras[i - 1])
+      expect(figuras[i], `reto ${i} repite "${figuras[i]}"`).not.toBe(figuras[i - 1])
     }
   })
 })

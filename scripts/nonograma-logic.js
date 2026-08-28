@@ -490,12 +490,57 @@ const LADOS_COLOR = [5, 8];
 // no queden correlacionados. El espejo es horizontal a propósito: dado la
 // vuelta en vertical, una casa quedaría del revés y el dibujo dejaría de
 // reconocerse.
-export function buildNonogramaPuzzle(seed) {
-  const base = VARIANTES[seed % VARIANTES.length];
+// PRNG determinista (mulberry32), sin dependencias externas. Duplicado a
+// propósito para que este módulo sea autocontenido.
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Los tres ejes se sortean con el PRNG, NO con aritmética sobre el seed.
+//
+// `selectTemplate` es `templates[seed % 12]`, así que este tipo solo recibe
+// una clase módulo 12, y los seeds de esa clase se diferencian en múltiplos
+// de 12. Ahí `seed % 3` es constante, pero TAMBIÉN lo son
+// `Math.floor(seed / 3) % 2` y `Math.floor(seed / 6) % 2`: sumar 12 al seed
+// añade 4 y 2 al cociente, que no cambian la paridad. Los tres ejes de
+// nonograma -- tamaño, espejo y color -- estaban muertos a la vez, y el
+// tipo publicaba siempre `medio-color`. El eje de color, que se añadió en
+// el PR #10, no llegó a verse nunca.
+function eligeEje(opciones, seed, mascara) {
+  return opciones[Math.floor(mulberry32((seed ^ mascara) >>> 0)() * opciones.length)];
+}
+
+function ejeBooleano(seed, mascara) {
+  return mulberry32((seed ^ mascara) >>> 0)() < 0.5;
+}
+
+// Los tres ejes juntos, sin construir el puzzle: así los tests pueden
+// comprobar el reparto sobre fechas reales sin pagar el solver.
+export function ejesDeSeed(seed) {
+  const base = eligeEje(VARIANTES, seed, 0x18f5c37b);
   const lado = LADO_POR_VARIANTE[base];
-  const espejo = Math.floor(seed / VARIANTES.length) % 2 === 1;
-  const color = LADOS_COLOR.includes(lado) && Math.floor(seed / (VARIANTES.length * 2)) % 2 === 1;
-  const variant = color ? `${base}-color` : base;
+  return {
+    base,
+    lado,
+    espejo: ejeBooleano(seed, 0x4e21a9d6),
+    color: LADOS_COLOR.includes(lado) && ejeBooleano(seed, 0x2b6de81f)
+  };
+}
+
+export function varianteDeSeed(seed) {
+  const { base, color } = ejesDeSeed(seed);
+  return color ? `${base}-color` : base;
+}
+
+export function buildNonogramaPuzzle(seed) {
+  const { base, lado, espejo, color } = ejesDeSeed(seed);
+  const variant = varianteDeSeed(seed);
 
   const banco = color ? BANCO_COLOR : BANCO_FIGURAS;
   const candidatas = banco.filter((f) => f.filas.length === lado);

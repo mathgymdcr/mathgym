@@ -113,14 +113,29 @@ function mulberry32(seed) {
 // Las tres variantes que rotan por fecha. Todas arrancan desde una
 // configuración cualquiera: eso es lo que hace que el mínimo deje de ser la
 // fórmula de siempre y haya que calcularlo.
-const VARIANTES = ['clasico', 'dos-de-golpe', 'configuracion'];
+// El eje se sortea con el PRNG, NO con aritmética sobre el seed.
+//
+// `selectTemplate` es `templates[seed % 12]`, así que este tipo solo recibe
+// una clase módulo 12. Dentro de ella, `seed % 3` es constante -- y también
+// lo es `Math.floor(seed / k) % 2`, porque los seeds se diferencian en
+// múltiplos de 12. Con `VARIANTES[seed % 3]` el tipo publicaba SIEMPRE la
+// misma variante y las otras dos no eran alcanzables desde ninguna fecha.
+function eligeEje(opciones, seed, mascara) {
+  return opciones[Math.floor(mulberry32((seed ^ mascara) >>> 0)() * opciones.length)];
+}
+
+export const VARIANTES = ['clasico', 'dos-de-golpe', 'configuracion'];
+
+export function varianteDeSeed(seed) {
+  return eligeEje(VARIANTES, seed, 0x3f2a91c7);
+}
 const TAMANOS = [4, 5, 6];
 const MAX_INTENTOS = 400;
 
 const estadoDesde = (rand, n) => Array.from({ length: n }, () => rand() < 0.5);
 
 export function buildAnillasPuzzle(seed) {
-  const variant = VARIANTES[seed % VARIANTES.length];
+  const variant = varianteDeSeed(seed);
   const rings = TAMANOS[Math.floor(seed / VARIANTES.length) % TAMANOS.length];
   const regla = variant === 'dos-de-golpe' ? 'dos-de-golpe' : 'clasico';
   const minimoClasico = minimoPorFormula(Array(rings).fill(true));
