@@ -10,13 +10,13 @@
   "hints": [
     "Empieza por el emisor de la fila 4, columna 2, que dispara hacia arriba: tal cual está el tablero recorre 4 celdas y se sale del tablero. Mira dónde tendría que torcer para acabar en su diana.",
     "Los cuatro espejos no hacen lo mismo: las diagonales / y \\ desvían el rayo 90 grados cuando le llegan de frente, y los planos | y — lo devuelven por donde vino. Un rayo que llega paralelo a un espejo lo atraviesa sin enterarse, así que la orientación importa tanto como la celda.",
-    "Bastan 2 espejos bien puestos: si necesitas más, seguramente estás corrigiendo un rayo que ya iba bien. Y ojo, que los dos trayectos no pueden cruzarse: si comparten una sola celda, el reto no se da por resuelto aunque los dos lleguen a su diana."
+    "Bastan 4 espejos bien puestos: si necesitas más, seguramente estás corrigiendo un rayo que ya iba bien. Y ojo, que los dos trayectos no pueden cruzarse: si comparten una sola celda, el reto no se da por resuelto aunque los dos lleguen a su diana."
   ],
   "objectives": {
     "winCondition": "all_lasers_on_target",
-    "parMoves": 2,
-    "maxMovesFor3Stars": 2,
-    "maxMovesFor2Stars": 4
+    "parMoves": 4,
+    "maxMovesFor3Stars": 4,
+    "maxMovesFor2Stars": 6
   },
   "data": {
     "json_url": "data/laser_2026-08-22.json"
