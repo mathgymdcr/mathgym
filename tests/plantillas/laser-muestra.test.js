@@ -27,13 +27,13 @@ const clicks = (host, fila, columna, columnas, veces) => {
 
 describe('ejemplo de láser triangular', () => {
   it('se puede resolver de verdad en la propia plantilla', async () => {
-    const { resolverEspejos } = await import('../../scripts/laser-triangular-logic.js')
+    const { resolverPiezas } = await import('../../scripts/laser-triangular-logic.js')
     const mod = await import('../../plantillas/laser_triangular.js')
     const data = JSON.parse(await fs.readFile('data/muestra/laser-triangular.json', 'utf8'))
 
     // La solución no está en el payload (sería el spoiler): se busca con el
     // mismo buscador que usa el validador y luego se juega en el DOM.
-    const sol = resolverEspejos(
+    const sol = resolverPiezas(
       { size: data.size, lasers: data.lasers, blocks: data.blocks || [] },
       data.min_espejos
     )
@@ -44,7 +44,7 @@ describe('ejemplo de láser triangular', () => {
     await mod.render(host, data, { onSuccess: () => { ganado++ } })
 
     // Cada toque avanza el tipo de espejo: 1 toque = '/', 2 = '\\', 3 = '|', 4 = '—'.
-    sol.espejos.forEach((fila, r) => fila.forEach((tipo, c) => {
+    sol.piezas.forEach((fila, r) => fila.forEach((tipo, c) => {
       if (tipo) clicks(host, r, c, data.size, tipo)
     }))
 

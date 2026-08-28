@@ -286,14 +286,17 @@ export function resuelto(config, piezas) {
 
 // --- Búsqueda de soluciones ------------------------------------------------
 
-// Celdas donde el jugador puede poner espejo: ni emisores, ni dianas, ni
-// bloques (la plantilla las marca igual en `sinEspejo`).
+// Celdas donde el jugador puede poner pieza: ni emisores, ni dianas, ni
+// bloques (la plantilla las marca igual en `sinEspejo`). Espera `config`
+// normalizado: las dianas se leen de `config.targets`, no de `lasers[].target`.
 export function celdasLibres(config) {
   const ocupadas = new Set();
   for (const b of config.blocks || []) ocupadas.add(`${b.row},${b.col}`);
   for (const l of config.lasers || []) {
     ocupadas.add(`${l.emitter.row},${l.emitter.col}`);
-    ocupadas.add(`${l.target.row},${l.target.col}`);
+  }
+  for (const t of config.targets || []) {
+    ocupadas.add(`${t.row},${t.col}`);
   }
   const libres = [];
   for (let r = 0; r < config.size; r++) {
@@ -304,77 +307,84 @@ export function celdasLibres(config) {
   return libres;
 }
 
-// Menor número de espejos con el que se puede resolver, probando 0, 1, 2...
-// hasta `tope`. Devuelve null si no se resuelve con `tope` espejos o menos.
+// Menor número de piezas con el que se puede resolver, probando 0, 1, 2...
+// hasta `tope`. Devuelve null si no se resuelve con `tope` piezas o menos.
 // Es lo que convierte el "par" del reto en un dato comprobado en vez de en
-// el número de espejos que casualmente usó el generador al construirlo.
+// el número de piezas que casualmente usó el generador al construirlo.
 //
-// Poda: en una solución MÍNIMA todos los espejos los toca algún rayo (si no,
-// sobraría uno y no sería mínima), y el primero que toca cada rayo está por
-// fuerza en el trayecto que ese rayo recorre con los espejos ya colocados.
+// Poda: en una solución MÍNIMA todas las piezas las toca algún rayo (si no,
+// sobraría una y no sería mínima), y la primera que toca cada rayo está por
+// fuerza en el trayecto que ese rayo recorre con las piezas ya colocadas.
 // Así que en cada nivel solo se prueban las celdas de los trayectos actuales,
-// no el tablero entero. `espejosMinimosExhaustivo` conserva la búsqueda sin
-// podar y tests/laser comprueba que las dos coinciden.
-export function espejosMinimos(config, tope) {
-  const sol = resolverEspejos(config, tope);
-  return sol === null ? null : sol.espejos.flat().filter(Boolean).length;
+// no el tablero entero. El bucle interior recorre `tiposDisponibles(modo)`,
+// no un rango fijo: en clásico solo hay espejos en la bandeja, y si la
+// búsqueda pudiera usar prisma o condensador anunciaría un par inalcanzable
+// para el jugador. `piezasMinimasExhaustivo` conserva la búsqueda sin podar
+// y tests/laser comprueba que las dos coinciden.
+export function piezasMinimas(config, tope) {
+  const sol = resolverPiezas(config, tope);
+  return sol === null ? null : sol.piezas.flat().filter(Boolean).length;
 }
 
-// Igual que espejosMinimos pero devolviendo la colocación encontrada, para
+// Igual que piezasMinimas pero devolviendo la colocación encontrada, para
 // poder comprobar de punta a punta que la plantilla da la victoria con ella.
-export function resolverEspejos(config, tope) {
-  const espejos = crearPiezas(config.size);
-  if (resuelto(config, espejos)) return { espejos, total: 0 };
+export function resolverPiezas(config, tope) {
+  const c = normalizaConfig(config);
+  const piezas = crearPiezas(c.size);
+  if (resuelto(c, piezas)) return { piezas, total: 0 };
 
-  const libres = new Set(celdasLibres(config).map((c) => `${c.row},${c.col}`));
+  const libres = new Set(celdasLibres(c).map((x) => `${x.row},${x.col}`));
+  const tipos = tiposDisponibles(c.modo);
 
   const buscar = (restantes) => {
-    if (restantes === 0) return resuelto(config, espejos);
+    if (restantes === 0) return resuelto(c, piezas);
 
-    const { tramos } = simularTodos(config, espejos);
+    const { tramos } = simularTodos(c, piezas);
     const vistas = new Set();
     const candidatas = [];
     for (const tramo of tramos) {
       for (const { row, col } of tramo.squaresPath) {
         const k = `${row},${col}`;
-        if (vistas.has(k) || !libres.has(k) || espejos[row][col] !== 0) continue;
+        if (vistas.has(k) || !libres.has(k) || piezas[row][col] !== PIEZA.VACIO) continue;
         vistas.add(k);
         candidatas.push({ row, col });
       }
     }
 
     for (const { row, col } of candidatas) {
-      for (let tipo = 1; tipo <= 4; tipo++) {
-        espejos[row][col] = tipo;
+      for (const tipo of tipos) {
+        piezas[row][col] = tipo;
         if (buscar(restantes - 1)) return true;
-        espejos[row][col] = 0;
+        piezas[row][col] = PIEZA.VACIO;
       }
     }
     return false;
   };
 
   for (let k = 1; k <= tope; k++) {
-    if (buscar(k)) return { espejos: espejos.map((f) => [...f]), total: k };
+    if (buscar(k)) return { piezas: piezas.map((f) => [...f]), total: k };
   }
   return null;
 }
 
 // Versión sin podar: prueba todas las combinaciones de celdas libres. Se usa
 // solo en los tests, como contraste de la anterior.
-export function espejosMinimosExhaustivo(config, tope) {
-  const libres = celdasLibres(config);
-  const espejos = crearPiezas(config.size);
+export function piezasMinimasExhaustivo(config, tope) {
+  const c = normalizaConfig(config);
+  const libres = celdasLibres(c);
+  const piezas = crearPiezas(c.size);
+  const tipos = tiposDisponibles(c.modo);
 
-  if (resuelto(config, espejos)) return 0;
+  if (resuelto(c, piezas)) return 0;
 
   const buscar = (restantes, desde) => {
-    if (restantes === 0) return resuelto(config, espejos);
+    if (restantes === 0) return resuelto(c, piezas);
     for (let i = desde; i <= libres.length - restantes; i++) {
       const { row, col } = libres[i];
-      for (let tipo = 1; tipo <= 4; tipo++) {
-        espejos[row][col] = tipo;
+      for (const tipo of tipos) {
+        piezas[row][col] = tipo;
         if (buscar(restantes - 1, i + 1)) return true;
-        espejos[row][col] = 0;
+        piezas[row][col] = PIEZA.VACIO;
       }
     }
     return false;
@@ -526,7 +536,7 @@ export function buildLaserPuzzle(seed) {
     if (!resuelto(config, espejos)) continue;
 
     // El par solo vale si no hay una solución más corta.
-    if (espejosMinimos(config, total - 1) !== null) continue;
+    if (piezasMinimas(config, total - 1) !== null) continue;
 
     return {
       variant,

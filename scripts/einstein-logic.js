@@ -162,7 +162,7 @@ export function construirPoolPistas(solucion) {
 // las pistas. Es el motor original del 4x4, conservado como oráculo: no
 // vale para el 5x5 (207 millones de candidatos), pero es obviamente
 // correcto y los tests contrastan el solver contra él, igual que
-// `espejosMinimosExhaustivo` en el láser triangular.
+// `piezasMinimasExhaustivo` en el láser triangular.
 function todasLasPermutaciones(n) {
   const base = Array.from({ length: n }, (_, i) => i);
   const out = [];

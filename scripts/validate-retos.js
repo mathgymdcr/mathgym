@@ -10,7 +10,7 @@ import { solveHashi, construirPares } from './hashi-logic.js';
 import { pistasDe, pistasColorDe, resolverNonograma } from './nonograma-logic.js';
 import { solveCajas } from './cajas-logic.js';
 import { resolverAnillas } from './anillas-logic.js';
-import { resuelto as laserResuelto, espejosMinimos, crearPiezas, DIR_VECTOR } from './laser-triangular-logic.js';
+import { resuelto as laserResuelto, piezasMinimas, crearPiezas, DIR_VECTOR } from './laser-triangular-logic.js';
 import { contarSoluciones as contarRiegos, combinacionesPlanta } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
@@ -822,7 +822,7 @@ class RetoValidator {
     // Se busca de verdad una solución, con el mismo trazador que usa la
     // plantilla: si no aparece con min_espejos, el reto es imposible.
     const declarados = Number.isInteger(data.min_espejos) ? data.min_espejos : 4;
-    const minimo = espejosMinimos(config, declarados);
+    const minimo = piezasMinimas(config, declarados);
     if (minimo === null) {
       throw new Error(
         `Laser-triangular not solvable: no hay solución con ${declarados} espejos o menos`

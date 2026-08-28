@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildLaserPuzzle, espejosMinimos, espejosMinimosExhaustivo, resuelto, crearPiezas } from '../../scripts/laser-triangular-logic.js'
+import { buildLaserPuzzle, piezasMinimas, piezasMinimasExhaustivo, resuelto, crearPiezas } from '../../scripts/laser-triangular-logic.js'
 
 const SEEDS = [20260830, 20260915, 20261207, 20270422, 12, 33, 88, 20280606]
 
@@ -23,7 +23,7 @@ describe('buildLaserPuzzle', () => {
       const p = buildLaserPuzzle(seed)
       expect(p.min_espejos, `seed ${seed}`).toBeGreaterThanOrEqual(2)
       expect(
-        espejosMinimos(config(p), p.min_espejos - 1),
+        piezasMinimas(config(p), p.min_espejos - 1),
         `seed ${seed}: se resuelve con menos de ${p.min_espejos} espejos`
       ).toBeNull()
     }
@@ -60,7 +60,7 @@ describe('buildLaserPuzzle', () => {
   })
 
   it('la búsqueda podada da lo mismo que la exhaustiva', () => {
-    // espejosMinimos solo mira las celdas por las que pasan los rayos, con el
+    // piezasMinimas solo mira las celdas por las que pasan los rayos, con el
     // argumento de que en una solución mínima todo espejo lo toca algún rayo.
     // Si ese argumento fuera falso, el generador anunciaría un par que no es
     // el real -- y como el validador usa la misma función, no lo detectaría.
@@ -68,7 +68,7 @@ describe('buildLaserPuzzle', () => {
     for (const seed of [20260830, 20260915, 12, 33]) {
       const p = buildLaserPuzzle(seed)
       const c = config(p)
-      expect(espejosMinimos(c, 2), `seed ${seed}`).toBe(espejosMinimosExhaustivo(c, 2))
+      expect(piezasMinimas(c, 2), `seed ${seed}`).toBe(piezasMinimasExhaustivo(c, 2))
     }
   })
 
