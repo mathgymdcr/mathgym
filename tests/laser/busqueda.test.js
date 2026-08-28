@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { resolverPiezas, piezasMinimas, piezasMinimasExhaustivo, normalizaConfig, resuelto, PIEZA } from '../../scripts/laser-triangular-logic.js'
+import { resolverPiezas, piezasMinimas, piezasMinimasExhaustivo, normalizaConfig, resuelto, PIEZA, simularTodos, crearPiezas } from '../../scripts/laser-triangular-logic.js'
 
 const CLASICO = normalizaConfig({
   size: 5,
@@ -66,9 +66,35 @@ describe('busqueda de minimos', () => {
   // generador comprueba en cada intento al llamar a piezasMinimas(config,
   // total - 1) para descartar un par mas corto. Medir el camino feliz no
   // valdria: se resuelve con dos piezas en 50 ms y no toca el peor caso.
-  it('el caso sin solucion en 7x7 con seis piezas sigue bajo el tope', () => {
+  // El tope no puede ser en milisegundos: medido en un proceso solo la
+  // busqueda tarda 1,6 s, pero `npm test` reparte la suite entre varios
+  // workers y bajo esa carga la MISMA llamada tarda 4,3 s. Un limite
+  // suficientemente ajustado para detectar la regresion no sobrevive a la
+  // carga, y uno que la sobrevive ya no detecta nada.
+  //
+  // Asi que se mide el TRABAJO, no el tiempo: `simularTodos` es lo que la
+  // busqueda paga en cada nodo, asi que el cociente entre las dos medidas es
+  // en la practica "cuantas simulaciones de tablero le costo", en unidades
+  // que no dependen de la maquina. La carga multiplica las dos mitades por
+  // igual: medido, el cociente es 4,4 en un proceso solo y 3,6-4,3 con
+  // cuatro procesos compitiendo, mientras que la version anterior a la
+  // optimizacion que este test protege estaba en 7,3.
+  it('el caso sin solucion en 7x7 con seis piezas no dispara el trabajo', () => {
+    const prisma = { ...SIN_SOLUCION, modo: 'prisma' }
+    const piezas = crearPiezas(7)
+    piezas[3][3] = PIEZA.SLASH
+    piezas[2][4] = PIEZA.BACKSLASH
+    piezas[4][2] = PIEZA.PRISMA
+
+    const N = 20000
     const t0 = Date.now()
-    expect(piezasMinimas({ ...SIN_SOLUCION, modo: 'prisma' }, 3)).toBeNull()
-    expect(Date.now() - t0, 'la busqueda de minimos se ha vuelto inservible para el generador').toBeLessThan(4000)
+    for (let i = 0; i < N; i++) simularTodos(prisma, piezas)
+    const referencia = Date.now() - t0
+
+    const t1 = Date.now()
+    expect(piezasMinimas(prisma, 3)).toBeNull()
+    const busqueda = Date.now() - t1
+
+    expect(busqueda / referencia, `la busqueda cuesta ${(busqueda / referencia).toFixed(1)} veces la referencia de ${N} trazados`).toBeLessThan(6)
   })
 })

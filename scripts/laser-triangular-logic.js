@@ -349,10 +349,14 @@ export function resolverPiezas(config, tope) {
   const tipos = tiposDisponibles(c.modo);
   // Un tablero descartado con N piezas por colocar se descarta igual llegando
   // a el por otro orden, y la busqueda llega al mismo tablero tantas veces
-  // como ordenes tengan sus piezas. La firma vale tambien entre pasadas de
-  // `tope`: el tablero determina el subarbol y `restantes` lo que queda de
-  // presupuesto, asi que la pasada de tope 3 no re-explora lo que la de 2 ya
-  // agoto. Solo se memorizan los fallos: el primer exito corta la busqueda.
+  // como ordenes tengan sus piezas -- ahi es donde memorizar por
+  // (tablero, restantes) ahorra de verdad, dentro de una misma llamada a
+  // `buscar(k)`. Entre pasadas de `tope` no hay nada que ahorrar: dentro de
+  // una pasada, piezas colocadas + `restantes` vale siempre `k` (`restantes`
+  // solo baja de uno en uno desde ese `k`), asi que dos pasadas con `k`
+  // distinto nunca comparten un par (tablero, restantes) -- la suma esta
+  // atada al `k` de su propia pasada. Solo se memorizan los fallos: el
+  // primer exito corta la busqueda.
   const puestas = [];
   const fallidos = new Set();
 
