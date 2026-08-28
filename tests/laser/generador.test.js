@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildLaserPuzzle, piezasMinimas, piezasMinimasExhaustivo, resuelto, crearPiezas, normalizaConfig, modoDeSeed, MODOS } from '../../scripts/laser-triangular-logic.js'
+import { buildLaserPuzzle, piezasMinimas, piezasMinimasExhaustivo, resuelto, crearPiezas, normalizaConfig, modoDeSeed, MODOS, PIEZA } from '../../scripts/laser-triangular-logic.js'
 
 const SEEDS = [20260830, 20260915, 20261207, 20270422, 12, 33, 88, 20280606]
 
@@ -138,4 +138,36 @@ describe('buildLaserPuzzle en los tres modos', () => {
       expect(p.dificultad).toBeLessThanOrEqual(5)
     }
   })
+})
+
+// Barrido de varios seeds por modo (no solo el de SEED_DE_MODO) para el
+// invariante emisor/diana: el bug de la Task 5 era exactamente un espejo
+// que acababa en la celda de un emisor -- invisible para `celdasLibres` y
+// por tanto irreproducible por `piezasMinimas`, con lo que el par anunciado
+// quedaba mal. Nunca se ha observado en produccion (barrido de seed=1..300
+// del informe de la Task 7, y otro de 400 seeds x 3 tamaños x 40 intentos
+// contra construirPrisma/construirCondensador sin la guarda: cero
+// violaciones en ambos), pero es justo lo que una guarda ausente dejaria
+// pasar sin que nada lo note -- por eso se fija aqui, no se confia en que
+// siga sin verse. 8 seeds por modo (24 en total) cuestan ~2.5s en esta
+// maquina.
+const SEEDS_INVARIANTE = { clasico: [], prisma: [], condensador: [] }
+for (let s = 0; s < 500 && Object.values(SEEDS_INVARIANTE).some((l) => l.length < 8); s++) {
+  const m = modoDeSeed(s)
+  if (SEEDS_INVARIANTE[m].length < 8) SEEDS_INVARIANTE[m].push(s)
+}
+
+describe('la solucion nunca pisa un emisor o una diana', () => {
+  for (const modo of MODOS) {
+    it(`${modo}: ninguna pieza de la solucion cae en un emisor o una diana`, () => {
+      for (const seed of SEEDS_INVARIANTE[modo]) {
+        const p = buildLaserPuzzle(seed)
+        const piezas = p.solucion.piezas
+        const ocupadas = [...p.lasers.map((l) => l.emitter), ...p.targets]
+        for (const o of ocupadas) {
+          expect(piezas[o.row][o.col], `seed ${seed} (${modo}): pieza sobre ${o.row},${o.col}`).toBe(PIEZA.VACIO)
+        }
+      }
+    })
+  }
 })
