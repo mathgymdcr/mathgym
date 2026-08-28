@@ -1203,7 +1203,7 @@ Crear `tests/laser/validador.test.js`:
 
 ```js
 import { describe, it, expect } from 'vitest'
-import { MathGymValidator } from '../../scripts/validate-retos.js'
+import { RetoValidator } from '../../scripts/validate-retos.js'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
@@ -1228,7 +1228,7 @@ describe('validateLaserData', () => {
       blocks: [],
       min_espejos: 2
     })
-    await expect(new MathGymValidator().validateLaserData(reto(ruta))).resolves.toBeUndefined()
+    await expect(new RetoValidator().validateLaserData(reto(ruta))).resolves.toBeUndefined()
   })
 
   it('rechaza un modo prisma con una sola diana', async () => {
@@ -1238,7 +1238,7 @@ describe('validateLaserData', () => {
       targets: [{ row: 0, col: 5, color: 'azul' }],
       blocks: [], min_piezas: 2
     })
-    await expect(new MathGymValidator().validateLaserData(reto(ruta)))
+    await expect(new RetoValidator().validateLaserData(reto(ruta)))
       .rejects.toThrow(/prisma.*dos dianas/i)
   })
 
@@ -1249,13 +1249,13 @@ describe('validateLaserData', () => {
       targets: [{ row: 0, col: 5, color: 'turquesa' }, { row: 5, col: 4, color: 'rojo' }],
       blocks: [], min_piezas: 2
     })
-    await expect(new MathGymValidator().validateLaserData(reto(ruta)))
+    await expect(new RetoValidator().validateLaserData(reto(ruta)))
       .rejects.toThrow(/color/i)
   })
 })
 ```
 
-Si `MathGymValidator` no está exportado, exportarlo — el test lo necesita y hoy el validador solo se ejecuta por CLI.
+`RetoValidator` ya se exporta (`scripts/validate-retos.js:957`). Ojo: la clase se llama `RetoValidator`, no `MathGymValidator`.
 
 - [ ] **Step 2: Ejecutar y comprobar que falla**
 
@@ -1511,6 +1511,27 @@ cell.appendChild(diana);
 
 La insignia numerada (`laserBadge`) solo se añade si `config.modo === 'clasico'`.
 
+Y en `refresh()`, la pieza colocada pasa a pintarse con el markup que usa el CSS nuevo, sustituyendo a `.laser-mirror` y a las clases `is-slash` / `is-backslash` / `is-vert` / `is-horiz`:
+
+```js
+const NOMBRE_PIEZA = {
+  [PIEZA.SLASH]: 'slash', [PIEZA.BACKSLASH]: 'backslash',
+  [PIEZA.VERT]: 'vert', [PIEZA.HORIZ]: 'horiz',
+  [PIEZA.PRISMA]: 'prisma', [PIEZA.CONDENSADOR]: 'condensador'
+};
+
+// En refresh(), por cada celda con pieza:
+cell.innerHTML = '';
+const v = state.piezas[r][c];
+if (v) {
+  const pieza = createElement('span', { class: 'laser-pieza' });
+  pieza.dataset.pieza = NOMBRE_PIEZA[v];
+  cell.appendChild(pieza);
+}
+```
+
+Las reglas CSS `.laser-cell.is-slash .laser-mirror` y compañía (style.css ~2538-2570) se reescriben como `.laser-pieza[data-pieza="slash"]` etc., conservando la misma geometría de barra rotada.
+
 - [ ] **Step 4: Escribir el CSS**
 
 En `style.css`, dentro del bloque de láser: **borrar** las reglas `.laser-arrow` (línea ~2479) y `.laser-target-icon` (~2517), y sus menciones en el bloque `prefers-reduced-motion` del final (~2624). Añadir:
@@ -1624,14 +1645,22 @@ describe('bandeja de piezas', () => {
     expect(piezas).toEqual(['slash', 'backslash', 'vert', 'horiz'])
   })
 
+  // Payload de prisma en linea, NO data/muestra: la muestra sigue siendo un
+  // reto clasico hasta la Task 13, asi que ofreceria cuatro piezas.
+  const PRISMA = {
+    size: 5, modo: 'prisma',
+    lasers: [{ emitter: { row: 2, col: 0, dir: 'right' }, color: 'neutro' }],
+    targets: [{ row: 0, col: 4, color: 'azul' }, { row: 4, col: 4, color: 'rojo' }],
+    blocks: [], min_piezas: 2
+  }
+
   it('con prisma ofrece las seis', async () => {
-    const host = await montar(await muestra())
+    const host = await montar(PRISMA)
     expect(host.querySelectorAll('.laser-tray-pieza')).toHaveLength(6)
   })
 
   it('tocar una pieza y luego una celda la coloca', async () => {
-    const host = await montar(await muestra())
-    const n = (await muestra()).size
+    const host = await montar(PRISMA)
     host.querySelector('.laser-tray-pieza[data-pieza="slash"]').click()
     const celdas = host.querySelectorAll('.laser-cell')
     const libre = [...celdas].find((c) => !c.className.match(/is-emitter|is-target|is-block/))
@@ -1702,10 +1731,11 @@ function onCellClick(r, c) {
   if (state.piezas[r][c] !== PIEZA.VACIO) state.piezas[r][c] = PIEZA.VACIO;  // tocar retira
   else if (state.armada) state.piezas[r][c] = state.armada;
   else return;
-  apagaTrazo();     // colocar o quitar apaga el rayo (Task 12)
   refresh();
 }
 ```
+
+`onCellClick` llama de momento a `refresh()`. La Task 12 introduce `apagaTrazo()` y cambia **esta** llamada: no la escribas ahora, que la función todavía no existe.
 
 Arrastrar, con Pointer Events — un solo camino de código para ratón, dedo y lápiz:
 
