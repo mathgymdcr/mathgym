@@ -36,11 +36,25 @@ const LASER_COLORS = ['#ff8c42', '#3ec6ff', '#c084fc', '#7ee787'];
 const FORMA_DE_COLOR = {
   neutro: 'circulo', azul: 'triangulo', rojo: 'cuadrado', magenta: 'rombo'
 };
-const formaDe = (color) => FORMA_DE_COLOR[String(color).replace(/-\d+$/, '')] || 'circulo';
+// Exportada para que el test de accesibilidad pueda recorrer COLORES (el
+// catálogo real, en scripts/laser-triangular-logic.js) y comprobar que cada
+// color de ahí tiene su propia forma, en vez de fiarse de que este mapa
+// literal se mantenga sincronizado a mano con esa lista.
+export const formaDe = (color) => FORMA_DE_COLOR[String(color).replace(/-\d+$/, '')] || 'circulo';
 
 const TINTE = {
   neutro: '#ff8c42', 'neutro-1': '#ff8c42', 'neutro-2': '#3ec6ff',
   azul: '#3ec6ff', rojo: '#ff5d5d', magenta: '#c084fc'
+};
+// TINTE solo cubre neutro-1/neutro-2 porque construirClasico solo genera dos
+// láseres; para un neutro-N fuera de ese mapa, se resuelve igual que
+// colorDeTramo (por índice en LASER_COLORS), en vez de caer siempre en el
+// mismo color de reserva.
+const tinteDe = (color) => {
+  if (TINTE[color]) return TINTE[color];
+  const m = /^neutro-(\d+)$/.exec(color);
+  if (m) return LASER_COLORS[(Number(m[1]) - 1) % LASER_COLORS.length];
+  return '#ffd23b';
 };
 
 // Nombre de cada pieza para el atributo data-pieza que consume el CSS.
@@ -149,7 +163,7 @@ export async function render(root, data, hooks) {
       } else if (dianaIdx !== -1) {
         const target = targets[dianaIdx];
         cell.classList.add('is-target');
-        cell.style.setProperty('--laser-color', TINTE[target.color] || '#ffd23b');
+        cell.style.setProperty('--laser-color', tinteDe(target.color));
         const diana = createElement('span', { class: 'laser-diana' });
         diana.dataset.forma = formaDe(target.color);
         cell.appendChild(diana);

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import fs from 'node:fs/promises'
+import { COLORES } from '../../scripts/laser-triangular-logic.js'
 
 const montar = async (data) => {
   const mod = await import('../../plantillas/laser_triangular.js')
@@ -31,5 +32,20 @@ describe('formas del tablero de laser', () => {
     expect(emisores.length).toBeGreaterThan(0)
     expect(emisores[0].style.getPropertyValue('--laser-dir-rot')).toMatch(/deg$/)
     expect(emisores[0].textContent).toBe('')
+  })
+
+  // No basta con que las cuatro formas de hoy sean distintas: si COLORES
+  // (el catálogo real, en scripts/laser-triangular-logic.js) gana un color
+  // que el mapa literal de formaDe no conoce, éste cae en su valor de
+  // reserva ('circulo', el mismo que 'neutro') y dos colores distintos
+  // pasarían a dibujarse igual -- justo la garantía de accesibilidad que
+  // este tipo existe para dar. Este test recorre el catálogo de verdad, no
+  // una lista copiada a mano, así que un color nuevo sin forma propia lo
+  // hace fallar en vez de degradarse en silencio.
+  it('cada color del catalogo tiene su propia forma, ninguna se repite', async () => {
+    const mod = await import('../../plantillas/laser_triangular.js')
+    const formas = COLORES.map((color) => mod.formaDe(color))
+    expect(formas.every(Boolean)).toBe(true)
+    expect(new Set(formas).size).toBe(COLORES.length)
   })
 })

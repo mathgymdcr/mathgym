@@ -2477,7 +2477,12 @@ li {
 }
 
 /* Boquilla del emisor: un triangulo macizo apuntando a --laser-dir-rot.
-   Sustituye al emoji ➤, que desentonaba con el resto de tableros. */
+   Sustituye al emoji ➤, que desentonaba con el resto de tableros. Sin
+   top/left: .laser-cell es flex con align/justify-content: center, así que
+   un hijo absoluto sin offset toma esa posición estática -- ya centrada --
+   por spec. .laser-pieza sí fija top/left porque además necesita rotar
+   sobre ese punto con transform; .laser-badge sí lo fija porque su sitio
+   NO es el centro, sino la esquina. */
 .laser-emisor {
   position: absolute;
   width: 62%;
