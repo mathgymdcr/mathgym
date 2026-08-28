@@ -90,8 +90,11 @@ function piezaSpan(tipo) {
 
 // Colores fijos para los rayos ya coloreados (prisma/condensador); los
 // "neutro-N" del modo clásico se resuelven por índice en LASER_COLORS, así
-// que dos láseres siguen viéndose tan distintos como hoy.
-const COLOR_FIJO = { azul: '#3ec6ff', rojo: '#ff5470', magenta: '#c084fc', neutro: '#ff8c42' };
+// que dos láseres siguen viéndose tan distintos como hoy. El rojo es el
+// mismo #ff5d5d que TINTE.rojo (la diana) y que ya usa el resto del CSS
+// (prisma, condensador, is-choque): un solo rojo para el rayo y su diana,
+// en vez de dos que solo coincidían de cerca.
+const COLOR_FIJO = { azul: '#3ec6ff', rojo: '#ff5d5d', magenta: '#c084fc', neutro: '#ff8c42' };
 function colorDeTramo(color) {
   if (COLOR_FIJO[color]) return COLOR_FIJO[color];
   const m = /^neutro-(\d+)$/.exec(color);
@@ -255,7 +258,12 @@ export async function render(root, data, hooks) {
       if (emisorIdx !== -1) {
         const laser = lasers[emisorIdx];
         cell.classList.add('is-emitter');
-        cell.style.setProperty('--laser-color', LASER_COLORS[emisorIdx % LASER_COLORS.length]);
+        // Se resuelve por COLOR, igual que la diana (tinteDe), en vez de por
+        // índice: así el emparejamiento visual emisor<->diana es estructural
+        // (mismo color -> mismo tinte) y no una coincidencia que depende de
+        // que normalizaConfig y construirClasico asignen "neutro-N" en el
+        // mismo orden que lasers[].
+        cell.style.setProperty('--laser-color', tinteDe(laser.color));
         const boquilla = createElement('span', { class: 'laser-emisor' });
         boquilla.style.setProperty('--laser-dir-rot', `${DIR_ROTATION[laser.emitter.dir]}deg`);
         cell.appendChild(boquilla);
@@ -470,7 +478,7 @@ export async function render(root, data, hooks) {
     const { cruces, tramos } = simularTodos();
     if (resuelto(config, state.piezas)) { declararVictoria(); return; }
     const estado = mensajeDeEstado(tramos, cruces);
-    setStatus(ui.status, estado ? estado.texto : 'Todavia no. Mueve alguna pieza y vuelve a lanzar', estado ? estado.tipo : 'ko');
+    setStatus(ui.status, estado ? estado.texto : 'Todavía no. Mueve alguna pieza y vuelve a lanzar', estado ? estado.tipo : 'ko');
   }
 
   function refresh() {

@@ -481,6 +481,7 @@ export function modoDeSeed(seed) {
 export function varianteDeSeed(seed) {
   return `${tamanoDeSeed(seed)}-${modoDeSeed(seed)}`;
 }
+
 const TAMANO = { pequeno: 5, medio: 6, grande: 7 };
 const DIRECCIONES = Object.keys(DIR_VECTOR);
 

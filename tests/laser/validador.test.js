@@ -38,6 +38,28 @@ describe('validateLaserData', () => {
       .rejects.toThrow(/prisma.*dos dianas/i)
   })
 
+  it('rechaza un modo prisma con las dos dianas del mismo color', async () => {
+    const ruta = await escribe({
+      size: 6, modo: 'prisma',
+      lasers: [{ emitter: { row: 2, col: 0, dir: 'right' }, color: 'neutro' }],
+      targets: [{ row: 0, col: 5, color: 'azul' }, { row: 5, col: 5, color: 'azul' }],
+      blocks: [], min_piezas: 2
+    })
+    await expect(new RetoValidator().validateLaserData(reto(ruta)))
+      .rejects.toThrow(/prisma.*mismo color/i)
+  })
+
+  it('rechaza un modo condensador con la diana de un color que no es magenta', async () => {
+    const ruta = await escribe({
+      size: 6, modo: 'condensador',
+      lasers: [{ emitter: { row: 2, col: 0, dir: 'right' }, color: 'azul' }],
+      targets: [{ row: 0, col: 5, color: 'azul' }],
+      blocks: [], min_piezas: 2
+    })
+    await expect(new RetoValidator().validateLaserData(reto(ruta)))
+      .rejects.toThrow(/condensador.*unica diana magenta/i)
+  })
+
   it('rechaza un color de diana que no existe', async () => {
     const ruta = await escribe({
       size: 6, modo: 'prisma',

@@ -37,8 +37,9 @@ describe('bandeja de piezas', () => {
     expect(piezas).toEqual(['slash', 'backslash', 'vert', 'horiz'])
   })
 
-  // Payload de prisma en linea, NO data/muestra: la muestra sigue siendo un
-  // reto clasico hasta la Task 13, asi que ofreceria cuatro piezas.
+  // Payload de prisma en linea, NO data/muestra: la muestra ya es prisma
+  // tambien, pero este fixture fija su propio tablero pequeno y estable
+  // para estas pruebas de gestos, sin depender de que la muestra cambie.
   const PRISMA = {
     size: 5, modo: 'prisma',
     lasers: [{ emitter: { row: 2, col: 0, dir: 'right' }, color: 'neutro' }],

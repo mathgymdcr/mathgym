@@ -112,7 +112,7 @@ describe('regla de cruce por visitas', () => {
     blocks: []
   }
 
-  it('una celda visitada por dos tramos es un cruce', () => {
+  it('dos rayos que no comparten celda no cruzan', () => {
     const c = normalizaConfig(SIN_CRUCE)
     const piezas = crearPiezas(c.size)
     // Sin espejos, los dos rayos de SIN_CRUCE no comparten celda.
