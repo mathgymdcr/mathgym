@@ -21,7 +21,7 @@ import { buildStandardShell, createElement, setStatus } from './shell.js';
 // que el juego, el generador diario y el validador usen exactamente el mismo
 // código: con dos copias, cualquier diferencia publicaría retos imposibles.
 import {
-  DIR_VECTOR, normalizaConfig, crearPiezas, resuelto, PIEZA,
+  DIR_VECTOR, normalizaConfig, crearPiezas, resuelto, PIEZA, tiposDisponibles,
   simularTodos as trazarTodos
 } from '../scripts/laser-triangular-logic.js';
 const DIR_ROTATION = {
@@ -63,6 +63,24 @@ const NOMBRE_PIEZA = {
   [PIEZA.VERT]: 'vert', [PIEZA.HORIZ]: 'horiz',
   [PIEZA.PRISMA]: 'prisma', [PIEZA.CONDENSADOR]: 'condensador'
 };
+
+// Las formas no llevan texto, asi que la etiqueta es lo unico que lee quien
+// navegue con lector de pantalla.
+const ETIQUETA_PIEZA = {
+  [PIEZA.SLASH]: 'Espejo diagonal /', [PIEZA.BACKSLASH]: 'Espejo diagonal \\',
+  [PIEZA.VERT]: 'Espejo vertical', [PIEZA.HORIZ]: 'Espejo horizontal',
+  [PIEZA.PRISMA]: 'Prisma: parte el rayo en azul y rojo',
+  [PIEZA.CONDENSADOR]: 'Condensador: junta azul y rojo en magenta'
+};
+
+// Un solo dibujante para cada forma: lo usan tanto la celda del tablero
+// (refresh) como el boton de la bandeja, asi que hay una unica definicion
+// del marcado de cada pieza.
+function piezaSpan(tipo) {
+  const pieza = createElement('span', { class: 'laser-pieza' });
+  pieza.dataset.pieza = NOMBRE_PIEZA[tipo];
+  return pieza;
+}
 
 // Colores fijos para los rayos ya coloreados (prisma/condensador); los
 // "neutro-N" del modo clásico se resuelven por índice en LASER_COLORS, así
@@ -118,7 +136,7 @@ export async function render(root, data, hooks) {
       <p><strong>Objetivo:</strong> coloca espejos para dirigir <strong>cada láser</strong> hasta la diana con su mismo número y color.</p>
       <p>Cada celda está dividida en triángulos por sus dos diagonales. El rayo se mueve también en diagonal (45°) y puede reflejarse en cualquiera de las 8 direcciones.</p>
       <p>Un rayo diagonal que llega <strong>en paralelo</strong> al espejo lo atraviesa; si llega <strong>perpendicular</strong>, rebota recto hacia atrás.</p>
-      <p>Toca una celda para ir poniendo espejo <strong>/</strong>, <strong>\\</strong>, <strong>|</strong> y <strong>―</strong>; sigue tocando hasta dejarla vacía otra vez.</p>
+      <p>Elige una pieza de la bandeja y toca una celda para colocarla (o arrástrala hasta ahí); toca una celda ocupada para retirar su pieza.</p>
       <p>Los rayos <strong>no pueden cruzarse</strong>: si dos trayectos pasan por la misma celda, reordena los espejos.</p>
     `
   });
@@ -126,8 +144,39 @@ export async function render(root, data, hooks) {
 
   const state = {
     piezas: crearPiezas(n),
-    won: false
+    won: false,
+    armada: null,       // tipo de pieza armada en la bandeja, o null
+    arrastrando: false  // hay un gesto de arrastre en curso (Pointer Events)
   };
+
+  // Bandeja: existencias infinitas de cada pieza disponible en este modo, en
+  // vez del ciclo de cinco estados por clic que no escalaba a seis piezas.
+  const trayButtons = [];
+  const tray = createElement('div', { class: 'laser-tray', role: 'toolbar', 'aria-label': 'Piezas' });
+  tiposDisponibles(config.modo).forEach((tipo) => {
+    const btn = createElement('button', { class: 'laser-tray-pieza', type: 'button' });
+    btn.dataset.pieza = NOMBRE_PIEZA[tipo];
+    btn.setAttribute('aria-label', ETIQUETA_PIEZA[tipo]);
+    btn.setAttribute('aria-pressed', 'false');
+    btn.appendChild(piezaSpan(tipo));
+    btn.addEventListener('click', () => armar(tipo));
+    // Arrastre con Pointer Events: un solo camino de codigo para raton, dedo
+    // y lapiz. happy-dom no implementa setPointerCapture ni elementFromPoint
+    // de forma util, asi que se comprueba que existan antes de usarlos -- una
+    // plantilla que lanzase aqui se llevaria por delante tests/plantillas/,
+    // que monta las doce plantillas y es la unica red que las cubre todas.
+    btn.addEventListener('pointerdown', (ev) => {
+      armar(tipo);
+      state.arrastrando = true;
+      if (typeof btn.setPointerCapture === 'function') {
+        try { btn.setPointerCapture(ev.pointerId); } catch { /* sin soporte */ }
+      }
+    });
+    btn.addEventListener('pointerup', soltarArrastre);
+    trayButtons.push(btn);
+    tray.appendChild(btn);
+  });
+  ui.box.appendChild(tray);
 
   const boardWrap = createElement('div', { class: 'laser-board-wrap' });
   const boardStack = createElement('div', { class: 'laser-board-stack' });
@@ -147,6 +196,8 @@ export async function render(root, data, hooks) {
     const filaEls = [];
     for (let c = 0; c < n; c++) {
       const cell = createElement('div', { class: 'laser-cell' });
+      cell.dataset.fila = r;
+      cell.dataset.col = c;
       const emisorIdx = lasers.findIndex(l => l.emitter.row === r && l.emitter.col === c);
       const dianaIdx = targets.findIndex(t => t.row === r && t.col === c);
       if (emisorIdx !== -1) {
@@ -172,6 +223,21 @@ export async function render(root, data, hooks) {
         cell.classList.add('is-block');
       } else {
         cell.addEventListener('click', () => onCellClick(r, c));
+        // Una pieza ya colocada tambien se arrastra: al empezar el gesto se
+        // retira de su celda de origen y queda armada, igual que si viniera
+        // de la bandeja.
+        cell.addEventListener('pointerdown', (ev) => {
+          const actual = state.piezas[r][c];
+          if (actual === PIEZA.VACIO) return;
+          state.piezas[r][c] = PIEZA.VACIO;
+          refresh();
+          armar(actual);
+          state.arrastrando = true;
+          if (typeof cell.setPointerCapture === 'function') {
+            try { cell.setPointerCapture(ev.pointerId); } catch { /* sin soporte */ }
+          }
+        });
+        cell.addEventListener('pointerup', soltarArrastre);
       }
       board.appendChild(cell);
       filaEls.push(cell);
@@ -185,6 +251,7 @@ export async function render(root, data, hooks) {
   btnReset.addEventListener('click', () => {
     state.piezas = crearPiezas(n);
     state.won = false;
+    armar(null);
     setStatus(ui.result, '', '');
     setStatus(ui.status, 'Listo para empezar', 'ok');
     refresh();
@@ -195,10 +262,36 @@ export async function render(root, data, hooks) {
   setStatus(ui.status, 'Listo para empezar', 'ok');
   refresh();
 
+  // Arma `tipo` en la bandeja: el siguiente toque en una celda libre lo
+  // coloca. tipo === null limpia la bandeja (nada armado).
+  function armar(tipo) {
+    state.armada = tipo;
+    trayButtons.forEach((btn) => {
+      const activa = tipo != null && btn.dataset.pieza === NOMBRE_PIEZA[tipo];
+      btn.classList.toggle('is-armada', activa);
+      btn.setAttribute('aria-pressed', String(activa));
+    });
+  }
+
+  // Fin de un gesto de arrastre (pointerup, retargeteado por setPointerCapture
+  // al elemento donde empezo): busca la celda bajo el punto de soltar y la
+  // trata igual que un toque. Soltar fuera del tablero no hace nada.
+  function soltarArrastre(ev) {
+    if (!state.arrastrando) return;
+    state.arrastrando = false;
+    if (typeof document.elementFromPoint !== 'function') return;
+    const bajo = document.elementFromPoint(ev.clientX, ev.clientY);
+    const celda = bajo && bajo.closest && bajo.closest('.laser-cell');
+    if (celda && celda.dataset.fila !== undefined) {
+      onCellClick(Number(celda.dataset.fila), Number(celda.dataset.col));
+    }
+  }
+
   function onCellClick(r, c) {
-    if (state.won) return;
-    if (sinPieza.has(`${r},${c}`)) return;
-    state.piezas[r][c] = (state.piezas[r][c] + 1) % 5;
+    if (state.won || sinPieza.has(`${r},${c}`)) return;
+    if (state.piezas[r][c] !== PIEZA.VACIO) state.piezas[r][c] = PIEZA.VACIO;  // tocar retira
+    else if (state.armada) state.piezas[r][c] = state.armada;
+    else return;
     refresh();
 
     if (resuelto(config, state.piezas)) {
@@ -236,11 +329,7 @@ export async function render(root, data, hooks) {
         if (sinPieza.has(`${r},${c}`)) continue;
         const v = state.piezas[r][c];
         cell.innerHTML = '';
-        if (v) {
-          const pieza = createElement('span', { class: 'laser-pieza' });
-          pieza.dataset.pieza = NOMBRE_PIEZA[v];
-          cell.appendChild(pieza);
-        }
+        if (v) cell.appendChild(piezaSpan(v));
       }
     }
 

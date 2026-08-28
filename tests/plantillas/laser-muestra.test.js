@@ -2,10 +2,9 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import fs from 'node:fs/promises'
 
 // Del ejemplo de láser triangular se comprueba que además de pintarse SE
-// PUEDE RESOLVER, colocando los espejos previstos y esperando la victoria.
-// Sin esto, un ejemplo imposible pasaría desapercibido en la portada.
-//
-// Cada toque en una celda avanza el tipo de espejo: 1 toque = '/', 2 = '\'.
+// PUEDE RESOLVER, colocando los espejos previstos (armados desde la bandeja)
+// y esperando la victoria. Sin esto, un ejemplo imposible pasaría
+// desapercibido en la portada.
 
 // happy-dom no implementa <canvas> y la celebración de la victoria pinta
 // confeti en uno. Se le da un contexto de mentira para que la animación no
@@ -19,10 +18,13 @@ beforeAll(() => {
   })
 })
 
-const clicks = (host, fila, columna, columnas, veces) => {
-  const celdas = host.querySelectorAll('.laser-cell')
-  const celda = celdas[fila * columnas + columna]
-  for (let i = 0; i < veces; i++) celda.click()
+// Arma la pieza `tipo` desde la bandeja y toca la celda (fila, columna) para
+// colocarla ahi -- sustituye al viejo ciclo de cinco estados por clic, que
+// desaparecio con la bandeja (Task 11).
+const coloca = (host, fila, columna, columnas, tipo) => {
+  const NOMBRE = { 1: 'slash', 2: 'backslash', 3: 'vert', 4: 'horiz', 5: 'prisma', 6: 'condensador' }
+  host.querySelector(`.laser-tray-pieza[data-pieza="${NOMBRE[tipo]}"]`).click()
+  host.querySelectorAll('.laser-cell')[fila * columnas + columna].click()
 }
 
 describe('ejemplo de láser triangular', () => {
@@ -43,9 +45,8 @@ describe('ejemplo de láser triangular', () => {
     let ganado = 0
     await mod.render(host, data, { onSuccess: () => { ganado++ } })
 
-    // Cada toque avanza el tipo de espejo: 1 toque = '/', 2 = '\\', 3 = '|', 4 = '—'.
     sol.piezas.forEach((fila, r) => fila.forEach((tipo, c) => {
-      if (tipo) clicks(host, r, c, data.size, tipo)
+      if (tipo) coloca(host, r, c, data.size, tipo)
     }))
 
     expect(ganado, 'la plantilla no dio la victoria con la solución encontrada').toBe(1)

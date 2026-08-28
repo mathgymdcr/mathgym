@@ -2657,6 +2657,44 @@ li {
   margin-top: 16px;
 }
 
+/* Bandeja abierta: existencias infinitas de cada pieza, asi que sin
+   contadores. touch-action: none para que arrastrar no haga scroll. */
+.laser-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 0 0 12px;
+  touch-action: none;
+}
+
+.laser-tray-pieza {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: grab;
+  touch-action: none;
+}
+
+.laser-tray-pieza:hover { border-color: rgba(255, 255, 255, 0.4); }
+
+/* Pieza armada: el siguiente toque en una celda la coloca. */
+.laser-tray-pieza.is-armada {
+  border-color: #ffd23b;
+  box-shadow: 0 0 10px color-mix(in srgb, #ffd23b 60%, transparent);
+}
+
+.laser-tray-pieza:active { cursor: grabbing; }
+
+/* Las piezas de la bandeja se dibujan con las mismas reglas que las del
+   tablero: una sola definicion de cada forma. */
+.laser-tray-pieza .laser-pieza { inset: 0; margin: auto; }
+
+.laser-board { touch-action: none; }
+
 @media (max-width: 560px) {
   .laser-board {
     --laser-cell-size: 30px;
