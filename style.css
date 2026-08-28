@@ -2683,7 +2683,9 @@ li {
   /* El tamaño lo pone la plantilla, que lo deriva del grado del chip. */
   padding: 0;
   border: 0;
-  border-radius: 50%;
+  /* Esquina redondeada, no círculo: el aro de estado se dibuja siguiendo
+     este radio, y un halo redondo alrededor de un chip cuadrado cantaba. */
+  border-radius: 26%;
   background: none;
   cursor: pointer;
   line-height: 0;

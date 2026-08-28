@@ -274,31 +274,35 @@ async function loadConfig(d) {
 }
 
 // --- El chip ---------------------------------------------------------------
-// Ficha dibujada en SVG: disco exterior, aro con muescas (las cuñas de una
-// ficha de verdad), disco interior y el número centrado.
+// Un MICROCHIP, no una ficha: cuerpo cuadrado con patillas en los cuatro
+// lados y el número dentro. Es lo que pide el resto del sitio -- el fondo
+// son pistas de circuito impreso, así que los puentes son las pistas y esto
+// es lo que conectan.
 //
-// El tamaño va con el grado y el color por tramos. Los tres colores son
-// RELLENOS que ya existen en la paleta -- no se inventan ocho, que se
-// pelearían con una paleta corta a propósito, y sobre todo no se tocan el
-// verde y el rojo, que son del estado del juego y se pintan en el aro de
-// fuera (ver .hashi-cell.is-satisfied / .is-over en style.css).
+// El tamaño va con el grado y el color por tramos. Los tres colores son los
+// mismos que usa el icono del tipo (assets/icono-puentes-hashi.svg), y son
+// RELLENOS que ya existen en la paleta: no se inventan ocho, que se
+// pelearían con una paleta corta a propósito, y no se tocan el verde ni el
+// rojo, que son del estado del juego y se pintan en el aro de fuera (ver
+// .hashi-cell.is-satisfied / .is-over en style.css).
 const TRAMOS = [
-  // `muesca` y `texto` van SIEMPRE en el tono que contrasta con el cuerpo:
-  // sobre el oro, el blanco da 1.7:1 y desaparece. Las muescas en un tono
-  // parecido al cuerpo no se leen a 26px -- parecen un borde raído -- así
-  // que son de alto contraste, como las cuñas de una ficha de verdad.
-  { hasta: 2, nombre: 'bajo',  cuerpo: '#1788c7', muesca: '#f4f8fb', texto: '#fff' },
-  { hasta: 5, nombre: 'medio', cuerpo: '#8a2189', muesca: '#f7eef7', texto: '#fff' },
-  { hasta: 8, nombre: 'alto',  cuerpo: '#f8c818', muesca: '#141b26', texto: '#141b26' }
+  // `texto` va SIEMPRE en el tono que contrasta con el cuerpo: sobre el oro
+  // el blanco da 1.7:1 y desaparece.
+  { hasta: 2, nombre: 'bajo',  cuerpo: '#1788c7', texto: '#fff' },
+  { hasta: 5, nombre: 'medio', cuerpo: '#8a2189', texto: '#fff' },
+  { hasta: 8, nombre: 'alto',  cuerpo: '#f8c818', texto: '#141b26' }
 ];
 
 export function tramoDeGrado(grado) {
   return TRAMOS.find((t) => grado <= t.hasta) || TRAMOS[TRAMOS.length - 1];
 }
 
+// La celda del tablero mide 42px (34 en móvil), así que el chip no puede
+// pasar de 40. Y el mínimo no baja de 30: con patillas, el cuerpo se queda
+// con dos tercios del cuadro y por debajo de eso el número no se lee.
 export function ladoDeGrado(grado) {
   const g = Math.min(Math.max(grado, 1), 8);
-  return 26 + Math.round(((g - 1) / 7) * 12);   // 26px con grado 1, 38px con grado 8
+  return 30 + Math.round(((g - 1) / 7) * 10);   // 30px con grado 1, 40px con grado 8
 }
 
 function pintarChip(btn, grado) {
@@ -309,20 +313,23 @@ function pintarChip(btn, grado) {
   btn.style.width = `${lado}px`;
   btn.style.height = `${lado}px`;
 
-  // Seis cuñas en el aro: dash y hueco iguales reparten la circunferencia
-  // en doce tramos y se pintan seis. El aro es grueso (18 de 100) porque a
-  // 26px cualquier cosa más fina se pierde.
-  const radioAro = 41, grosorAro = 18;
-  const cuna = (2 * Math.PI * radioAro) / 12;
+  // Tres patillas por lado, no más: a 30px cada una mide menos de 3px y con
+  // cuatro se empastan. Salen del cuerpo (20..80) hacia el borde del cuadro.
+  const patillas = [33, 50, 67].map((centro) => {
+    const d = centro - 5;
+    return `
+      <rect x="${d}" y="6" width="10" height="16" rx="2" fill="${tramo.cuerpo}"></rect>
+      <rect x="${d}" y="78" width="10" height="16" rx="2" fill="${tramo.cuerpo}"></rect>
+      <rect x="6" y="${d}" width="16" height="10" rx="2" fill="${tramo.cuerpo}"></rect>
+      <rect x="78" y="${d}" width="16" height="10" rx="2" fill="${tramo.cuerpo}"></rect>`;
+  }).join('');
 
   btn.innerHTML = `
     <svg viewBox="0 0 100 100" width="${lado}" height="${lado}" aria-hidden="true" focusable="false">
-      <circle cx="50" cy="50" r="50" fill="${tramo.cuerpo}"></circle>
-      <circle cx="50" cy="50" r="${radioAro}" fill="none" stroke="${tramo.muesca}"
-              stroke-width="${grosorAro}" stroke-dasharray="${cuna} ${cuna}"></circle>
-      <circle cx="50" cy="50" r="32" fill="${tramo.cuerpo}"></circle>
-      <circle cx="50" cy="50" r="32" fill="none" stroke="${tramo.muesca}" stroke-width="4"></circle>
-      <text x="50" y="50" fill="${tramo.texto}" font-size="40" font-weight="700"
+      ${patillas}
+      <rect x="20" y="20" width="60" height="60" rx="9" fill="${tramo.cuerpo}"></rect>
+      <circle cx="30" cy="30" r="4" fill="${tramo.texto}" opacity="0.5"></circle>
+      <text x="52" y="53" fill="${tramo.texto}" font-size="38" font-weight="700"
             text-anchor="middle" dominant-baseline="central">${grado}</text>
     </svg>`;
 }
