@@ -1,13 +1,16 @@
 {
-  "variant": "ligero",
+  "variant": "pesado",
   "zonas": [
     [
-      9,
-      4
+      14,
+      9
     ],
-    [],
     [
       11,
+      4
+    ],
+    [
+      16,
       7
     ]
   ],
@@ -17,6 +20,6 @@
     "Zona C"
   ],
   "destino": 2,
-  "capacidad": 15,
-  "min_movimientos": 4
+  "capacidad": 18,
+  "min_movimientos": 11
 }
