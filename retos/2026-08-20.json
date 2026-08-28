@@ -9,9 +9,9 @@
     "grafos"
   ],
   "hints": [
-    "Empieza por el chip de 5 de la fila 3, columna 5: es el de grado más alto del tablero y con 3 vecinos le queda muy poco margen, así que casi todos sus puentes están decididos de entrada.",
-    "En total hay que trazar 10 puentes, de los cuales 2 son dobles. Cuando dudes, mira los cruces: si un puente vertical tapa el paso a uno horizontal, uno de los dos sobra, y muchas veces eso decide el otro.",
-    "Que cuadren todos los números no basta: al final todos los chips tienen que quedar unidos en una sola red. Si te salen dos grupos separados con las cuentas correctas, hay que deshacer algún puente doble y repartirlo hacia el otro grupo."
+    "Empieza por el chip de 5 de la fila 3, columna 5: es el de grado más alto del tablero y con 3 vecinos le queda muy poco margen, así que casi todos sus cables están decididos de entrada.",
+    "En total hay que tender 10 cables, de los cuales 2 son dobles. Cuando dudes, mira los cruces: si un cable vertical tapa el paso a uno horizontal, uno de los dos sobra, y muchas veces eso decide el otro.",
+    "Que cuadren todos los números no basta: al final todos los chips tienen que quedar unidos en una sola red. Si te salen dos grupos separados con las cuentas correctas, hay que deshacer algún cable doble y repartirlo hacia el otro grupo."
   ],
   "objectives": {
     "winCondition": "all_islands_connected",

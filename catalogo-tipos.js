@@ -74,7 +74,7 @@ export const TIPOS = [
     nombre: 'Conecta los Chips',
     grupo: 'Visión espacial',
     icono: 'assets/icono-puentes-hashi.svg',
-    resumen: 'Une los chips con puentes sin que ninguno se cruce, dando a cada uno exactamente los puentes que pide su número.',
+    resumen: 'Une los chips con cables sin que ninguno se cruce, dando a cada uno exactamente los cables que pide su número.',
     generado: true
   },
   {
