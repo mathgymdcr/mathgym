@@ -99,85 +99,189 @@ function siguienteCruce(lx, ly, dx, dy) {
   return candidatos[0];
 }
 
-// Traza un láser celda a celda con geometría real. `puntos` son coordenadas
-// globales para poder dibujar cada tramo como una recta.
-export function simularLaser(config, espejos, laser) {
-  const n = config.size;
-  const bloqueadas = new Set((config.blocks || []).map((b) => `${b.row},${b.col}`));
-  const dentro = (r, c) => r >= 0 && r < n && c >= 0 && c < n;
-  const esObjetoAjeno = (r, c) => (config.lasers || []).some((l) => l !== laser && (
-    (l.emitter.row === r && l.emitter.col === c) || (l.target.row === r && l.target.col === c)
-  ));
+export const CICLO_DIR = ['right', 'se', 'down', 'sw', 'left', 'nw', 'up', 'ne'];
 
-  let [dx, dy] = DIR_VECTOR[laser.emitter.dir];
-  let r = laser.emitter.row, c = laser.emitter.col;
-  // Arranque desplazado del centro: evita los puntos singulares de las 8 direcciones.
-  let lx = 0.501, ly = 0.502;
-  const squaresPath = [{ row: r, col: c }];
-  const puntos = [{ x: c + lx, y: r + ly }];
-  const maxSteps = n * n * 12;
-
-  for (let step = 0; step < maxSteps; step++) {
-    const hit = siguienteCruce(lx, ly, dx, dy);
-    if (!hit) return { squaresPath, puntos, resultado: 'bucle' };
-
-    if (hit.line === 'bs' || hit.line === 'fs' || hit.line === 'hc' || hit.line === 'vc') {
-      const m = espejos[r][c];
-      const activa = (hit.line === 'bs' && m === 2) || (hit.line === 'fs' && m === 1) ||
-        (hit.line === 'vc' && m === 3) || (hit.line === 'hc' && m === 4);
-      lx = hit.x; ly = hit.y;
-      puntos.push({ x: c + lx, y: r + ly });
-      if (activa) {
-        if (hit.line === 'bs') { const [ndx, ndy] = [dy, dx]; dx = ndx; dy = ndy; }
-        else if (hit.line === 'fs') { const [ndx, ndy] = [-dy, -dx]; dx = ndx; dy = ndy; }
-        else if (hit.line === 'hc') { dy = -dy; }
-        else { dx = -dx; } // vc
-      }
-      continue;
-    }
-
-    let nr = r, nc = c, nlx = lx, nly = ly;
-    if (hit.line === 'top') { nr = r - 1; nly = 1; nlx = hit.x; }
-    else if (hit.line === 'bottom') { nr = r + 1; nly = 0; nlx = hit.x; }
-    else if (hit.line === 'left') { nc = c - 1; nlx = 1; nly = hit.y; }
-    else if (hit.line === 'right') { nc = c + 1; nlx = 0; nly = hit.y; }
-
-    puntos.push({ x: c + hit.x, y: r + hit.y });
-    if (!dentro(nr, nc)) return { squaresPath, puntos, resultado: 'fuera' };
-    if (bloqueadas.has(`${nr},${nc}`)) return { squaresPath, puntos, resultado: 'bloqueo' };
-    if (nr === laser.target.row && nc === laser.target.col) {
-      squaresPath.push({ row: nr, col: nc });
-      puntos.push({ x: nc + 0.5, y: nr + 0.5 });
-      return { squaresPath, puntos, resultado: 'diana' };
-    }
-    if (esObjetoAjeno(nr, nc)) return { squaresPath, puntos, resultado: 'obstaculo' };
-    r = nr; c = nc; lx = nlx; ly = nly;
-    squaresPath.push({ row: r, col: c });
-  }
-  return { squaresPath, puntos, resultado: 'bucle' };
+export function giraDir(dir, pasos) {
+  const i = CICLO_DIR.indexOf(dir);
+  return CICLO_DIR[(((i + pasos) % 8) + 8) % 8];
 }
 
-// Traza todos los láseres y marca las celdas por las que pasa más de uno:
-// los rayos no pueden cruzarse.
-export function simularTodos(config, espejos) {
-  const resultados = (config.lasers || []).map((l) => simularLaser(config, espejos, l));
-  const ocupacion = new Map();
-  const cruces = new Set();
-  resultados.forEach(({ squaresPath }, idx) => {
-    squaresPath.forEach(({ row, col }) => {
-      const key = `${row},${col}`;
-      const previo = ocupacion.get(key);
-      if (previo !== undefined && previo !== idx) cruces.add(key);
-      ocupacion.set(key, idx);
+// Los espejos mandan (dx,dy) a otro de los ocho vectores, asi que siempre hay
+// nombre para el vector resultante.
+const NOMBRE_DE_VECTOR = new Map(
+  Object.entries(DIR_VECTOR).map(([nombre, [x, y]]) => [`${x},${y}`, nombre])
+);
+const dirDeVector = (dx, dy) => NOMBRE_DE_VECTOR.get(`${dx},${dy}`);
+
+// Arranque desplazado del centro: evita los puntos singulares de las 8
+// direcciones. Lo usan el emisor y los hijos de prisma y condensador.
+const ARRANQUE = { lx: 0.501, ly: 0.502 };
+
+// Entra un rayo, salen dos: la direccion de entrada girada -45 grados en azul
+// y +45 en rojo. La direccion de entrada NO continua recta. Un rayo que ya
+// lleva color se corta: dividir dos veces multiplica los tramos sin anadir
+// deduccion, y hace crecer el arbol de forma exponencial.
+function entraEnPrisma(seg, r, c, dx, dy, pendientes) {
+  if (seg.color !== 'neutro' && !seg.color.startsWith('neutro-')) return 'prisma-saturado';
+  const entrada = dirDeVector(dx, dy);
+  pendientes.push({ row: r, col: c, ...ARRANQUE, dir: giraDir(entrada, -1), color: 'azul' });
+  pendientes.push({ row: r, col: c, ...ARRANQUE, dir: giraDir(entrada, 1), color: 'rojo' });
+  return 'prisma';
+}
+
+// Anota el color que llega. Si ya habia otro DISTINTO, emite un rayo magenta
+// en la direccion del ultimo en llegar. Con uno solo, o con dos del mismo
+// color, el rayo sigue recto sin cambiar de color.
+function entraEnCondensador(seg, r, c, dx, dy, pendientes, llegadas) {
+  const clave = `${r},${c}`;
+  const previo = llegadas.get(clave);
+  const salida = dirDeVector(dx, dy);
+  if (previo !== undefined && previo !== seg.color) {
+    pendientes.push({ row: r, col: c, ...ARRANQUE, dir: salida, color: 'magenta' });
+    return 'condensador-mezcla';
+  }
+  llegadas.set(clave, seg.color);
+  pendientes.push({ row: r, col: c, ...ARRANQUE, dir: salida, color: seg.color });
+  return 'condensador';
+}
+
+// Traza un laser con geometria real, con lista de trabajo: cada tramo puede
+// generar mas tramos (prisma, condensador) que se procesan hasta agotar la
+// lista. `puntos` son coordenadas globales para poder dibujar cada tramo
+// como una polilinea. `config` debe venir YA normalizada (normalizaConfig).
+export function simularHaz(config, piezas, laser) {
+  const n = config.size;
+  const bloqueadas = new Set(config.blocks.map((b) => `${b.row},${b.col}`));
+  const emisores = new Set(config.lasers.map((l) => `${l.emitter.row},${l.emitter.col}`));
+  const dianas = new Map(config.targets.map((t) => [`${t.row},${t.col}`, t]));
+  const dentro = (r, c) => r >= 0 && r < n && c >= 0 && c < n;
+
+  const tramos = [];
+  const pendientes = [{
+    row: laser.emitter.row, col: laser.emitter.col,
+    lx: ARRANQUE.lx, ly: ARRANQUE.ly,
+    dir: laser.emitter.dir, color: laser.color
+  }];
+  const maxSteps = n * n * 12;
+  const maxTramos = 4 * n * n;   // tope global: el punto fijo nunca se cuelga
+  const llegadasCondensador = new Map();
+
+  while (pendientes.length && tramos.length < maxTramos) {
+    const seg = pendientes.shift();
+    let [dx, dy] = DIR_VECTOR[seg.dir];
+    let r = seg.row, c = seg.col, lx = seg.lx, ly = seg.ly;
+    const squaresPath = [{ row: r, col: c }];
+    const puntos = [{ x: c + lx, y: r + ly }];
+    let resultado = 'bucle';
+
+    for (let step = 0; step < maxSteps; step++) {
+      const hit = siguienteCruce(lx, ly, dx, dy);
+      if (!hit) break;
+
+      if (hit.line === 'bs' || hit.line === 'fs' || hit.line === 'hc' || hit.line === 'vc') {
+        const m = piezas[r][c];
+        const activa = (hit.line === 'bs' && m === PIEZA.BACKSLASH) ||
+          (hit.line === 'fs' && m === PIEZA.SLASH) ||
+          (hit.line === 'vc' && m === PIEZA.VERT) ||
+          (hit.line === 'hc' && m === PIEZA.HORIZ);
+        lx = hit.x; ly = hit.y;
+        puntos.push({ x: c + lx, y: r + ly });
+        if (activa) {
+          if (hit.line === 'bs') { const [a, b] = [dy, dx]; dx = a; dy = b; }
+          else if (hit.line === 'fs') { const [a, b] = [-dy, -dx]; dx = a; dy = b; }
+          else if (hit.line === 'hc') { dy = -dy; }
+          else { dx = -dx; }
+        }
+        continue;
+      }
+
+      let nr = r, nc = c, nlx = lx, nly = ly;
+      if (hit.line === 'top') { nr = r - 1; nly = 1; nlx = hit.x; }
+      else if (hit.line === 'bottom') { nr = r + 1; nly = 0; nlx = hit.x; }
+      else if (hit.line === 'left') { nc = c - 1; nlx = 1; nly = hit.y; }
+      else if (hit.line === 'right') { nc = c + 1; nlx = 0; nly = hit.y; }
+
+      puntos.push({ x: c + hit.x, y: r + hit.y });
+      if (!dentro(nr, nc)) { resultado = 'fuera'; break; }
+
+      const clave = `${nr},${nc}`;
+      if (bloqueadas.has(clave)) { resultado = 'bloqueo'; break; }
+      // Cualquier emisor, propio o ajeno, absorbe el rayo. Una sola regla.
+      if (emisores.has(clave)) {
+        squaresPath.push({ row: nr, col: nc });
+        puntos.push({ x: nc + 0.5, y: nr + 0.5 });
+        resultado = 'emisor';
+        break;
+      }
+      if (dianas.has(clave)) {
+        squaresPath.push({ row: nr, col: nc });
+        puntos.push({ x: nc + 0.5, y: nr + 0.5 });
+        resultado = dianas.get(clave).color === seg.color ? 'diana' : 'diana-ajena';
+        break;
+      }
+
+      r = nr; c = nc; lx = nlx; ly = nly;
+      squaresPath.push({ row: r, col: c });
+
+      const pieza = piezas[r][c];
+      if (pieza === PIEZA.PRISMA || pieza === PIEZA.CONDENSADOR) {
+        puntos.push({ x: c + 0.5, y: r + 0.5 });
+        resultado = pieza === PIEZA.PRISMA
+          ? entraEnPrisma(seg, r, c, dx, dy, pendientes)
+          : entraEnCondensador(seg, r, c, dx, dy, pendientes, llegadasCondensador);
+        break;
+      }
+    }
+
+    tramos.push({ puntos, color: seg.color, resultado, squaresPath });
+  }
+
+  return { tramos };
+}
+
+// Traza todos los laseres del reto y aplica la regla de cruce: una celda
+// visitada por mas de un tramo es un cruce, salvo si tiene prisma o
+// condensador -- que son justamente los sitios donde los rayos se encuentran
+// a proposito. En clasico esto es exactamente la regla de hoy ("dos rayos no
+// comparten celda").
+export function simularTodos(config, piezas) {
+  const c = normalizaConfig(config);
+  const tramos = c.lasers.flatMap((l) => simularHaz(c, piezas, l).tramos);
+
+  const visitas = new Map();
+  tramos.forEach((tramo, idx) => {
+    const propias = new Set(tramo.squaresPath.map((p) => `${p.row},${p.col}`));
+    propias.forEach((clave) => {
+      if (!visitas.has(clave)) visitas.set(clave, new Set());
+      visitas.get(clave).add(idx);
     });
   });
-  return { resultados, cruces };
+  const cruces = new Set();
+  for (const [clave, quienes] of visitas) {
+    if (quienes.size < 2) continue;
+    const [row, col] = clave.split(',').map(Number);
+    const pieza = piezas[row][col];
+    if (pieza === PIEZA.PRISMA || pieza === PIEZA.CONDENSADOR) continue;
+    cruces.add(clave);
+  }
+
+  const dianasAlcanzadas = new Set();
+  tramos.forEach((t) => {
+    if (t.resultado !== 'diana') return;
+    const fin = t.squaresPath[t.squaresPath.length - 1];
+    dianasAlcanzadas.add(`${fin.row},${fin.col}`);
+  });
+
+  return { tramos, cruces, dianasAlcanzadas };
 }
 
-// Condición de victoria de la plantilla: todos en su diana y sin cruces.
-export function resuelto(config, espejos) {
-  const { resultados, cruces } = simularTodos(config, espejos);
-  return resultados.length > 0 && resultados.every((r) => r.resultado === 'diana') && cruces.size === 0;
+// Condición de victoria de la plantilla: todas las dianas alcanzadas por su
+// color y sin cruces.
+export function resuelto(config, piezas) {
+  const c = normalizaConfig(config);
+  const { cruces, dianasAlcanzadas } = simularTodos(c, piezas);
+  return c.targets.length > 0 && cruces.size === 0 &&
+    c.targets.every((t) => dianasAlcanzadas.has(`${t.row},${t.col}`));
 }
 
 // --- Búsqueda de soluciones ------------------------------------------------
@@ -227,11 +331,11 @@ export function resolverEspejos(config, tope) {
   const buscar = (restantes) => {
     if (restantes === 0) return resuelto(config, espejos);
 
-    const { resultados } = simularTodos(config, espejos);
+    const { tramos } = simularTodos(config, espejos);
     const vistas = new Set();
     const candidatas = [];
-    for (const res of resultados) {
-      for (const { row, col } of res.squaresPath) {
+    for (const tramo of tramos) {
+      for (const { row, col } of tramo.squaresPath) {
         const k = `${row},${col}`;
         if (vistas.has(k) || !libres.has(k) || espejos[row][col] !== 0) continue;
         vistas.add(k);
@@ -317,6 +421,16 @@ const MAX_INTENTOS = 600;
 
 const elegir = (rand, arr) => arr[Math.floor(rand() * arr.length)];
 
+// Traza un único láser aislado (sin el resto del tablero todavía construido),
+// para explorar direcciones y candidatas durante la construcción del reto.
+// Usa el mismo simularHaz que el juego: no hay una segunda implementación de
+// trazado. Como el láser va solo en su config, el único tramo que produce es
+// el suyo.
+function trazaSuelto(size, espejos, laser) {
+  const config = normalizaConfig({ size, lasers: [laser], blocks: [] });
+  return simularHaz(config, espejos, config.lasers[0]).tramos[0];
+}
+
 // Construcción inversa: se coloca el emisor, se ponen espejos y se traza el
 // rayo con el trazador de verdad; la diana se planta donde el rayo acaba.
 // Así la solución existe por construcción y es la que el jugador tiene que
@@ -336,7 +450,7 @@ function construirLaser(rand, size, espejos, ocupadas, prohibidas, maxEspejos) {
   const laser = { emitter: { row: fila, col, dir: 'right' }, target: { row: -1, col: -1 } };
   const conRecorrido = DIRECCIONES.filter((dir) => {
     laser.emitter.dir = dir;
-    return simularLaser({ size, lasers: [laser], blocks: [] }, espejos, laser).squaresPath.length >= 3;
+    return trazaSuelto(size, espejos, laser).squaresPath.length >= 3;
   });
   if (!conRecorrido.length) return null;
   laser.emitter.dir = elegir(rand, conRecorrido);
@@ -344,7 +458,7 @@ function construirLaser(rand, size, espejos, ocupadas, prohibidas, maxEspejos) {
   const puestos = [];
   const cuantos = 1 + Math.floor(rand() * maxEspejos);
   for (let k = 0; k < cuantos; k++) {
-    const { squaresPath } = simularLaser({ size, lasers: [laser], blocks: [] }, espejos, laser);
+    const { squaresPath } = trazaSuelto(size, espejos, laser);
     // Se evita la celda del emisor y las que ya usa otro rayo.
     const candidatas = squaresPath.slice(1).filter(({ row, col: c }) =>
       !ocupadas.has(`${row},${c}`) && !prohibidas.has(`${row},${c}`) && espejos[row][c] === 0);
@@ -355,7 +469,7 @@ function construirLaser(rand, size, espejos, ocupadas, prohibidas, maxEspejos) {
   }
   if (!puestos.length) return null;
 
-  const { squaresPath } = simularLaser({ size, lasers: [laser], blocks: [] }, espejos, laser);
+  const { squaresPath } = trazaSuelto(size, espejos, laser);
   if (squaresPath.length < 4) return null;
 
   const fin = squaresPath[squaresPath.length - 1];
@@ -444,14 +558,14 @@ export function buildLaserHints(puzzle) {
   const config = { size, lasers, blocks };
 
   // Se traza sin espejos para poder contar por dónde va cada rayo "de fábrica".
-  const { resultados } = simularTodos(config, crearPiezas(size));
-  const idx = resultados.findIndex((r) => r.resultado !== 'diana');
+  const { tramos } = simularTodos(config, crearPiezas(size));
+  const idx = tramos.findIndex((t) => t.resultado !== 'diana');
   const i = idx === -1 ? 0 : idx;
   const laser = lasers[i];
-  const recorrido = resultados[i].squaresPath.length;
+  const recorrido = tramos[i].squaresPath.length;
 
   const primera = `Empieza por el emisor de la fila ${laser.emitter.row + 1}, columna ${laser.emitter.col + 1}, que dispara ${NOMBRE_DIR[laser.emitter.dir]}: ` +
-    `tal cual está el tablero recorre ${recorrido} celda${recorrido === 1 ? '' : 's'} y ${resultados[i].resultado === 'fuera' ? 'se sale del tablero' : 'se queda cortado'}. ` +
+    `tal cual está el tablero recorre ${recorrido} celda${recorrido === 1 ? '' : 's'} y ${tramos[i].resultado === 'fuera' ? 'se sale del tablero' : 'se queda cortado'}. ` +
     'Mira dónde tendría que torcer para acabar en su diana.';
 
   const segunda = 'Los cuatro espejos no hacen lo mismo: las diagonales / y \\ desvían el rayo 90 grados cuando le llegan de frente, ' +

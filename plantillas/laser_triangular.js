@@ -20,18 +20,31 @@ import { buildStandardShell, createElement, setStatus } from './shell.js';
 // El trazado de rayos vive fuera, en scripts/laser-triangular-logic.js, para
 // que el juego, el generador diario y el validador usen exactamente el mismo
 // código: con dos copias, cualquier diferencia publicaría retos imposibles.
-import { DIR_VECTOR, simularTodos as trazarTodos } from '../scripts/laser-triangular-logic.js';
+import {
+  DIR_VECTOR, normalizaConfig, crearPiezas, resuelto,
+  simularTodos as trazarTodos
+} from '../scripts/laser-triangular-logic.js';
 const DIR_ROTATION = {
   right: 0, se: 45, down: 90, sw: 135, left: 180, nw: 225, up: 270, ne: 315
 };
 const LASER_COLORS = ['#ff8c42', '#3ec6ff', '#c084fc', '#7ee787'];
+// Colores fijos para los rayos ya coloreados (prisma/condensador); los
+// "neutro-N" del modo clásico se resuelven por índice en LASER_COLORS, así
+// que dos láseres siguen viéndose tan distintos como hoy.
+const COLOR_FIJO = { azul: '#3ec6ff', rojo: '#ff5470', magenta: '#c084fc', neutro: '#ff8c42' };
+function colorDeTramo(color) {
+  if (COLOR_FIJO[color]) return COLOR_FIJO[color];
+  const m = /^neutro-(\d+)$/.exec(color);
+  if (m) return LASER_COLORS[(Number(m[1]) - 1) % LASER_COLORS.length];
+  return LASER_COLORS[0];
+}
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
 
   let config;
   try {
-    config = await loadConfig(data);
+    config = normalizaConfig(await loadConfig(data));
   } catch {
     root.innerHTML = '<div class="feedback ko">Error: No se pudo cargar el reto de láseres</div>';
     return;
@@ -39,23 +52,23 @@ export async function render(root, data, hooks) {
 
   const n = config.size;
   const lasers = Array.isArray(config.lasers) ? config.lasers : [];
+  const targets = Array.isArray(config.targets) ? config.targets : [];
   const bloqueos = Array.isArray(config.blocks) ? config.blocks : [];
 
   const dentro = (r, c) => r >= 0 && r < n && c >= 0 && c < n;
-  const configValida = n > 0 && lasers.length >= 2 &&
-    lasers.every(l => l.emitter && l.target && DIR_VECTOR[l.emitter.dir] &&
-      dentro(l.emitter.row, l.emitter.col) && dentro(l.target.row, l.target.col));
+  const configValida = n > 0 && lasers.length >= 2 && targets.length === lasers.length &&
+    lasers.every(l => l.emitter && DIR_VECTOR[l.emitter.dir] &&
+      dentro(l.emitter.row, l.emitter.col)) &&
+    targets.every(t => dentro(t.row, t.col));
   if (!configValida) {
     root.innerHTML = '<div class="feedback ko">Error: Reto de láseres mal configurado (se requieren al menos dos láseres válidos)</div>';
     return;
   }
 
   const bloqueadas = new Set(bloqueos.map(b => `${b.row},${b.col}`));
-  const sinEspejo = new Set(bloqueadas);
-  lasers.forEach(l => {
-    sinEspejo.add(`${l.emitter.row},${l.emitter.col}`);
-    sinEspejo.add(`${l.target.row},${l.target.col}`);
-  });
+  const sinPieza = new Set(bloqueadas);
+  lasers.forEach(l => sinPieza.add(`${l.emitter.row},${l.emitter.col}`));
+  targets.forEach(t => sinPieza.add(`${t.row},${t.col}`));
 
   const ui = buildStandardShell({
     tipo: 'laser-triangular',
@@ -72,7 +85,7 @@ export async function render(root, data, hooks) {
   root.append(ui.box);
 
   const state = {
-    mirrors: Array.from({ length: n }, () => Array(n).fill(0)),
+    piezas: crearPiezas(n),
     won: false
   };
 
@@ -95,7 +108,7 @@ export async function render(root, data, hooks) {
     for (let c = 0; c < n; c++) {
       const cell = createElement('div', { class: 'laser-cell' });
       const emisorIdx = lasers.findIndex(l => l.emitter.row === r && l.emitter.col === c);
-      const dianaIdx = lasers.findIndex(l => l.target.row === r && l.target.col === c);
+      const dianaIdx = targets.findIndex(t => t.row === r && t.col === c);
       if (emisorIdx !== -1) {
         const laser = lasers[emisorIdx];
         cell.classList.add('is-emitter');
@@ -127,7 +140,7 @@ export async function render(root, data, hooks) {
   const btnReset = createElement('button', { class: 'btn btn-secondary' });
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
-    state.mirrors = Array.from({ length: n }, () => Array(n).fill(0));
+    state.piezas = crearPiezas(n);
     state.won = false;
     setStatus(ui.result, '', '');
     setStatus(ui.status, 'Listo para empezar', 'ok');
@@ -141,13 +154,11 @@ export async function render(root, data, hooks) {
 
   function onCellClick(r, c) {
     if (state.won) return;
-    if (sinEspejo.has(`${r},${c}`)) return;
-    state.mirrors[r][c] = (state.mirrors[r][c] + 1) % 5;
+    if (sinPieza.has(`${r},${c}`)) return;
+    state.piezas[r][c] = (state.piezas[r][c] + 1) % 5;
     refresh();
 
-    const { resultados, cruces } = simularTodos();
-    const todasEnDiana = resultados.every(res => res.resultado === 'diana');
-    if (todasEnDiana && cruces.size === 0) {
+    if (resuelto(config, state.piezas)) {
       state.won = true;
       setStatus(ui.status, '¡Todos los láseres llegaron a su diana!', 'ok');
       celebrate({ ok: true, message: '¡Has dirigido los láseres hasta sus dianas!' });
@@ -155,29 +166,32 @@ export async function render(root, data, hooks) {
         // El par son los espejos de la solución, así que se cuentan los
         // espejos puestos, no los clics: girar uno hasta dar con su tipo es
         // parte de jugar, no un gasto.
-        const puestos = state.mirrors.reduce(
+        const puestos = state.piezas.reduce(
           (total, fila) => total + fila.filter(Boolean).length, 0);
         hooks.onSuccess({ movimientos: puestos });
       }
-    } else if (cruces.size > 0) {
-      setStatus(ui.status, 'Los rayos se cruzan: dos trayectos no pueden compartir celda', 'ko');
     } else {
-      setStatus(ui.status, 'Sigue ajustando los espejos', 'ok');
+      const { cruces } = simularTodos();
+      if (cruces.size > 0) {
+        setStatus(ui.status, 'Los rayos se cruzan: dos trayectos no pueden compartir celda', 'ko');
+      } else {
+        setStatus(ui.status, 'Sigue ajustando los espejos', 'ok');
+      }
     }
   }
 
-  // Un solo trazador para todos: se le pasa la configuración del reto y el
-  // estado actual de los espejos.
+  // Un solo trazador para todos: se le pasa la configuración del reto (ya
+  // normalizada) y el estado actual de las piezas.
   function simularTodos() {
-    return trazarTodos({ size: n, lasers, blocks: bloqueos }, state.mirrors);
+    return trazarTodos(config, state.piezas);
   }
 
   function refresh() {
     for (let r = 0; r < n; r++) {
       for (let c = 0; c < n; c++) {
         const cell = cellEls[r][c];
-        if (sinEspejo.has(`${r},${c}`)) continue;
-        const v = state.mirrors[r][c];
+        if (sinPieza.has(`${r},${c}`)) continue;
+        const v = state.piezas[r][c];
         cell.classList.toggle('is-slash', v === 1);
         cell.classList.toggle('is-backslash', v === 2);
         cell.classList.toggle('is-vert', v === 3);
@@ -189,17 +203,17 @@ export async function render(root, data, hooks) {
     cellEls.forEach(fila => fila.forEach(cell => cell.classList.remove('is-hit', 'is-crossing')));
     svg.innerHTML = '';
 
-    const { resultados, cruces } = simularTodos();
-    resultados.forEach(({ puntos, resultado }, idx) => {
-      const color = LASER_COLORS[idx % LASER_COLORS.length];
+    const { tramos, cruces, dianasAlcanzadas } = simularTodos();
+    tramos.forEach(({ puntos, color }) => {
       const linea = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
       linea.setAttribute('points', puntos.map(p => `${p.x},${p.y}`).join(' '));
       linea.setAttribute('class', 'laser-beam-line');
-      linea.style.stroke = color;
+      linea.style.stroke = colorDeTramo(color);
       svg.appendChild(linea);
-      if (resultado === 'diana') {
-        cellEls[lasers[idx].target.row][lasers[idx].target.col].classList.add('is-hit');
-      }
+    });
+    dianasAlcanzadas.forEach(key => {
+      const [row, col] = key.split(',').map(Number);
+      cellEls[row][col].classList.add('is-hit');
     });
     cruces.forEach(key => {
       const [row, col] = key.split(',').map(Number);
