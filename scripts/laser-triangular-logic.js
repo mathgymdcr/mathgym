@@ -460,9 +460,22 @@ function eligeEje(opciones, seed, mascara) {
 }
 
 export const VARIANTES = ['pequeno', 'medio', 'grande'];
+export const MODOS = ['clasico', 'prisma', 'condensador'];
 
-export function varianteDeSeed(seed) {
+// La mascara del tamano NO se toca: cambiarla movería de tamaño las fechas ya
+// publicadas. El modo lleva la suya propia -- nunca aritmetica sobre el seed.
+export function tamanoDeSeed(seed) {
   return eligeEje(VARIANTES, seed, 0x24c7b0e9);
+}
+
+export function modoDeSeed(seed) {
+  return eligeEje(MODOS, seed, 0x9e3779b1);
+}
+
+// Variante COMBINADA: es lo que mira tests/ejes/reparto.test.js, que
+// comprueba que ningun eje se ha quedado muerto.
+export function varianteDeSeed(seed) {
+  return `${tamanoDeSeed(seed)}-${modoDeSeed(seed)}`;
 }
 const TAMANO = { pequeno: 5, medio: 6, grande: 7 };
 const DIRECCIONES = Object.keys(DIR_VECTOR);
@@ -531,7 +544,7 @@ function construirLaser(rand, size, espejos, ocupadas, prohibidas, maxEspejos) {
 }
 
 export function buildLaserPuzzle(seed) {
-  const variant = varianteDeSeed(seed);
+  const variant = tamanoDeSeed(seed);
   const size = TAMANO[variant];
 
   for (let intento = 0; intento < MAX_INTENTOS; intento++) {
