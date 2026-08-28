@@ -68,15 +68,15 @@ describe('chips de puentes-hashi', () => {
   })
 })
 
-describe('el tipo ya no habla de islas', () => {
+describe('el tipo ya no habla de islas ni de puentes', () => {
   it('ni en las instrucciones ni en los mensajes de la plantilla', async () => {
     const host = await monta()
-    expect(host.textContent).not.toMatch(/isla|archipi/i)
+    expect(host.textContent).not.toMatch(/isla|archipi|puente/i)
   })
 
   it('ni en el resumen del catalogo', () => {
     const ficha = TIPOS.find(t => t.tipo === 'puentes-hashi')
-    expect(ficha.resumen).not.toMatch(/isla|archipi/i)
+    expect(ficha.resumen).not.toMatch(/isla|archipi|puente/i)
   })
 
   it('ni en las pistas que escribe el generador', () => {
@@ -85,7 +85,7 @@ describe('el tipo ya no habla de islas', () => {
       const texto = buildHashiHints(
         { rows: p.rows, cols: p.cols, islands: p.islands }, p.solucion
       ).join(' ')
-      expect(texto, `seed ${seed}`).not.toMatch(/isla|archipi/i)
+      expect(texto, `seed ${seed}`).not.toMatch(/isla|archipi|puente/i)
     }
   })
 })

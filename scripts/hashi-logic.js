@@ -395,16 +395,16 @@ export function buildHashiHints(config, solucion) {
 
   const primera = saturadas.length
     ? `Empieza por el chip de ${elegida.isla.grado} de la ${donde}: solo tiene ${n} ${n === 1 ? 'vecino alineado' : 'vecinos alineados'}, ` +
-      `así que necesita el máximo con ${n === 1 ? 'él' : 'todos ellos'} y sus puentes son dobles sin más que mirarlo.`
+      `así que necesita el máximo con ${n === 1 ? 'él' : 'todos ellos'} y sus cables son dobles sin más que mirarlo.`
     : `Empieza por el chip de ${elegida.isla.grado} de la ${donde}: es el de grado más alto del tablero y con ${n} ${n === 1 ? 'vecino' : 'vecinos'} ` +
-      `le queda muy poco margen, así que casi todos sus puentes están decididos de entrada.`;
+      `le queda muy poco margen, así que casi todos sus cables están decididos de entrada.`;
 
   const dobles = solucion.puentes.filter((p) => p.count === 2).length;
-  const segunda = `En total hay que trazar ${solucion.total} puentes, de los cuales ${dobles} ${dobles === 1 ? 'es doble' : 'son dobles'}. ` +
-    'Cuando dudes, mira los cruces: si un puente vertical tapa el paso a uno horizontal, uno de los dos sobra, y muchas veces eso decide el otro.';
+  const segunda = `En total hay que tender ${solucion.total} cables, de los cuales ${dobles} ${dobles === 1 ? 'es doble' : 'son dobles'}. ` +
+    'Cuando dudes, mira los cruces: si un cable vertical tapa el paso a uno horizontal, uno de los dos sobra, y muchas veces eso decide el otro.';
 
   const tercera = 'Que cuadren todos los números no basta: al final todos los chips tienen que quedar unidos en una sola red. ' +
-    'Si te salen dos grupos separados con las cuentas correctas, hay que deshacer algún puente doble y repartirlo hacia el otro grupo.';
+    'Si te salen dos grupos separados con las cuentas correctas, hay que deshacer algún cable doble y repartirlo hacia el otro grupo.';
 
   return [primera, segunda, tercera];
 }

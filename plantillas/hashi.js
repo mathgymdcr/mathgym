@@ -1,5 +1,5 @@
 // ===== plantillas/hashi.js =====
-// Puentes de Hashi (Hashiwokakero) · Conecta todos los chips con puentes
+// Puentes de Hashi (Hashiwokakero) · Conecta todos los chips con cables
 // horizontales/verticales hasta que el número de cada chip coincida con
 // la cantidad de puentes que le llegan, formando un único archipiélago
 // conectado y sin que ningún puente cruce a otro.
@@ -16,7 +16,7 @@ export async function render(root, data, hooks) {
   try {
     config = await loadConfig(data);
   } catch {
-    root.innerHTML = '<div class="feedback ko">Error: No se pudo cargar el reto de puentes</div>';
+    root.innerHTML = '<div class="feedback ko">Error: No se pudo cargar el reto de chips</div>';
     return;
   }
 
@@ -26,7 +26,7 @@ export async function render(root, data, hooks) {
   const configValida = filas > 0 && columnas > 0 && islas.length >= 2 &&
     islas.every(i => Number.isInteger(i.row) && Number.isInteger(i.col) && i.grado > 0);
   if (!configValida) {
-    root.innerHTML = '<div class="feedback ko">Error: Reto de puentes mal configurado (se requieren al menos dos chips con fila, columna y grado)</div>';
+    root.innerHTML = '<div class="feedback ko">Error: Reto de chips mal configurado (se requieren al menos dos chips con fila, columna y grado)</div>';
     return;
   }
 
@@ -38,9 +38,9 @@ export async function render(root, data, hooks) {
     gameClass: 'hashi-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> une todos los chips con puentes rectos (horizontales o verticales) hasta que el número de cada chip coincida con la cantidad de puentes que le llegan.</p>
-      <p>Toca un chip y luego otro alineado con él para trazar un puente. Vuelve a tocar el mismo par para añadir un segundo puente paralelo; una tercera vez lo borra.</p>
-      <p>Los puentes no pueden cruzarse ni pasar por encima de otro chip, y al final todos los chips deben quedar conectados en una sola red.</p>
+      <p><strong>Objetivo:</strong> une todos los chips con cables rectos (horizontales o verticales) hasta que el número de cada chip coincida con la cantidad de cables que le llegan.</p>
+      <p>Toca un chip y luego otro alineado con él para tender un cable. Vuelve a tocar el mismo par para añadir un segundo cable paralelo; una tercera vez lo borra.</p>
+      <p>Los cables no pueden cruzarse ni pasar por encima de otro chip, y al final todos los chips deben quedar conectados en una sola red.</p>
     `
   });
   root.append(ui.box);
@@ -172,7 +172,7 @@ export async function render(root, data, hooks) {
     // la solución: rehacer el trazado es lo que cuesta estrellas.
     if (actual === 0) {
       if (cruzaOtroPuente(a, b, cells)) {
-        setStatus(ui.status, 'Ese puente cruzaría a otro ya construido', 'ko');
+        setStatus(ui.status, 'Ese cable cruzaría a otro ya tendido', 'ko');
         state.seleccion = -1;
         refresh();
         return;
