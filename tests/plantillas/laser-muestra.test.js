@@ -5,6 +5,12 @@ import fs from 'node:fs/promises'
 // PUEDE RESOLVER, colocando los espejos previstos (armados desde la bandeja)
 // y esperando la victoria. Sin esto, un ejemplo imposible pasaría
 // desapercibido en la portada.
+//
+// data/muestra/laser-triangular.json tiene variant "medio", así que desde la
+// Task 12 el trazado no es automático: colocar la última pieza ya no basta,
+// hay que pulsar el botón de disparo para que se compruebe la victoria. Lo
+// único que cambia aquí es ESE gesto -- se sigue exigiendo la misma victoria
+// real jugando con la bandeja, solo que ahora hace falta un click más.
 
 // happy-dom no implementa <canvas> y la celebración de la victoria pinta
 // confeti en uno. Se le da un contexto de mentira para que la animación no
@@ -48,6 +54,10 @@ describe('ejemplo de láser triangular', () => {
     sol.piezas.forEach((fila, r) => fila.forEach((tipo, c) => {
       if (tipo) coloca(host, r, c, data.size, tipo)
     }))
+
+    // El ejemplo es "medio": las piezas ya están todas puestas, pero la
+    // victoria no se canta hasta pulsar el botón de disparo.
+    host.querySelector('.laser-btn-lanzar').click()
 
     expect(ganado, 'la plantilla no dio la victoria con la solución encontrada').toBe(1)
   })

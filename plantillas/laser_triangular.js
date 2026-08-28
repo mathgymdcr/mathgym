@@ -128,16 +128,25 @@ export async function render(root, data, hooks) {
   lasers.forEach(l => sinPieza.add(`${l.emitter.row},${l.emitter.col}`));
   targets.forEach(t => sinPieza.add(`${t.row},${t.col}`));
 
+  // En la variante pequena el rayo se redibuja solo en cada cambio: es el nivel
+  // de entrada y ahi ver el rayo moverse es la mitad de aprender el juego. En
+  // medio y grande manda el boton, y la victoria solo se comprueba al disparar.
+  const autoTraza = config.variant === 'pequeno';
+
   const ui = buildStandardShell({
     tipo: 'laser-triangular',
     gameClass: 'laser-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> coloca espejos para dirigir <strong>cada láser</strong> hasta la diana con su mismo número y color.</p>
+      <p><strong>Objetivo:</strong> dirige cada rayo hasta la diana de su mismo color y forma (y, en el modo clásico, su mismo número).</p>
       <p>Cada celda está dividida en triángulos por sus dos diagonales. El rayo se mueve también en diagonal (45°) y puede reflejarse en cualquiera de las 8 direcciones.</p>
-      <p>Un rayo diagonal que llega <strong>en paralelo</strong> al espejo lo atraviesa; si llega <strong>perpendicular</strong>, rebota recto hacia atrás.</p>
-      <p>Elige una pieza de la bandeja y toca una celda para colocarla (o arrástrala hasta ahí); toca una celda ocupada para retirar su pieza.</p>
-      <p>Los rayos <strong>no pueden cruzarse</strong>: si dos trayectos pasan por la misma celda, reordena los espejos.</p>
+      <p>Un rayo diagonal que llega <strong>en paralelo</strong> a un espejo lo atraviesa; si llega <strong>perpendicular</strong>, rebota recto hacia atrás.</p>
+      <p>Un <strong>prisma</strong> parte un rayo neutro en dos: uno azul y otro rojo, que siguen caminos distintos. Un <strong>condensador</strong> hace lo contrario: junta en un único rayo magenta un rayo azul y uno rojo que lleguen hasta él.</p>
+      <p>Elige una pieza de la bandeja y toca una celda libre para colocarla ahí (o arrástrala hasta ahí sin soltar por el camino); toca una celda ocupada para retirar su pieza.</p>
+      <p>${autoTraza
+        ? 'El rayo se traza solo cada vez que colocas o quitas una pieza, así ves su efecto al momento.'
+        : 'Coloca las piezas que necesites y pulsa <strong>«Lanzar rayo»</strong> cuando la composición esté lista: solo entonces se traza el rayo y se comprueba si el reto queda resuelto.'}</p>
+      <p>Los rayos <strong>no pueden cruzarse</strong>: si dos trayectos pasan por la misma celda que no sea un prisma o un condensador, reordena las piezas.</p>
     `
   });
   root.append(ui.box);
@@ -145,6 +154,7 @@ export async function render(root, data, hooks) {
   const state = {
     piezas: crearPiezas(n),
     won: false,
+    trazado: autoTraza, // en medio/grande, si ya se pulso 'Lanzar' desde el ultimo cambio
     armada: null,       // tipo de pieza armada en la bandeja, o null
     arrastrando: false  // hay un gesto de arrastre en curso (Pointer Events)
   };
@@ -277,6 +287,14 @@ export async function render(root, data, hooks) {
   }
 
   const controls = createElement('div', { class: 'laser-controls' });
+  // El botón de lanzar solo existe en medio/grande: en pequeño el rayo se
+  // traza solo con cada cambio, así que dispararlo aparte no significa nada.
+  if (!autoTraza) {
+    const btnLanzar = createElement('button', { class: 'btn laser-btn-lanzar' });
+    btnLanzar.textContent = 'Lanzar rayo';
+    btnLanzar.addEventListener('click', () => lanzar());
+    controls.appendChild(btnLanzar);
+  }
   const btnReset = createElement('button', { class: 'btn btn-secondary' });
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
@@ -290,13 +308,13 @@ export async function render(root, data, hooks) {
     recogida = null;
     armar(null);
     setStatus(ui.result, '', '');
-    setStatus(ui.status, 'Listo para empezar', 'ok');
-    refresh();
+    setStatus(ui.status, autoTraza ? 'Listo para empezar' : 'Coloca piezas y lanza el rayo', 'ok');
+    apagaTrazo();
   });
   controls.appendChild(btnReset);
   ui.box.appendChild(controls);
 
-  setStatus(ui.status, 'Listo para empezar', 'ok');
+  setStatus(ui.status, autoTraza ? 'Listo para empezar' : 'Coloca piezas y lanza el rayo', 'ok');
   refresh();
 
   // Arma `tipo` en la bandeja: el siguiente toque en una celda libre lo
@@ -329,15 +347,20 @@ export async function render(root, data, hooks) {
     if (state.piezas[r][c] !== PIEZA.VACIO) state.piezas[r][c] = PIEZA.VACIO;  // tocar retira
     else if (state.armada) state.piezas[r][c] = state.armada;
     else return;
-    refresh();
+    apagaTrazo();
+
+    // En pequeño el rayo se traza solo y la victoria se comprueba en cada
+    // cambio, como siempre; en medio/grande apagaTrazo() ya dejó el tablero
+    // "sin disparar" y aquí no hay nada más que hacer hasta pulsar el botón.
+    if (!autoTraza) return;
 
     if (resuelto(config, state.piezas)) {
       state.won = true;
-      setStatus(ui.status, '¡Todos los láseres llegaron a su diana!', 'ok');
-      celebrate({ ok: true, message: '¡Has dirigido los láseres hasta sus dianas!' });
+      setStatus(ui.status, '¡Todos los rayos llegaron a su diana!', 'ok');
+      celebrate({ ok: true, message: '¡Has dirigido los rayos hasta sus dianas!' });
       if (hooks && hooks.onSuccess) {
-        // El par son los espejos de la solución, así que se cuentan los
-        // espejos puestos, no los clics: girar uno hasta dar con su tipo es
+        // El par son los espejos de la solución, así que se cuentan las
+        // piezas puestas, no los clics: girar una hasta dar con su tipo es
         // parte de jugar, no un gasto.
         const puestos = state.piezas.reduce(
           (total, fila) => total + fila.filter(Boolean).length, 0);
@@ -359,6 +382,51 @@ export async function render(root, data, hooks) {
     return trazarTodos(config, state.piezas);
   }
 
+  // Apaga el trazo visible del rayo tras cualquier cambio en el tablero. En
+  // pequeño eso significa volver a trazarlo ya mismo (refresh() lo hace
+  // solo, porque ahí SIEMPRE dibuja); en medio/grande significa justo lo
+  // contrario -- borrar el SVG y dejar el tablero "sin disparar" hasta que
+  // se pulse 'Lanzar rayo', que es quien vuelve a llamar a refresh().
+  function apagaTrazo() {
+    if (autoTraza) { refresh(); return; }
+    state.trazado = false;
+    svg.innerHTML = '';
+    cellEls.forEach((f) => f.forEach((c) => c.classList.remove('is-hit', 'is-crossing', 'is-choque')));
+    setStatus(ui.status, 'Coloca piezas y lanza el rayo', 'ok');
+    // refresh() repinta las piezas del tablero (el SVG ya está limpio y, con
+    // trazado en false, refresh() no lo vuelve a tocar).
+    refresh();
+  }
+
+  // Solo existe el botón en medio/grande: dispara el trazado y, con él, la
+  // única comprobación de victoria de esas dos variantes.
+  function lanzar() {
+    if (state.won) return;
+    state.trazado = true;
+    refresh();
+    const { cruces, tramos } = simularTodos();
+    if (resuelto(config, state.piezas)) {
+      state.won = true;
+      setStatus(ui.status, '¡Todos los rayos llegaron a su diana!', 'ok');
+      celebrate({ ok: true, message: '¡Has dirigido los rayos hasta sus dianas!' });
+      if (hooks && hooks.onSuccess) {
+        const puestas = state.piezas.reduce((t, fila) => t + fila.filter(Boolean).length, 0);
+        hooks.onSuccess({ movimientos: puestas });
+      }
+      // Nota de la Task 2: un rayo absorbido por OTRO emisor también deja una
+      // celda visitada por dos tramos, así que también cuenta como 'cruce'.
+      // Hay que preguntar primero por 'emisor' o el aviso sería el
+      // equivocado ("se cruzan" cuando el problema real es que chocó con un
+      // emisor).
+    } else if (tramos.some((t) => t.resultado === 'emisor')) {
+      setStatus(ui.status, 'El rayo choca con un emisor y se apaga', 'ko');
+    } else if (cruces.size > 0) {
+      setStatus(ui.status, 'Los rayos se cruzan: dos trayectos no pueden compartir celda', 'ko');
+    } else {
+      setStatus(ui.status, 'Todavia no. Mueve alguna pieza y vuelve a lanzar', 'ko');
+    }
+  }
+
   function refresh() {
     for (let r = 0; r < n; r++) {
       for (let c = 0; c < n; c++) {
@@ -370,16 +438,37 @@ export async function render(root, data, hooks) {
       }
     }
 
-    cellEls.forEach(fila => fila.forEach(cell => cell.classList.remove('is-hit', 'is-crossing')));
+    // En medio/grande, sin haber disparado, el trazo se queda apagado: no se
+    // recalcula ni se toca el SVG hasta pulsar 'Lanzar rayo' (o hasta que
+    // apagaTrazo() lo haya limpiado ya explícitamente).
+    if (!autoTraza && !state.trazado) return;
+
+    cellEls.forEach(fila => fila.forEach(cell => cell.classList.remove('is-hit', 'is-crossing', 'is-choque')));
     svg.innerHTML = '';
 
     const { tramos, cruces, dianasAlcanzadas } = simularTodos();
-    tramos.forEach(({ puntos, color }) => {
+    tramos.forEach(({ puntos, color, resultado, squaresPath }) => {
       const linea = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
       linea.setAttribute('points', puntos.map(p => `${p.x},${p.y}`).join(' '));
-      linea.setAttribute('class', 'laser-beam-line');
+      linea.setAttribute('class', 'laser-beam-line is-lanzando');
       linea.style.stroke = colorDeTramo(color);
       svg.appendChild(linea);
+      // happy-dom no implementa SVGGeometryElement.getTotalLength.
+      if (typeof linea.getTotalLength === 'function') {
+        linea.style.setProperty('--laser-largo', linea.getTotalLength());
+      }
+      // El tramo que se queda cortado contra un emisor o un bloque marca su
+      // celda final, para que se vea DÓNDE se apagó el rayo. Contra un
+      // emisor, squaresPath ya incluye esa celda (igual que con una diana);
+      // contra un bloque NO la incluye (los bloques no son transitables, así
+      // que el trazador corta antes de entrar) y la última celda de
+      // squaresPath es la casilla libre justo antes del bloque -- ahí se
+      // marca, sin tocar scripts/laser-triangular-logic.js solo por esto,
+      // que también usan el generador y el validador.
+      if (resultado === 'emisor' || resultado === 'bloqueo') {
+        const fin = squaresPath[squaresPath.length - 1];
+        cellEls[fin.row][fin.col].classList.add('is-choque');
+      }
     });
     dianasAlcanzadas.forEach(key => {
       const [row, col] = key.split(',').map(Number);

@@ -2653,8 +2653,37 @@ li {
 
 .laser-controls {
   display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
   justify-content: center;
   margin-top: 16px;
+}
+
+.laser-btn-lanzar {
+  font-weight: 600;
+}
+
+/* Donde el rayo se apaga: contra un emisor o contra un bloque. */
+.laser-cell.is-choque {
+  animation: laserChoque 0.9s ease-in-out infinite;
+  border-color: #ff5d5d;
+}
+
+@keyframes laserChoque {
+  0%, 100% { box-shadow: inset 0 0 6px color-mix(in srgb, #ff5d5d 40%, transparent); }
+  50%      { box-shadow: inset 0 0 14px color-mix(in srgb, #ff5d5d 90%, transparent); }
+}
+
+/* El rayo avanza en vez de aparecer de golpe. --laser-largo lo fija la
+   plantilla con getTotalLength(). */
+.laser-beam-line.is-lanzando {
+  stroke-dasharray: var(--laser-largo);
+  stroke-dashoffset: var(--laser-largo);
+  animation: laserAvanza 0.45s ease-out forwards;
+}
+
+@keyframes laserAvanza {
+  to { stroke-dashoffset: 0; }
 }
 
 /* Bandeja abierta: existencias infinitas de cada pieza, asi que sin
@@ -2707,9 +2736,19 @@ li {
   .laser-cell.is-target::after,
   .laser-cell.is-path,
   .laser-cell.is-crossing,
+  .laser-cell.is-choque,
   .laser-emisor,
   .laser-diana {
     animation: none;
+  }
+
+  /* Sin animación de avance: quien tenga esto activado ve el rayo entero de
+     golpe en vez de ninguno (stroke-dashoffset se quedaría en su valor
+     inicial si la animación nunca llega a 'to'). */
+  .laser-beam-line.is-lanzando {
+    animation: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
   }
 }
 

@@ -122,6 +122,8 @@ describe('bandeja de piezas', () => {
       host.querySelector(`.laser-tray-pieza[data-pieza="${NOMBRE[tipo]}"]`).click()
       host.querySelectorAll('.laser-cell')[r * data.size + c].click()
     }))
+    // El ejemplo es "medio": la victoria no se canta hasta pulsar el botón.
+    host.querySelector('.laser-btn-lanzar').click()
 
     expect(ganado, 'la plantilla no dio la victoria con la solución encontrada').toBe(1)
     expect(movimientos, 'el conteo de movimientos incluye una pieza colada en una celda protegida').toBe(piezasSolucion)
@@ -148,6 +150,8 @@ describe('bandeja de piezas', () => {
       host.querySelector(`.laser-tray-pieza[data-pieza="${NOMBRE[tipo]}"]`).click()
       host.querySelectorAll('.laser-cell')[r * data.size + c].click()
     }))
+    // El ejemplo es "medio": la victoria no se canta hasta pulsar el botón.
+    host.querySelector('.laser-btn-lanzar').click()
     expect(ganado, 'la plantilla no dio la victoria con la solución encontrada').toBe(1)
 
     // Se intenta levantar (con movimiento real, para cruzar UMBRAL_ARRASTRE)
