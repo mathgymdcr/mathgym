@@ -8,12 +8,18 @@
 // diagonal y ningún espejo las toca jamás; con las dos diagonales
 // disponibles ese punto ciego desaparece.
 //
-// El jugador sigue eligiendo espejo por CELDA (vacío / '/' / '\'), igual
-// que en la plantilla clásica: un rayo que llega EN PARALELO al espejo
-// activo lo atraviesa sin desviarse; un rayo que llega PERPENDICULAR a él
+// El jugador arma una pieza de una BANDEJA (seis piezas: los cuatro
+// espejos de siempre, más un prisma y un condensador) y la coloca tocando
+// o arrastrando hasta una celda libre; tocar o arrastrar fuera de una
+// celda ocupada la retira. Un rayo que llega EN PARALELO a un espejo
+// activo lo atraviesa sin desviarse; uno que llega PERPENDICULAR a él
 // rebota en línea recta hacia atrás (así se comportan los espejos a 45°
 // con rayos que también van a 45°: solo hay "de largo" o "vuelta atrás",
 // nunca un giro de 90° — eso solo ocurre con rayos horizontales/verticales).
+// El prisma parte un rayo neutro en un hijo azul y otro rojo a ±45°; el
+// condensador hace lo contrario, fundiendo un azul y un rojo que lleguen
+// hasta él en un único rayo magenta. El modo clásico (sin prisma ni
+// condensador) sigue jugándose solo con los cuatro espejos.
 
 import { celebrate } from './celebration.js';
 import { buildStandardShell, createElement, setStatus } from './shell.js';
