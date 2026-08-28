@@ -21,13 +21,35 @@ import { buildStandardShell, createElement, setStatus } from './shell.js';
 // que el juego, el generador diario y el validador usen exactamente el mismo
 // código: con dos copias, cualquier diferencia publicaría retos imposibles.
 import {
-  DIR_VECTOR, normalizaConfig, crearPiezas, resuelto,
+  DIR_VECTOR, normalizaConfig, crearPiezas, resuelto, PIEZA,
   simularTodos as trazarTodos
 } from '../scripts/laser-triangular-logic.js';
 const DIR_ROTATION = {
   right: 0, se: 45, down: 90, sw: 135, left: 180, nw: 225, up: 270, ne: 315
 };
 const LASER_COLORS = ['#ff8c42', '#3ec6ff', '#c084fc', '#7ee787'];
+
+// La FORMA identifica el color, no solo el tinte: así el tablero se puede
+// jugar sin distinguir colores. FORMA_DE_COLOR cubre los cuatro colores del
+// esquema nuevo; los "neutro-N" del clásico son el mismo neutro con distinto
+// tinte (misma forma, dos láseres).
+const FORMA_DE_COLOR = {
+  neutro: 'circulo', azul: 'triangulo', rojo: 'cuadrado', magenta: 'rombo'
+};
+const formaDe = (color) => FORMA_DE_COLOR[String(color).replace(/-\d+$/, '')] || 'circulo';
+
+const TINTE = {
+  neutro: '#ff8c42', 'neutro-1': '#ff8c42', 'neutro-2': '#3ec6ff',
+  azul: '#3ec6ff', rojo: '#ff5d5d', magenta: '#c084fc'
+};
+
+// Nombre de cada pieza para el atributo data-pieza que consume el CSS.
+const NOMBRE_PIEZA = {
+  [PIEZA.SLASH]: 'slash', [PIEZA.BACKSLASH]: 'backslash',
+  [PIEZA.VERT]: 'vert', [PIEZA.HORIZ]: 'horiz',
+  [PIEZA.PRISMA]: 'prisma', [PIEZA.CONDENSADOR]: 'condensador'
+};
+
 // Colores fijos para los rayos ya coloreados (prisma/condensador); los
 // "neutro-N" del modo clásico se resuelven por índice en LASER_COLORS, así
 // que dos láseres siguen viéndose tan distintos como hoy.
@@ -117,18 +139,21 @@ export async function render(root, data, hooks) {
         const laser = lasers[emisorIdx];
         cell.classList.add('is-emitter');
         cell.style.setProperty('--laser-color', LASER_COLORS[emisorIdx % LASER_COLORS.length]);
-        const arrow = createElement('span', { class: 'laser-arrow' });
-        arrow.textContent = '➤';
-        arrow.style.transform = `rotate(${DIR_ROTATION[laser.emitter.dir]}deg)`;
-        cell.appendChild(arrow);
-        cell.appendChild(laserBadge(emisorIdx));
+        const boquilla = createElement('span', { class: 'laser-emisor' });
+        boquilla.style.setProperty('--laser-dir-rot', `${DIR_ROTATION[laser.emitter.dir]}deg`);
+        cell.appendChild(boquilla);
+        // La insignia numerada solo aporta en clasico, donde hay dos
+        // emisores y dos dianas que emparejar; en prisma/condensador hay un
+        // solo emisor y un número ahí no dice nada.
+        if (config.modo === 'clasico') cell.appendChild(laserBadge(emisorIdx));
       } else if (dianaIdx !== -1) {
+        const target = targets[dianaIdx];
         cell.classList.add('is-target');
-        cell.style.setProperty('--laser-color', LASER_COLORS[dianaIdx % LASER_COLORS.length]);
-        const targetIcon = createElement('span', { class: 'laser-target-icon' });
-        targetIcon.textContent = '🎯';
-        cell.appendChild(targetIcon);
-        cell.appendChild(laserBadge(dianaIdx));
+        cell.style.setProperty('--laser-color', TINTE[target.color] || '#ffd23b');
+        const diana = createElement('span', { class: 'laser-diana' });
+        diana.dataset.forma = formaDe(target.color);
+        cell.appendChild(diana);
+        if (config.modo === 'clasico') cell.appendChild(laserBadge(dianaIdx));
       } else if (bloqueadas.has(`${r},${c}`)) {
         cell.classList.add('is-block');
       } else {
@@ -196,11 +221,12 @@ export async function render(root, data, hooks) {
         const cell = cellEls[r][c];
         if (sinPieza.has(`${r},${c}`)) continue;
         const v = state.piezas[r][c];
-        cell.classList.toggle('is-slash', v === 1);
-        cell.classList.toggle('is-backslash', v === 2);
-        cell.classList.toggle('is-vert', v === 3);
-        cell.classList.toggle('is-horiz', v === 4);
-        cell.innerHTML = v ? '<span class="laser-mirror"></span>' : '';
+        cell.innerHTML = '';
+        if (v) {
+          const pieza = createElement('span', { class: 'laser-pieza' });
+          pieza.dataset.pieza = NOMBRE_PIEZA[v];
+          cell.appendChild(pieza);
+        }
       }
     }
 
