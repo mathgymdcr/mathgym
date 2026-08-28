@@ -148,6 +148,13 @@ export async function render(root, data, hooks) {
     armada: null,       // tipo de pieza armada en la bandeja, o null
     arrastrando: false  // hay un gesto de arrastre en curso (Pointer Events)
   };
+  // Pieza levantada del propio tablero mientras se decide si el gesto es un
+  // simple toque o un arrastre de verdad: solo se retira de su celda y se
+  // arma cuando el puntero se mueve más allá de UMBRAL_ARRASTRE. Si se
+  // suelta sin moverse, el toque normal (evento click) es quien la retira --
+  // así no queda nada armado por un simple toque de "quitar pieza".
+  let recogida = null; // { r, c, tipo, x, y } o null
+  const UMBRAL_ARRASTRE = 6; // px
 
   // Bandeja: existencias infinitas de cada pieza disponible en este modo, en
   // vez del ciclo de cinco estados por clic que no escalaba a seis piezas.
@@ -173,6 +180,11 @@ export async function render(root, data, hooks) {
       }
     });
     btn.addEventListener('pointerup', soltarArrastre);
+    // Si el gesto se cancela a medio camino (scroll, multi-touch, UI del
+    // sistema) nunca llega pointerup: sin esto, arrastrando se queda en
+    // true y el siguiente pointerup suelto en cualquier sitio coloca la
+    // pieza donde no tocaba.
+    btn.addEventListener('pointercancel', () => { state.arrastrando = false; });
     trayButtons.push(btn);
     tray.appendChild(btn);
   });
@@ -223,21 +235,40 @@ export async function render(root, data, hooks) {
         cell.classList.add('is-block');
       } else {
         cell.addEventListener('click', () => onCellClick(r, c));
-        // Una pieza ya colocada tambien se arrastra: al empezar el gesto se
-        // retira de su celda de origen y queda armada, igual que si viniera
-        // de la bandeja.
+        // Una pieza ya colocada tambien se arrastra, pero solo se retira de
+        // su celda y se arma cuando el gesto CONFIRMA ser un arrastre (el
+        // puntero se mueve más allá de UMBRAL_ARRASTRE) -- no en el propio
+        // pointerdown. Un toque simple (sin mover) no debe tocar el estado
+        // aquí: lo retira el 'click' normal de arriba, sin dejar nada armado.
         cell.addEventListener('pointerdown', (ev) => {
+          if (state.won) return;
           const actual = state.piezas[r][c];
           if (actual === PIEZA.VACIO) return;
-          state.piezas[r][c] = PIEZA.VACIO;
-          refresh();
-          armar(actual);
-          state.arrastrando = true;
+          recogida = { r, c, tipo: actual, x: ev.clientX, y: ev.clientY };
           if (typeof cell.setPointerCapture === 'function') {
             try { cell.setPointerCapture(ev.pointerId); } catch { /* sin soporte */ }
           }
         });
-        cell.addEventListener('pointerup', soltarArrastre);
+        cell.addEventListener('pointermove', (ev) => {
+          if (!recogida || recogida.r !== r || recogida.c !== c || state.arrastrando) return;
+          const dx = ev.clientX - recogida.x, dy = ev.clientY - recogida.y;
+          if (Math.hypot(dx, dy) < UMBRAL_ARRASTRE) return;
+          if (state.won) { recogida = null; return; }
+          state.piezas[r][c] = PIEZA.VACIO;
+          refresh();
+          armar(recogida.tipo);
+          state.arrastrando = true;
+        });
+        cell.addEventListener('pointerup', (ev) => {
+          recogida = null;
+          soltarArrastre(ev);
+        });
+        // Ver el pointerdown de la bandeja: sin esto, un gesto cancelado a
+        // medio camino deja `arrastrando` (o una recogida pendiente) colgado.
+        cell.addEventListener('pointercancel', () => {
+          recogida = null;
+          state.arrastrando = false;
+        });
       }
       board.appendChild(cell);
       filaEls.push(cell);
@@ -251,6 +282,12 @@ export async function render(root, data, hooks) {
   btnReset.addEventListener('click', () => {
     state.piezas = crearPiezas(n);
     state.won = false;
+    // Reiniciar puede llegar a media de un arrastre (p.ej. desde el teclado,
+    // o un segundo dedo); sin esto la bandera se queda colgada y el próximo
+    // pointerup suelto en cualquier sitio coloca una pieza sin que nadie
+    // haya vuelto a armar nada.
+    state.arrastrando = false;
+    recogida = null;
     armar(null);
     setStatus(ui.result, '', '');
     setStatus(ui.status, 'Listo para empezar', 'ok');
