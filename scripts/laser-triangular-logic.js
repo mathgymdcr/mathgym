@@ -630,6 +630,17 @@ function construirPrisma(rand, size) {
   if (targets.some((t) => piezas[t.row][t.col] !== PIEZA.VACIO)) return null;
   if (targets.some((t) => t.row === emisor.row && t.col === emisor.col)) return null;
 
+  // Igual que en clasico: ninguna pieza -- ni siquiera una que llegara a
+  // sobrevivir hasta aqui por otro camino -- puede acabar sobre el emisor.
+  // La razon no es "el emisor nunca esta en un squaresPath.slice(1)": un
+  // hijo puede terminar EN el emisor (cualquier emisor absorbe cualquier
+  // rayo, ver simularHaz), lo que pone esa celda al FINAL de su camino, no
+  // al principio, y ahi si se muestrean candidatas de espejo. Se comprueba
+  // aparte, sobre el tablero completo, en vez de fiarse de por-donde-viene
+  // cada pieza.
+  const ocupadas = [emisor, ...targets];
+  if (ocupadas.some((p) => piezas[p.row][p.col] !== PIEZA.VACIO)) return null;
+
   return { modo: 'prisma', size, lasers: [laser], targets, piezas };
 }
 
@@ -655,8 +666,17 @@ function construirCondensador(rand, size) {
   const fin = magenta.squaresPath[magenta.squaresPath.length - 1];
   if (piezas[fin.row][fin.col] !== PIEZA.VACIO) return null;
   if (fin.row === lasers[0].emitter.row && fin.col === lasers[0].emitter.col) return null;
+  const targets = [{ row: fin.row, col: fin.col, color: 'magenta' }];
 
-  return { modo: 'condensador', size, lasers, targets: [{ row: fin.row, col: fin.col, color: 'magenta' }], piezas };
+  // Misma guarda que en prisma/clasico: el condensador se coloca en una
+  // celda comun a los dos hijos (ver `comunes` arriba), lo que puede volver
+  // a dejar huerfano un espejo que antes estaba en el camino de alguno de
+  // ellos. Se comprueba sobre el tablero completo, no confiando en de-donde
+  // vino cada pieza.
+  const ocupadas = [lasers[0].emitter, ...targets];
+  if (ocupadas.some((p) => piezas[p.row][p.col] !== PIEZA.VACIO)) return null;
+
+  return { modo: 'condensador', size, lasers, targets, piezas };
 }
 
 // Cuantos intentos de seed (mulberry32(seed + intento*15485863)) hacen falta
