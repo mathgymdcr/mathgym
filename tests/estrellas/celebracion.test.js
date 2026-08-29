@@ -41,4 +41,16 @@ describe('pintarEstrellas', () => {
   it('sin celebración abierta no revienta', () => {
     expect(pintarEstrellas(3)).toBeNull()
   })
+
+  it('con las tres estrellas enseña a Deceerre celebrando', () => {
+    celebrate({ ok: true })
+    pintarEstrellas(3)
+    expect(document.querySelector('.celebration-avatar').src).toContain('deceerre-celebration.png')
+  })
+
+  it('sin las tres estrellas enseña a Deceerre-challenge, aunque el reto se abriera con ok:true', () => {
+    celebrate({ ok: true })
+    pintarEstrellas(2)
+    expect(document.querySelector('.celebration-avatar').src).toContain('deceerre-challenge.png')
+  })
 })

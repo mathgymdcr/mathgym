@@ -31,6 +31,16 @@ export function pintarEstrellas(ganadas, total = 3) {
   const titulo = card.querySelector('.celebration-title');
   if (titulo) titulo.insertAdjacentElement('afterend', fila);
   else card.prepend(fila);
+
+  // La imagen la decide la marca final, no el `ok` con el que la plantilla
+  // abrió la celebración: sin las tres estrellas es un reto de mejorar.
+  const avatar = card.querySelector('.celebration-avatar');
+  if (avatar) {
+    avatar.src = ganadas >= total
+      ? 'assets/deceerre-celebration.png'
+      : 'assets/deceerre-challenge.png';
+  }
+
   return fila;
 }
 
@@ -89,28 +99,22 @@ export function celebrate({ ok = true, title, message } = {}) {
     })();
   }
 
-  // El overlay se cierra al primer clic y solo a los 8 s. Los controles que
-  // se marcan con `data-mantener` (el botón de compartir) quedan fuera de las
-  // dos reglas: copiar un resultado no es "seguir", y nadie copia con el
-  // reloj corriendo.
-  let autocierre = null;
+  // El overlay solo se cierra al clic/toque o con Esc: no hay autocierre, así
+  // que quien juega ve la celebración (o el aviso de mejorable) hasta que
+  // decide seguir. Los controles marcados con `data-mantener` (el botón de
+  // compartir) quedan fuera de esa regla: copiar un resultado no es "seguir".
   const close = () => {
     run = false;
-    if (autocierre) clearTimeout(autocierre);
     overlay.remove();
     document.removeEventListener('keydown', onEsc);
   };
   function onEsc(e) { if (e.key === 'Escape') close(); }
 
   overlay.addEventListener('click', (ev) => {
-    if (ev.target.closest('[data-mantener]')) {
-      if (autocierre) { clearTimeout(autocierre); autocierre = null; }
-      return;
-    }
+    if (ev.target.closest('[data-mantener]')) return;
     close();
   });
   document.addEventListener('keydown', onEsc);
-  autocierre = setTimeout(close, 8000);
 
   return { close };
 }

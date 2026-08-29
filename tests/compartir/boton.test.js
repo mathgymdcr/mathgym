@@ -37,9 +37,9 @@ describe('pintarCompartir', () => {
   })
 
   afterEach(() => {
-    // Los relojes falsos solo los enciende quien los necesita (los dos tests
-    // del autocierre): mezclarlos con las promesas del portapapeles solo da
-    // intermitencias.
+    // Los relojes falsos solo los enciende quien los necesita (el test de
+    // que no hay autocierre): mezclarlos con las promesas del portapapeles
+    // solo da intermitencias.
     vi.useRealTimers()
     document.querySelectorAll('.celebration-overlay').forEach(o => o.remove())
   })
@@ -91,19 +91,11 @@ describe('pintarCompartir', () => {
     expect(document.querySelector('.celebration-overlay')).not.toBeNull()
   })
 
-  it('tocarlo cancela el autocierre de 8 s: nadie copia con el reloj corriendo', () => {
-    vi.useFakeTimers()
-    const bloque = montar()
-    bloque.querySelector('[data-action="compartir"]').click()
-    vi.advanceTimersByTime(20000)
-    expect(document.querySelector('.celebration-overlay')).not.toBeNull()
-  })
-
-  it('sin tocar nada, la celebración sigue cerrándose sola a los 8 s', () => {
+  it('sin tocar nada, la celebración no se cierra sola: hace falta tocarla', () => {
     vi.useFakeTimers()
     montar()
-    vi.advanceTimersByTime(8001)
-    expect(document.querySelector('.celebration-overlay')).toBeNull()
+    vi.advanceTimersByTime(20000)
+    expect(document.querySelector('.celebration-overlay')).not.toBeNull()
   })
 
   it('un clic fuera del bloque sigue cerrando, como siempre', () => {
