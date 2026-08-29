@@ -26,11 +26,14 @@ describe('buildRelojesPuzzle', () => {
     }
   })
 
-  it('nunca propone un objetivo trivial de una sola ronda', () => {
+  it('nunca propone un objetivo trivial de una o dos rondas', () => {
+    // Con MIN_RONDAS=2 el reto se resolvia a veces en dos rondas -- "voltea
+    // uno y espera" en la practica, pese a la intencion original del
+    // umbral. Subido a 3.
     for (const seed of SEEDS) {
       const p = buildRelojesPuzzle(seed)
       expect(p.glasses, `seed=${seed}`).not.toContain(p.target)
-      expect(p.solucion.rondasTotales, `seed=${seed}`).toBeGreaterThan(1)
+      expect(p.solucion.rondasTotales, `seed=${seed}`).toBeGreaterThan(2)
     }
   })
 

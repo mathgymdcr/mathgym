@@ -94,6 +94,20 @@ describe('buildLaserPuzzle', () => {
     }
     expect([...vistas].sort()).toEqual(['grande', 'medio', 'pequeno'])
   })
+
+  it('en medio y grande nunca publica el par mas facil (dos piezas)', () => {
+    // El caso que motivo el cambio: un 7x7 -- un dia entero de espera --
+    // resolviendose en dos clics como un 5x5. En pequeno (el nivel de
+    // entrada) las dos piezas siguen siendo un par valido.
+    let vistoMedioOGrande = 0
+    for (let seed = 0; seed < 60; seed++) {
+      const p = buildLaserPuzzle(seed)
+      if (p.variant === 'pequeno') continue
+      vistoMedioOGrande++
+      expect(p.min_piezas, `seed ${seed} (${p.variant}/${p.modo})`).toBeGreaterThanOrEqual(3)
+    }
+    expect(vistoMedioOGrande).toBeGreaterThan(0)
+  })
 })
 
 // Un seed por modo, encontrado barriendo: se fijan aqui para que los tests no

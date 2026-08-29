@@ -228,7 +228,7 @@ const CONFIGS = [
   { relojes: 3, maxDur: 12, dificultad: 4 }
 ];
 const MAX_TARGET = 20;
-const MIN_RONDAS = 2;   // menos que esto es "voltea uno y espera": trivial
+const MIN_RONDAS = 3;   // 2 seguia siendo "voltea uno y espera" en la practica
 const MAX_RONDAS = 4;   // más que esto es tedioso, no más difícil
 const INTENTOS = 40;    // remuestreos de duraciones antes de rendirse
 

@@ -686,9 +686,27 @@ function construirCondensador(rand, size) {
 // 553 en ese barrido); prisma 13.6 (max 70); condensador -- que exige que
 // los dos hijos del prisma compartan una celda libre, con mucho el mas
 // exigente -- 335.8 (max 1300). Con 600 fallaban 13 de los 89 seeds de
-// condensador; 2000 deja los tres modos en cero fallos sobre esos 300 seeds,
-// con margen sobre el maximo observado.
-const MAX_INTENTOS = 2000;
+// condensador. Al excluir el total de dos piezas en medio y grande (ver
+// MIN_PIEZAS) el peor caso sube: barriendo seed=1..900 el maximo pasa a
+// 1816 intentos (condensador, que ya iba mas justo antes del cambio), con
+// clasico y prisma bastante mas holgados. 3000 deja margen de nuevo sobre
+// ese maximo, con cero fallos en esos 900 seeds.
+const MAX_INTENTOS = 3000;
+
+// El minimo excluye el caso de dos piezas en medio y grande: sin esto, un
+// 7x7 (un dia entero de espera) podia salir tan barato de resolver como un
+// 5x5 -- dos piezas, diez segundos --, porque el reparto de piezas no
+// dependia del tablero. No se toca cuantas piezas es capaz de colocar
+// `construirClasico`/`construirPrisma` (eso ya haria falta que sobrara
+// alguna, y `piezasMinimas(config, total - 1)` la rechazaria por no ser
+// minima -- probado: subir el tope de espejos hacia 3-4 tumbaba ~7% de los
+// seeds al agotar MAX_INTENTOS). Solo se descarta el resultado mas facil de
+// la MISMA distribucion, que ya sale con frecuencia suficiente (10-45% segun
+// modo/tamano en un barrido de 100 seeds) para no acercarse a MAX_INTENTOS.
+// pequeno se deja en dos: es el nivel de entrada, pensado para resolverse
+// rapido.
+const MIN_PIEZAS = { pequeno: 2, medio: 3, grande: 3 };
+const MAX_PIEZAS = { pequeno: 4, medio: 4, grande: 4 };
 
 export function buildLaserPuzzle(seed) {
   const variant = tamanoDeSeed(seed);
@@ -704,7 +722,7 @@ export function buildLaserPuzzle(seed) {
     const blocks = colocaBloques(rand, size, hecho);      // como hoy: fuera de trayectos y objetos
     const config = { size, modo, lasers: hecho.lasers, targets: hecho.targets, blocks };
     const total = hecho.piezas.flat().filter(Boolean).length;
-    if (total < 2 || total > 4) continue;
+    if (total < MIN_PIEZAS[variant] || total > MAX_PIEZAS[variant]) continue;
 
     if (resuelto(config, crearPiezas(size))) continue;     // no puede venir resuelto
     if (!resuelto(config, hecho.piezas)) continue;         // la solucion tiene que valer
