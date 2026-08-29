@@ -4,6 +4,7 @@ import { initRouter } from './router.js';
 import { recordCompletion, getProgress } from './progress.js';
 import { estrellasDe, parDe } from './estrellas.js';
 import { pintarEstrellas } from './plantillas/celebration.js';
+import { pintarCompartir } from './compartir.js';
 import { pintarSala } from './home.js';
 import { tipoInfo } from './catalogo-tipos.js';
 
@@ -98,8 +99,11 @@ async function mostrarReto(fecha) {
         const estrellas = estrellasDe(reto.objectives, marca);
         pintarEstrellas(estrellas);
         if (esRetoDeHoy) {
-          recordCompletion(reto, estrellas);
+          // El progreso se guarda ANTES de pintar el botón: el resumen enseña
+          // la racha ya sumada, que es justo la de la partida que se comparte.
+          const progreso = recordCompletion(reto, estrellas);
           pintarRacha();
+          pintarCompartir({ reto, estrellas, marca, progreso });
         }
       }
     });

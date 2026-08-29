@@ -1,7 +1,10 @@
 {
-  "name": "MathGym",
+  "name": "MathGym — Tu gimnasio mental diario",
   "short_name": "MathGym",
-  "start_url": "/index.html",
+  "description": "Un reto de lógica nuevo cada día.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0b1220",
   "theme_color": "#6c5ce7",

@@ -3402,3 +3402,31 @@ section.groups { margin-top: 52px; }
     font-size: 13px;
     line-height: 1.5;
 }
+
+/* ===== Compartir resultado (celebración) ===== */
+.celebration-compartir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.compartir-preview {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--card-b);
+  background: rgba(0, 0, 0, .25);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: .82rem;
+  line-height: 1.55;
+  text-align: center;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.celebration-compartir .btn {
+  min-width: 190px;
+}

@@ -50,6 +50,11 @@ jobs:
       - name: Validate generated reto
         run: node scripts/validate-retos.js --latest
 
+      # El sitemap cambia cada día (una fecha más en el archivo), así que se
+      # regenera aquí y viaja en el mismo commit que el reto.
+      - name: Regenerate sitemap
+        run: node scripts/generate-sitemap.js
+
       - name: Commit and push changes
         run: |
           git config --local user.email "mathgym-bot@github.com"
@@ -64,6 +69,19 @@ jobs:
           FECHA="$(date +%Y-%m-%d)"
           git commit -m "🎲 Daily reto generated for $FECHA"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/mathgymdcr/mathgym.git HEAD:main
+
+      # Se publica DESPUÉS del push: si algo falla aquí, el reto del día ya
+      # está en main y el sitio se despliega igual. `continue-on-error` es
+      # deliberado -- un fallo de la API de una red social no puede dejar a
+      # nadie sin reto.
+      - name: Publicar en redes
+        continue-on-error: true
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          MASTODON_INSTANCIA: ${{ secrets.MASTODON_INSTANCIA }}
+          MASTODON_TOKEN: ${{ secrets.MASTODON_TOKEN }}
+        run: node scripts/publicar-social.js
 
   deploy:
     needs: generate
