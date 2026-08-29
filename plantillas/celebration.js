@@ -89,16 +89,28 @@ export function celebrate({ ok = true, title, message } = {}) {
     })();
   }
 
+  // El overlay se cierra al primer clic y solo a los 8 s. Los controles que
+  // se marcan con `data-mantener` (el botón de compartir) quedan fuera de las
+  // dos reglas: copiar un resultado no es "seguir", y nadie copia con el
+  // reloj corriendo.
+  let autocierre = null;
   const close = () => {
     run = false;
+    if (autocierre) clearTimeout(autocierre);
     overlay.remove();
     document.removeEventListener('keydown', onEsc);
   };
   function onEsc(e) { if (e.key === 'Escape') close(); }
 
-  overlay.addEventListener('click', close);
+  overlay.addEventListener('click', (ev) => {
+    if (ev.target.closest('[data-mantener]')) {
+      if (autocierre) { clearTimeout(autocierre); autocierre = null; }
+      return;
+    }
+    close();
+  });
   document.addEventListener('keydown', onEsc);
-  setTimeout(close, 8000);
+  autocierre = setTimeout(close, 8000);
 
   return { close };
 }

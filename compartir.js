@@ -78,3 +78,63 @@ export function textoCompartible({ reto, estrellas = 1, marca = {}, progreso = {
 
   return `${cabecera}\n${partes.join(' · ')}\n${racha}\n${SITIO}`;
 }
+
+const ETIQUETA_INICIAL = '📋 Copiar resultado';
+
+async function copiar(texto) {
+  if (!navigator.clipboard || !navigator.clipboard.writeText) {
+    throw new Error('sin portapapeles');
+  }
+  await navigator.clipboard.writeText(texto);
+}
+
+/**
+ * Añade el bloque de compartir a la celebración que YA está en pantalla, igual
+ * que pintarEstrellas. Devuelve el bloque, o null si no hay celebración.
+ *
+ * El bloque lleva `data-mantener`: ver plantillas/celebration.js, donde ese
+ * atributo es lo que impide que pulsarlo cierre el overlay.
+ */
+export function pintarCompartir({ reto, estrellas, marca, progreso }) {
+  const card = document.querySelector('.celebration-overlay .celebration-card');
+  if (!card) return null;
+
+  const texto = textoCompartible({ reto, estrellas, marca, progreso });
+
+  const bloque = document.createElement('div');
+  bloque.className = 'celebration-compartir';
+  bloque.setAttribute('data-mantener', '');
+
+  const vista = document.createElement('pre');
+  vista.className = 'compartir-preview';
+  vista.textContent = texto;
+
+  const boton = document.createElement('button');
+  boton.type = 'button';
+  boton.className = 'btn btn-secondary';
+  boton.dataset.action = 'compartir';
+  boton.textContent = ETIQUETA_INICIAL;
+
+  boton.addEventListener('click', async () => {
+    try {
+      await copiar(texto);
+      boton.textContent = '✅ Copiado';
+    } catch {
+      // Sin portapapeles (contexto no seguro, permiso denegado) el texto ya
+      // está a la vista: se selecciona para que baste con Ctrl+C.
+      boton.textContent = '⚠️ Cópialo a mano';
+      const sel = window.getSelection && window.getSelection();
+      if (sel && document.createRange) {
+        const rango = document.createRange();
+        rango.selectNodeContents(vista);
+        sel.removeAllRanges();
+        sel.addRange(rango);
+      }
+    }
+  });
+
+  bloque.appendChild(vista);
+  bloque.appendChild(boton);
+  card.appendChild(bloque);
+  return bloque;
+}
