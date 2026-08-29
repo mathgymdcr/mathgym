@@ -1675,20 +1675,28 @@ li {
   line-height: 1.5;
   color: var(--fg);
 }
-#contenedor-interactivo .ein-clues .toolbar {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
 /* Tablero */
 #contenedor-interactivo .ein-board h2 {
   text-align: center;
   font-weight: 700;
 }
-#contenedor-interactivo .ein-board > div {
+#contenedor-interactivo .ein-board-grid {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+/* Comprobar/Borrar todo van debajo del tablero (antes vivian junto a las
+   pistas, lejos de donde se acaba de jugar) y resaltados en un panel propio
+   para que no se confundan con el resto de controles de la pagina. */
+#contenedor-interactivo .ein-board-actions {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(209, 99, 204, 0.1);
+}
+#contenedor-interactivo .ein-board-actions .toolbar {
+  justify-content: center;
+  margin: 0;
 }
 #contenedor-interactivo .ein-table {
   width: 100%;
@@ -1696,9 +1704,10 @@ li {
   border-spacing: 4px;
 }
 /* Con 5 casas la fila mide 5x80 px y no cabe en un móvil: el tablero ya
-   vive dentro de un contenedor con scroll horizontal propio (.ein-board >
-   div), y el `min-width` es lo que impide que la tabla se estruje hasta
-   volverse ilegible en vez de dejar que ese scroll haga su trabajo. */
+   vive dentro de un contenedor con scroll horizontal propio
+   (.ein-board-grid), y el `min-width` es lo que impide que la tabla se
+   estruje hasta volverse ilegible en vez de dejar que ese scroll haga su
+   trabajo. */
 #contenedor-interactivo .ein-table .cell,
 #contenedor-interactivo .ein-table th.house-header {
   min-width: 64px;
@@ -1721,21 +1730,30 @@ li {
   background: rgba(255,255,255,.06);
   border: 2px solid var(--card-b);
   border-radius: 8px;
+  box-sizing: border-box;
   transition: all 0.2s ease;
   vertical-align: top;
+  overflow: hidden;
 }
 #contenedor-interactivo .ein-table .cell:hover {
   background: rgba(255,255,255,.1);
   border-color: var(--accent);
 }
 
-/* Chips */
+/* Chips: la celda tiene tamaño fijo (arriba); es la ficha soltada la que
+   tiene que encogerse y partir su texto dentro de ese hueco, no al reves --
+   si no, un valor largo ensanchaba la celda entera (y con ella toda la
+   columna de la tabla). */
 #contenedor-interactivo .chips {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   padding: 4px;
   align-items: flex-start;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 #contenedor-interactivo .chip {
   background: var(--grad-brand);
@@ -1743,6 +1761,12 @@ li {
   border: none;
   border-radius: 6px;
   padding: 2px 6px;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-align: center;
   font-size: 0.7rem;
   font-weight: 600;
   cursor: pointer;

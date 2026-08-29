@@ -248,14 +248,18 @@ function buildShell() {
   </div>
 
   <div class="ein-grid" style="display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:12px;align-items:start;">
-    <section class="ein-clues"><h2>Pistas</h2><ol></ol>
-      <div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn">Comprobar</button>
-        <button class="btn btn-secondary">Borrar todo</button>
+    <section class="ein-clues"><h2>Pistas</h2><ol></ol></section>
+    <section class="ein-board">
+      <h2>Tablero</h2>
+      <div class="ein-board-grid"></div>
+      <div class="ein-board-actions">
+        <div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn">Comprobar</button>
+          <button class="btn btn-secondary">Borrar todo</button>
+        </div>
+        <div class="feedback" style="margin-top:8px;"></div>
       </div>
-      <div class="feedback" style="margin-top:8px;"></div>
     </section>
-    <section class="ein-board"><h2>Tablero</h2><div></div></section>
     <section class="ein-palette"><h2>Tarjetas</h2><div></div></section>
   </div>`;
 
@@ -265,7 +269,7 @@ function buildShell() {
     btnValidate: box.querySelectorAll('.btn')[0],
     btnClear: box.querySelectorAll('.btn')[1],
     result: box.querySelector('.feedback'),
-    board: box.querySelector('.ein-board div'),
+    board: box.querySelector('.ein-board-grid'),
     palette: box.querySelector('.ein-palette div'),
     categoriesLine: box.querySelector('.ein-categorias')
   };
