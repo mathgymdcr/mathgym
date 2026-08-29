@@ -4,7 +4,7 @@ Un post por sitio, bien hecho, **una sola vez**. Esto no es un goteo: el goteo p
 
 **No publiques nada de esto hasta que el botón de "Copiar resultado" esté desplegado** — el pico de tráfico de un lanzamiento es de un solo uso, y sin compartir no se multiplica.
 
-Enlace, siempre el mismo: `https://mathgymdcr.github.io/mathgym/`
+Enlace, siempre el mismo: `https://mathgym.es/`
 
 ---
 
@@ -24,7 +24,7 @@ Cuerpo base (adáptalo a cada sub):
 >
 > No hay cuentas, ni anuncios, ni backend: el progreso y la racha viven en tu navegador. Está en español.
 >
-> https://mathgymdcr.github.io/mathgym/
+> https://mathgym.es/
 
 ## Hacker News
 
@@ -72,7 +72,7 @@ Primer comentario (el que de verdad se lee):
   ```bash
   gh repo edit mathgymdcr/mathgym \
     --description "Un reto de lógica nuevo cada día: 12 tipos de puzzle, generados y validados automáticamente." \
-    --homepage "https://mathgymdcr.github.io/mathgym/"
+    --homepage "https://mathgym.es/"
   ```
 - [ ] **AlternativeTo.net** — dar de alta MathGym como alternativa a *Wordle* y a *NYT Games*. Gratis, lo indexa Google, tráfico pasivo constante.
 - [ ] **Listados de "juegos como Wordle"** — hay decenas de recopilatorios (blogs, hilos fijados de subreddits, gists de GitHub). Proponer MathGym en los que acepten sugerencias: PR al gist o comentario en el hilo, sin insistir.

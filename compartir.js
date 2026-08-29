@@ -11,7 +11,7 @@ import { diasDelCarne } from './home.js';
 
 // Siempre el mismo enlace, nunca el del día concreto: así el og:image que
 // cachean WhatsApp y Bluesky es uno solo y se calienta con cada partida.
-export const SITIO = 'https://mathgymdcr.github.io/mathgym/';
+export const SITIO = 'https://mathgym.es/';
 
 // El primer reto del archivo. El número del reto se cuenta en DÍAS desde
 // aquí, no en entradas de lista_retos.json: si algún día el cron falla y no

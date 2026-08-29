@@ -32,7 +32,8 @@ describe('construirSitemap', () => {
   })
 
   it('la portada se marca modificada hoy: cambia cada día con el reto', () => {
-    expect(xml).toMatch(/<loc>https:\/\/[^<]*mathgym\/<\/loc>\s*<lastmod>2026-08-21<\/lastmod>/)
+    const escapado = SITIO.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    expect(xml).toMatch(new RegExp(`<loc>${escapado}</loc>\\s*<lastmod>2026-08-21</lastmod>`))
   })
 
   it('es XML bien formado y con el namespace que pide el estándar', () => {

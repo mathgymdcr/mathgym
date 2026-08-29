@@ -14,7 +14,7 @@ import { TIPOS } from '../catalogo-tipos.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const RAIZ = path.join(__dirname, '..');
 
-export const SITIO = 'https://mathgymdcr.github.io/mathgym/';
+export const SITIO = 'https://mathgym.es/';
 
 function entrada(loc, lastmod, changefreq, priority) {
   return `  <url>

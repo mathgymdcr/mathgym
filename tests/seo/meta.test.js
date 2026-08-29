@@ -12,7 +12,7 @@ import path from 'node:path'
 // resuelve las relativas contra http://localhost:3000, no contra el archivo.
 
 const raiz = path.resolve(__dirname, '../..')
-const SITIO = 'https://mathgymdcr.github.io/mathgym/'
+const SITIO = 'https://mathgym.es/'
 
 function cabecera(nombre) {
   const html = readFileSync(path.join(raiz, nombre), 'utf8')
@@ -79,15 +79,14 @@ describe('metadatos sociales', () => {
 describe('manifest.json', () => {
   const manifest = JSON.parse(readFileSync(path.join(raiz, 'manifest.json'), 'utf8'))
 
-  it('arranca en el subdirectorio del proyecto, no en la raíz del dominio', () => {
-    // El sitio vive en /mathgym/: un start_url de "/index.html" abre un 404.
-    expect(manifest.start_url).toBe('/mathgym/')
-    expect(manifest.scope).toBe('/mathgym/')
+  it('arranca en la raíz del dominio propio (mathgym.es), no en un subdirectorio', () => {
+    expect(manifest.start_url).toBe('/')
+    expect(manifest.scope).toBe('/')
   })
 
-  it('los iconos cuelgan del mismo subdirectorio', () => {
+  it('los iconos cuelgan de la raíz', () => {
     for (const icono of manifest.icons) {
-      expect(icono.src.startsWith('/mathgym/assets/')).toBe(true)
+      expect(icono.src.startsWith('/assets/')).toBe(true)
     }
   })
 })

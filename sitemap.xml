@@ -1,139 +1,139 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/</loc>
+    <loc>https://mathgym.es/</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/archivo.html</loc>
+    <loc>https://mathgym.es/archivo.html</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=enigma-einstein</loc>
+    <loc>https://mathgym.es/?tipo=enigma-einstein</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=balanza-logica</loc>
+    <loc>https://mathgym.es/?tipo=balanza-logica</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=poligono-geometrico</loc>
+    <loc>https://mathgym.es/?tipo=poligono-geometrico</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=mezcla-quimica</loc>
+    <loc>https://mathgym.es/?tipo=mezcla-quimica</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=luces-fuera</loc>
+    <loc>https://mathgym.es/?tipo=luces-fuera</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=relojes-arena</loc>
+    <loc>https://mathgym.es/?tipo=relojes-arena</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=puentes-hashi</loc>
+    <loc>https://mathgym.es/?tipo=puentes-hashi</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=nonograma</loc>
+    <loc>https://mathgym.es/?tipo=nonograma</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=cajas-apiladas</loc>
+    <loc>https://mathgym.es/?tipo=cajas-apiladas</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=riego-plantas</loc>
+    <loc>https://mathgym.es/?tipo=riego-plantas</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=anillas-encadenadas</loc>
+    <loc>https://mathgym.es/?tipo=anillas-encadenadas</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?tipo=laser-triangular</loc>
+    <loc>https://mathgym.es/?tipo=laser-triangular</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?fecha=2026-08-20</loc>
+    <loc>https://mathgym.es/?fecha=2026-08-20</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?fecha=2026-08-21</loc>
+    <loc>https://mathgym.es/?fecha=2026-08-21</loc>
     <lastmod>2026-08-21</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?fecha=2026-08-22</loc>
+    <loc>https://mathgym.es/?fecha=2026-08-22</loc>
     <lastmod>2026-08-22</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?fecha=2026-08-23</loc>
+    <loc>https://mathgym.es/?fecha=2026-08-23</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?fecha=2026-08-24</loc>
+    <loc>https://mathgym.es/?fecha=2026-08-24</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?fecha=2026-08-25</loc>
+    <loc>https://mathgym.es/?fecha=2026-08-25</loc>
     <lastmod>2026-08-25</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?fecha=2026-08-26</loc>
+    <loc>https://mathgym.es/?fecha=2026-08-26</loc>
     <lastmod>2026-08-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?fecha=2026-08-27</loc>
+    <loc>https://mathgym.es/?fecha=2026-08-27</loc>
     <lastmod>2026-08-27</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mathgymdcr.github.io/mathgym/?fecha=2026-08-28</loc>
+    <loc>https://mathgym.es/?fecha=2026-08-28</loc>
     <lastmod>2026-08-28</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
