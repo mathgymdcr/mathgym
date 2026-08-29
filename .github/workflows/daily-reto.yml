@@ -50,6 +50,11 @@ jobs:
       - name: Validate generated reto
         run: node scripts/validate-retos.js --latest
 
+      # El sitemap cambia cada día (una fecha más en el archivo), así que se
+      # regenera aquí y viaja en el mismo commit que el reto.
+      - name: Regenerate sitemap
+        run: node scripts/generate-sitemap.js
+
       - name: Commit and push changes
         run: |
           git config --local user.email "mathgym-bot@github.com"

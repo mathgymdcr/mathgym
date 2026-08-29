@@ -8,6 +8,7 @@
     "test:watch": "vitest",
     "generate": "node scripts/generate-daily-reto.js",
     "validate": "node scripts/validate-retos.js",
+    "sitemap": "node scripts/generate-sitemap.js",
     "lint": "echo 'Linting not configured yet'",
     "dev": "python -m http.server 8000",
     "build": "echo 'Build completed - static site ready'"
