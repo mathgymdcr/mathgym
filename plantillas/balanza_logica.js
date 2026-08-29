@@ -138,8 +138,12 @@ export async function render(root, data, hooks) {
   }
 
   function renderBalance(container, s) {
+    // El extremo que sube gira alrededor del CENTRO de la barra, así que se
+    // eleva por encima de donde empieza la barra (top:8px dejaba solo 8px de
+    // margen y el giro sube más que eso). Bajar toda la barra dentro de su
+    // propio contenedor le da margen de sobra sin tocar nada más.
     container.innerHTML =
-      '<div class="balance-beam" id="balance-beam" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);width:520px;height:12px;background:linear-gradient(180deg,#cfd4db,#9aa3ad);border-radius:8px;transition:transform .6s ease;transform-origin:center;z-index:2;">' +
+      '<div class="balance-beam" id="balance-beam" style="position:absolute;top:28px;left:50%;transform:translateX(-50%);width:520px;height:12px;background:linear-gradient(180deg,#cfd4db,#9aa3ad);border-radius:8px;transition:transform .6s ease;transform-origin:center;z-index:2;">' +
       '  <div class="balance-hook left" style="position:absolute;top:-4px;left:62px;width:4px;height:20px;">' +
       '    <div class="balance-rope" style="position:absolute;top:12px;left:1px;width:2px;height:118px;background:#a6b0bb;"></div>' +
       '    <div class="balance-plate" id="left-plate" data-side="left" style="position:absolute;top:146px;left:-110px;width:220px;height:20px;background:linear-gradient(180deg,#e9edf3,#babfc7);border-radius:20px;border:2px solid rgba(0,0,0,.25);cursor:pointer;">' +
@@ -153,12 +157,12 @@ export async function render(root, data, hooks) {
       '    </div>' +
       '  </div>' +
       '</div>' +
-      '<div class="balance-pivot" style="position:absolute;top:100px;left:50%;transform:translateX(-50%);width:30px;height:30px;background:linear-gradient(145deg,#5f6772,#2f343b);border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,.5);z-index:3;"></div>';
+      '<div class="balance-pivot" style="position:absolute;top:120px;left:50%;transform:translateX(-50%);width:30px;height:30px;background:linear-gradient(145deg,#5f6772,#2f343b);border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,.5);z-index:3;"></div>';
 
     container.style.position = 'relative';
     container.style.width = '100%';
     container.style.maxWidth = '680px';
-    container.style.height = '260px';
+    container.style.height = '280px';
     container.style.margin = '0 auto';
 
     container.querySelector('#left-plate').addEventListener('click', function () { placeCoin('left', s); });
@@ -228,8 +232,18 @@ export async function render(root, data, hooks) {
     animateBalance(ui.balanceContainer, tilt);
     setStatus(ui.result, result, tilt === 'balanced' ? 'ok' : 'info');
 
-    // No bloqueamos nunca el botón de pesar.
+    // No bloqueamos nunca el botón de pesar: con platos desiguales se sigue
+    // pesando (el lado con más monedas gana casi siempre, salvo el empate
+    // que sale si la única moneda suelta resulta ser la impostora ligera),
+    // pero avisamos de que esa comparación no dice nada -- una sola moneda
+    // contra el plato vacío parece "no moverse" y no es que esté rota.
+    if (left.length !== right.length) {
+      setStatus(ui.message, 'Con platos desiguales el resultado no es fiable: pon el mismo número de monedas en los dos, o mueve alguna', 'info');
+    }
+
     // Si supera el mínimo teórico, solo avisamos, sin impedir continuar.
+    // (Pisa el aviso de arriba si aplican los dos a la vez: superar el
+    // mínimo importa más que el aviso de platos desiguales.)
     var optimal = balanzaMinWeighings(config);
     if (s.weighings > optimal) {
       setStatus(ui.message, 'Puedes resolverlo en ' + optimal + ' pesadas o menos. ¡Intenta optimizar!', 'info');
@@ -535,14 +549,14 @@ export async function render(root, data, hooks) {
 
     const result = createElement('div', { class: 'feedback' }); box.appendChild(result);
 
-    const toolbar = createElement('div', { class: 'toolbar' });
+    const toolbar = createElement('div', { class: 'balance-controls' });
     const weighBtn = createElement('button', { class: 'btn' }); weighBtn.textContent = 'Pesar';
     const clearBtn = createElement('button', { class: 'btn btn-secondary' }); clearBtn.textContent = 'Vaciar';
     const resetBtn = createElement('button', { class: 'btn btn-secondary' }); resetBtn.textContent = 'Reiniciar';
     toolbar.appendChild(weighBtn); toolbar.appendChild(clearBtn); toolbar.appendChild(resetBtn);
     box.appendChild(toolbar);
 
-    const answerSec = createElement('section', { class: 'ein-clues' });
+    const answerSec = createElement('section', { class: 'ein-clues balance-answer-section' });
     const aH2 = document.createElement('h2'); aH2.textContent = 'Tu respuesta';
     const answerDiv = createElement('div', { class: 'balance-answer' });
     const checkBtn = createElement('button', { class: 'btn btn-primary' }); checkBtn.textContent = 'Comprobar';
