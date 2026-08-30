@@ -14,14 +14,21 @@ const nodo = (host, r, c) => host.querySelector(`.polygon-node[data-r="${r}"][da
 const segmento = (host, r1, c1, r2, c2) =>
   host.querySelector(`.polygon-edge[data-arista="${r1},${c1}-${r2},${c2}"]`)
 
-// Dibuja el contorno de un rectangulo pulsando nodo a nodo.
+// Dibuja el contorno de un rectangulo: cada lado son dos clics, uno por
+// nodo -- el modelo es "pulsa un nodo y luego el adyacente" para cada
+// segmento, no una traza continua de un solo clic por vertice.
 function dibujaRectangulo(host, r0, c0, alto, ancho) {
   const camino = []
   for (let c = c0; c <= c0 + ancho; c++) camino.push([r0, c])
   for (let r = r0 + 1; r <= r0 + alto; r++) camino.push([r, c0 + ancho])
   for (let c = c0 + ancho - 1; c >= c0; c--) camino.push([r0 + alto, c])
   for (let r = r0 + alto - 1; r >= r0; r--) camino.push([r, c0])
-  for (const [r, c] of camino) nodo(host, r, c).click()
+  for (let i = 0; i < camino.length - 1; i++) {
+    const [r1, c1] = camino[i]
+    const [r2, c2] = camino[i + 1]
+    nodo(host, r1, c1).click()
+    nodo(host, r2, c2).click()
+  }
 }
 
 async function monta(config) {
@@ -59,15 +66,28 @@ describe('plantilla de poligono', () => {
     const j = await monta(UNA)
     dibujaRectangulo(j.host, 0, 0, 3, 4)
     segmento(j.host, 0, 0, 0, 1).click()
-    // Los cabos quedan en (0,0) y (0,1); volver a cerrarlos rehace la figura.
+    // Los cabos quedan en (0,0) y (0,1); pulsar los dos rehace la figura.
     nodo(j.host, 0, 0).click()
+    nodo(j.host, 0, 1).click()
     j.validar()
     expect(j.ganado()).toBe(1)
+  })
+
+  it('un poligono cerrado se puede seguir editando', async () => {
+    const j = await monta(UNA)
+    dibujaRectangulo(j.host, 0, 0, 3, 4)
+    // Con la figura ya cerrada (todos los nodos del borde a grado 2), un
+    // nodo interior sigue pudiendose seleccionar y conectar: antes de este
+    // arreglo, cerrar la figura dejaba el juego sin cabos y bloqueado.
+    nodo(j.host, 1, 1).click()
+    nodo(j.host, 1, 2).click()
+    expect(segmento(j.host, 1, 1, 1, 2).classList.contains('puesta')).toBe(true)
   })
 
   it('no deja llevar un nodo a grado 3', async () => {
     const j = await monta(UNA)
     dibujaRectangulo(j.host, 0, 0, 3, 4)
+    nodo(j.host, 0, 1).click()
     nodo(j.host, 1, 1).click()
     expect(segmento(j.host, 0, 1, 1, 1)).toBeTruthy()
     expect(segmento(j.host, 0, 1, 1, 1).classList.contains('puesta')).toBe(false)

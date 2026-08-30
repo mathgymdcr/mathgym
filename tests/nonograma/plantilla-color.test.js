@@ -23,6 +23,10 @@ const payload = () => ({
 
 const celdas = (root) => [...root.querySelectorAll('.nono-cell')]
 const botonesColor = (root) => [...root.querySelectorAll('.nono-color')]
+// La victoria ya no se dispara sola al completar el dibujo: hace falta
+// pulsar "Comprobar".
+const comprobar = (root) =>
+  [...root.querySelectorAll('button')].find((b) => b.textContent === 'Comprobar').click()
 
 describe('plantillas/nonograma.js en color', () => {
   it('monta un botón por color de la paleta, el primero activo', async () => {
@@ -90,12 +94,14 @@ describe('plantillas/nonograma.js en color', () => {
 
     // La forma correcta, pero todo del primer color: el dibujo no es ese.
     for (const celda of celdas(root)) celda.click()
+    comprobar(root)
     expect(ganado).toBe(0)
 
     // Las dos de abajo, al segundo color.
     botonesColor(root)[1].click()
     celdas(root)[2].click()
     celdas(root)[3].click()
+    comprobar(root)
     expect(ganado).toBe(1)
   })
 
@@ -111,6 +117,7 @@ describe('plantillas/nonograma.js en color', () => {
     celdas(root)[0].click()
     celdas(root)[1].click()
     celdas(root)[3].click()
+    comprobar(root)
     expect(ganado).toBe(1)
   })
 })

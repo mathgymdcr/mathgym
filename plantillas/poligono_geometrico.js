@@ -80,8 +80,11 @@ export async function render(root, data, hooks) {
       // así se puede borrar un segmento de en medio (una secuencia se
       // partiría en dos) y dos figuras son dos componentes conexas.
       aristas: new Set(),
-      inicio: null,
-      activo: null,
+      // Nodo pendiente de un segundo clic para formar segmento. Un solo
+      // campo en vez del viejo inicio/activo por "cabo abierto": con el
+      // tablero cerrado (todos los nodos a grado 2) no había ningún cabo
+      // desde el que seguir dibujando, y el juego se quedaba bloqueado.
+      seleccionado: null,
       history: [],
       future: [],
       nFiguras: config.n_figuras ?? 1,
@@ -169,82 +172,66 @@ export async function render(root, data, hooks) {
     }
   }
 
-  // Nodos con grado 1: los cabos por los que se puede seguir dibujando.
-  function extremosDe(state) {
-    const grado = new Map();
-    for (const clave of state.aristas) {
-      for (const n of clave.split('-')) grado.set(n, (grado.get(n) || 0) + 1);
-    }
-    return [...grado.entries()]
-      .filter(([, g]) => g === 1)
-      .map(([k]) => {
-        const [r, c] = k.split(',').map(Number);
-        return { r, c };
-      });
-  }
-
+  // Un nodo pulsado se selecciona; pulsar un segundo nodo ADYACENTE traza
+  // el segmento entre los dos y limpia la selección. Da igual el grado que
+  // tenga cada nodo o si el tablero ya está cerrado: cualquier nodo libre
+  // sirve de punto de partida, así que cerrar una figura no bloquea nada.
   function onNodeClick(e, state, ui) {
     const dot = e.currentTarget;
     const nodo = { r: +dot.dataset.r, c: +dot.dataset.c };
-    const vecino = (p) => Math.abs(p.r - nodo.r) + Math.abs(p.c - nodo.c) === 1;
 
-    const cabos = extremosDe(state);
-    // Primer clic del trazo: solo marca por dónde se empieza. Ojo, la
-    // condición tiene que mirar `inicio`: sin aristas todavía, el segundo
-    // clic cumpliría igual "no hay cabos" y volvería a mover el inicio en
-    // vez de trazar el primer lado.
-    if (state.aristas.size === 0 && !state.inicio) {
-      state.inicio = nodo;
+    if (!state.seleccionado) {
+      state.seleccionado = nodo;
       refresh(ui, state);
       return;
     }
 
-    // Cuando el nodo pulsado toca los DOS cabos -- al cerrar la figura, sin
-    // ir más lejos -- hay que seguir por el que se venía trazando. Con
-    // `find` a secas se elegía el otro, y la figura quedaba con un hueco
-    // que ya no se podía cerrar.
-    const esCabo = (p) => cabos.some((q) => q.r === p.r && q.c === p.c);
-    const desde = (state.activo && esCabo(state.activo) && vecino(state.activo))
-      ? state.activo
-      : (cabos.find(vecino)
-        || (state.inicio && vecino(state.inicio) ? state.inicio : null));
-    if (!desde) {
-      // Sin nada dibujado, un clic lejos del inicio simplemente lo mueve.
-      if (state.aristas.size === 0) {
-        state.inicio = nodo;
-        refresh(ui, state);
-      }
+    // Pulsar el mismo nodo otra vez deselecciona.
+    if (state.seleccionado.r === nodo.r && state.seleccionado.c === nodo.c) {
+      state.seleccionado = null;
+      refresh(ui, state);
       return;
     }
 
-    const clave = claveArista(desde, nodo);
-    if (state.aristas.has(clave)) return;
+    const vecino = Math.abs(state.seleccionado.r - nodo.r) + Math.abs(state.seleccionado.c - nodo.c) === 1;
+    if (!vecino) {
+      // No adyacente: mueve la selección al nuevo nodo en vez de fallar.
+      state.seleccionado = nodo;
+      refresh(ui, state);
+      return;
+    }
+
+    const clave = claveArista(state.seleccionado, nodo);
+    if (state.aristas.has(clave)) {
+      state.seleccionado = null;
+      refresh(ui, state);
+      return;
+    }
 
     // Ningún nodo puede pasar de grado 2: eso es lo que impide los cruces,
     // y con ellos el área por shoelace de un polígono que se corta a sí
     // mismo, que no significa nada.
     const prueba = new Set([...state.aristas, clave]);
-    if (figurasDeAristas(prueba).invalido) return;
+    if (figurasDeAristas(prueba).invalido) {
+      state.seleccionado = nodo;
+      refresh(ui, state);
+      return;
+    }
 
     pushHistory(state);
     state.aristas = prueba;
-    state.inicio = null;
-    state.activo = nodo;
+    state.seleccionado = null;
     refresh(ui, state);
   }
 
   // Pulsar un segmento dibujado lo quita. Poner es cosa de los nodos.
-  // Quitar una arista de un ciclo lo deja como cadena abierta con dos
-  // cabos, y desde cualquiera se sigue dibujando: es el gesto de hacerle
-  // un saliente o un entrante a la figura.
   function onEdgeClick(clave, state, ui) {
     if (!state.aristas.has(clave)) return;
     pushHistory(state);
     const nuevas = new Set(state.aristas);
     nuevas.delete(clave);
     state.aristas = nuevas;
-    state.inicio = null;
-    state.activo = null;
+    state.seleccionado = null;
     refresh(ui, state);
   }
 
@@ -285,26 +272,23 @@ export async function render(root, data, hooks) {
       el.classList.remove('adj', 'selected');
     });
 
-    const cabos = state.aristas.size === 0 && state.inicio
-      ? [state.inicio]
-      : extremosDe(state);
+    const cabo = state.seleccionado;
+    if (!cabo) return;
 
-    for (const cabo of cabos) {
-      const sel = container.querySelector(
-        `.polygon-node[data-r="${cabo.r}"][data-c="${cabo.c}"]`
-      );
-      if (sel) sel.classList.add('selected');
+    const sel = container.querySelector(
+      `.polygon-node[data-r="${cabo.r}"][data-c="${cabo.c}"]`
+    );
+    if (sel) sel.classList.add('selected');
 
-      const alrededor = [
-        [cabo.r - 1, cabo.c], [cabo.r + 1, cabo.c],
-        [cabo.r, cabo.c - 1], [cabo.r, cabo.c + 1]
-      ];
-      for (const [rr, cc] of alrededor) {
-        if (rr < 0 || rr >= state.N || cc < 0 || cc >= state.N) continue;
-        if (state.aristas.has(claveArista(cabo, { r: rr, c: cc }))) continue;
-        const el = container.querySelector(`.polygon-node[data-r="${rr}"][data-c="${cc}"]`);
-        if (el) el.classList.add('adj');
-      }
+    const alrededor = [
+      [cabo.r - 1, cabo.c], [cabo.r + 1, cabo.c],
+      [cabo.r, cabo.c - 1], [cabo.r, cabo.c + 1]
+    ];
+    for (const [rr, cc] of alrededor) {
+      if (rr < 0 || rr >= state.N || cc < 0 || cc >= state.N) continue;
+      if (state.aristas.has(claveArista(cabo, { r: rr, c: cc }))) continue;
+      const el = container.querySelector(`.polygon-node[data-r="${rr}"][data-c="${cc}"]`);
+      if (el) el.classList.add('adj');
     }
   }
 
@@ -322,10 +306,12 @@ export async function render(root, data, hooks) {
   function updateMessage(messageEl, state) {
     if (!messageEl) return;
 
-    if (state.aristas.size === 0) {
-      messageEl.textContent = state.inicio
-        ? 'Ya tienes por dónde empezar: pulsa un nodo vecino para trazar el primer lado.'
-        : 'Haz clic en un nodo para empezar. Se iluminan los adyacentes.';
+    if (state.aristas.size === 0 && !state.seleccionado) {
+      messageEl.textContent = 'Haz clic en un nodo para empezar. Se iluminan los adyacentes.';
+      return;
+    }
+    if (state.seleccionado) {
+      messageEl.textContent = 'Pulsa un nodo adyacente para trazar el segmento.';
       return;
     }
 
@@ -394,8 +380,7 @@ export async function render(root, data, hooks) {
         if (state.history.length) {
           state.future.push(JSON.stringify([...state.aristas]));
           state.aristas = new Set(JSON.parse(state.history.pop()));
-          state.inicio = null;
-          state.activo = null;
+          state.seleccionado = null;
           refresh(ui, state);
         }
       });
@@ -405,8 +390,7 @@ export async function render(root, data, hooks) {
       ui.btnReset.addEventListener('click', () => {
         pushHistory(state);
         state.aristas = new Set();
-        state.inicio = null;
-        state.activo = null;
+        state.seleccionado = null;
         refresh(ui, state);
       });
     }
