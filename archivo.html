@@ -25,139 +25,74 @@
   <link rel="icon" href="assets/logo_mathgym.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Lexend:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-
-  <style>
-    main {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 16px 60px;
-      text-align: center;
-    }
-
-    .title-zone {
-      margin-bottom: 40px;
-    }
-
-    .title-zone h2 {
-      color: var(--accent);
-      font-size: 2.3rem;
-      margin-bottom: 8px;
-    }
-
-    .title-zone p {
-      color: var(--muted);
-      font-size: 1.1rem;
-    }
-
-    .archive-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
-      max-width: 1100px;
-      width: 100%;
-    }
-
-    .reto-card {
-      display: block;
-      text-align: left;
-      text-decoration: none;
-    }
-
-    .reto-card h3 {
-      margin: 0 0 6px;
-      color: var(--accent);
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-
-    .reto-card small {
-      display: block;
-      margin-top: 6px;
-      color: var(--muted);
-    }
-
-    .category-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      max-width: 1100px;
-      margin-bottom: 24px;
-    }
-
-    .category-chip {
-      font: inherit;
-      cursor: pointer;
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--card-b);
-      background: rgba(255,255,255,.04);
-      color: var(--muted);
-      font-size: 0.85rem;
-      text-transform: capitalize;
-      transition: all 0.15s ease;
-    }
-
-    .category-chip:hover {
-      border-color: var(--accent);
-      color: var(--fg);
-    }
-
-    .category-chip.is-active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    .difficulty-dots {
-      display: block;
-      margin-top: 2px;
-      letter-spacing: 2px;
-      color: var(--accent);
-      font-size: 0.8rem;
-    }
-  </style>
 </head>
 
-<body>
-  <!-- CABECERA -->
-  <header class="enigma-header-dark site-header">
-    <img src="assets/logo_mathgym.png" alt="Logo MathGym">
-    <div>
-      <h2>MathGym</h2>
-      <p class="site-header-tagline">Tu gimnasio mental diario 🧩</p>
-    </div>
-  </header>
-  <nav class="site-nav">
-    <a href="index.html" class="btn btn-secondary">🏠 Inicio</a>
-  </nav>
+<body class="sala">
 
-  <!-- CONTENIDO -->
-  <main>
-    <div class="title-zone">
-      <h2>Archivo de Retos</h2>
-      <p>Explora los retos anteriores y sigue fortaleciendo tu mente</p>
-    </div>
+  <!-- Trazas de circuito: el mismo motivo que rodea a Deceerre en su PNG,
+       igual que en index.html -- es el fondo de body.sala. -->
+  <svg class="circuitry" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path d="M0 90 H200 L250 40 H430"/><circle cx="434" cy="40" r="4"/>
+    <path d="M0 210 H120 L170 260 H360 L400 220 H560"/><circle cx="564" cy="220" r="4"/>
+    <path d="M0 430 H90 L140 380 H300"/><circle cx="304" cy="380" r="4"/>
+    <path d="M0 620 H180 L230 670 H400 L440 630 H580"/><circle cx="584" cy="630" r="4"/>
+    <path d="M0 800 H140 L190 750 H340"/><circle cx="344" cy="750" r="4"/>
+    <path d="M1400 60 H1240 L1190 110 H1010"/><circle cx="1006" cy="110" r="4"/>
+    <path d="M1400 250 H1300 L1250 200 H1080 L1040 240 H880"/><circle cx="876" cy="240" r="4"/>
+    <path d="M1400 470 H1230 L1180 520 H1000"/><circle cx="996" cy="520" r="4"/>
+    <path d="M1400 660 H1280 L1230 610 H1060 L1020 650 H900"/><circle cx="896" cy="650" r="4"/>
+    <path d="M1400 840 H1260 L1210 790 H1050"/><circle cx="1046" cy="790" r="4"/>
+    <path d="M300 0 V70 L350 120 V230"/><circle cx="350" cy="234" r="4"/>
+    <path d="M640 0 V110 L590 160 V270"/><circle cx="590" cy="274" r="4"/>
+    <path d="M980 0 V60 L1030 110 V210"/><circle cx="1030" cy="214" r="4"/>
+    <path d="M420 900 V790 L470 740 V640"/><circle cx="470" cy="636" r="4"/>
+    <path d="M760 900 V820 L710 770 V680"/><circle cx="710" cy="676" r="4"/>
+    <path d="M1120 900 V800 L1170 750 V660"/><circle cx="1170" cy="656" r="4"/>
+  </svg>
 
-    <div class="category-chips" id="filtro-categorias">
-      <!-- Rellenado dinámicamente por archivo.js -->
-    </div>
+  <div class="wrap">
 
-    <div class="archive-grid" id="lista-retos">
-      <!-- Rellenado dinámicamente por archivo.js -->
-    </div>
-  </main>
+    <header class="sala-header">
+      <div class="brand">
+        <img class="brand-logo" src="assets/logo_mathgym.png" alt="Logo MathGym">
+        <div>
+          <div class="brand-name">MathGym</div>
+          <div class="brand-tag">tu gimnasio mental diario</div>
+        </div>
+      </div>
+      <nav class="sala-nav">
+        <a href="index.html">Hoy</a>
+        <a href="archivo.html" class="active">Archivo</a>
+      </nav>
+    </header>
 
-  <footer class="site-footer">
-    © <span id="year"></span> MathGym — Proyecto educativo libre
-  </footer>
+    <main>
+      <div class="groups-head">
+        <h2>Archivo de retos</h2>
+        <p id="archive-count">Explora los retos anteriores y sigue fortaleciendo tu mente</p>
+      </div>
 
-  <script src="archivo.js"></script>
+      <div class="archive-chips" id="filtro-categorias">
+        <!-- Rellenado dinámicamente por archivo.js -->
+      </div>
+
+      <div class="exercise-row" id="lista-retos">
+        <!-- Rellenado dinámicamente por archivo.js -->
+      </div>
+    </main>
+
+    <footer class="sala-footer">
+      <span>© <span id="year"></span> MathGym — Proyecto educativo libre</span>
+      <span>Del reto más reciente al más antiguo</span>
+    </footer>
+
+  </div>
+
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
+  <script src="archivo.js"></script>
 </body>
 </html>

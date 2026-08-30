@@ -3415,6 +3415,26 @@ section.groups { margin-top: 52px; }
     .sala * { transition: none !important; }
 }
 
+/* ---------- archivo.html: mismo lenguaje visual que la sala, con las
+   fichas de tipo (.exercise) reutilizadas para las fichas de reto ---------- */
+.archive-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 28px; }
+.archive-chip {
+    font: inherit;
+    cursor: pointer;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    text-transform: capitalize;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+.archive-chip:hover { color: var(--fg); border-color: var(--blue); }
+.archive-chip.is-active { color: #fff; background: var(--brand); border-color: var(--brand-lift); }
+
+.archive-empty { color: var(--muted); }
+
 /* Barra de "esto es un ejemplo", encima del tablero de prueba (?tipo=). */
 .aviso-ejemplo {
     max-width: 1000px;
