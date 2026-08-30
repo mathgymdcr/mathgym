@@ -88,5 +88,14 @@
       "logica",
       "tiempo"
     ]
+  },
+  {
+    "fecha": "2026-08-30",
+    "titulo": "Conecta los Chips",
+    "dificultad": 3,
+    "categorias": [
+      "logica",
+      "grafos"
+    ]
   }
 ]
