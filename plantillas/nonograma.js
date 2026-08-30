@@ -63,6 +63,12 @@ export async function render(root, data, hooks) {
     won: false
   };
 
+  // Niveles 1-2 (y retos sin dificultad conocida, como el ejemplo del
+  // muestrario) mantienen el aviso en verde en vivo, como siempre. Del 3 en
+  // adelante hace falta pulsar "Comprobar": revelar el acierto de cada línea
+  // según se pinta sería media solución en un reto ya difícil de por sí.
+  const liveHint = config.dificultad == null || config.dificultad <= 2;
+
   // Barra de colores: sin ella no se podría decidir de qué color se pinta, y
   // ciclar por los colores a base de clics sería insufrible con tres.
   const colorEls = [];
@@ -131,6 +137,10 @@ export async function render(root, data, hooks) {
   }
 
   const controls = createElement('div', { class: 'nono-controls' });
+  const btnComprobar = createElement('button', { class: 'btn btn-primary' });
+  btnComprobar.textContent = 'Comprobar';
+  btnComprobar.addEventListener('click', () => pintarPistasCorrectas());
+  controls.appendChild(btnComprobar);
   const btnReset = createElement('button', { class: 'btn btn-secondary' });
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
@@ -210,6 +220,14 @@ export async function render(root, data, hooks) {
         cell.textContent = v === -1 ? '×' : '';
       }
     }
+    if (liveHint) pintarPistasCorrectas();
+    else limpiarPistasCorrectas();
+  }
+
+  // Ilumina en verde cada fila/columna cuyo estado actual ya coincide con su
+  // pista -- en vivo (niveles 1-2) se llama sola en cada refresh; del 3 en
+  // adelante solo la dispara el botón "Comprobar".
+  function pintarPistasCorrectas() {
     for (let r = 0; r < filas; r++) {
       const actual = pistaDe(pintadas(state.cells[r]));
       rowClueEls[r].classList.toggle('is-done', igualRachas(actual, pistasFila[r]));
@@ -220,13 +238,21 @@ export async function render(root, data, hooks) {
       colClueEls[c].classList.toggle('is-done', igualRachas(actual, pistasColumna[c]));
     }
   }
+
+  function limpiarPistasCorrectas() {
+    rowClueEls.forEach(el => el.classList.remove('is-done'));
+    colClueEls.forEach(el => el.classList.remove('is-done'));
+  }
 }
 
 async function loadConfig(d) {
   if (d?.json_url) {
     const r = await fetch(d.json_url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
+    const payload = await r.json();
+    // `dificultad` no vive en el payload (lo escribe generate-daily-reto.js
+    // aparte, ver CLAUDE.md): se conserva desde fuera del fetch.
+    return { ...payload, dificultad: d.dificultad };
   }
   return d;
 }

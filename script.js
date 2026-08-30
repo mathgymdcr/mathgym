@@ -92,7 +92,11 @@ async function mostrarReto(fecha) {
   cont.innerHTML = '<div class="skeleton">Cargando…</div>';
 
   try {
-    await window.Templates.render(reto.tipo, reto.data || {}, cont, {
+    // `dificultad` va al lado de `json_url` y no dentro del payload: es
+    // metadato del reto, no del puzzle, y solo algunas plantillas lo leen
+    // (nonograma, para decidir si el acierto se ve en vivo o hace falta
+    // pulsar "Comprobar").
+    await window.Templates.render(reto.tipo, { ...(reto.data || {}), dificultad: reto.dificultad }, cont, {
       // `marca` es lo que ha hecho quien juega, en la unidad que cuenta el par
       // de su tipo: { movimientos }, { pesadas } o { fallos }.
       onSuccess(marca) {
