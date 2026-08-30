@@ -78,7 +78,7 @@ export async function render(root, data, hooks) {
       const cuerpo = createElement('div', { class: 'matraz-cuerpo' });
       cuerpo.style.height = (capacity * 20) + 'px';
 
-      const reactivo = createElement('div', { class: 'reactivo' });
+      const reactivo = createElement('div', { class: `reactivo ${claseColorReactivo(s)}` });
       updateNivel(reactivo, s.levels[index], capacity);
       cuerpo.appendChild(reactivo);
 
@@ -129,6 +129,14 @@ export async function render(root, data, hooks) {
     reactivoElement.style.height = ((level / capacity) * 100) + '%';
   }
 
+  // Solo cosmético: el reactivo sigue siendo el mismo fungible de siempre
+  // (cualquier matraz se puede mezclar con cualquier otro), pero cambia de
+  // color en cuanto se vierte el primer compuesto, para que no parezca que
+  // el segundo sale del mismo líquido sin más -- aunque mecánicamente sí.
+  function claseColorReactivo(s) {
+    return (s.objetivos.length > 1 && s.vertidos.length >= 1) ? 'compuesto-2' : 'compuesto-1';
+  }
+
   function handleMatrazClick(index, s, uiRef) {
     if (s.selected === null) {
       s.selected = index;
@@ -164,9 +172,12 @@ export async function render(root, data, hooks) {
   }
 
   function updateUI(uiRef, s) {
+    const clase = claseColorReactivo(s);
     const matraces = uiRef.matracesContainer.querySelectorAll('.matraz');
     matraces.forEach((matraz, index) => {
-      updateNivel(matraz.querySelector('.reactivo'), s.levels[index], s.capacities[index]);
+      const reactivo = matraz.querySelector('.reactivo');
+      updateNivel(reactivo, s.levels[index], s.capacities[index]);
+      reactivo.classList.toggle('compuesto-2', clase === 'compuesto-2');
     });
   }
 
