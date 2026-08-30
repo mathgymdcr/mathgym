@@ -254,6 +254,12 @@ export async function render(root, data, hooks) {
           el.style.height = `${dr ? state.step : grosor}px`;
           el.style.zIndex = '1';
           el.style.cursor = 'pointer';
+          // .polygon-nodes (el contenedor) pone pointer-events:none para
+          // que el hueco entre nodos no tape el canvas; .polygon-node lo
+          // reactiva con su propia regla CSS, pero .polygon-edge no tiene
+          // ninguna y heredaba el 'none' del contenedor -- el clic
+          // atravesaba al canvas y el segmento nunca se borraba.
+          el.style.pointerEvents = 'auto';
           el.addEventListener('click', () => onEdgeClick(el.dataset.arista, state, ui));
           container.appendChild(el);
         }
