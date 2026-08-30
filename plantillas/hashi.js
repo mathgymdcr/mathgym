@@ -52,6 +52,12 @@ export async function render(root, data, hooks) {
     won: false
   };
 
+  // Niveles 1-2 (y retos sin dificultad conocida) mantienen el aro verde en
+  // vivo, como siempre. Del 3 en adelante hace falta pulsar "Comprobar": el
+  // aro rojo de sobrepasado sigue en vivo en cualquier nivel porque avisa de
+  // un error, no de una solución.
+  const liveHint = config.dificultad == null || config.dificultad <= 2;
+
   const boardStack = createElement('div', { class: 'hashi-board-stack' });
   const board = createElement('div', { class: 'hashi-board' });
   board.style.setProperty('--hashi-cols', columnas);
@@ -82,6 +88,10 @@ export async function render(root, data, hooks) {
   }
 
   const controls = createElement('div', { class: 'laser-controls' });
+  const btnComprobar = createElement('button', { class: 'btn btn-primary' });
+  btnComprobar.textContent = 'Comprobar';
+  btnComprobar.addEventListener('click', () => pintarEstadoCorrecto());
+  controls.appendChild(btnComprobar);
   const btnReset = createElement('button', { class: 'btn btn-secondary' });
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
@@ -253,14 +263,28 @@ export async function render(root, data, hooks) {
     islas.forEach((isla, idx) => {
       const cell = islandEls[idx];
       cell.classList.toggle('is-selected', state.seleccion === idx);
-      cell.classList.toggle('is-satisfied', grados[idx] === isla.grado);
       cell.classList.toggle('is-over', grados[idx] > isla.grado);
     });
+    if (liveHint) pintarEstadoCorrecto();
+    else limpiarEstadoCorrecto();
     svg.innerHTML = '';
     state.puentes.forEach((count, key) => {
       const [i, j] = key.split('-').map(Number);
       dibujarPuente(i, j, count);
     });
+  }
+
+  // Aro verde de "este chip ya tiene los cables que pide" -- en vivo en
+  // niveles 1-2, y solo al pulsar "Comprobar" del 3 en adelante.
+  function pintarEstadoCorrecto() {
+    const grados = calcularGrados();
+    islas.forEach((isla, idx) => {
+      islandEls[idx].classList.toggle('is-satisfied', grados[idx] === isla.grado);
+    });
+  }
+
+  function limpiarEstadoCorrecto() {
+    islandEls.forEach(cell => cell.classList.remove('is-satisfied'));
   }
 }
 
@@ -268,7 +292,9 @@ async function loadConfig(d) {
   if (d?.json_url) {
     const r = await fetch(d.json_url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
+    const payload = await r.json();
+    // `dificultad` no vive en el payload: se conserva desde fuera del fetch.
+    return { ...payload, dificultad: d.dificultad };
   }
   return d;
 }
@@ -279,22 +305,28 @@ async function loadConfig(d) {
 // son pistas de circuito impreso, así que los puentes son las pistas y esto
 // es lo que conectan.
 //
-// El tamaño va con el grado y el color por tramos. Los tres colores son los
-// mismos que usa el icono del tipo (assets/icono-puentes-hashi.svg), y son
-// RELLENOS que ya existen en la paleta: no se inventan ocho, que se
-// pelearían con una paleta corta a propósito, y no se tocan el verde ni el
-// rojo, que son del estado del juego y se pintan en el aro de fuera (ver
-// .hashi-cell.is-satisfied / .is-over en style.css).
-const TRAMOS = [
+// El tamaño va con el grado, y cada grado (1-8) lleva su propio color: ocho
+// tonos fijos que progresan de frío a cálido según sube el número, sin pisar
+// el verde ni el rojo, que son del estado del juego y se pintan en el aro de
+// fuera (ver .hashi-cell.is-satisfied / .is-over en style.css). Los grados 1
+// y 4 heredan el azul y el morado del icono del tipo
+// (assets/icono-puentes-hashi.svg); el 8 hereda su oro.
+const COLORES = [
   // `texto` va SIEMPRE en el tono que contrasta con el cuerpo: sobre el oro
-  // el blanco da 1.7:1 y desaparece.
-  { hasta: 2, nombre: 'bajo',  cuerpo: '#1788c7', texto: '#fff' },
-  { hasta: 5, nombre: 'medio', cuerpo: '#8a2189', texto: '#fff' },
-  { hasta: 8, nombre: 'alto',  cuerpo: '#f8c818', texto: '#141b26' }
+  // o el ámbar el blanco desaparece.
+  { nombre: 'azul',          cuerpo: '#1788c7', texto: '#fff' },
+  { nombre: 'azul-violeta',  cuerpo: '#4066c9', texto: '#fff' },
+  { nombre: 'violeta',       cuerpo: '#6b4ec2', texto: '#fff' },
+  { nombre: 'morado',        cuerpo: '#8a2189', texto: '#fff' },
+  { nombre: 'rosa',          cuerpo: '#b53a72', texto: '#fff' },
+  { nombre: 'naranja',       cuerpo: '#d9622f', texto: '#141b26' },
+  { nombre: 'ambar',         cuerpo: '#e79a1f', texto: '#141b26' },
+  { nombre: 'oro',           cuerpo: '#f8c818', texto: '#141b26' }
 ];
 
-export function tramoDeGrado(grado) {
-  return TRAMOS.find((t) => grado <= t.hasta) || TRAMOS[TRAMOS.length - 1];
+export function colorDeGrado(grado) {
+  const g = Math.min(Math.max(Math.round(grado), 1), 8);
+  return COLORES[g - 1];
 }
 
 // La celda del tablero mide 42px (34 en móvil), así que el chip no puede
@@ -306,10 +338,10 @@ export function ladoDeGrado(grado) {
 }
 
 function pintarChip(btn, grado) {
-  const tramo = tramoDeGrado(grado);
+  const color = colorDeGrado(grado);
   const lado = ladoDeGrado(grado);
   btn.dataset.grado = String(grado);
-  btn.dataset.tramo = tramo.nombre;
+  btn.dataset.color = color.nombre;
   btn.style.width = `${lado}px`;
   btn.style.height = `${lado}px`;
 
@@ -318,18 +350,18 @@ function pintarChip(btn, grado) {
   const patillas = [33, 50, 67].map((centro) => {
     const d = centro - 5;
     return `
-      <rect x="${d}" y="6" width="10" height="16" rx="2" fill="${tramo.cuerpo}"></rect>
-      <rect x="${d}" y="78" width="10" height="16" rx="2" fill="${tramo.cuerpo}"></rect>
-      <rect x="6" y="${d}" width="16" height="10" rx="2" fill="${tramo.cuerpo}"></rect>
-      <rect x="78" y="${d}" width="16" height="10" rx="2" fill="${tramo.cuerpo}"></rect>`;
+      <rect x="${d}" y="6" width="10" height="16" rx="2" fill="${color.cuerpo}"></rect>
+      <rect x="${d}" y="78" width="10" height="16" rx="2" fill="${color.cuerpo}"></rect>
+      <rect x="6" y="${d}" width="16" height="10" rx="2" fill="${color.cuerpo}"></rect>
+      <rect x="78" y="${d}" width="16" height="10" rx="2" fill="${color.cuerpo}"></rect>`;
   }).join('');
 
   btn.innerHTML = `
     <svg viewBox="0 0 100 100" width="${lado}" height="${lado}" aria-hidden="true" focusable="false">
       ${patillas}
-      <rect x="20" y="20" width="60" height="60" rx="9" fill="${tramo.cuerpo}"></rect>
-      <circle cx="30" cy="30" r="4" fill="${tramo.texto}" opacity="0.5"></circle>
-      <text x="52" y="53" fill="${tramo.texto}" font-size="38" font-weight="700"
+      <rect x="20" y="20" width="60" height="60" rx="9" fill="${color.cuerpo}"></rect>
+      <circle cx="30" cy="30" r="4" fill="${color.texto}" opacity="0.5"></circle>
+      <text x="52" y="53" fill="${color.texto}" font-size="38" font-weight="700"
             text-anchor="middle" dominant-baseline="central">${grado}</text>
     </svg>`;
 }

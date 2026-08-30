@@ -51,12 +51,14 @@ describe('chips de puentes-hashi', () => {
     expect(lado(4)).toBeLessThan(lado(6))
   })
 
-  it('reparte el color por tramos, sin inventarse fuera de la paleta', async () => {
+  it('cada numero lleva su propio color, dentro de una paleta fija de ocho', async () => {
     const host = await monta()
-    const tono = (g) => chipDe(host, g).dataset.tramo
-    expect(tono(1)).toBe('bajo')
-    expect(tono(4)).toBe('medio')
-    expect(tono(6)).toBe('alto')
+    const tono = (g) => chipDe(host, g).dataset.color
+    expect(tono(1)).toBe('azul')
+    expect(tono(4)).toBe('morado')
+    expect(tono(6)).toBe('naranja')
+    expect(tono(1)).not.toBe(tono(4))
+    expect(tono(4)).not.toBe(tono(6))
   })
 
   it('pone el numero oscuro sobre el oro, donde el blanco seria ilegible', async () => {
