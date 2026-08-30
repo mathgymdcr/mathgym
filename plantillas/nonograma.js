@@ -139,7 +139,10 @@ export async function render(root, data, hooks) {
   const controls = createElement('div', { class: 'nono-controls' });
   const btnComprobar = createElement('button', { class: 'btn btn-primary' });
   btnComprobar.textContent = 'Comprobar';
-  btnComprobar.addEventListener('click', () => pintarPistasCorrectas());
+  btnComprobar.addEventListener('click', () => {
+    pintarPistasCorrectas();
+    comprobarVictoria();
+  });
   controls.appendChild(btnComprobar);
   const btnReset = createElement('button', { class: 'btn btn-secondary' });
   btnReset.textContent = 'Reiniciar';
@@ -187,13 +190,16 @@ export async function render(root, data, hooks) {
     // estrellas. Las X de descarte son gratis.
     if (state.cells[r][c] > 0) state.pintadas += 1;
     refresh();
+  }
 
-    if (haGanado()) {
-      state.won = true;
-      setStatus(ui.status, '¡Dibujo completo!', 'ok');
-      celebrate({ ok: true, message: '¡Has revelado el dibujo oculto!' });
-      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.pintadas });
-    }
+  // Solo la dispara el botón "Comprobar": completar el dibujo por sí solo
+  // ya no valida, para que el jugador decida cuándo se revisa el reto.
+  function comprobarVictoria() {
+    if (state.won || !haGanado()) return;
+    state.won = true;
+    setStatus(ui.status, '¡Dibujo completo!', 'ok');
+    celebrate({ ok: true, message: '¡Has revelado el dibujo oculto!' });
+    if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.pintadas });
   }
 
   function haGanado() {

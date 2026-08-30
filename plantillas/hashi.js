@@ -90,7 +90,10 @@ export async function render(root, data, hooks) {
   const controls = createElement('div', { class: 'laser-controls' });
   const btnComprobar = createElement('button', { class: 'btn btn-primary' });
   btnComprobar.textContent = 'Comprobar';
-  btnComprobar.addEventListener('click', () => pintarEstadoCorrecto());
+  btnComprobar.addEventListener('click', () => {
+    pintarEstadoCorrecto();
+    comprobarVictoria();
+  });
   controls.appendChild(btnComprobar);
   const btnReset = createElement('button', { class: 'btn btn-secondary' });
   btnReset.textContent = 'Reiniciar';
@@ -197,7 +200,6 @@ export async function render(root, data, hooks) {
     }
     state.seleccion = -1;
     refresh();
-    comprobarVictoria();
   }
 
   function calcularGrados() {
@@ -227,6 +229,7 @@ export async function render(root, data, hooks) {
   }
 
   function comprobarVictoria() {
+    if (state.won) return;
     const grados = calcularGrados();
     const todasCumplen = islas.every((isla, idx) => grados[idx] === isla.grado);
     if (todasCumplen && conectado()) {
