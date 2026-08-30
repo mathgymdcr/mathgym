@@ -98,3 +98,22 @@ describe('el mínimo de pesadas sale del módulo compartido', () => {
     expect(enviado.maxWeighings).toBeUndefined()
   })
 })
+
+describe('platos desiguales', () => {
+  // Comparar una moneda contra el plato vacío parece "no moverse" (si esa
+  // moneda es justo la impostora ligera, hasta da Equilibrio de verdad,
+  // porque el modelo mide cantidad + desviación, no peso real) y no dice
+  // nada sobre quién es el impostor. Se avisa, pero sin bloquear el botón
+  // -- ver el comentario de "No bloqueamos nunca el botón de pesar".
+  it('avisa de que el resultado no es fiable, sin dejar de pesar', async () => {
+    const root = document.createElement('div')
+    await mod.render(root, {
+      variant: 'pesada', n_monedas: 6, k_impostoras: 1, max_pesadas: 3,
+      anomalies: [{ i: 2, sign: 1 }]
+    }, {})
+    pesar(root, 0)
+    expect(mensajes(root)).toMatch(/platos desiguales/i)
+    const contador = root.querySelector('.weighings-count')
+    expect(contador.textContent).toBe('1')
+  })
+})
