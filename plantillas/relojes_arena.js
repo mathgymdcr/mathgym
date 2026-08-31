@@ -15,8 +15,12 @@ import { celebrate } from './celebration.js';
 import { pintarIcono } from './shell.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
-const SIM_SECONDS_PER_TICK = 2; // 1 minuto de reloj ≈ 3s reales
-const TICK_MS = 100;
+// SIM_SECONDS_PER_TICK fija la granularidad de la simulación (hay un test
+// que comprueba que el margen de tolerancia la absorbe, ver
+// tests/relojes/simulacion.test.js): para acelerar la animación se toca
+// TICK_MS, no esta constante.
+const SIM_SECONDS_PER_TICK = 2;
+const TICK_MS = 50; // 1 minuto de reloj ≈ 1.5s reales (antes 3s, con TICK_MS=100)
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
