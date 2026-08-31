@@ -47,7 +47,7 @@ export async function render(root, data, hooks) {
     instructionsHTML: `
       <h3>Cómo se juega</h3>
       <p><strong>Objetivo:</strong> organiza el calendario para que cada planta reciba <strong>exactamente</strong> sus riegos.</p>
-      <p>Cada planta solo bebe en los ciclos marcados como disponibles: las casillas tachadas son días en los que esa planta no admite agua.</p>
+      <p>Cada planta solo bebe en los ciclos que dice su ficha, junto a su nombre. Toca una celda para regarla; tócala otra vez para marcarla con <strong>×</strong> (para recordar que esa planta no va ahí); una tercera vez la deja vacía. La × no cuenta para ganar, es solo para no dudar dos veces.</p>
       ${descanso ? '<p>Ninguna planta se puede regar <strong>dos ciclos seguidos</strong>: la tierra tiene que secarse entre riego y riego.</p>' : ''}
       <p>Y la regadera da para <strong>${capacity} riego${capacity === 1 ? '' : 's'} por ciclo</strong> como mucho.</p>
     `
@@ -80,15 +80,21 @@ export async function render(root, data, hooks) {
   plants.forEach((planta, i) => {
     const tr = createElement('tr', { class: `riego-planta riego-planta-${i}` });
     const nombre = createElement('td', { class: 'riego-nombre' });
-    nombre.textContent = planta.id;
+    const nombreTexto = createElement('div', { class: 'riego-nombre-texto' });
+    nombreTexto.textContent = planta.id;
+    nombre.appendChild(nombreTexto);
+    const nota = ventanaTexto(planta, cycles);
+    if (nota) {
+      const notaEl = createElement('div', { class: 'riego-ventana-nota' });
+      notaEl.textContent = nota;
+      nombre.appendChild(notaEl);
+    }
     tr.appendChild(nombre);
 
     celdas.push([]);
     for (let j = 0; j < cycles; j++) {
       const td = createElement('td', { class: 'riego-cell', 'data-planta': String(i), 'data-ciclo': String(j) });
-      const disponible = planta.ventana.includes(j);
-      if (!disponible) td.classList.add('is-blocked');
-      else td.addEventListener('click', () => onCeldaClick(i, j));
+      td.addEventListener('click', () => onCeldaClick(i, j));
       tr.appendChild(td);
       celdas[i].push(td);
     }
@@ -133,11 +139,11 @@ export async function render(root, data, hooks) {
   refresh();
 
   function riegosDePlanta(i) {
-    return state.grid[i].reduce((acc, on) => acc + (on ? 1 : 0), 0);
+    return state.grid[i].reduce((acc, v) => acc + (v === true ? 1 : 0), 0);
   }
 
   function riegosDeCiclo(j) {
-    return state.grid.reduce((acc, fila) => acc + (fila[j] ? 1 : 0), 0);
+    return state.grid.reduce((acc, fila) => acc + (fila[j] === true ? 1 : 0), 0);
   }
 
   function problemas() {
@@ -149,12 +155,23 @@ export async function render(root, data, hooks) {
     if (descanso) {
       plants.forEach((planta, i) => {
         for (let j = 0; j + 1 < cycles; j++) {
-          if (state.grid[i][j] && state.grid[i][j + 1]) {
+          if (state.grid[i][j] === true && state.grid[i][j + 1] === true) {
             msgs.push(`${planta.id} se riega dos ciclos seguidos (${j + 1} y ${j + 2})`);
           }
         }
       });
     }
+    // Antes esto no hacía falta: los ciclos fuera de ventana ni siquiera
+    // tenían click. Ahora que el jugador riega donde quiere (la ventana solo
+    // viene en texto), hay que comprobar de verdad que no se ha colado agua
+    // donde esa planta no la admite.
+    plants.forEach((planta, i) => {
+      for (let j = 0; j < cycles; j++) {
+        if (state.grid[i][j] === true && !planta.ventana.includes(j)) {
+          msgs.push(`${planta.id} no admite agua en el ciclo ${j + 1}`);
+        }
+      }
+    });
     plants.forEach((planta, i) => {
       const tiene = riegosDePlanta(i);
       if (tiene > planta.doses) msgs.push(`${planta.id} lleva ${tiene} riegos y solo necesita ${planta.doses}`);
@@ -162,19 +179,32 @@ export async function render(root, data, hooks) {
     return msgs;
   }
 
+  // Vacía -> regada -> marcada con × (recordatorio de que aquí no toca,
+  // según el texto de la ventana) -> vacía. Igual que el marcado del
+  // nonograma: la × es gratis, no se valida contra la ventana real.
   function onCeldaClick(i, j) {
     if (state.won) return;
-    state.grid[i][j] = !state.grid[i][j];
+    const v = state.grid[i][j];
+    if (v === false) state.grid[i][j] = true;
+    else if (v === true) state.grid[i][j] = 'x';
+    else state.grid[i][j] = false;
     // El par del reto son los riegos del calendario correcto, así que cuenta
-    // cada riego que se abre: rectificar es lo que cuesta estrellas.
-    if (state.grid[i][j]) state.regados += 1;
+    // cada riego que se abre: rectificar es lo que cuesta estrellas. Marcar
+    // con × es gratis.
+    if (state.grid[i][j] === true) state.regados += 1;
     refresh();
   }
 
   function refresh() {
     plants.forEach((planta, i) => {
       const tiene = riegosDePlanta(i);
-      for (let j = 0; j < cycles; j++) celdas[i][j].classList.toggle('is-on', state.grid[i][j]);
+      for (let j = 0; j < cycles; j++) {
+        const v = state.grid[i][j];
+        const cell = celdas[i][j];
+        cell.classList.toggle('is-on', v === true);
+        cell.classList.toggle('is-marked', v === 'x');
+        cell.textContent = v === 'x' ? '×' : '';
+      }
       const dosisEl = root.querySelector(`.riego-planta-${i} .riego-dosis`);
       dosisEl.textContent = `${tiene}/${planta.doses}`;
       dosisEl.classList.toggle('is-done', tiene === planta.doses);
@@ -212,6 +242,30 @@ export async function render(root, data, hooks) {
       setStatus(ui.status, msgs.length ? 'Hay algo que no cuadra' : 'Sigue repartiendo los riegos', 'ok');
     }
   }
+}
+
+// Ciclos 1-indexados de una ventana, agrupados en rachas ("3 a 5") para que
+// no salga una lista larga de números sueltos. Sin restricción real (la
+// ventana cubre todos los ciclos, como en el payload antiguo sin `ventana`)
+// no hay nada que avisar y se devuelve cadena vacía.
+function ventanaTexto(planta, cycles) {
+  if (planta.ventana.length >= cycles) return '';
+  const ordenados = [...planta.ventana].sort((a, b) => a - b).map((i) => i + 1);
+  const grupos = [];
+  let inicio = ordenados[0];
+  let anterior = ordenados[0];
+  for (let k = 1; k <= ordenados.length; k++) {
+    const actual = ordenados[k];
+    if (actual === anterior + 1) { anterior = actual; continue; }
+    grupos.push(inicio === anterior ? `${inicio}` : `${inicio} a ${anterior}`);
+    inicio = actual;
+    anterior = actual;
+  }
+  const lista = grupos.length === 1
+    ? grupos[0]
+    : `${grupos.slice(0, -1).join(', ')} y ${grupos[grupos.length - 1]}`;
+  const palabra = planta.ventana.length === 1 ? 'ciclo' : 'ciclos';
+  return `Disponible: ${palabra} ${lista}.`;
 }
 
 async function loadConfig(d) {

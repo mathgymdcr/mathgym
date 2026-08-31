@@ -3034,7 +3034,21 @@ li {
   text-align: right;
   padding-right: 8px;
   font-weight: 600;
+}
+
+.riego-nombre-texto {
   white-space: nowrap;
+}
+
+/* La ventana de cada planta, en texto, junto a su nombre: antes se veía
+   tachada directamente en el tablero y no había nada que deducir. */
+.riego-ventana-nota {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--muted, #aab3c5);
+  white-space: normal;
+  max-width: 170px;
+  margin-left: auto;
 }
 
 .riego-cell {
@@ -3044,10 +3058,15 @@ li {
   border: 1px solid var(--card-b);
   background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--muted, #aab3c5);
   transition: background 0.15s ease, transform 0.15s ease;
 }
 
-.riego-cell:hover:not(.is-blocked) {
+.riego-cell:hover {
   background: rgba(138, 33, 137, 0.2);
 }
 
@@ -3056,15 +3075,15 @@ li {
   border-color: #1c7ed6;
 }
 
-/* Ciclos en los que esa planta no admite agua: se ven, pero tachados, para
-   que el jugador razone con la ventana delante. */
-.riego-cell.is-blocked {
-  cursor: default;
+/* Marca voluntaria del jugador (×): recuerda que, según el texto de su
+   ventana, esa planta no va en ese ciclo. Gratis, no se valida -- igual que
+   las × del nonograma. */
+.riego-cell.is-marked {
   background: repeating-linear-gradient(45deg,
     rgba(255,255,255,.03), rgba(255,255,255,.03) 4px,
     transparent 4px, transparent 8px);
   border-style: dashed;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .riego-dosis {

@@ -37,13 +37,45 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
     expect(root.textContent).toContain('Cómo se juega')
   })
 
-  it('marca como no disponibles los ciclos fuera de la ventana de cada planta', async () => {
+  it('escribe la ventana de cada planta en texto junto a su nombre', async () => {
     const root = await montar()
-    expect(celda(root, 0, 1).classList.contains('is-blocked'), 'ciclo 2 no está en la ventana').toBe(true)
-    expect(celda(root, 0, 0).classList.contains('is-blocked')).toBe(false)
+    const notas = root.querySelectorAll('.riego-ventana-nota')
+    expect(notas).toHaveLength(2)
+    // Albahaca: ventana [0,2,3] -> ciclos 1-indexados 1,3,4 -> "1" suelto y "3 a 4" seguidos.
+    expect(notas[0].textContent).toBe('Disponible: ciclos 1 y 3 a 4.')
+    // Cactus: ventana [1,3,4] -> ciclos 2,4,5.
+    expect(notas[1].textContent).toBe('Disponible: ciclos 2 y 4 a 5.')
+  })
 
+  it('ya no tacha nada por su cuenta: todas las celdas se pueden tocar', async () => {
+    const root = await montar()
+    expect(root.querySelectorAll('.riego-cell.is-blocked')).toHaveLength(0)
+    // Ciclo 2 (índice 1) no está en la ventana de Albahaca, pero SÍ se puede
+    // regar -- lo que antes bloqueaba el click ahora lo detecta problemas().
     celda(root, 0, 1).click()
-    expect(celda(root, 0, 1).classList.contains('is-on'), 'una celda bloqueada no debe regarse').toBe(false)
+    expect(celda(root, 0, 1).classList.contains('is-on')).toBe(true)
+  })
+
+  it('avisa si se riega un ciclo fuera de la ventana de la planta', async () => {
+    const root = await montar()
+    celda(root, 0, 1).click()   // Albahaca, ciclo 2: fuera de su ventana [0,2,3]
+    expect(root.querySelector('.feedback.ko')).not.toBeNull()
+    expect(root.textContent).toContain('Albahaca no admite agua en el ciclo 2')
+  })
+
+  it('el click cicla vacía -> regada -> marcada con × -> vacía, y la × no cuenta como riego', async () => {
+    const root = await montar()
+    const c = celda(root, 0, 1)
+    c.click()
+    expect(c.classList.contains('is-on')).toBe(true)
+    c.click()
+    expect(c.classList.contains('is-on')).toBe(false)
+    expect(c.classList.contains('is-marked')).toBe(true)
+    expect(c.textContent).toBe('×')
+    expect(root.querySelector('.riego-planta-0 .riego-dosis').textContent).toBe('0/2')
+    c.click()
+    expect(c.classList.contains('is-marked')).toBe(false)
+    expect(c.textContent).toBe('')
   })
 
   it('cuenta las dosis de cada planta al regar', async () => {
@@ -96,7 +128,7 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
       capacity_per_cycle: 2,
       plants: [{ id: 'A', doses: 2 }, { id: 'B', doses: 1 }]
     })
-    expect(root.querySelectorAll('.riego-cell.is-blocked')).toHaveLength(0)
+    expect(root.querySelectorAll('.riego-ventana-nota')).toHaveLength(0)
     expect(root.querySelector('.feedback.ko')).toBeNull()
   })
 })
