@@ -97,5 +97,14 @@
       "logica",
       "grafos"
     ]
+  },
+  {
+    "fecha": "2026-08-31",
+    "titulo": "Objeto Oculto",
+    "dificultad": 3,
+    "categorias": [
+      "logica",
+      "deduccion"
+    ]
   }
 ]
