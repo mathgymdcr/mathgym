@@ -887,6 +887,16 @@ class RetoValidator {
     if (!Array.isArray(data.plants) || data.plants.length < 2) {
       throw new Error('Riego-plantas necesita al menos 2 plantas');
     }
+    if (data.incompatibles !== undefined) {
+      if (!Array.isArray(data.incompatibles) || data.incompatibles.length !== 2) {
+        throw new Error(`Riego-plantas incompatibles debe ser un par de ids: ${JSON.stringify(data.incompatibles)}`);
+      }
+      for (const id of data.incompatibles) {
+        if (!data.plants.some((p) => p.id === id)) {
+          throw new Error(`Riego-plantas incompatibles referencia una planta inexistente: ${id}`);
+        }
+      }
+    }
 
     const nombres = new Set();
     for (const p of data.plants) {
@@ -919,7 +929,12 @@ class RetoValidator {
     // Solución única: la plantilla da por bueno cualquier calendario que
     // cumpla las reglas, así que con varias soluciones el jugador acierta por
     // casualidad y el reto deja de tener deducción.
-    const res = contarRiegos({ cycles: data.cycles, capacity: data.capacity, plants: data.plants }, { tope: 2 });
+    const res = contarRiegos({
+      cycles: data.cycles,
+      capacity: data.capacity,
+      plants: data.plants,
+      ...(data.incompatibles ? { incompatibles: data.incompatibles } : {})
+    }, { tope: 2 });
     if (res.soluciones === 0) {
       throw new Error('Riego-plantas not solvable: no hay ningún calendario que cumpla las reglas');
     }

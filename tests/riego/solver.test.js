@@ -70,4 +70,50 @@ describe('contarSoluciones', () => {
     ], 5, 1), { tope: 2 })
     expect(res.soluciones).toBe(2)
   })
+
+  it('con incompatibles, descarta repartos que comparten ciclo entre esas dos plantas', () => {
+    // Sin incompatibilidad, A y B podrían coincidir en el ciclo 2 (ambas
+    // tienen capacidad de sobra, capacity=2). Con la pareja incompatible,
+    // esa coincidencia deja de contar como solución.
+    const res = contarSoluciones({
+      cycles: 5,
+      capacity: 2,
+      incompatibles: ['A', 'B'],
+      plants: [
+        { id: 'A', doses: 1, ventana: [2] },
+        { id: 'B', doses: 1, ventana: [2] }
+      ]
+    })
+    expect(res.soluciones).toBe(0)
+  })
+
+  it('con incompatibles, sigue contando los repartos que NO coinciden', () => {
+    const res = contarSoluciones({
+      cycles: 5,
+      capacity: 2,
+      incompatibles: ['A', 'B'],
+      plants: [
+        { id: 'A', doses: 1, ventana: [0, 2] },
+        { id: 'B', doses: 1, ventana: [2] }
+      ]
+    })
+    // A en 0 y B en 2: válido. A en 2 y B en 2: inválido (mismo ciclo, incompatibles).
+    expect(res.soluciones).toBe(1)
+    expect(res.primera).toEqual([[0], [2]])
+  })
+
+  it('incompatibles no afecta a plantas que no forman parte de la pareja', () => {
+    const res = contarSoluciones({
+      cycles: 5,
+      capacity: 2,
+      incompatibles: ['A', 'B'],
+      plants: [
+        { id: 'A', doses: 1, ventana: [2] },
+        { id: 'B', doses: 1, ventana: [0] },
+        { id: 'C', doses: 1, ventana: [2] }
+      ]
+    })
+    // A y C comparten ciclo 2, pero C no está en la pareja incompatible.
+    expect(res.soluciones).toBe(1)
+  })
 })

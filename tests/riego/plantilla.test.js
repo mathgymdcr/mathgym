@@ -131,4 +131,59 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
     expect(root.querySelectorAll('.riego-ventana-nota')).toHaveLength(0)
     expect(root.querySelector('.feedback.ko')).toBeNull()
   })
+
+  it('dice "solo ciclos pares/impares" cuando la ventana cae exacta en esa paridad', async () => {
+    const root = await montar({
+      cycles: 6,
+      capacity: 2,
+      plants: [
+        { id: 'Par', doses: 2, ventana: [1, 3, 5] },    // 1-indexado: 2, 4, 6 -> pares
+        { id: 'Impar', doses: 2, ventana: [0, 2, 4] }   // 1-indexado: 1, 3, 5 -> impares
+      ]
+    })
+    const notas = root.querySelectorAll('.riego-ventana-nota')
+    expect(notas[0].textContent).toBe('Disponible: solo ciclos pares.')
+    expect(notas[1].textContent).toBe('Disponible: solo ciclos impares.')
+  })
+
+  describe('con pareja incompatible', () => {
+    const PAYLOAD_INCOMPATIBLE = {
+      cycles: 6,
+      capacity: 2,
+      incompatibles: ['Albahaca', 'Cactus'],
+      plants: [
+        { id: 'Albahaca', doses: 1, ventana: [0, 2] },
+        { id: 'Cactus', doses: 1, ventana: [0, 2] }
+      ]
+    }
+
+    it('anuncia la pareja en las instrucciones', async () => {
+      const root = await montar(PAYLOAD_INCOMPATIBLE)
+      expect(root.textContent).toContain('Albahaca')
+      expect(root.textContent).toContain('no pueden regarse en el mismo ciclo')
+    })
+
+    it('avisa si las dos riegan el mismo ciclo', async () => {
+      const root = await montar(PAYLOAD_INCOMPATIBLE)
+      celda(root, 0, 0).click()   // Albahaca, ciclo 1
+      celda(root, 1, 0).click()   // Cactus, ciclo 1: mismo ciclo, pareja incompatible
+      expect(root.querySelector('.feedback.ko')).not.toBeNull()
+      expect(root.textContent).toContain('comparten el ciclo 1')
+    })
+
+    it('no avisa si riegan en ciclos distintos', async () => {
+      const root = await montar(PAYLOAD_INCOMPATIBLE)
+      celda(root, 0, 0).click()   // Albahaca, ciclo 1
+      celda(root, 1, 2).click()   // Cactus, ciclo 3
+      expect(root.querySelector('.feedback.ko')).toBeNull()
+    })
+
+    it('ignora un incompatibles que referencia una planta inexistente, sin romper el reto', async () => {
+      const root = await montar({ ...PAYLOAD_INCOMPATIBLE, incompatibles: ['Fantasma', 'Albahaca'] })
+      expect(root.textContent).not.toContain('no pueden regarse en el mismo ciclo')
+      celda(root, 0, 0).click()
+      celda(root, 1, 0).click()
+      expect(root.querySelector('.feedback.ko')).toBeNull()
+    })
+  })
 })

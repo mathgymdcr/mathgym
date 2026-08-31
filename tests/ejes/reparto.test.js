@@ -30,14 +30,18 @@ const MODULOS = {
 
 // Cuantas variantes distintas tiene que publicar cada tipo. nonograma tiene
 // tres ejes (tamano, espejo y color) y por eso mas combinaciones. laser tiene
-// dos ejes (tamano y modo).
+// dos ejes (tamano y modo). riego-plantas tambien tiene dos (tamano e
+// incompatibilidad de pareja) -- la paridad (solo ciclos pares/impares) no
+// cuenta como eje aparte: no la sortea el generador, sale sola del ruido de
+// la ventana (ver tests/riego/generador.test.js), asi que no tiene una
+// varianteDeSeed que verificar aqui.
 const ESPERADAS = {
   'anillas-encadenadas': 3,
   'cajas-apiladas': 3,
   'laser-triangular': 8,
   'nonograma': 5,
   'puentes-hashi': 2,
-  'riego-plantas': 3
+  'riego-plantas': 6
 }
 
 function seedsRealesDe(tipo, dias = 1460) {

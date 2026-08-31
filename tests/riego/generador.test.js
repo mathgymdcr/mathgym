@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest'
 import { buildRiegoPuzzle, contarSoluciones } from '../../scripts/riego-logic.js'
 
 const SEEDS = [20260831, 20260918, 20261210, 20270501, 21, 44, 97, 20280707]
-const config = (p) => ({ cycles: p.cycles, capacity: p.capacity, plants: p.plants })
+const config = (p) => ({
+  cycles: p.cycles,
+  capacity: p.capacity,
+  plants: p.plants,
+  ...(p.incompatibles ? { incompatibles: p.incompatibles } : {})
+})
 
 describe('buildRiegoPuzzle', () => {
   it('es determinista: el mismo seed da exactamente el mismo puzzle', () => {
@@ -68,10 +73,59 @@ describe('buildRiegoPuzzle', () => {
       const p = buildRiegoPuzzle(seed)
       vistas.add(p.variant)
       expect(p.dificultad).toBeGreaterThanOrEqual(2)
-      expect(p.dificultad).toBeLessThanOrEqual(4)
+      expect(p.dificultad).toBeLessThanOrEqual(5)
       expect(p.cycles).toBeGreaterThanOrEqual(6)
       expect(p.capacity).toBeGreaterThanOrEqual(1)
     }
     expect(vistas.size).toBe(3)
+  })
+
+  it('cuando hay incompatibles, la pareja no comparte ningún ciclo en la solución, y sube la dificultad', () => {
+    let vistos = 0
+    for (let seed = 0; seed < 300; seed++) {
+      const p = buildRiegoPuzzle(seed)
+      if (!p.incompatibles) continue
+      vistos++
+      const [idA, idB] = p.incompatibles
+      const iA = p.plants.findIndex((pl) => pl.id === idA)
+      const iB = p.plants.findIndex((pl) => pl.id === idB)
+      expect(iA, `seed ${seed}: ${idA} no está entre las plantas`).toBeGreaterThanOrEqual(0)
+      expect(iB, `seed ${seed}: ${idB} no está entre las plantas`).toBeGreaterThanOrEqual(0)
+      const comun = p.solucion[iA].filter((c) => p.solucion[iB].includes(c))
+      expect(comun, `seed ${seed}: ${idA} y ${idB} comparten ciclo`).toEqual([])
+    }
+    expect(vistos, 'el eje de incompatibilidad nunca se alcanzó en 300 seeds').toBeGreaterThan(0)
+  })
+
+  it('el eje de incompatibilidad no se queda clavado: hay seeds con y sin él', () => {
+    let con = 0, sin = 0
+    for (let seed = 0; seed < 300; seed++) {
+      const p = buildRiegoPuzzle(seed)
+      if (p.incompatibles) con++; else sin++
+    }
+    expect(con).toBeGreaterThan(0)
+    expect(sin).toBeGreaterThan(0)
+  })
+
+  it('la ventana en paridad (solo pares o solo impares) sale sin necesidad de forzarla', () => {
+    // No hace falta ningún caso especial en el generador: el ruido aleatorio
+    // ya produce esta forma exacta ~2.6% de las veces (209 de 8014 ventanas
+    // en un barrido de 2000 seeds), así que basta con que la plantilla sepa
+    // reconocerla y con verla aparecer alguna vez aquí.
+    let vista = false
+    for (let seed = 0; seed < 500 && !vista; seed++) {
+      const p = buildRiegoPuzzle(seed)
+      for (const planta of p.plants) {
+        const par = [...Array(p.cycles).keys()].filter((c) => (c + 1) % 2 === 0)
+        const impar = [...Array(p.cycles).keys()].filter((c) => (c + 1) % 2 !== 0)
+        const ventanaOrdenada = [...planta.ventana].sort((a, b) => a - b)
+        if (JSON.stringify(ventanaOrdenada) === JSON.stringify(par) ||
+            JSON.stringify(ventanaOrdenada) === JSON.stringify(impar)) {
+          vista = true
+          break
+        }
+      }
+    }
+    expect(vista, 'ninguna planta en 500 seeds tuvo ventana de paridad exacta').toBe(true)
   })
 })

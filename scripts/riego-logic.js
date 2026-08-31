@@ -38,11 +38,19 @@ export function combinacionesPlanta(planta) {
 
 // Cuenta calendarios completos válidos hasta `tope` y devuelve el primero.
 // Con tope 2 basta para distinguir "imposible" / "único" / "hay varios".
+//
+// `config.incompatibles`, si viene, es el par de `id` de dos plantas que no
+// pueden regarse en el mismo ciclo -- además de la ventana, el descanso y la
+// capacidad. Es opcional: sin él, el comportamiento es el de siempre.
 export function contarSoluciones(config, opts = {}) {
   const tope = opts.tope != null ? opts.tope : 10;
   const plants = config.plants || [];
   const opciones = plants.map(combinacionesPlanta);
   if (opciones.some((o) => o.length === 0)) return { soluciones: 0, primera: null };
+
+  const parIncompatible = config.incompatibles
+    ? config.incompatibles.map((id) => plants.findIndex((p) => p.id === id))
+    : null;
 
   const usoCiclo = Array(config.cycles).fill(0);
   let soluciones = 0;
@@ -58,6 +66,10 @@ export function contarSoluciones(config, opts = {}) {
     }
     for (const combo of opciones[i]) {
       if (combo.some((c) => usoCiclo[c] >= config.capacity)) continue;
+      if (parIncompatible && parIncompatible.includes(i)) {
+        const otro = parIncompatible[0] === i ? parIncompatible[1] : parIncompatible[0];
+        if (otro < i && combo.some((c) => elegidas[otro].includes(c))) continue;
+      }
       combo.forEach((c) => usoCiclo[c]++);
       elegidas.push(combo);
       rec(i + 1);
@@ -150,12 +162,21 @@ export function configDeSeed(seed) {
   return eligeEje(VARIANTES, seed, 0x5a92e6d1);
 }
 
+// Eje independiente del tamaño (mismo patrón: PRNG con su propia máscara, no
+// aritmética sobre el seed). Cuando toca, dos plantas concretas no pueden
+// regarse en el mismo ciclo -- además de ventana, descanso y capacidad.
+function incompatibilidadDeSeed(seed) {
+  return eligeEje([true, false], seed, 0x2f7c8b31);
+}
+
 export function varianteDeSeed(seed) {
-  return configDeSeed(seed).nombre;
+  const nombre = configDeSeed(seed).nombre;
+  return incompatibilidadDeSeed(seed) ? `${nombre}-incompatible` : nombre;
 }
 
 export function buildRiegoPuzzle(seed) {
   const cfg = configDeSeed(seed);
+  const incompatibilidad = incompatibilidadDeSeed(seed);
 
   for (let intento = 0; intento < MAX_INTENTOS; intento++) {
     const rand = mulberry32((seed + intento * 86243) >>> 0);
@@ -176,6 +197,23 @@ export function buildRiegoPuzzle(seed) {
     });
 
     const config = { cycles: cfg.cycles, capacity: cfg.capacity, plants };
+
+    // Si toca incompatibilidad, hace falta una pareja cuyos riegos REALES ya
+    // sean disjuntos -- si no, el calendario de partida ya la incumpliría.
+    // Sin ninguna pareja así en este calendario, se descarta el intento
+    // entero (el bucle ya reintenta con otro calendario, es el mismo camino
+    // que cualquier otra causa de descarte de aquí abajo).
+    if (incompatibilidad) {
+      const candidatas = [];
+      for (let i = 0; i < calendario.length; i++) {
+        for (let j = i + 1; j < calendario.length; j++) {
+          if (!calendario[i].some((c) => calendario[j].includes(c))) candidatas.push([i, j]);
+        }
+      }
+      if (!candidatas.length) continue;
+      const [i, j] = barajar(rand, candidatas)[0];
+      config.incompatibles = [nombres[i], nombres[j]];
+    }
 
     // Se recorta el ruido de las ventanas hasta que solo quede un calendario
     // posible: mientras haya varios, el jugador acierta por casualidad. Cada
@@ -219,8 +257,11 @@ export function buildRiegoPuzzle(seed) {
       cycles: cfg.cycles,
       capacity: cfg.capacity,
       plants,
+      ...(config.incompatibles ? { incompatibles: config.incompatibles } : {}),
       solucion: res.primera,
-      dificultad: cfg.dificultad,
+      // Una regla más que rastrear sube la dificultad un punto, tope 5 --
+      // mismo patrón que el color en nonograma o el modo en el láser.
+      dificultad: config.incompatibles ? Math.min(5, cfg.dificultad + 1) : cfg.dificultad,
       intentos: intento + 1
     };
   }

@@ -712,9 +712,9 @@ class MathGymGenerator {
     // Las ventanas salen de un calendario válido sorteado antes, y luego se
     // recortan hasta que ese calendario es el ÚNICO posible.
     const puzzle = buildRiegoPuzzle(seed);
-    const { variant, cycles, capacity, plants, dificultad } = puzzle;
+    const { variant, cycles, capacity, plants, incompatibles, dificultad } = puzzle;
 
-    const config = { variant, cycles, capacity, descanso: true, plants };
+    const config = { variant, cycles, capacity, descanso: true, plants, ...(incompatibles ? { incompatibles } : {}) };
 
     const dataFileName = `riego_${fecha}.json`;
     await fs.mkdir('data', { recursive: true });

@@ -41,6 +41,14 @@ export async function render(root, data, hooks) {
     return;
   }
 
+  // Pareja que no puede regarse el mismo ciclo, si la hay. Se ignora si
+  // referencia una planta que no existe -- no debería pasar (el validador ya
+  // lo comprueba), pero más vale un reto sin esta regla que uno roto.
+  const incompatibles = Array.isArray(config.incompatibles) && config.incompatibles.length === 2 &&
+    config.incompatibles.every((id) => plants.some((p) => p.id === id))
+    ? config.incompatibles
+    : null;
+
   const ui = buildStandardShell({
     tipo: 'riego-plantas',
     gameClass: 'riego-game',
@@ -49,6 +57,7 @@ export async function render(root, data, hooks) {
       <p><strong>Objetivo:</strong> organiza el calendario para que cada planta reciba <strong>exactamente</strong> sus riegos.</p>
       <p>Cada planta solo bebe en los ciclos que dice su ficha, junto a su nombre. Toca una celda para regarla; tócala otra vez para marcarla con <strong>×</strong> (para recordar que esa planta no va ahí); una tercera vez la deja vacía. La × no cuenta para ganar, es solo para no dudar dos veces.</p>
       ${descanso ? '<p>Ninguna planta se puede regar <strong>dos ciclos seguidos</strong>: la tierra tiene que secarse entre riego y riego.</p>' : ''}
+      ${incompatibles ? `<p><strong>${incompatibles[0]}</strong> y <strong>${incompatibles[1]}</strong> no pueden regarse en el mismo ciclo.</p>` : ''}
       <p>Y la regadera da para <strong>${capacity} riego${capacity === 1 ? '' : 's'} por ciclo</strong> como mucho.</p>
     `
   });
@@ -172,6 +181,15 @@ export async function render(root, data, hooks) {
         }
       }
     });
+    if (incompatibles) {
+      const iA = plants.findIndex((p) => p.id === incompatibles[0]);
+      const iB = plants.findIndex((p) => p.id === incompatibles[1]);
+      for (let j = 0; j < cycles; j++) {
+        if (state.grid[iA][j] === true && state.grid[iB][j] === true) {
+          msgs.push(`${incompatibles[0]} y ${incompatibles[1]} comparten el ciclo ${j + 1}, pero no pueden regarse juntas`);
+        }
+      }
+    }
     plants.forEach((planta, i) => {
       const tiene = riegosDePlanta(i);
       if (tiene > planta.doses) msgs.push(`${planta.id} lleva ${tiene} riegos y solo necesita ${planta.doses}`);
@@ -250,7 +268,18 @@ export async function render(root, data, hooks) {
 // no hay nada que avisar y se devuelve cadena vacía.
 function ventanaTexto(planta, cycles) {
   if (planta.ventana.length >= cycles) return '';
-  const ordenados = [...planta.ventana].sort((a, b) => a - b).map((i) => i + 1);
+
+  // El ruido de la ventana a veces cae, sin proponérselo el generador,
+  // exactamente en todos los ciclos pares o todos los impares del tablero.
+  // Ahí se lee mejor como patrón que como lista de números sueltos.
+  const ordenados0 = [...planta.ventana].sort((a, b) => a - b);
+  const par = [...Array(cycles).keys()].filter((c) => (c + 1) % 2 === 0);
+  const impar = [...Array(cycles).keys()].filter((c) => (c + 1) % 2 !== 0);
+  const esIgual = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+  if (esIgual(ordenados0, par)) return 'Disponible: solo ciclos pares.';
+  if (esIgual(ordenados0, impar)) return 'Disponible: solo ciclos impares.';
+
+  const ordenados = ordenados0.map((i) => i + 1);
   const grupos = [];
   let inicio = ordenados[0];
   let anterior = ordenados[0];
