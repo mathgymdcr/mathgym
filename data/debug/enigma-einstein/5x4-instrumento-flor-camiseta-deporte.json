@@ -1,0 +1,157 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ]
+  },
+  "clues": [
+    "Laura toca el saxofón.",
+    "Quien toca el piano cultiva tulipanes.",
+    "Laura practica ciclismo.",
+    "Quien toca el violín cultiva rosas.",
+    "Quien toca el violín viste camiseta roja.",
+    "Quien cultiva girasoles no viste camiseta azul.",
+    "Quien viste camiseta azul practica judo.",
+    "Quien toca el piano no viste camiseta azul.",
+    "Javier practica natación.",
+    "Andrés viste camiseta amarilla."
+  ],
+  "solution": {
+    "Laura": {
+      "Instrumento": "Saxofón",
+      "Flor": "Girasoles",
+      "Camiseta": "Verde",
+      "Deporte": "Ciclismo"
+    },
+    "Andrés": {
+      "Instrumento": "Piano",
+      "Flor": "Tulipanes",
+      "Camiseta": "Amarilla",
+      "Deporte": "Escalada"
+    },
+    "Carmen": {
+      "Instrumento": "Acordeón",
+      "Flor": "Orquídeas",
+      "Camiseta": "Azul",
+      "Deporte": "Judo"
+    },
+    "Javier": {
+      "Instrumento": "Violín",
+      "Flor": "Rosas",
+      "Camiseta": "Roja",
+      "Deporte": "Natación"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Instrumento",
+      "Flor",
+      "Camiseta",
+      "Deporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 4,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "variant": "pesada",
+  "n_monedas": 6,
+  "k_impostoras": 1,
+  "max_pesadas": 3,
+  "anomalies": [
+    {
+      "i": 3,
+      "sign": 1
+    }
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier",
+      "Nuria"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla",
+      "Negra"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón",
+      "Clarinete"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro",
+      "Hámster"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas",
+      "Sorbete"
+    ]
+  },
+  "clues": [
+    "Javier come de postre flan.",
+    "Nuria tiene un pájaro.",
+    "Quien viste camiseta verde no come de postre tarta.",
+    "Quien viste camiseta amarilla no toca el acordeón.",
+    "Quien toca el piano come de postre natillas.",
+    "Laura no viste camiseta azul.",
+    "Quien tiene un gato come de postre sorbete.",
+    "Quien viste camiseta negra tiene un perro.",
+    "Quien viste camiseta roja tiene un pájaro.",
+    "Quien toca el acordeón no come de postre sorbete.",
+    "Carmen no viste camiseta verde.",
+    "Quien tiene un pájaro come de postre helado.",
+    "Laura no come de postre sorbete.",
+    "Quien toca el acordeón no tiene un perro.",
+    "Quien toca el saxofón tiene un pez.",
+    "Andrés come de postre natillas.",
+    "Quien viste camiseta roja no toca el acordeón.",
+    "Quien viste camiseta azul no toca el clarinete."
+  ],
+  "solution": {
+    "Laura": {
+      "Camiseta": "Amarilla",
+      "Instrumento": "Saxofón",
+      "Mascota": "Pez",
+      "Postre": "Tarta"
+    },
+    "Andrés": {
+      "Camiseta": "Negra",
+      "Instrumento": "Piano",
+      "Mascota": "Perro",
+      "Postre": "Natillas"
+    },
+    "Carmen": {
+      "Camiseta": "Azul",
+      "Instrumento": "Violín",
+      "Mascota": "Gato",
+      "Postre": "Sorbete"
+    },
+    "Javier": {
+      "Camiseta": "Verde",
+      "Instrumento": "Acordeón",
+      "Mascota": "Hámster",
+      "Postre": "Flan"
+    },
+    "Nuria": {
+      "Camiseta": "Roja",
+      "Instrumento": "Clarinete",
+      "Mascota": "Pájaro",
+      "Postre": "Helado"
+    }
+  },
+  "meta": {
+    "tamano": "5x5",
+    "forma": {
+      "filas": 5,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Camiseta",
+      "Instrumento",
+      "Mascota",
+      "Postre"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 4,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 4,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 4,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 3,
+        "cB": 4,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 4,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 4,
+        "positiva": false
+      }
+    ]
+  }
+}

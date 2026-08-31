@@ -1,0 +1,189 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla"
+    ]
+  },
+  "clues": [
+    "Laura viste camiseta verde.",
+    "Javier tiene un pájaro.",
+    "Laura no viajó a Noruega.",
+    "Quien viajó a Egipto practica ciclismo.",
+    "Quien viajó a Noruega no tiene un perro.",
+    "Andrés no practica judo.",
+    "Quien practica natación viste camiseta verde.",
+    "Javier practica ciclismo.",
+    "Quien practica escalada no viste camiseta azul.",
+    "Quien practica ciclismo no viste camiseta azul.",
+    "Carmen no viajó a Noruega.",
+    "Quien viajó a Egipto no viste camiseta roja.",
+    "Carmen no viajó a Brasil.",
+    "Quien tiene un gato practica natación."
+  ],
+  "solution": {
+    "Laura": {
+      "País": "Brasil",
+      "Mascota": "Gato",
+      "Deporte": "Natación",
+      "Camiseta": "Verde"
+    },
+    "Andrés": {
+      "País": "Noruega",
+      "Mascota": "Pez",
+      "Deporte": "Escalada",
+      "Camiseta": "Roja"
+    },
+    "Carmen": {
+      "País": "Japón",
+      "Mascota": "Perro",
+      "Deporte": "Judo",
+      "Camiseta": "Azul"
+    },
+    "Javier": {
+      "País": "Egipto",
+      "Mascota": "Pájaro",
+      "Deporte": "Ciclismo",
+      "Camiseta": "Amarilla"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "País",
+      "Mascota",
+      "Deporte",
+      "Camiseta"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 0,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 3,
+        "vA": 2,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 4,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      }
+    ]
+  }
+}

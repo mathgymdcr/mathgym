@@ -1,0 +1,19 @@
+{
+  "variant": "clasico",
+  "rings": 4,
+  "regla": "clasico",
+  "inicial": [
+    true,
+    false,
+    true,
+    true
+  ],
+  "objetivo": [
+    false,
+    false,
+    false,
+    false
+  ],
+  "min_movimientos": 9,
+  "mostrarPistas": true
+}

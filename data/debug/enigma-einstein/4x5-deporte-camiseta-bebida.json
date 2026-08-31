@@ -1,0 +1,195 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David",
+      "Lucía"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo",
+      "Remo"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla",
+      "Negra"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo",
+      "Leche"
+    ]
+  },
+  "clues": [
+    "David practica ciclismo.",
+    "Ana no practica judo.",
+    "Lucía viste camiseta roja.",
+    "Quien practica escalada no viste camiseta verde.",
+    "Quien practica judo bebe café.",
+    "Quien practica ciclismo no bebe té.",
+    "Quien practica escalada bebe agua.",
+    "Elena practica remo.",
+    "Quien practica remo no bebe zumo.",
+    "Ana no practica natación.",
+    "Elena no viste camiseta verde.",
+    "Quien practica ciclismo no bebe zumo.",
+    "Quien viste camiseta azul bebe leche.",
+    "Quien viste camiseta negra no bebe agua.",
+    "Lucía no practica judo."
+  ],
+  "solution": {
+    "Ana": {
+      "Deporte": "Escalada",
+      "Camiseta": "Amarilla",
+      "Bebida": "Agua"
+    },
+    "Carlos": {
+      "Deporte": "Judo",
+      "Camiseta": "Verde",
+      "Bebida": "Café"
+    },
+    "Elena": {
+      "Deporte": "Remo",
+      "Camiseta": "Negra",
+      "Bebida": "Té"
+    },
+    "David": {
+      "Deporte": "Ciclismo",
+      "Camiseta": "Azul",
+      "Bebida": "Leche"
+    },
+    "Lucía": {
+      "Deporte": "Natación",
+      "Camiseta": "Roja",
+      "Bebida": "Zumo"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Deporte",
+      "Camiseta",
+      "Bebida"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 4,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 4,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 1,
+        "vB": 3,
+        "positiva": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "variant": "configuracion",
+  "rings": 6,
+  "regla": "clasico",
+  "inicial": [
+    true,
+    true,
+    true,
+    true,
+    false,
+    false
+  ],
+  "objetivo": [
+    false,
+    false,
+    false,
+    true,
+    false,
+    true
+  ],
+  "min_movimientos": 38,
+  "mostrarPistas": false
+}

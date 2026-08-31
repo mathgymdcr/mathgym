@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /debug.html
+Disallow: /data/debug/
 
 Sitemap: https://mathgym.es/sitemap.xml

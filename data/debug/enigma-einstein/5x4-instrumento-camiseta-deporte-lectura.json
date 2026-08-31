@@ -1,0 +1,173 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ]
+  },
+  "clues": [
+    "Laura viste camiseta roja.",
+    "Carmen practica escalada.",
+    "Quien toca el piano no practica natación.",
+    "Quien practica judo lee cómic.",
+    "Andrés no toca el saxofón.",
+    "Andrés lee ensayo.",
+    "Laura toca el acordeón.",
+    "Quien viste camiseta amarilla lee biografía.",
+    "Quien toca el piano no practica judo.",
+    "Quien toca el piano no viste camiseta amarilla.",
+    "Quien viste camiseta azul no lee poesía.",
+    "Quien practica ciclismo lee poesía."
+  ],
+  "solution": {
+    "Laura": {
+      "Instrumento": "Acordeón",
+      "Camiseta": "Roja",
+      "Deporte": "Judo",
+      "Lectura": "Cómic"
+    },
+    "Andrés": {
+      "Instrumento": "Violín",
+      "Camiseta": "Azul",
+      "Deporte": "Natación",
+      "Lectura": "Ensayo"
+    },
+    "Carmen": {
+      "Instrumento": "Saxofón",
+      "Camiseta": "Amarilla",
+      "Deporte": "Escalada",
+      "Lectura": "Biografía"
+    },
+    "Javier": {
+      "Instrumento": "Piano",
+      "Camiseta": "Verde",
+      "Deporte": "Ciclismo",
+      "Lectura": "Poesía"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Instrumento",
+      "Camiseta",
+      "Deporte",
+      "Lectura"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 3,
+        "cB": 4,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 4,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      }
+    ]
+  }
+}

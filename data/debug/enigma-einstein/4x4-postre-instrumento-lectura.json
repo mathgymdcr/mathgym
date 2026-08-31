@@ -1,0 +1,130 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ]
+  },
+  "clues": [
+    "David lee poesía.",
+    "Quien come de postre natillas lee poesía.",
+    "Elena no come de postre helado.",
+    "Quien come de postre tarta toca el violín.",
+    "Quien toca el saxofón lee biografía.",
+    "Ana toca el acordeón.",
+    "Carlos no lee cómic.",
+    "Carlos no toca el saxofón."
+  ],
+  "solution": {
+    "Ana": {
+      "Postre": "Helado",
+      "Instrumento": "Acordeón",
+      "Lectura": "Cómic"
+    },
+    "Carlos": {
+      "Postre": "Tarta",
+      "Instrumento": "Violín",
+      "Lectura": "Ensayo"
+    },
+    "Elena": {
+      "Postre": "Flan",
+      "Instrumento": "Saxofón",
+      "Lectura": "Biografía"
+    },
+    "David": {
+      "Postre": "Natillas",
+      "Instrumento": "Piano",
+      "Lectura": "Poesía"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Postre",
+      "Instrumento",
+      "Lectura"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      }
+    ]
+  }
+}

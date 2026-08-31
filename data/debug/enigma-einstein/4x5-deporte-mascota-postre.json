@@ -1,0 +1,163 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier",
+      "Nuria"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo",
+      "Remo"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro",
+      "Hámster"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas",
+      "Sorbete"
+    ]
+  },
+  "clues": [
+    "Nuria practica judo.",
+    "Andrés tiene un pájaro.",
+    "Andrés no come de postre flan.",
+    "Javier no come de postre sorbete.",
+    "Quien practica natación come de postre helado.",
+    "Quien practica ciclismo come de postre flan.",
+    "Carmen come de postre tarta.",
+    "Javier tiene un gato.",
+    "Javier practica escalada.",
+    "Nuria tiene un hámster.",
+    "Carmen no tiene un perro."
+  ],
+  "solution": {
+    "Laura": {
+      "Deporte": "Ciclismo",
+      "Mascota": "Perro",
+      "Postre": "Flan"
+    },
+    "Andrés": {
+      "Deporte": "Natación",
+      "Mascota": "Pájaro",
+      "Postre": "Helado"
+    },
+    "Carmen": {
+      "Deporte": "Remo",
+      "Mascota": "Pez",
+      "Postre": "Tarta"
+    },
+    "Javier": {
+      "Deporte": "Escalada",
+      "Mascota": "Gato",
+      "Postre": "Natillas"
+    },
+    "Nuria": {
+      "Deporte": "Judo",
+      "Mascota": "Hámster",
+      "Postre": "Sorbete"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Deporte",
+      "Mascota",
+      "Postre"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 1,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      }
+    ]
+  }
+}

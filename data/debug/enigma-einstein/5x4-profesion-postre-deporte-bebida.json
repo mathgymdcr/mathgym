@@ -1,0 +1,165 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo"
+    ]
+  },
+  "clues": [
+    "David practica escalada.",
+    "David no bebe té.",
+    "Carlos bebe zumo.",
+    "Quien es dentista practica natación.",
+    "Ana no come de postre natillas.",
+    "Quien practica ciclismo bebe café.",
+    "Quien es taxista practica ciclismo.",
+    "Quien come de postre tarta bebe zumo.",
+    "Quien come de postre flan bebe café.",
+    "Elena practica ciclismo.",
+    "Quien es electricista come de postre helado."
+  ],
+  "solution": {
+    "Ana": {
+      "Profesión": "Electricista",
+      "Postre": "Helado",
+      "Deporte": "Judo",
+      "Bebida": "Té"
+    },
+    "Carlos": {
+      "Profesión": "Dentista",
+      "Postre": "Tarta",
+      "Deporte": "Natación",
+      "Bebida": "Zumo"
+    },
+    "Elena": {
+      "Profesión": "Taxista",
+      "Postre": "Flan",
+      "Deporte": "Ciclismo",
+      "Bebida": "Café"
+    },
+    "David": {
+      "Profesión": "Periodista",
+      "Postre": "Natillas",
+      "Deporte": "Escalada",
+      "Bebida": "Agua"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Profesión",
+      "Postre",
+      "Deporte",
+      "Bebida"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      }
+    ]
+  }
+}

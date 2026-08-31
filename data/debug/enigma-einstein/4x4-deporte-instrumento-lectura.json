@@ -1,0 +1,154 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ]
+  },
+  "clues": [
+    "David practica escalada.",
+    "Ana practica ciclismo.",
+    "Quien practica ciclismo toca el acordeón.",
+    "Quien practica escalada no lee biografía.",
+    "Quien practica natación no toca el piano.",
+    "David no toca el piano.",
+    "Carlos no lee poesía.",
+    "Quien practica judo no lee biografía.",
+    "Quien toca el acordeón lee cómic.",
+    "Quien practica judo no lee ensayo.",
+    "David no toca el saxofón."
+  ],
+  "solution": {
+    "Ana": {
+      "Deporte": "Ciclismo",
+      "Instrumento": "Acordeón",
+      "Lectura": "Cómic"
+    },
+    "Carlos": {
+      "Deporte": "Natación",
+      "Instrumento": "Saxofón",
+      "Lectura": "Biografía"
+    },
+    "Elena": {
+      "Deporte": "Judo",
+      "Instrumento": "Piano",
+      "Lectura": "Poesía"
+    },
+    "David": {
+      "Deporte": "Escalada",
+      "Instrumento": "Violín",
+      "Lectura": "Ensayo"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Deporte",
+      "Instrumento",
+      "Lectura"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      }
+    ]
+  }
+}

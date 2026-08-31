@@ -1,0 +1,22 @@
+{
+  "variant": "ligero",
+  "zonas": [
+    [],
+    [
+      15,
+      5
+    ],
+    [
+      9,
+      3
+    ]
+  ],
+  "nombresZonas": [
+    "Zona A",
+    "Zona B",
+    "Zona C"
+  ],
+  "destino": 2,
+  "capacidad": 20,
+  "min_movimientos": 5
+}

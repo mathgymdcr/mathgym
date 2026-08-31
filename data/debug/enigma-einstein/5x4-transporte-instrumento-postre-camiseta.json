@@ -1,0 +1,197 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla"
+    ]
+  },
+  "clues": [
+    "Carlos come de postre tarta.",
+    "Quien se mueve en metro no come de postre natillas.",
+    "Quien se mueve en metro toca el saxofón.",
+    "Quien toca el acordeón no come de postre flan.",
+    "Elena se mueve en patinete.",
+    "Quien toca el violín no come de postre natillas.",
+    "Quien se mueve en metro no come de postre helado.",
+    "David no toca el acordeón.",
+    "Quien toca el violín no viste camiseta roja.",
+    "Quien se mueve en tranvía viste camiseta amarilla.",
+    "Quien se mueve en metro no viste camiseta verde.",
+    "Quien come de postre flan viste camiseta roja.",
+    "Elena no come de postre natillas.",
+    "David no toca el violín.",
+    "Quien se mueve en metro no come de postre flan."
+  ],
+  "solution": {
+    "Ana": {
+      "Transporte": "Tranvía",
+      "Instrumento": "Acordeón",
+      "Postre": "Natillas",
+      "Camiseta": "Amarilla"
+    },
+    "Carlos": {
+      "Transporte": "Metro",
+      "Instrumento": "Saxofón",
+      "Postre": "Tarta",
+      "Camiseta": "Azul"
+    },
+    "Elena": {
+      "Transporte": "Patinete",
+      "Instrumento": "Violín",
+      "Postre": "Helado",
+      "Camiseta": "Verde"
+    },
+    "David": {
+      "Transporte": "Bicicleta",
+      "Instrumento": "Piano",
+      "Postre": "Flan",
+      "Camiseta": "Roja"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Transporte",
+      "Instrumento",
+      "Postre",
+      "Camiseta"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 4,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 2,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      }
+    ]
+  }
+}

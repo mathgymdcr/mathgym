@@ -1,0 +1,53 @@
+{
+  "variant": "pequeno",
+  "rows": 7,
+  "cols": 7,
+  "islands": [
+    {
+      "row": 2,
+      "col": 2,
+      "grado": 3
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "grado": 5
+    },
+    {
+      "row": 2,
+      "col": 6,
+      "grado": 2
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "grado": 2
+    },
+    {
+      "row": 4,
+      "col": 2,
+      "grado": 3
+    },
+    {
+      "row": 4,
+      "col": 4,
+      "grado": 8
+    },
+    {
+      "row": 4,
+      "col": 6,
+      "grado": 3
+    },
+    {
+      "row": 6,
+      "col": 0,
+      "grado": 4
+    },
+    {
+      "row": 6,
+      "col": 4,
+      "grado": 4
+    }
+  ],
+  "min_puentes": 17
+}

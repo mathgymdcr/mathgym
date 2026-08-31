@@ -1,0 +1,65 @@
+{
+  "modos": [
+    {
+      "id": "reproducir_patron",
+      "tamano": [
+        4,
+        4
+      ],
+      "objetivo": "pattern_match",
+      "patron_inicial": [
+        [
+          true,
+          false,
+          true,
+          true
+        ],
+        [
+          false,
+          false,
+          false,
+          true
+        ],
+        [
+          false,
+          false,
+          true,
+          false
+        ],
+        [
+          false,
+          false,
+          true,
+          false
+        ]
+      ],
+      "patron_objetivo": [
+        [
+          false,
+          true,
+          true,
+          true
+        ],
+        [
+          false,
+          true,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          true,
+          true
+        ],
+        [
+          false,
+          false,
+          false,
+          true
+        ]
+      ],
+      "min_pulsaciones": 5
+    }
+  ]
+}

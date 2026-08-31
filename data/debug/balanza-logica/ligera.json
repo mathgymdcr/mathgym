@@ -1,0 +1,12 @@
+{
+  "variant": "ligera",
+  "n_monedas": 7,
+  "k_impostoras": 1,
+  "max_pesadas": 3,
+  "anomalies": [
+    {
+      "i": 5,
+      "sign": -1
+    }
+  ]
+}

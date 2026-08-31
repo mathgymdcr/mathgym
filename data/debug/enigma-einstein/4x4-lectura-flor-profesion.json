@@ -1,0 +1,154 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ]
+  },
+  "clues": [
+    "David es periodista.",
+    "Elena no lee ensayo.",
+    "Elena cultiva girasoles.",
+    "Quien lee ensayo no cultiva rosas.",
+    "Ana no es electricista.",
+    "David no lee ensayo.",
+    "David no lee poesía.",
+    "Quien lee biografía es taxista.",
+    "Quien lee cómic no cultiva rosas.",
+    "Carlos cultiva tulipanes.",
+    "Quien lee ensayo no es electricista."
+  ],
+  "solution": {
+    "Ana": {
+      "Lectura": "Biografía",
+      "Flor": "Rosas",
+      "Profesión": "Taxista"
+    },
+    "Carlos": {
+      "Lectura": "Ensayo",
+      "Flor": "Tulipanes",
+      "Profesión": "Dentista"
+    },
+    "Elena": {
+      "Lectura": "Poesía",
+      "Flor": "Girasoles",
+      "Profesión": "Electricista"
+    },
+    "David": {
+      "Lectura": "Cómic",
+      "Flor": "Orquídeas",
+      "Profesión": "Periodista"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Lectura",
+      "Flor",
+      "Profesión"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      }
+    ]
+  }
+}

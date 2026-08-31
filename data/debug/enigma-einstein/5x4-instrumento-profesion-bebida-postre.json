@@ -1,0 +1,165 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ]
+  },
+  "clues": [
+    "Javier come de postre helado.",
+    "Quien es electricista bebe té.",
+    "Laura come de postre tarta.",
+    "Quien toca el violín bebe café.",
+    "Quien toca el saxofón no es dentista.",
+    "Carmen no bebe zumo.",
+    "Javier no toca el saxofón.",
+    "Andrés no come de postre natillas.",
+    "Quien toca el acordeón es periodista.",
+    "Laura bebe café.",
+    "Carmen es dentista."
+  ],
+  "solution": {
+    "Laura": {
+      "Instrumento": "Violín",
+      "Profesión": "Taxista",
+      "Bebida": "Café",
+      "Postre": "Tarta"
+    },
+    "Andrés": {
+      "Instrumento": "Saxofón",
+      "Profesión": "Electricista",
+      "Bebida": "Té",
+      "Postre": "Flan"
+    },
+    "Carmen": {
+      "Instrumento": "Piano",
+      "Profesión": "Dentista",
+      "Bebida": "Agua",
+      "Postre": "Natillas"
+    },
+    "Javier": {
+      "Instrumento": "Acordeón",
+      "Profesión": "Periodista",
+      "Bebida": "Zumo",
+      "Postre": "Helado"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Instrumento",
+      "Profesión",
+      "Bebida",
+      "Postre"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 4,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      }
+    ]
+  }
+}

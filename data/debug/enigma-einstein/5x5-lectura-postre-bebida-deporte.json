@@ -1,0 +1,232 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier",
+      "Nuria"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía",
+      "Teatro"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas",
+      "Sorbete"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo",
+      "Leche"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo",
+      "Remo"
+    ]
+  },
+  "clues": [
+    "Andrés lee biografía.",
+    "Laura bebe café.",
+    "Laura practica ciclismo.",
+    "Nuria lee teatro.",
+    "Quien lee cómic no bebe té.",
+    "Quien come de postre natillas no practica remo.",
+    "Carmen no bebe leche.",
+    "Quien lee cómic no come de postre tarta.",
+    "Quien bebe té no practica natación.",
+    "Quien come de postre sorbete no practica remo.",
+    "Laura come de postre tarta.",
+    "Carmen no come de postre natillas.",
+    "Nuria come de postre helado.",
+    "Carmen no lee poesía.",
+    "Quien come de postre sorbete no practica natación.",
+    "Quien bebe zumo practica escalada.",
+    "Quien lee poesía come de postre sorbete.",
+    "Quien come de postre helado bebe agua."
+  ],
+  "solution": {
+    "Laura": {
+      "Lectura": "Ensayo",
+      "Postre": "Tarta",
+      "Bebida": "Café",
+      "Deporte": "Ciclismo"
+    },
+    "Andrés": {
+      "Lectura": "Biografía",
+      "Postre": "Natillas",
+      "Bebida": "Leche",
+      "Deporte": "Natación"
+    },
+    "Carmen": {
+      "Lectura": "Cómic",
+      "Postre": "Flan",
+      "Bebida": "Zumo",
+      "Deporte": "Escalada"
+    },
+    "Javier": {
+      "Lectura": "Poesía",
+      "Postre": "Sorbete",
+      "Bebida": "Té",
+      "Deporte": "Judo"
+    },
+    "Nuria": {
+      "Lectura": "Teatro",
+      "Postre": "Helado",
+      "Bebida": "Agua",
+      "Deporte": "Remo"
+    }
+  },
+  "meta": {
+    "tamano": "5x5",
+    "forma": {
+      "filas": 5,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Lectura",
+      "Postre",
+      "Bebida",
+      "Deporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 4,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 1,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 4,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 4,
+        "cB": 4,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 4,
+        "cB": 4,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 3,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      }
+    ]
+  }
+}

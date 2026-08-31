@@ -1,0 +1,256 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel",
+      "Rubén"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo",
+      "Leche"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega",
+      "Canadá"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro",
+      "Hámster"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía",
+      "Teatro"
+    ]
+  },
+  "clues": [
+    "María viajó a Brasil.",
+    "Quien bebe zumo no viajó a Noruega.",
+    "Quien bebe té viajó a Egipto.",
+    "Quien bebe café viajó a Japón.",
+    "Rubén no lee cómic.",
+    "Quien bebe agua tiene un gato.",
+    "Pedro viajó a Egipto.",
+    "Quien viajó a Canadá no tiene un pez.",
+    "Quien tiene un gato no lee teatro.",
+    "Quien tiene un perro no lee teatro.",
+    "Quien tiene un gato no lee ensayo.",
+    "Quien tiene un perro no lee cómic.",
+    "Rubén no viajó a Japón.",
+    "María lee biografía.",
+    "Sofía no tiene un pez.",
+    "Quien tiene un hámster lee biografía.",
+    "Quien bebe zumo no tiene un perro.",
+    "Miguel no viajó a Japón.",
+    "Quien bebe café no lee ensayo.",
+    "Quien viajó a Canadá no lee ensayo.",
+    "Quien bebe zumo no lee biografía."
+  ],
+  "solution": {
+    "María": {
+      "Bebida": "Leche",
+      "País": "Brasil",
+      "Mascota": "Hámster",
+      "Lectura": "Biografía"
+    },
+    "Pedro": {
+      "Bebida": "Té",
+      "País": "Egipto",
+      "Mascota": "Pez",
+      "Lectura": "Ensayo"
+    },
+    "Sofía": {
+      "Bebida": "Café",
+      "País": "Japón",
+      "Mascota": "Perro",
+      "Lectura": "Poesía"
+    },
+    "Miguel": {
+      "Bebida": "Agua",
+      "País": "Noruega",
+      "Mascota": "Gato",
+      "Lectura": "Cómic"
+    },
+    "Rubén": {
+      "Bebida": "Zumo",
+      "País": "Canadá",
+      "Mascota": "Pájaro",
+      "Lectura": "Teatro"
+    }
+  },
+  "meta": {
+    "tamano": "5x5",
+    "forma": {
+      "filas": 5,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Bebida",
+      "País",
+      "Mascota",
+      "Lectura"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 4,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 0,
+        "cB": 4,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 0,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 4,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 4,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 3,
+        "positiva": false
+      }
+    ]
+  }
+}

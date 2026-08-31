@@ -1,0 +1,181 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ]
+  },
+  "clues": [
+    "Pedro cultiva orquídeas.",
+    "Quien tiene un pájaro no practica escalada.",
+    "Quien viajó a Noruega cultiva rosas.",
+    "Miguel viajó a Brasil.",
+    "Quien tiene un gato no practica escalada.",
+    "Quien viajó a Egipto practica judo.",
+    "Miguel no cultiva tulipanes.",
+    "Quien viajó a Japón practica ciclismo.",
+    "Quien tiene un pez no practica judo.",
+    "María tiene un gato.",
+    "Sofía no viajó a Noruega.",
+    "Quien viajó a Japón no cultiva orquídeas.",
+    "Quien tiene un pájaro no practica judo."
+  ],
+  "solution": {
+    "María": {
+      "País": "Noruega",
+      "Flor": "Rosas",
+      "Mascota": "Gato",
+      "Deporte": "Natación"
+    },
+    "Pedro": {
+      "País": "Egipto",
+      "Flor": "Orquídeas",
+      "Mascota": "Perro",
+      "Deporte": "Judo"
+    },
+    "Sofía": {
+      "País": "Japón",
+      "Flor": "Tulipanes",
+      "Mascota": "Pájaro",
+      "Deporte": "Ciclismo"
+    },
+    "Miguel": {
+      "País": "Brasil",
+      "Flor": "Girasoles",
+      "Mascota": "Pez",
+      "Deporte": "Escalada"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "País",
+      "Flor",
+      "Mascota",
+      "Deporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 3,
+        "vA": 3,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 4,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 3,
+        "vA": 2,
+        "cB": 4,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 3,
+        "cB": 4,
+        "vB": 3,
+        "positiva": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "variant": "huerto",
+  "cycles": 6,
+  "capacity": 2,
+  "descanso": true,
+  "plants": [
+    {
+      "id": "Lavanda",
+      "doses": 3,
+      "ventana": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "Perejil",
+      "doses": 3,
+      "ventana": [
+        0,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "Menta",
+      "doses": 2,
+      "ventana": [
+        0,
+        3,
+        4,
+        5
+      ]
+    }
+  ]
+}

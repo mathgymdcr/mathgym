@@ -1,0 +1,154 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ]
+  },
+  "clues": [
+    "Ana lee ensayo.",
+    "Quien viste camiseta roja viajó a Egipto.",
+    "David no viajó a Noruega.",
+    "Elena viajó a Brasil.",
+    "Quien viajó a Noruega no lee biografía.",
+    "David no lee poesía.",
+    "Quien viste camiseta verde no lee poesía.",
+    "Elena viste camiseta azul.",
+    "Ana no viajó a Noruega.",
+    "Quien viste camiseta verde no viajó a Japón.",
+    "Quien viajó a Japón no lee biografía."
+  ],
+  "solution": {
+    "Ana": {
+      "Camiseta": "Amarilla",
+      "País": "Japón",
+      "Lectura": "Ensayo"
+    },
+    "Carlos": {
+      "Camiseta": "Verde",
+      "País": "Noruega",
+      "Lectura": "Cómic"
+    },
+    "Elena": {
+      "Camiseta": "Azul",
+      "País": "Brasil",
+      "Lectura": "Poesía"
+    },
+    "David": {
+      "Camiseta": "Roja",
+      "País": "Egipto",
+      "Lectura": "Biografía"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Camiseta",
+      "País",
+      "Lectura"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      }
+    ]
+  }
+}

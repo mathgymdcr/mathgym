@@ -1,0 +1,187 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David",
+      "Lucía"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro",
+      "Hámster"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista",
+      "Guionista"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía",
+      "Autobús"
+    ]
+  },
+  "clues": [
+    "Carlos es electricista.",
+    "Ana no tiene un pez.",
+    "Quien tiene un pájaro no se mueve en bicicleta.",
+    "Quien tiene un pájaro es dentista.",
+    "Quien tiene un gato no es taxista.",
+    "Quien tiene un gato no es guionista.",
+    "Quien es dentista no se mueve en metro.",
+    "Quien tiene un perro se mueve en autobús.",
+    "Carlos tiene un perro.",
+    "Lucía no se mueve en tranvía.",
+    "Ana es guionista.",
+    "Elena se mueve en patinete.",
+    "Elena es taxista.",
+    "Quien tiene un gato no se mueve en bicicleta."
+  ],
+  "solution": {
+    "Ana": {
+      "Mascota": "Hámster",
+      "Profesión": "Guionista",
+      "Transporte": "Bicicleta"
+    },
+    "Carlos": {
+      "Mascota": "Perro",
+      "Profesión": "Electricista",
+      "Transporte": "Autobús"
+    },
+    "Elena": {
+      "Mascota": "Pez",
+      "Profesión": "Taxista",
+      "Transporte": "Patinete"
+    },
+    "David": {
+      "Mascota": "Pájaro",
+      "Profesión": "Dentista",
+      "Transporte": "Tranvía"
+    },
+    "Lucía": {
+      "Mascota": "Gato",
+      "Profesión": "Periodista",
+      "Transporte": "Metro"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Mascota",
+      "Profesión",
+      "Transporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      }
+    ]
+  }
+}

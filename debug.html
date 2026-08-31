@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MathGym — Debug</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Look utilitario a propósito: para que nadie confunda esto con una
+       página del juego. Reusa los tokens de style.css, no su piel de sala. */
+    body.debug {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 13px;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .debug-gate {
+      max-width: 360px;
+      margin: 120px auto;
+      padding: 28px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--card-b);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .debug-gate h1 { font-size: 15px; margin: 0 0 16px; color: var(--fg); }
+    .debug-gate input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--card-b);
+      background: rgba(255,255,255,.03);
+      color: var(--fg);
+      font: inherit;
+      margin-bottom: 12px;
+    }
+    .debug-gate .error { color: var(--error, #ef4444); min-height: 1.4em; font-size: 12px; }
+
+    .debug-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .debug-wrap h1 { font-size: 16px; margin: 0 0 4px; }
+    .debug-wrap .subtitle { color: var(--muted); margin: 0 0 24px; }
+
+    .debug-tipo { margin-bottom: 22px; }
+    .debug-tipo h2 { font-size: 13px; color: var(--accent); margin: 0 0 8px; }
+    .debug-variantes { display: flex; flex-wrap: wrap; gap: 6px; }
+    .debug-variantes button {
+      font: inherit;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--card-b);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+    }
+    .debug-variantes button:hover { border-color: var(--accent); color: var(--fg); }
+    .debug-variantes button.is-active { background: var(--brand); border-color: var(--brand-lift); color: #fff; }
+
+    .debug-panel {
+      margin-top: 28px;
+      border-top: 1px solid var(--card-b);
+      padding-top: 20px;
+    }
+    .debug-panel-empty { color: var(--muted); }
+  </style>
+</head>
+<body class="debug">
+
+  <div class="debug-gate" id="debug-gate">
+    <h1>MathGym · debug</h1>
+    <input type="password" id="debug-pass" placeholder="Contraseña" autocomplete="off">
+    <div class="error" id="debug-pass-error"></div>
+  </div>
+
+  <div class="debug-wrap" id="debug-content" hidden>
+    <h1>Matriz de variantes</h1>
+    <p class="subtitle" id="debug-subtitle">Cargando…</p>
+    <div id="debug-tipos"></div>
+    <div class="debug-panel" id="debug-panel">
+      <p class="debug-panel-empty">Elige una variante arriba para montarla aquí.</p>
+    </div>
+  </div>
+
+  <script type="module" src="debug.js"></script>
+</body>
+</html>

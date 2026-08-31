@@ -1,0 +1,165 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ]
+  },
+  "clues": [
+    "Carlos practica ciclismo.",
+    "Quien viste camiseta roja practica natación.",
+    "Elena es dentista.",
+    "Quien es electricista practica natación.",
+    "Quien viste camiseta amarilla practica escalada.",
+    "Quien es periodista come de postre natillas.",
+    "David come de postre flan.",
+    "Quien viste camiseta azul no es taxista.",
+    "David no viste camiseta amarilla.",
+    "Quien viste camiseta amarilla no come de postre helado.",
+    "Quien viste camiseta verde come de postre natillas."
+  ],
+  "solution": {
+    "Ana": {
+      "Camiseta": "Amarilla",
+      "Profesión": "Taxista",
+      "Deporte": "Escalada",
+      "Postre": "Tarta"
+    },
+    "Carlos": {
+      "Camiseta": "Verde",
+      "Profesión": "Periodista",
+      "Deporte": "Ciclismo",
+      "Postre": "Natillas"
+    },
+    "Elena": {
+      "Camiseta": "Azul",
+      "Profesión": "Dentista",
+      "Deporte": "Judo",
+      "Postre": "Helado"
+    },
+    "David": {
+      "Camiseta": "Roja",
+      "Profesión": "Electricista",
+      "Deporte": "Natación",
+      "Postre": "Flan"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Camiseta",
+      "Profesión",
+      "Deporte",
+      "Postre"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      }
+    ]
+  }
+}

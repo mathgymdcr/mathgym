@@ -1,0 +1,17 @@
+{
+  "grifo": false,
+  "capacities": [
+    7,
+    4,
+    3
+  ],
+  "targets": [
+    5,
+    1
+  ],
+  "initialLevels": [
+    7,
+    0,
+    0
+  ]
+}

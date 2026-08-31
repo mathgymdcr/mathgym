@@ -1,0 +1,906 @@
+[
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-postre-bebida-deporte",
+    "seed": 0,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x5-postre-bebida-deporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-profesion-camiseta-postre",
+    "seed": 1,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x5-profesion-camiseta-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x5-lectura-instrumento-transporte-postre",
+    "seed": 2,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x5-lectura-instrumento-transporte-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-deporte-camiseta-bebida",
+    "seed": 3,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x5-deporte-camiseta-bebida.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-deporte-instrumento-flor-estacion",
+    "seed": 4,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-deporte-instrumento-flor-estacion.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-camiseta-bebida-pais",
+    "seed": 5,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-camiseta-bebida-pais.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x5-lectura-postre-bebida-deporte",
+    "seed": 6,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x5-lectura-postre-bebida-deporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-transporte-instrumento-postre-camiseta",
+    "seed": 7,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/5x4-transporte-instrumento-postre-camiseta.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-instrumento-profesion-bebida-postre",
+    "seed": 8,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x4-instrumento-profesion-bebida-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-deporte-mascota-postre",
+    "seed": 9,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-deporte-mascota-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-pais-flor-mascota-deporte",
+    "seed": 10,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-pais-flor-mascota-deporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-postre-instrumento-lectura",
+    "seed": 11,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x4-postre-instrumento-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-instrumento-transporte-mascota",
+    "seed": 12,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x5-instrumento-transporte-mascota.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-mascota-transporte-flor-pais",
+    "seed": 13,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-mascota-transporte-flor-pais.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x5-bebida-pais-mascota-lectura",
+    "seed": 14,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x5-bebida-pais-mascota-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-instrumento-camiseta-deporte-lectura",
+    "seed": 15,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x4-instrumento-camiseta-deporte-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-profesion-camiseta-estacion",
+    "seed": 16,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-profesion-camiseta-estacion.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-deporte-mascota-postre",
+    "seed": 17,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/4x5-deporte-mascota-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-deporte-lectura-flor",
+    "seed": 18,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x5-deporte-lectura-flor.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-instrumento-flor-camiseta-deporte",
+    "seed": 19,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x4-instrumento-flor-camiseta-deporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-flor-profesion-estacion",
+    "seed": 20,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-flor-profesion-estacion.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-postre-pais-profesion-camiseta",
+    "seed": 21,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-postre-pais-profesion-camiseta.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-transporte-profesion-camiseta-mascota",
+    "seed": 22,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x4-transporte-profesion-camiseta-mascota.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-profesion-transporte-camiseta",
+    "seed": 23,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/4x5-profesion-transporte-camiseta.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-bebida-postre-instrumento-lectura",
+    "seed": 24,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x4-bebida-postre-instrumento-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-postre-estacion-deporte",
+    "seed": 25,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x4-postre-estacion-deporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-camiseta-transporte-instrumento",
+    "seed": 26,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x5-camiseta-transporte-instrumento.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-flor-instrumento-profesion-postre",
+    "seed": 27,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x4-flor-instrumento-profesion-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-deporte-postre-lectura",
+    "seed": 28,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x4-deporte-postre-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-mascota-profesion-transporte",
+    "seed": 29,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x5-mascota-profesion-transporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-flor-instrumento-deporte",
+    "seed": 30,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x4-flor-instrumento-deporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-transporte-instrumento-camiseta",
+    "seed": 31,
+    "dificultad": 2,
+    "json_url": "data/debug/enigma-einstein/4x4-transporte-instrumento-camiseta.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-lectura-mascota-transporte",
+    "seed": 32,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-lectura-mascota-transporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-camiseta-flor-lectura-mascota",
+    "seed": 33,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/5x4-camiseta-flor-lectura-mascota.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-camiseta-instrumento-pais-lectura",
+    "seed": 34,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-camiseta-instrumento-pais-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-deporte-camiseta-instrumento",
+    "seed": 35,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x5-deporte-camiseta-instrumento.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-estacion-profesion-flor",
+    "seed": 36,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-estacion-profesion-flor.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-flor-profesion-transporte",
+    "seed": 37,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x4-flor-profesion-transporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-pais-bebida-postre",
+    "seed": 38,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x4-pais-bebida-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-instrumento-pais-profesion-transporte",
+    "seed": 39,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-instrumento-pais-profesion-transporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-flor-transporte-instrumento",
+    "seed": 40,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-flor-transporte-instrumento.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-instrumento-bebida-transporte",
+    "seed": 41,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x5-instrumento-bebida-transporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-bebida-pais-flor",
+    "seed": 42,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x5-bebida-pais-flor.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-deporte-instrumento-lectura",
+    "seed": 43,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-deporte-instrumento-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-bebida-lectura-flor-transporte",
+    "seed": 44,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-bebida-lectura-flor-transporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-bebida-profesion-lectura-pais",
+    "seed": 45,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-bebida-profesion-lectura-pais.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-flor-mascota-postre",
+    "seed": 46,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/4x5-flor-mascota-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x5-camiseta-deporte-mascota",
+    "seed": 47,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x5-camiseta-deporte-mascota.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x5-camiseta-instrumento-mascota-postre",
+    "seed": 48,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x5-camiseta-instrumento-mascota-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-profesion-postre-deporte-bebida",
+    "seed": 49,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x4-profesion-postre-deporte-bebida.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-lectura-flor-profesion",
+    "seed": 50,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-lectura-flor-profesion.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-camiseta-profesion-deporte-postre",
+    "seed": 51,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x4-camiseta-profesion-deporte-postre.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-mascota-estacion-lectura",
+    "seed": 52,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/4x4-mascota-estacion-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x5-instrumento-profesion-deporte-transporte",
+    "seed": 53,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x5-instrumento-profesion-deporte-transporte.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-pais-mascota-deporte-camiseta",
+    "seed": 54,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-pais-mascota-deporte-camiseta.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "4x4-camiseta-pais-lectura",
+    "seed": 55,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/4x4-camiseta-pais-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-lectura-postre-pais-profesion",
+    "seed": 56,
+    "dificultad": 3,
+    "json_url": "data/debug/enigma-einstein/5x4-lectura-postre-pais-profesion.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x5-bebida-pais-deporte-mascota",
+    "seed": 57,
+    "dificultad": 5,
+    "json_url": "data/debug/enigma-einstein/5x5-bebida-pais-deporte-mascota.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-transporte-flor-deporte-lectura",
+    "seed": 58,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-transporte-flor-deporte-lectura.json"
+  },
+  {
+    "tipo": "enigma-einstein",
+    "titulo": "Resuelve el enigma",
+    "variant": "5x4-flor-instrumento-transporte-profesion",
+    "seed": 59,
+    "dificultad": 4,
+    "json_url": "data/debug/enigma-einstein/5x4-flor-instrumento-transporte-profesion.json"
+  },
+  {
+    "tipo": "balanza-logica",
+    "titulo": "Descubre el impostor",
+    "variant": "desconocida",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/balanza-logica/desconocida.json"
+  },
+  {
+    "tipo": "balanza-logica",
+    "titulo": "Descubre el impostor",
+    "variant": "pesada",
+    "seed": 1,
+    "dificultad": 3,
+    "json_url": "data/debug/balanza-logica/pesada.json"
+  },
+  {
+    "tipo": "balanza-logica",
+    "titulo": "Descubre el impostor",
+    "variant": "ligera",
+    "seed": 2,
+    "dificultad": 3,
+    "json_url": "data/debug/balanza-logica/ligera.json"
+  },
+  {
+    "tipo": "balanza-logica",
+    "titulo": "Descubre el impostor",
+    "variant": "pesadas-multiples",
+    "seed": 4,
+    "dificultad": 3,
+    "json_url": "data/debug/balanza-logica/pesadas-multiples.json"
+  },
+  {
+    "tipo": "poligono-geometrico",
+    "titulo": "Construye el polígono",
+    "variant": "una-convexa",
+    "seed": 0,
+    "dificultad": 2,
+    "json_url": "data/debug/poligono-geometrico/una-convexa.json"
+  },
+  {
+    "tipo": "poligono-geometrico",
+    "titulo": "Construye el polígono",
+    "variant": "una-concava",
+    "seed": 1,
+    "dificultad": 3,
+    "json_url": "data/debug/poligono-geometrico/una-concava.json"
+  },
+  {
+    "tipo": "poligono-geometrico",
+    "titulo": "Construye el polígono",
+    "variant": "dos-concavas",
+    "seed": 3,
+    "dificultad": 4,
+    "json_url": "data/debug/poligono-geometrico/dos-concavas.json"
+  },
+  {
+    "tipo": "poligono-geometrico",
+    "titulo": "Construye el polígono",
+    "variant": "dos-una-de-cada",
+    "seed": 5,
+    "dificultad": 4,
+    "json_url": "data/debug/poligono-geometrico/dos-una-de-cada.json"
+  },
+  {
+    "tipo": "poligono-geometrico",
+    "titulo": "Construye el polígono",
+    "variant": "dos-convexas",
+    "seed": 18,
+    "dificultad": 3,
+    "json_url": "data/debug/poligono-geometrico/dos-convexas.json"
+  },
+  {
+    "tipo": "mezcla-quimica",
+    "titulo": "Mezcla Exacta",
+    "variant": "sin-grifo-3-2objetivos",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/mezcla-quimica/sin-grifo-3-2objetivos.json"
+  },
+  {
+    "tipo": "mezcla-quimica",
+    "titulo": "Mezcla Exacta",
+    "variant": "con-grifo-3-1objetivos",
+    "seed": 1,
+    "dificultad": 2,
+    "json_url": "data/debug/mezcla-quimica/con-grifo-3-1objetivos.json"
+  },
+  {
+    "tipo": "mezcla-quimica",
+    "titulo": "Mezcla Exacta",
+    "variant": "con-grifo-4-1objetivos",
+    "seed": 2,
+    "dificultad": 3,
+    "json_url": "data/debug/mezcla-quimica/con-grifo-4-1objetivos.json"
+  },
+  {
+    "tipo": "mezcla-quimica",
+    "titulo": "Mezcla Exacta",
+    "variant": "con-grifo-4-2objetivos",
+    "seed": 3,
+    "dificultad": 4,
+    "json_url": "data/debug/mezcla-quimica/con-grifo-4-2objetivos.json"
+  },
+  {
+    "tipo": "mezcla-quimica",
+    "titulo": "Mezcla Exacta",
+    "variant": "sin-grifo-3-1objetivos",
+    "seed": 4,
+    "dificultad": 2,
+    "json_url": "data/debug/mezcla-quimica/sin-grifo-3-1objetivos.json"
+  },
+  {
+    "tipo": "mezcla-quimica",
+    "titulo": "Mezcla Exacta",
+    "variant": "sin-grifo-4-2objetivos",
+    "seed": 5,
+    "dificultad": 4,
+    "json_url": "data/debug/mezcla-quimica/sin-grifo-4-2objetivos.json"
+  },
+  {
+    "tipo": "mezcla-quimica",
+    "titulo": "Mezcla Exacta",
+    "variant": "con-grifo-3-2objetivos",
+    "seed": 14,
+    "dificultad": 3,
+    "json_url": "data/debug/mezcla-quimica/con-grifo-3-2objetivos.json"
+  },
+  {
+    "tipo": "mezcla-quimica",
+    "titulo": "Mezcla Exacta",
+    "variant": "sin-grifo-4-1objetivos",
+    "seed": 17,
+    "dificultad": 3,
+    "json_url": "data/debug/mezcla-quimica/sin-grifo-4-1objetivos.json"
+  },
+  {
+    "tipo": "luces-fuera",
+    "titulo": "Los Cuadrados Luminosos",
+    "variant": "4x4-apagar",
+    "seed": 0,
+    "dificultad": 2,
+    "json_url": "data/debug/luces-fuera/4x4-apagar.json"
+  },
+  {
+    "tipo": "luces-fuera",
+    "titulo": "Los Cuadrados Luminosos",
+    "variant": "4x4-encender",
+    "seed": 1,
+    "dificultad": 2,
+    "json_url": "data/debug/luces-fuera/4x4-encender.json"
+  },
+  {
+    "tipo": "luces-fuera",
+    "titulo": "Los Cuadrados Luminosos",
+    "variant": "6x6-encender",
+    "seed": 2,
+    "dificultad": 4,
+    "json_url": "data/debug/luces-fuera/6x6-encender.json"
+  },
+  {
+    "tipo": "luces-fuera",
+    "titulo": "Los Cuadrados Luminosos",
+    "variant": "4x4-patron",
+    "seed": 3,
+    "dificultad": 2,
+    "json_url": "data/debug/luces-fuera/4x4-patron.json"
+  },
+  {
+    "tipo": "luces-fuera",
+    "titulo": "Los Cuadrados Luminosos",
+    "variant": "5x5-patron",
+    "seed": 5,
+    "dificultad": 3,
+    "json_url": "data/debug/luces-fuera/5x5-patron.json"
+  },
+  {
+    "tipo": "luces-fuera",
+    "titulo": "Los Cuadrados Luminosos",
+    "variant": "6x6-patron",
+    "seed": 6,
+    "dificultad": 4,
+    "json_url": "data/debug/luces-fuera/6x6-patron.json"
+  },
+  {
+    "tipo": "luces-fuera",
+    "titulo": "Los Cuadrados Luminosos",
+    "variant": "5x5-apagar",
+    "seed": 9,
+    "dificultad": 3,
+    "json_url": "data/debug/luces-fuera/5x5-apagar.json"
+  },
+  {
+    "tipo": "luces-fuera",
+    "titulo": "Los Cuadrados Luminosos",
+    "variant": "6x6-apagar",
+    "seed": 10,
+    "dificultad": 4,
+    "json_url": "data/debug/luces-fuera/6x6-apagar.json"
+  },
+  {
+    "tipo": "luces-fuera",
+    "titulo": "Los Cuadrados Luminosos",
+    "variant": "5x5-encender",
+    "seed": 14,
+    "dificultad": 3,
+    "json_url": "data/debug/luces-fuera/5x5-encender.json"
+  },
+  {
+    "tipo": "relojes-arena",
+    "titulo": "Relojes de Arena",
+    "variant": "diferido",
+    "seed": 0,
+    "dificultad": 2,
+    "json_url": "data/debug/relojes-arena/diferido.json"
+  },
+  {
+    "tipo": "relojes-arena",
+    "titulo": "Relojes de Arena",
+    "variant": "clasico",
+    "seed": 2,
+    "dificultad": 4,
+    "json_url": "data/debug/relojes-arena/clasico.json"
+  },
+  {
+    "tipo": "puentes-hashi",
+    "titulo": "Conecta los Chips",
+    "variant": "clasico",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/puentes-hashi/clasico.json"
+  },
+  {
+    "tipo": "puentes-hashi",
+    "titulo": "Conecta los Chips",
+    "variant": "pequeno",
+    "seed": 4,
+    "dificultad": 2,
+    "json_url": "data/debug/puentes-hashi/pequeno.json"
+  },
+  {
+    "tipo": "nonograma",
+    "titulo": "Objeto Oculto",
+    "variant": "grande",
+    "seed": 0,
+    "dificultad": 4,
+    "json_url": "data/debug/nonograma/grande.json"
+  },
+  {
+    "tipo": "nonograma",
+    "titulo": "Objeto Oculto",
+    "variant": "medio",
+    "seed": 2,
+    "dificultad": 3,
+    "json_url": "data/debug/nonograma/medio.json"
+  },
+  {
+    "tipo": "nonograma",
+    "titulo": "Objeto Oculto",
+    "variant": "pequeno-color",
+    "seed": 3,
+    "dificultad": 3,
+    "json_url": "data/debug/nonograma/pequeno-color.json"
+  },
+  {
+    "tipo": "nonograma",
+    "titulo": "Objeto Oculto",
+    "variant": "pequeno",
+    "seed": 9,
+    "dificultad": 2,
+    "json_url": "data/debug/nonograma/pequeno.json"
+  },
+  {
+    "tipo": "nonograma",
+    "titulo": "Objeto Oculto",
+    "variant": "medio-color",
+    "seed": 14,
+    "dificultad": 4,
+    "json_url": "data/debug/nonograma/medio-color.json"
+  },
+  {
+    "tipo": "cajas-apiladas",
+    "titulo": "Cajas Apiladas",
+    "variant": "pesado",
+    "seed": 0,
+    "dificultad": 4,
+    "json_url": "data/debug/cajas-apiladas/pesado.json"
+  },
+  {
+    "tipo": "cajas-apiladas",
+    "titulo": "Cajas Apiladas",
+    "variant": "ligero",
+    "seed": 1,
+    "dificultad": 2,
+    "json_url": "data/debug/cajas-apiladas/ligero.json"
+  },
+  {
+    "tipo": "cajas-apiladas",
+    "titulo": "Cajas Apiladas",
+    "variant": "medio",
+    "seed": 2,
+    "dificultad": 3,
+    "json_url": "data/debug/cajas-apiladas/medio.json"
+  },
+  {
+    "tipo": "riego-plantas",
+    "titulo": "El Riego",
+    "variant": "invernadero",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/riego-plantas/invernadero.json"
+  },
+  {
+    "tipo": "riego-plantas",
+    "titulo": "El Riego",
+    "variant": "huerto",
+    "seed": 1,
+    "dificultad": 2,
+    "json_url": "data/debug/riego-plantas/huerto.json"
+  },
+  {
+    "tipo": "riego-plantas",
+    "titulo": "El Riego",
+    "variant": "vivero",
+    "seed": 6,
+    "dificultad": 4,
+    "json_url": "data/debug/riego-plantas/vivero.json"
+  },
+  {
+    "tipo": "anillas-encadenadas",
+    "titulo": "Anillas Encadenadas",
+    "variant": "clasico",
+    "seed": 0,
+    "dificultad": 2,
+    "json_url": "data/debug/anillas-encadenadas/clasico.json"
+  },
+  {
+    "tipo": "anillas-encadenadas",
+    "titulo": "Anillas Encadenadas",
+    "variant": "dos-de-golpe",
+    "seed": 2,
+    "dificultad": 2,
+    "json_url": "data/debug/anillas-encadenadas/dos-de-golpe.json"
+  },
+  {
+    "tipo": "anillas-encadenadas",
+    "titulo": "Anillas Encadenadas",
+    "variant": "configuracion",
+    "seed": 8,
+    "dificultad": 4,
+    "json_url": "data/debug/anillas-encadenadas/configuracion.json"
+  },
+  {
+    "tipo": "laser-triangular",
+    "titulo": "Laberinto Láser",
+    "variant": "grande-prisma",
+    "seed": 0,
+    "dificultad": 5,
+    "json_url": "data/debug/laser-triangular/grande-prisma.json"
+  },
+  {
+    "tipo": "laser-triangular",
+    "titulo": "Laberinto Láser",
+    "variant": "medio-prisma",
+    "seed": 1,
+    "dificultad": 4,
+    "json_url": "data/debug/laser-triangular/medio-prisma.json"
+  },
+  {
+    "tipo": "laser-triangular",
+    "titulo": "Laberinto Láser",
+    "variant": "pequeno-condensador",
+    "seed": 2,
+    "dificultad": 3,
+    "json_url": "data/debug/laser-triangular/pequeno-condensador.json"
+  },
+  {
+    "tipo": "laser-triangular",
+    "titulo": "Laberinto Láser",
+    "variant": "medio-clasico",
+    "seed": 3,
+    "dificultad": 3,
+    "json_url": "data/debug/laser-triangular/medio-clasico.json"
+  },
+  {
+    "tipo": "laser-triangular",
+    "titulo": "Laberinto Láser",
+    "variant": "grande-condensador",
+    "seed": 4,
+    "dificultad": 5,
+    "json_url": "data/debug/laser-triangular/grande-condensador.json"
+  },
+  {
+    "tipo": "laser-triangular",
+    "titulo": "Laberinto Láser",
+    "variant": "pequeno-prisma",
+    "seed": 5,
+    "dificultad": 3,
+    "json_url": "data/debug/laser-triangular/pequeno-prisma.json"
+  },
+  {
+    "tipo": "laser-triangular",
+    "titulo": "Laberinto Láser",
+    "variant": "grande-clasico",
+    "seed": 6,
+    "dificultad": 4,
+    "json_url": "data/debug/laser-triangular/grande-clasico.json"
+  },
+  {
+    "tipo": "laser-triangular",
+    "titulo": "Laberinto Láser",
+    "variant": "pequeno-clasico",
+    "seed": 26,
+    "dificultad": 2,
+    "json_url": "data/debug/laser-triangular/pequeno-clasico.json"
+  },
+  {
+    "tipo": "laser-triangular",
+    "titulo": "Laberinto Láser",
+    "variant": "medio-condensador",
+    "seed": 41,
+    "dificultad": 4,
+    "json_url": "data/debug/laser-triangular/medio-condensador.json"
+  }
+]

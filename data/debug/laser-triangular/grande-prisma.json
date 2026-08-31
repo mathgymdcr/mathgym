@@ -1,0 +1,38 @@
+{
+  "variant": "grande",
+  "modo": "prisma",
+  "size": 7,
+  "lasers": [
+    {
+      "emitter": {
+        "row": 2,
+        "col": 6,
+        "dir": "nw"
+      },
+      "color": "neutro"
+    }
+  ],
+  "targets": [
+    {
+      "row": 0,
+      "col": 3,
+      "color": "azul"
+    },
+    {
+      "row": 0,
+      "col": 6,
+      "color": "rojo"
+    }
+  ],
+  "blocks": [
+    {
+      "row": 6,
+      "col": 3
+    },
+    {
+      "row": 3,
+      "col": 4
+    }
+  ],
+  "min_piezas": 3
+}

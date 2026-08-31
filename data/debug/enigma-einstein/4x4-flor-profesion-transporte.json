@@ -1,0 +1,138 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía"
+    ]
+  },
+  "clues": [
+    "Sofía es periodista.",
+    "Quien cultiva rosas no se mueve en bicicleta.",
+    "Quien cultiva tulipanes no es dentista.",
+    "Miguel se mueve en patinete.",
+    "Quien cultiva rosas no es periodista.",
+    "Quien cultiva girasoles es taxista.",
+    "Quien es electricista no se mueve en bicicleta.",
+    "Sofía se mueve en metro.",
+    "María cultiva tulipanes."
+  ],
+  "solution": {
+    "María": {
+      "Flor": "Tulipanes",
+      "Profesión": "Electricista",
+      "Transporte": "Tranvía"
+    },
+    "Pedro": {
+      "Flor": "Girasoles",
+      "Profesión": "Taxista",
+      "Transporte": "Bicicleta"
+    },
+    "Sofía": {
+      "Flor": "Orquídeas",
+      "Profesión": "Periodista",
+      "Transporte": "Metro"
+    },
+    "Miguel": {
+      "Flor": "Rosas",
+      "Profesión": "Dentista",
+      "Transporte": "Patinete"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Flor",
+      "Profesión",
+      "Transporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 1,
+        "positiva": true
+      }
+    ]
+  }
+}

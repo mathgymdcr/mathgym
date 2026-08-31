@@ -1,0 +1,203 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David",
+      "Lucía"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo",
+      "Remo"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía",
+      "Teatro"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles",
+      "Claveles"
+    ]
+  },
+  "clues": [
+    "Ana lee poesía.",
+    "Ana no cultiva orquídeas.",
+    "Elena no cultiva rosas.",
+    "Quien practica natación no cultiva claveles.",
+    "David no lee biografía.",
+    "Quien practica natación no cultiva rosas.",
+    "Quien practica natación no lee ensayo.",
+    "Quien practica escalada no cultiva rosas.",
+    "Carlos cultiva claveles.",
+    "Ana practica remo.",
+    "Quien practica judo no cultiva orquídeas.",
+    "Quien practica judo no cultiva tulipanes.",
+    "Quien lee poesía no cultiva rosas.",
+    "Quien practica judo lee teatro.",
+    "Lucía lee ensayo.",
+    "Elena practica judo."
+  ],
+  "solution": {
+    "Ana": {
+      "Deporte": "Remo",
+      "Lectura": "Poesía",
+      "Flor": "Tulipanes"
+    },
+    "Carlos": {
+      "Deporte": "Escalada",
+      "Lectura": "Biografía",
+      "Flor": "Claveles"
+    },
+    "Elena": {
+      "Deporte": "Judo",
+      "Lectura": "Teatro",
+      "Flor": "Girasoles"
+    },
+    "David": {
+      "Deporte": "Natación",
+      "Lectura": "Cómic",
+      "Flor": "Orquídeas"
+    },
+    "Lucía": {
+      "Deporte": "Ciclismo",
+      "Lectura": "Ensayo",
+      "Flor": "Rosas"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Deporte",
+      "Lectura",
+      "Flor"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 3,
+        "positiva": true
+      }
+    ]
+  }
+}

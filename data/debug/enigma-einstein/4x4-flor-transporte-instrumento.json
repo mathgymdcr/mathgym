@@ -1,0 +1,154 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ]
+  },
+  "clues": [
+    "María se mueve en metro.",
+    "Quien cultiva girasoles no toca el saxofón.",
+    "Quien cultiva rosas se mueve en tranvía.",
+    "Quien cultiva tulipanes se mueve en patinete.",
+    "Quien cultiva girasoles no toca el violín.",
+    "María no toca el saxofón.",
+    "Pedro toca el violín.",
+    "Quien cultiva orquídeas se mueve en metro.",
+    "Miguel no se mueve en bicicleta.",
+    "Quien se mueve en tranvía no toca el violín.",
+    "Quien se mueve en bicicleta no toca el piano."
+  ],
+  "solution": {
+    "María": {
+      "Flor": "Orquídeas",
+      "Transporte": "Metro",
+      "Instrumento": "Piano"
+    },
+    "Pedro": {
+      "Flor": "Tulipanes",
+      "Transporte": "Patinete",
+      "Instrumento": "Violín"
+    },
+    "Sofía": {
+      "Flor": "Girasoles",
+      "Transporte": "Bicicleta",
+      "Instrumento": "Acordeón"
+    },
+    "Miguel": {
+      "Flor": "Rosas",
+      "Transporte": "Tranvía",
+      "Instrumento": "Saxofón"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Flor",
+      "Transporte",
+      "Instrumento"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      }
+    ]
+  }
+}

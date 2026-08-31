@@ -1,0 +1,54 @@
+{
+  "variant": "vivero",
+  "cycles": 8,
+  "capacity": 3,
+  "descanso": true,
+  "plants": [
+    {
+      "id": "Perejil",
+      "doses": 2,
+      "ventana": [
+        0,
+        5
+      ]
+    },
+    {
+      "id": "Jazmín",
+      "doses": 2,
+      "ventana": [
+        0,
+        5
+      ]
+    },
+    {
+      "id": "Romero",
+      "doses": 3,
+      "ventana": [
+        0,
+        4,
+        5,
+        7
+      ]
+    },
+    {
+      "id": "Cactus",
+      "doses": 2,
+      "ventana": [
+        0,
+        5,
+        6,
+        7
+      ]
+    },
+    {
+      "id": "Aloe",
+      "doses": 2,
+      "ventana": [
+        0,
+        2,
+        5,
+        6
+      ]
+    }
+  ]
+}

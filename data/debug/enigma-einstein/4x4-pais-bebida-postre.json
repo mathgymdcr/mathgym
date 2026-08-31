@@ -1,0 +1,138 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ]
+  },
+  "clues": [
+    "Javier come de postre tarta.",
+    "Quien viajó a Noruega come de postre flan.",
+    "Javier bebe té.",
+    "Quien viajó a Brasil come de postre natillas.",
+    "Quien viajó a Noruega bebe zumo.",
+    "Quien viajó a Japón come de postre tarta.",
+    "Quien bebe café no come de postre natillas.",
+    "Andrés no bebe zumo.",
+    "Laura bebe agua."
+  ],
+  "solution": {
+    "Laura": {
+      "País": "Brasil",
+      "Bebida": "Agua",
+      "Postre": "Natillas"
+    },
+    "Andrés": {
+      "País": "Egipto",
+      "Bebida": "Café",
+      "Postre": "Helado"
+    },
+    "Carmen": {
+      "País": "Noruega",
+      "Bebida": "Zumo",
+      "Postre": "Flan"
+    },
+    "Javier": {
+      "País": "Japón",
+      "Bebida": "Té",
+      "Postre": "Tarta"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "País",
+      "Bebida",
+      "Postre"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      }
+    ]
+  }
+}

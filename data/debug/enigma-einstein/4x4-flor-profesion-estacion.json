@@ -1,0 +1,146 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Estación": [
+      "Primavera",
+      "Verano",
+      "Otoño",
+      "Invierno"
+    ]
+  },
+  "clues": [
+    "Carmen es electricista.",
+    "Laura es taxista.",
+    "Andrés prefiere el verano.",
+    "Quien cultiva rosas no prefiere el verano.",
+    "Javier prefiere la primavera.",
+    "Carmen no cultiva tulipanes.",
+    "Quien cultiva rosas no prefiere el invierno.",
+    "Quien cultiva girasoles es dentista.",
+    "Laura no prefiere el invierno.",
+    "Javier no es periodista."
+  ],
+  "solution": {
+    "Laura": {
+      "Flor": "Rosas",
+      "Profesión": "Taxista",
+      "Estación": "Otoño"
+    },
+    "Andrés": {
+      "Flor": "Tulipanes",
+      "Profesión": "Periodista",
+      "Estación": "Verano"
+    },
+    "Carmen": {
+      "Flor": "Orquídeas",
+      "Profesión": "Electricista",
+      "Estación": "Invierno"
+    },
+    "Javier": {
+      "Flor": "Girasoles",
+      "Profesión": "Dentista",
+      "Estación": "Primavera"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Flor",
+      "Profesión",
+      "Estación"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      }
+    ]
+  }
+}

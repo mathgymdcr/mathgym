@@ -1,0 +1,19 @@
+{
+  "variant": "dos-de-golpe",
+  "rings": 4,
+  "regla": "dos-de-golpe",
+  "inicial": [
+    true,
+    true,
+    false,
+    true
+  ],
+  "objetivo": [
+    false,
+    false,
+    false,
+    false
+  ],
+  "min_movimientos": 10,
+  "mostrarPistas": true
+}

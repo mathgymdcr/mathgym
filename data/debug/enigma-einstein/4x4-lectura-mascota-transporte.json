@@ -1,0 +1,154 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía"
+    ]
+  },
+  "clues": [
+    "Carlos tiene un perro.",
+    "Quien lee poesía tiene un gato.",
+    "Quien lee poesía se mueve en tranvía.",
+    "Quien lee biografía se mueve en bicicleta.",
+    "Elena no lee poesía.",
+    "Ana no tiene un gato.",
+    "Ana no lee biografía.",
+    "Ana no lee ensayo.",
+    "Ana no tiene un pez.",
+    "Quien tiene un pájaro no se mueve en metro.",
+    "Quien lee biografía no tiene un perro."
+  ],
+  "solution": {
+    "Ana": {
+      "Lectura": "Cómic",
+      "Mascota": "Pájaro",
+      "Transporte": "Patinete"
+    },
+    "Carlos": {
+      "Lectura": "Ensayo",
+      "Mascota": "Perro",
+      "Transporte": "Metro"
+    },
+    "Elena": {
+      "Lectura": "Biografía",
+      "Mascota": "Pez",
+      "Transporte": "Bicicleta"
+    },
+    "David": {
+      "Lectura": "Poesía",
+      "Mascota": "Gato",
+      "Transporte": "Tranvía"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Lectura",
+      "Mascota",
+      "Transporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ]
+  },
+  "clues": [
+    "Miguel viajó a Brasil.",
+    "Miguel lee cómic.",
+    "Pedro viajó a Noruega.",
+    "Quien bebe zumo viajó a Japón.",
+    "Quien bebe zumo no lee poesía.",
+    "Quien es periodista no lee biografía.",
+    "Quien bebe té no lee ensayo.",
+    "María no viajó a Egipto.",
+    "Miguel es taxista.",
+    "Miguel bebe café.",
+    "Quien es dentista viajó a Egipto.",
+    "María no lee ensayo.",
+    "Sofía no bebe té."
+  ],
+  "solution": {
+    "María": {
+      "Bebida": "Zumo",
+      "Profesión": "Electricista",
+      "Lectura": "Biografía",
+      "País": "Japón"
+    },
+    "Pedro": {
+      "Bebida": "Té",
+      "Profesión": "Periodista",
+      "Lectura": "Poesía",
+      "País": "Noruega"
+    },
+    "Sofía": {
+      "Bebida": "Agua",
+      "Profesión": "Dentista",
+      "Lectura": "Ensayo",
+      "País": "Egipto"
+    },
+    "Miguel": {
+      "Bebida": "Café",
+      "Profesión": "Taxista",
+      "Lectura": "Cómic",
+      "País": "Brasil"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Bebida",
+      "Profesión",
+      "Lectura",
+      "País"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 4,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 1,
+        "positiva": false
+      }
+    ]
+  }
+}

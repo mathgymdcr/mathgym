@@ -1,0 +1,33 @@
+{
+  "variant": "pequeno",
+  "modo": "condensador",
+  "size": 5,
+  "lasers": [
+    {
+      "emitter": {
+        "row": 4,
+        "col": 1,
+        "dir": "ne"
+      },
+      "color": "neutro"
+    }
+  ],
+  "targets": [
+    {
+      "row": 0,
+      "col": 4,
+      "color": "magenta"
+    }
+  ],
+  "blocks": [
+    {
+      "row": 4,
+      "col": 0
+    },
+    {
+      "row": 0,
+      "col": 3
+    }
+  ],
+  "min_piezas": 4
+}

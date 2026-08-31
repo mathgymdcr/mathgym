@@ -1,0 +1,171 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier",
+      "Nuria"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista",
+      "Guionista"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía",
+      "Autobús"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla",
+      "Negra"
+    ]
+  },
+  "clues": [
+    "Andrés es dentista.",
+    "Quien se mueve en bicicleta viste camiseta azul.",
+    "Javier no viste camiseta amarilla.",
+    "Nuria viste camiseta verde.",
+    "Javier no viste camiseta azul.",
+    "Quien se mueve en patinete viste camiseta roja.",
+    "Quien es taxista no se mueve en metro.",
+    "Quien es electricista viste camiseta azul.",
+    "Javier no se mueve en patinete.",
+    "Carmen se mueve en autobús.",
+    "Quien es periodista no viste camiseta verde.",
+    "Carmen es guionista."
+  ],
+  "solution": {
+    "Laura": {
+      "Profesión": "Electricista",
+      "Transporte": "Bicicleta",
+      "Camiseta": "Azul"
+    },
+    "Andrés": {
+      "Profesión": "Dentista",
+      "Transporte": "Patinete",
+      "Camiseta": "Roja"
+    },
+    "Carmen": {
+      "Profesión": "Guionista",
+      "Transporte": "Autobús",
+      "Camiseta": "Amarilla"
+    },
+    "Javier": {
+      "Profesión": "Periodista",
+      "Transporte": "Metro",
+      "Camiseta": "Negra"
+    },
+    "Nuria": {
+      "Profesión": "Taxista",
+      "Transporte": "Tranvía",
+      "Camiseta": "Verde"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Profesión",
+      "Transporte",
+      "Camiseta"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 4,
+        "positiva": true
+      }
+    ]
+  }
+}

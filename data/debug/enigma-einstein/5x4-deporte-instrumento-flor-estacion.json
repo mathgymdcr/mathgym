@@ -1,0 +1,181 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Estación": [
+      "Primavera",
+      "Verano",
+      "Otoño",
+      "Invierno"
+    ]
+  },
+  "clues": [
+    "Andrés prefiere el otoño.",
+    "Quien practica judo no prefiere el otoño.",
+    "Javier no practica natación.",
+    "Laura prefiere el invierno.",
+    "Carmen toca el saxofón.",
+    "Quien toca el saxofón cultiva girasoles.",
+    "Quien practica escalada prefiere la primavera.",
+    "Quien toca el piano no cultiva orquídeas.",
+    "Andrés no practica natación.",
+    "Quien practica judo cultiva tulipanes.",
+    "Quien cultiva girasoles no prefiere el verano.",
+    "Quien practica natación no toca el acordeón.",
+    "Quien toca el piano prefiere el otoño."
+  ],
+  "solution": {
+    "Laura": {
+      "Deporte": "Natación",
+      "Instrumento": "Violín",
+      "Flor": "Orquídeas",
+      "Estación": "Invierno"
+    },
+    "Andrés": {
+      "Deporte": "Ciclismo",
+      "Instrumento": "Piano",
+      "Flor": "Rosas",
+      "Estación": "Otoño"
+    },
+    "Carmen": {
+      "Deporte": "Escalada",
+      "Instrumento": "Saxofón",
+      "Flor": "Girasoles",
+      "Estación": "Primavera"
+    },
+    "Javier": {
+      "Deporte": "Judo",
+      "Instrumento": "Acordeón",
+      "Flor": "Tulipanes",
+      "Estación": "Verano"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Deporte",
+      "Instrumento",
+      "Flor",
+      "Estación"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 3,
+        "vA": 3,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      }
+    ]
+  }
+}

@@ -9,6 +9,7 @@
     "generate": "node scripts/generate-daily-reto.js",
     "validate": "node scripts/validate-retos.js",
     "sitemap": "node scripts/generate-sitemap.js",
+    "debug-matrix": "node scripts/generate-debug-matrix.js",
     "social": "node scripts/publicar-social.js --dry-run",
     "lint": "echo 'Linting not configured yet'",
     "dev": "python -m http.server 8000",

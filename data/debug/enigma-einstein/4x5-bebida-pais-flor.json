@@ -1,0 +1,187 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David",
+      "Lucía"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo",
+      "Leche"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega",
+      "Canadá"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles",
+      "Claveles"
+    ]
+  },
+  "clues": [
+    "David bebe zumo.",
+    "Quien bebe zumo viajó a Canadá.",
+    "Elena bebe agua.",
+    "Ana no cultiva tulipanes.",
+    "Elena viajó a Noruega.",
+    "Ana no bebe té.",
+    "Quien bebe té no cultiva tulipanes.",
+    "Carlos no bebe té.",
+    "Quien bebe café cultiva rosas.",
+    "Ana no cultiva rosas.",
+    "Quien viajó a Brasil no cultiva orquídeas.",
+    "Quien bebe leche viajó a Japón.",
+    "David cultiva claveles.",
+    "Quien bebe té no viajó a Egipto."
+  ],
+  "solution": {
+    "Ana": {
+      "Bebida": "Leche",
+      "País": "Japón",
+      "Flor": "Orquídeas"
+    },
+    "Carlos": {
+      "Bebida": "Café",
+      "País": "Egipto",
+      "Flor": "Rosas"
+    },
+    "Elena": {
+      "Bebida": "Agua",
+      "País": "Noruega",
+      "Flor": "Tulipanes"
+    },
+    "David": {
+      "Bebida": "Zumo",
+      "País": "Canadá",
+      "Flor": "Claveles"
+    },
+    "Lucía": {
+      "Bebida": "Té",
+      "País": "Brasil",
+      "Flor": "Girasoles"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Bebida",
+      "País",
+      "Flor"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 4,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      }
+    ]
+  }
+}

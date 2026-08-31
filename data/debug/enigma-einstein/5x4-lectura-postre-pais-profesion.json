@@ -1,0 +1,221 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ]
+  },
+  "clues": [
+    "Pedro come de postre tarta.",
+    "Quien lee ensayo no es periodista.",
+    "Quien come de postre natillas es periodista.",
+    "Quien lee biografía no es periodista.",
+    "Sofía lee ensayo.",
+    "Quien lee cómic no viajó a Brasil.",
+    "Pedro no es taxista.",
+    "Miguel no come de postre helado.",
+    "Quien viajó a Noruega no es electricista.",
+    "Quien come de postre flan viajó a Noruega.",
+    "Quien viajó a Egipto no es electricista.",
+    "Quien lee biografía no es electricista.",
+    "María no come de postre flan.",
+    "Sofía no viajó a Brasil.",
+    "Miguel no lee poesía.",
+    "Quien lee ensayo no es taxista.",
+    "Quien lee cómic no es taxista.",
+    "Quien lee poesía no viajó a Brasil."
+  ],
+  "solution": {
+    "María": {
+      "Lectura": "Biografía",
+      "Postre": "Helado",
+      "País": "Brasil",
+      "Profesión": "Taxista"
+    },
+    "Pedro": {
+      "Lectura": "Poesía",
+      "Postre": "Tarta",
+      "País": "Japón",
+      "Profesión": "Electricista"
+    },
+    "Sofía": {
+      "Lectura": "Ensayo",
+      "Postre": "Flan",
+      "País": "Noruega",
+      "Profesión": "Dentista"
+    },
+    "Miguel": {
+      "Lectura": "Cómic",
+      "Postre": "Natillas",
+      "País": "Egipto",
+      "Profesión": "Periodista"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Lectura",
+      "Postre",
+      "País",
+      "Profesión"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 4,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 3,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 3,
+        "vA": 2,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 4,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 4,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      }
+    ]
+  }
+}

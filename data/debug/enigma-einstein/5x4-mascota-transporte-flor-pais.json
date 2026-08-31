@@ -1,0 +1,181 @@
+{
+  "categories": {
+    "Persona": [
+      "Laura",
+      "Andrés",
+      "Carmen",
+      "Javier"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ]
+  },
+  "clues": [
+    "Javier viajó a Noruega.",
+    "Javier tiene un perro.",
+    "Javier no cultiva rosas.",
+    "Carmen viajó a Egipto.",
+    "Quien tiene un perro no se mueve en patinete.",
+    "Quien tiene un pájaro no se mueve en tranvía.",
+    "Quien se mueve en tranvía cultiva tulipanes.",
+    "Quien tiene un pájaro no cultiva orquídeas.",
+    "Quien se mueve en patinete no viajó a Egipto.",
+    "Quien tiene un gato viajó a Brasil.",
+    "Laura cultiva tulipanes.",
+    "Quien se mueve en bicicleta cultiva orquídeas.",
+    "Quien tiene un perro no cultiva orquídeas."
+  ],
+  "solution": {
+    "Laura": {
+      "Mascota": "Gato",
+      "Transporte": "Tranvía",
+      "Flor": "Tulipanes",
+      "País": "Brasil"
+    },
+    "Andrés": {
+      "Mascota": "Pájaro",
+      "Transporte": "Patinete",
+      "Flor": "Rosas",
+      "País": "Japón"
+    },
+    "Carmen": {
+      "Mascota": "Pez",
+      "Transporte": "Bicicleta",
+      "Flor": "Orquídeas",
+      "País": "Egipto"
+    },
+    "Javier": {
+      "Mascota": "Perro",
+      "Transporte": "Metro",
+      "Flor": "Girasoles",
+      "País": "Noruega"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Mascota",
+      "Transporte",
+      "Flor",
+      "País"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 4,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      }
+    ]
+  }
+}

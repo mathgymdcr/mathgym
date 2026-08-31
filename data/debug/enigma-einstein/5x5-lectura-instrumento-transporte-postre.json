@@ -1,0 +1,224 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David",
+      "Lucía"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía",
+      "Teatro"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón",
+      "Clarinete"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía",
+      "Autobús"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas",
+      "Sorbete"
+    ]
+  },
+  "clues": [
+    "Carlos come de postre flan.",
+    "Quien toca el violín no se mueve en patinete.",
+    "Quien lee ensayo no se mueve en bicicleta.",
+    "Lucía come de postre tarta.",
+    "Quien se mueve en autobús come de postre sorbete.",
+    "Quien lee poesía no toca el saxofón.",
+    "Elena no toca el piano.",
+    "Elena no toca el saxofón.",
+    "Ana lee poesía.",
+    "Quien lee ensayo come de postre helado.",
+    "Quien lee teatro come de postre sorbete.",
+    "David toca el clarinete.",
+    "Quien lee ensayo no toca el clarinete.",
+    "Quien se mueve en metro come de postre flan.",
+    "Lucía no toca el saxofón.",
+    "Quien lee biografía no se mueve en bicicleta.",
+    "Quien lee biografía toca el acordeón."
+  ],
+  "solution": {
+    "Ana": {
+      "Lectura": "Poesía",
+      "Instrumento": "Piano",
+      "Transporte": "Bicicleta",
+      "Postre": "Natillas"
+    },
+    "Carlos": {
+      "Lectura": "Cómic",
+      "Instrumento": "Saxofón",
+      "Transporte": "Metro",
+      "Postre": "Flan"
+    },
+    "Elena": {
+      "Lectura": "Ensayo",
+      "Instrumento": "Violín",
+      "Transporte": "Tranvía",
+      "Postre": "Helado"
+    },
+    "David": {
+      "Lectura": "Teatro",
+      "Instrumento": "Clarinete",
+      "Transporte": "Autobús",
+      "Postre": "Sorbete"
+    },
+    "Lucía": {
+      "Lectura": "Biografía",
+      "Instrumento": "Acordeón",
+      "Transporte": "Patinete",
+      "Postre": "Tarta"
+    }
+  },
+  "meta": {
+    "tamano": "5x5",
+    "forma": {
+      "filas": 5,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Lectura",
+      "Instrumento",
+      "Transporte",
+      "Postre"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 3,
+        "vA": 4,
+        "cB": 4,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 4,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 4,
+        "cB": 4,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ]
+  },
+  "clues": [
+    "María practica judo.",
+    "Quien cultiva tulipanes toca el violín.",
+    "Sofía no practica natación.",
+    "Quien cultiva orquídeas toca el acordeón.",
+    "Pedro no cultiva tulipanes.",
+    "Quien cultiva rosas practica ciclismo.",
+    "Sofía cultiva orquídeas.",
+    "Quien cultiva girasoles no practica natación.",
+    "María no toca el piano."
+  ],
+  "solution": {
+    "María": {
+      "Flor": "Girasoles",
+      "Instrumento": "Saxofón",
+      "Deporte": "Judo"
+    },
+    "Pedro": {
+      "Flor": "Rosas",
+      "Instrumento": "Piano",
+      "Deporte": "Ciclismo"
+    },
+    "Sofía": {
+      "Flor": "Orquídeas",
+      "Instrumento": "Acordeón",
+      "Deporte": "Escalada"
+    },
+    "Miguel": {
+      "Flor": "Tulipanes",
+      "Instrumento": "Violín",
+      "Deporte": "Natación"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Flor",
+      "Instrumento",
+      "Deporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      }
+    ]
+  }
+}

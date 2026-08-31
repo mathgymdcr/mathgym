@@ -1,0 +1,130 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ],
+    "Estación": [
+      "Primavera",
+      "Verano",
+      "Otoño",
+      "Invierno"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo"
+    ]
+  },
+  "clues": [
+    "Carlos practica ciclismo.",
+    "Quien come de postre tarta prefiere la primavera.",
+    "Quien come de postre natillas no practica natación.",
+    "Elena prefiere el invierno.",
+    "David prefiere la primavera.",
+    "Quien prefiere la primavera no practica natación.",
+    "Quien come de postre flan prefiere el verano.",
+    "Quien prefiere el verano practica escalada."
+  ],
+  "solution": {
+    "Ana": {
+      "Postre": "Flan",
+      "Estación": "Verano",
+      "Deporte": "Escalada"
+    },
+    "Carlos": {
+      "Postre": "Natillas",
+      "Estación": "Otoño",
+      "Deporte": "Ciclismo"
+    },
+    "Elena": {
+      "Postre": "Helado",
+      "Estación": "Invierno",
+      "Deporte": "Natación"
+    },
+    "David": {
+      "Postre": "Tarta",
+      "Estación": "Primavera",
+      "Deporte": "Judo"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Postre",
+      "Estación",
+      "Deporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      }
+    ]
+  }
+}

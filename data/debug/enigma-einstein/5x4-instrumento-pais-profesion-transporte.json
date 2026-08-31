@@ -1,0 +1,181 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía"
+    ]
+  },
+  "clues": [
+    "Elena viajó a Egipto.",
+    "Elena no se mueve en metro.",
+    "Quien es taxista no se mueve en metro.",
+    "Ana viajó a Noruega.",
+    "Quien toca el acordeón se mueve en bicicleta.",
+    "Quien viajó a Egipto no es dentista.",
+    "Quien toca el saxofón viajó a Japón.",
+    "Carlos es electricista.",
+    "David no se mueve en patinete.",
+    "Quien toca el piano no se mueve en patinete.",
+    "Quien viajó a Brasil es electricista.",
+    "Quien es dentista se mueve en bicicleta.",
+    "Elena no toca el violín."
+  ],
+  "solution": {
+    "Ana": {
+      "Instrumento": "Acordeón",
+      "País": "Noruega",
+      "Profesión": "Dentista",
+      "Transporte": "Bicicleta"
+    },
+    "Carlos": {
+      "Instrumento": "Violín",
+      "País": "Brasil",
+      "Profesión": "Electricista",
+      "Transporte": "Patinete"
+    },
+    "Elena": {
+      "Instrumento": "Piano",
+      "País": "Egipto",
+      "Profesión": "Taxista",
+      "Transporte": "Tranvía"
+    },
+    "David": {
+      "Instrumento": "Saxofón",
+      "País": "Japón",
+      "Profesión": "Periodista",
+      "Transporte": "Metro"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Instrumento",
+      "País",
+      "Profesión",
+      "Transporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 3,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 1,
+        "positiva": false
+      }
+    ]
+  }
+}

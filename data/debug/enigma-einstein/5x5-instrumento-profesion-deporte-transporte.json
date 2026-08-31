@@ -1,0 +1,224 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David",
+      "Lucía"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón",
+      "Clarinete"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista",
+      "Guionista"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo",
+      "Remo"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía",
+      "Autobús"
+    ]
+  },
+  "clues": [
+    "Elena toca el saxofón.",
+    "Quien es dentista no se mueve en autobús.",
+    "Quien practica ciclismo se mueve en tranvía.",
+    "Quien es electricista practica ciclismo.",
+    "Quien es periodista se mueve en bicicleta.",
+    "Quien toca el violín practica escalada.",
+    "Lucía no toca el piano.",
+    "Quien es guionista practica escalada.",
+    "Quien toca el clarinete es taxista.",
+    "Quien toca el piano no practica judo.",
+    "David practica ciclismo.",
+    "Quien es dentista no se mueve en metro.",
+    "Carlos es taxista.",
+    "Quien es taxista practica remo.",
+    "David no toca el piano.",
+    "Quien toca el saxofón no se mueve en patinete.",
+    "Lucía no se mueve en metro."
+  ],
+  "solution": {
+    "Ana": {
+      "Instrumento": "Piano",
+      "Profesión": "Dentista",
+      "Deporte": "Natación",
+      "Transporte": "Patinete"
+    },
+    "Carlos": {
+      "Instrumento": "Clarinete",
+      "Profesión": "Taxista",
+      "Deporte": "Remo",
+      "Transporte": "Metro"
+    },
+    "Elena": {
+      "Instrumento": "Saxofón",
+      "Profesión": "Periodista",
+      "Deporte": "Judo",
+      "Transporte": "Bicicleta"
+    },
+    "David": {
+      "Instrumento": "Acordeón",
+      "Profesión": "Electricista",
+      "Deporte": "Ciclismo",
+      "Transporte": "Tranvía"
+    },
+    "Lucía": {
+      "Instrumento": "Violín",
+      "Profesión": "Guionista",
+      "Deporte": "Escalada",
+      "Transporte": "Autobús"
+    }
+  },
+  "meta": {
+    "tamano": "5x5",
+    "forma": {
+      "filas": 5,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Instrumento",
+      "Profesión",
+      "Deporte",
+      "Transporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 4,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 1,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 4,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 4,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 4,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      }
+    ]
+  }
+}

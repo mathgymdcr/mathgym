@@ -1,0 +1,11 @@
+{
+  "variant": "desconocida",
+  "n_monedas": 5,
+  "max_pesadas": 3,
+  "anomalies": [
+    {
+      "i": 1,
+      "sign": 1
+    }
+  ]
+}

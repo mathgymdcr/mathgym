@@ -1,0 +1,50 @@
+{
+  "modos": [
+    {
+      "id": "encender_todo",
+      "tamano": [
+        5,
+        5
+      ],
+      "objetivo": "all_on",
+      "patron_inicial": [
+        [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        [
+          false,
+          true,
+          false,
+          true,
+          false
+        ],
+        [
+          true,
+          true,
+          true,
+          false,
+          true
+        ],
+        [
+          true,
+          false,
+          false,
+          true,
+          false
+        ],
+        [
+          true,
+          false,
+          true,
+          true,
+          true
+        ]
+      ],
+      "min_pulsaciones": 10
+    }
+  ]
+}

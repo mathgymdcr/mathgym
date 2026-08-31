@@ -1,0 +1,146 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ]
+  },
+  "clues": [
+    "Sofía viajó a Japón.",
+    "Quien viste camiseta roja no viajó a Noruega.",
+    "Quien viste camiseta verde bebe agua.",
+    "Quien bebe agua viajó a Egipto.",
+    "Miguel no viste camiseta roja.",
+    "Quien bebe té no viajó a Brasil.",
+    "Quien bebe zumo no viajó a Brasil.",
+    "Sofía viste camiseta amarilla.",
+    "Pedro viajó a Noruega.",
+    "Quien bebe zumo no viajó a Noruega."
+  ],
+  "solution": {
+    "María": {
+      "Camiseta": "Roja",
+      "Bebida": "Café",
+      "País": "Brasil"
+    },
+    "Pedro": {
+      "Camiseta": "Azul",
+      "Bebida": "Té",
+      "País": "Noruega"
+    },
+    "Sofía": {
+      "Camiseta": "Amarilla",
+      "Bebida": "Zumo",
+      "País": "Japón"
+    },
+    "Miguel": {
+      "Camiseta": "Verde",
+      "Bebida": "Agua",
+      "País": "Egipto"
+    }
+  },
+  "meta": {
+    "tamano": "4x4",
+    "forma": {
+      "filas": 4,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Camiseta",
+      "Bebida",
+      "País"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      }
+    ]
+  }
+}

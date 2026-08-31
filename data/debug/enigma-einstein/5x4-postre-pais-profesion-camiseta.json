@@ -1,0 +1,181 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla"
+    ]
+  },
+  "clues": [
+    "Pedro come de postre helado.",
+    "María come de postre natillas.",
+    "Quien viajó a Japón no es periodista.",
+    "Quien viajó a Brasil no viste camiseta amarilla.",
+    "Quien come de postre natillas no viste camiseta amarilla.",
+    "Sofía come de postre tarta.",
+    "Quien come de postre natillas no viste camiseta azul.",
+    "Sofía es periodista.",
+    "Quien viajó a Noruega viste camiseta roja.",
+    "Quien viajó a Noruega es taxista.",
+    "Quien come de postre flan viajó a Brasil.",
+    "Quien viajó a Japón no es dentista.",
+    "Quien come de postre helado no es electricista."
+  ],
+  "solution": {
+    "María": {
+      "Postre": "Natillas",
+      "País": "Japón",
+      "Profesión": "Electricista",
+      "Camiseta": "Verde"
+    },
+    "Pedro": {
+      "Postre": "Helado",
+      "País": "Noruega",
+      "Profesión": "Taxista",
+      "Camiseta": "Roja"
+    },
+    "Sofía": {
+      "Postre": "Tarta",
+      "País": "Egipto",
+      "Profesión": "Periodista",
+      "Camiseta": "Amarilla"
+    },
+    "Miguel": {
+      "Postre": "Flan",
+      "País": "Brasil",
+      "Profesión": "Dentista",
+      "Camiseta": "Azul"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Postre",
+      "País",
+      "Profesión",
+      "Camiseta"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 4,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 3,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      }
+    ]
+  }
+}

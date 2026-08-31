@@ -1,0 +1,173 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Lectura": [
+      "Poesía",
+      "Cómic",
+      "Ensayo",
+      "Biografía"
+    ]
+  },
+  "clues": [
+    "Ana bebe café.",
+    "David no come de postre helado.",
+    "Quien bebe zumo no lee poesía.",
+    "Quien come de postre flan toca el acordeón.",
+    "Quien come de postre tarta lee biografía.",
+    "Quien bebe té no come de postre helado.",
+    "Carlos lee ensayo.",
+    "Quien bebe café no toca el saxofón.",
+    "David bebe agua.",
+    "Quien bebe zumo toca el acordeón.",
+    "Elena bebe zumo.",
+    "David toca el violín."
+  ],
+  "solution": {
+    "Ana": {
+      "Bebida": "Café",
+      "Postre": "Helado",
+      "Instrumento": "Piano",
+      "Lectura": "Poesía"
+    },
+    "Carlos": {
+      "Bebida": "Té",
+      "Postre": "Natillas",
+      "Instrumento": "Saxofón",
+      "Lectura": "Ensayo"
+    },
+    "Elena": {
+      "Bebida": "Zumo",
+      "Postre": "Flan",
+      "Instrumento": "Acordeón",
+      "Lectura": "Cómic"
+    },
+    "David": {
+      "Bebida": "Agua",
+      "Postre": "Tarta",
+      "Instrumento": "Violín",
+      "Lectura": "Biografía"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Bebida",
+      "Postre",
+      "Instrumento",
+      "Lectura"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 4,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      }
+    ]
+  }
+}

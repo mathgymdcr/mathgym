@@ -1,0 +1,33 @@
+{
+  "variant": "medio",
+  "modo": "condensador",
+  "size": 6,
+  "lasers": [
+    {
+      "emitter": {
+        "row": 5,
+        "col": 2,
+        "dir": "ne"
+      },
+      "color": "neutro"
+    }
+  ],
+  "targets": [
+    {
+      "row": 0,
+      "col": 4,
+      "color": "magenta"
+    }
+  ],
+  "blocks": [
+    {
+      "row": 4,
+      "col": 0
+    },
+    {
+      "row": 2,
+      "col": 5
+    }
+  ],
+  "min_piezas": 4
+}

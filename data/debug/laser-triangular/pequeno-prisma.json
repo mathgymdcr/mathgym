@@ -1,0 +1,38 @@
+{
+  "variant": "pequeno",
+  "modo": "prisma",
+  "size": 5,
+  "lasers": [
+    {
+      "emitter": {
+        "row": 3,
+        "col": 4,
+        "dir": "nw"
+      },
+      "color": "neutro"
+    }
+  ],
+  "targets": [
+    {
+      "row": 3,
+      "col": 0,
+      "color": "azul"
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "color": "rojo"
+    }
+  ],
+  "blocks": [
+    {
+      "row": 2,
+      "col": 4
+    },
+    {
+      "row": 0,
+      "col": 2
+    }
+  ],
+  "min_piezas": 2
+}

@@ -1,0 +1,232 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel",
+      "Rubén"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo",
+      "Leche"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega",
+      "Canadá"
+    ],
+    "Deporte": [
+      "Natación",
+      "Ciclismo",
+      "Escalada",
+      "Judo",
+      "Remo"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro",
+      "Hámster"
+    ]
+  },
+  "clues": [
+    "Rubén viajó a Japón.",
+    "Quien bebe té no tiene un gato.",
+    "Quien viajó a Japón no practica ciclismo.",
+    "Rubén tiene un hámster.",
+    "Pedro bebe café.",
+    "Quien bebe zumo no practica escalada.",
+    "Pedro no viajó a Noruega.",
+    "Quien bebe agua practica natación.",
+    "Miguel no viajó a Brasil.",
+    "Quien practica natación tiene un pájaro.",
+    "Quien viajó a Egipto no practica ciclismo.",
+    "Sofía no bebe leche.",
+    "Sofía viajó a Canadá.",
+    "María practica remo.",
+    "María no bebe leche.",
+    "Quien bebe leche no viajó a Noruega.",
+    "Quien viajó a Brasil tiene un perro.",
+    "Quien bebe zumo viajó a Japón."
+  ],
+  "solution": {
+    "María": {
+      "Bebida": "Té",
+      "País": "Noruega",
+      "Deporte": "Remo",
+      "Mascota": "Pez"
+    },
+    "Pedro": {
+      "Bebida": "Café",
+      "País": "Brasil",
+      "Deporte": "Ciclismo",
+      "Mascota": "Perro"
+    },
+    "Sofía": {
+      "Bebida": "Agua",
+      "País": "Canadá",
+      "Deporte": "Natación",
+      "Mascota": "Pájaro"
+    },
+    "Miguel": {
+      "Bebida": "Leche",
+      "País": "Egipto",
+      "Deporte": "Escalada",
+      "Mascota": "Gato"
+    },
+    "Rubén": {
+      "Bebida": "Zumo",
+      "País": "Japón",
+      "Deporte": "Judo",
+      "Mascota": "Hámster"
+    }
+  },
+  "meta": {
+    "tamano": "5x5",
+    "forma": {
+      "filas": 5,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Bebida",
+      "País",
+      "Deporte",
+      "Mascota"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 4,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 4,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 3,
+        "vA": 0,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 4,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      }
+    ]
+  }
+}

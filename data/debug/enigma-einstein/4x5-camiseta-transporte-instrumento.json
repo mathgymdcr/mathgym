@@ -1,0 +1,187 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David",
+      "Lucía"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla",
+      "Negra"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía",
+      "Autobús"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón",
+      "Clarinete"
+    ]
+  },
+  "clues": [
+    "Lucía toca el piano.",
+    "Quien viste camiseta verde toca el saxofón.",
+    "Quien viste camiseta roja no se mueve en tranvía.",
+    "Lucía se mueve en tranvía.",
+    "Quien se mueve en metro no toca el clarinete.",
+    "Ana se mueve en bicicleta.",
+    "Ana no viste camiseta verde.",
+    "Ana no toca el clarinete.",
+    "Ana no viste camiseta roja.",
+    "Quien viste camiseta amarilla no se mueve en tranvía.",
+    "Carlos se mueve en autobús.",
+    "David no viste camiseta verde.",
+    "Carlos toca el violín.",
+    "Carlos viste camiseta azul."
+  ],
+  "solution": {
+    "Ana": {
+      "Camiseta": "Amarilla",
+      "Transporte": "Bicicleta",
+      "Instrumento": "Acordeón"
+    },
+    "Carlos": {
+      "Camiseta": "Azul",
+      "Transporte": "Autobús",
+      "Instrumento": "Violín"
+    },
+    "Elena": {
+      "Camiseta": "Verde",
+      "Transporte": "Metro",
+      "Instrumento": "Saxofón"
+    },
+    "David": {
+      "Camiseta": "Roja",
+      "Transporte": "Patinete",
+      "Instrumento": "Clarinete"
+    },
+    "Lucía": {
+      "Camiseta": "Negra",
+      "Transporte": "Tranvía",
+      "Instrumento": "Piano"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Camiseta",
+      "Transporte",
+      "Instrumento"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 1,
+        "cB": 3,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 2,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 1,
+        "positiva": true
+      }
+    ]
+  }
+}

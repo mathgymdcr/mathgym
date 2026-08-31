@@ -1,0 +1,165 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón"
+    ],
+    "Profesión": [
+      "Periodista",
+      "Dentista",
+      "Electricista",
+      "Taxista"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas"
+    ]
+  },
+  "clues": [
+    "Elena cultiva rosas.",
+    "Quien es periodista come de postre natillas.",
+    "Ana es taxista.",
+    "Carlos come de postre flan.",
+    "David come de postre natillas.",
+    "Quien toca el saxofón come de postre tarta.",
+    "Quien cultiva girasoles toca el violín.",
+    "Quien cultiva orquídeas no es dentista.",
+    "Quien cultiva girasoles no es periodista.",
+    "Quien cultiva orquídeas toca el acordeón.",
+    "Carlos cultiva orquídeas."
+  ],
+  "solution": {
+    "Ana": {
+      "Flor": "Girasoles",
+      "Instrumento": "Violín",
+      "Profesión": "Taxista",
+      "Postre": "Helado"
+    },
+    "Carlos": {
+      "Flor": "Orquídeas",
+      "Instrumento": "Acordeón",
+      "Profesión": "Electricista",
+      "Postre": "Flan"
+    },
+    "Elena": {
+      "Flor": "Rosas",
+      "Instrumento": "Saxofón",
+      "Profesión": "Dentista",
+      "Postre": "Tarta"
+    },
+    "David": {
+      "Flor": "Tulipanes",
+      "Instrumento": "Piano",
+      "Profesión": "Periodista",
+      "Postre": "Natillas"
+    }
+  },
+  "meta": {
+    "tamano": "5x4",
+    "forma": {
+      "filas": 5,
+      "casas": 4
+    },
+    "categoriasElegidas": [
+      "Flor",
+      "Instrumento",
+      "Profesión",
+      "Postre"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 3,
+        "vA": 0,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 4,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 4,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 4,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      }
+    ]
+  }
+}

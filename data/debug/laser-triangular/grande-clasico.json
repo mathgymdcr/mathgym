@@ -1,0 +1,46 @@
+{
+  "variant": "grande",
+  "modo": "clasico",
+  "size": 7,
+  "lasers": [
+    {
+      "emitter": {
+        "row": 0,
+        "col": 2,
+        "dir": "down"
+      },
+      "color": "neutro-1"
+    },
+    {
+      "emitter": {
+        "row": 2,
+        "col": 1,
+        "dir": "sw"
+      },
+      "color": "neutro-2"
+    }
+  ],
+  "targets": [
+    {
+      "row": 6,
+      "col": 6,
+      "color": "neutro-1"
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "color": "neutro-2"
+    }
+  ],
+  "blocks": [
+    {
+      "row": 3,
+      "col": 2
+    },
+    {
+      "row": 5,
+      "col": 3
+    }
+  ],
+  "min_piezas": 3
+}

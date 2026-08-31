@@ -1,0 +1,163 @@
+{
+  "categories": {
+    "Persona": [
+      "Ana",
+      "Carlos",
+      "Elena",
+      "David",
+      "Lucía"
+    ],
+    "Flor": [
+      "Rosas",
+      "Tulipanes",
+      "Orquídeas",
+      "Girasoles",
+      "Claveles"
+    ],
+    "Mascota": [
+      "Perro",
+      "Gato",
+      "Pez",
+      "Pájaro",
+      "Hámster"
+    ],
+    "Postre": [
+      "Tarta",
+      "Helado",
+      "Flan",
+      "Natillas",
+      "Sorbete"
+    ]
+  },
+  "clues": [
+    "David cultiva claveles.",
+    "Quien cultiva tulipanes tiene un pájaro.",
+    "Quien cultiva tulipanes come de postre tarta.",
+    "Quien cultiva rosas come de postre sorbete.",
+    "Quien cultiva girasoles no tiene un perro.",
+    "Lucía no come de postre helado.",
+    "David no tiene un gato.",
+    "David come de postre natillas.",
+    "Carlos cultiva orquídeas.",
+    "Lucía tiene un pez.",
+    "Ana tiene un perro."
+  ],
+  "solution": {
+    "Ana": {
+      "Flor": "Rosas",
+      "Mascota": "Perro",
+      "Postre": "Sorbete"
+    },
+    "Carlos": {
+      "Flor": "Orquídeas",
+      "Mascota": "Gato",
+      "Postre": "Helado"
+    },
+    "Elena": {
+      "Flor": "Tulipanes",
+      "Mascota": "Pájaro",
+      "Postre": "Tarta"
+    },
+    "David": {
+      "Flor": "Claveles",
+      "Mascota": "Hámster",
+      "Postre": "Natillas"
+    },
+    "Lucía": {
+      "Flor": "Girasoles",
+      "Mascota": "Pez",
+      "Postre": "Flan"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Flor",
+      "Mascota",
+      "Postre"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 4,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      }
+    ]
+  }
+}

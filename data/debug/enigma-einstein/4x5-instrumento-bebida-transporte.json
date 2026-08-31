@@ -1,0 +1,211 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel",
+      "Rubén"
+    ],
+    "Instrumento": [
+      "Piano",
+      "Violín",
+      "Saxofón",
+      "Acordeón",
+      "Clarinete"
+    ],
+    "Bebida": [
+      "Café",
+      "Té",
+      "Agua",
+      "Zumo",
+      "Leche"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía",
+      "Autobús"
+    ]
+  },
+  "clues": [
+    "Miguel se mueve en patinete.",
+    "Quien bebe agua no se mueve en autobús.",
+    "María no se mueve en tranvía.",
+    "Rubén toca el saxofón.",
+    "Rubén no bebe zumo.",
+    "Miguel bebe café.",
+    "Rubén no se mueve en tranvía.",
+    "Quien toca el acordeón no bebe zumo.",
+    "Quien toca el piano no se mueve en patinete.",
+    "Miguel no toca el clarinete.",
+    "Quien toca el clarinete no se mueve en metro.",
+    "Quien toca el clarinete no bebe zumo.",
+    "Quien bebe leche no se mueve en tranvía.",
+    "Pedro se mueve en metro.",
+    "María toca el acordeón.",
+    "Quien toca el saxofón no bebe agua.",
+    "Sofía no bebe agua."
+  ],
+  "solution": {
+    "María": {
+      "Instrumento": "Acordeón",
+      "Bebida": "Agua",
+      "Transporte": "Bicicleta"
+    },
+    "Pedro": {
+      "Instrumento": "Piano",
+      "Bebida": "Zumo",
+      "Transporte": "Metro"
+    },
+    "Sofía": {
+      "Instrumento": "Clarinete",
+      "Bebida": "Té",
+      "Transporte": "Tranvía"
+    },
+    "Miguel": {
+      "Instrumento": "Violín",
+      "Bebida": "Café",
+      "Transporte": "Patinete"
+    },
+    "Rubén": {
+      "Instrumento": "Saxofón",
+      "Bebida": "Leche",
+      "Transporte": "Autobús"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "Instrumento",
+      "Bebida",
+      "Transporte"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 3,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 2,
+        "cB": 3,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 1,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 2,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 4,
+        "cB": 3,
+        "vB": 1,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 4,
+        "cB": 2,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 2,
+        "vA": 4,
+        "cB": 3,
+        "vB": 3,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 1,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 1,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 2,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 2,
+        "vB": 2,
+        "positiva": false
+      }
+    ]
+  }
+}
