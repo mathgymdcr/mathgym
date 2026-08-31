@@ -117,6 +117,48 @@ describe('condensador', () => {
     expect(magenta.squaresPath[1]).toEqual({ row: 2, col: 5 })
   })
 
+  it('BUG: el primero en llegar no debe atravesar el condensador sin fusionarse', () => {
+    // Prisma en (5,5) desde un emisor 'right': hijos azul 'se' y rojo 'ne' (no
+    // alineados a proposito, a diferencia del test de arriba). Un HORIZ en
+    // (4,6) y otro en (6,6) los llevan a los dos a (5,7) -- comprobado con un
+    // script de traza en el scratchpad, no viene del brief -- donde azul entra
+    // viajando 'se' (dx=1,dy=1) y rojo 'ne' (dx=1,dy=-1). Antes del arreglo, el
+    // azul (que llega primero) se dejaba pasar recto y seguia como un tramo
+    // 'azul' independiente ademas del magenta: dos rayos saliendo del
+    // condensador en vez de uno. Debe fusionarse en un UNICO magenta.
+    const size = 12
+    const c = normalizaConfig({
+      size,
+      modo: 'condensador',
+      lasers: [{ emitter: { row: 5, col: 0, dir: 'right' }, color: 'neutro' }],
+      targets: [{ row: 0, col: 0, color: 'imposible' }],
+      blocks: []
+    })
+    const piezas = crearPiezas(size)
+    piezas[5][5] = PIEZA.PRISMA
+    piezas[4][6] = PIEZA.HORIZ
+    piezas[6][6] = PIEZA.HORIZ
+    piezas[5][7] = PIEZA.CONDENSADOR
+
+    const { tramos } = simularHaz(c, piezas, c.lasers[0])
+    const azulLlegada = tramos.find((t) => t.color === 'azul')
+    const rojoLlegada = tramos.find((t) => t.color === 'rojo')
+    expect(azulLlegada.resultado).toBe('condensador')
+    expect(rojoLlegada.resultado).toBe('condensador-mezcla')
+
+    // Solo debe salir UN tramo de (5,7): ni azul ni rojo continuan por su
+    // cuenta, unicamente el magenta fusionado.
+    const salientes = tramos.filter((t) => t.squaresPath[0].row === 5 && t.squaresPath[0].col === 7)
+    expect(salientes).toHaveLength(1)
+    expect(salientes[0].color).toBe('magenta')
+
+    // La direccion de salida es la bisectriz de 'se' (azul) y 'ne' (rojo):
+    // sus vectores (1,1) y (1,-1), normalizados y sumados, dan (1,0) -- osea
+    // 'right'. La bisectriz NO es la direccion de ninguno de los dos rayos
+    // de entrada.
+    expect(salientes[0].squaresPath[1]).toEqual({ row: 5, col: 8 })
+  })
+
   it('la celda del condensador no cuenta como cruce', () => {
     const c = normalizaConfig(BASE)
     const piezas = crearPiezas(c.size)

@@ -141,20 +141,51 @@ function entraEnPrisma(seg, r, c, dx, dy, pendientes) {
   return 'prisma';
 }
 
-// Anota el color que llega. Si ya habia otro DISTINTO, emite un rayo magenta
-// en la direccion del ultimo en llegar. Con uno solo, o con dos del mismo
-// color, el rayo sigue recto sin cambiar de color.
+// Direccion que reparte a partes iguales el angulo entre dos direcciones de
+// llegada: normaliza cada vector antes de sumarlos (las diagonales miden
+// raiz de 2, las cardinales 1) y se queda con la de las 8 mas alineada con
+// esa suma. Con direcciones opuestas los vectores se cancelan y no hay
+// bisectriz -- caso que ninguna geometria real del condensador produce (los
+// dos hijos de un mismo prisma nunca llegan de frente) -- y se devuelve null.
+function bisectriz(dirA, dirB) {
+  const [ax, ay] = DIR_VECTOR[dirA];
+  const [bx, by] = DIR_VECTOR[dirB];
+  const sx = ax / Math.hypot(ax, ay) + bx / Math.hypot(bx, by);
+  const sy = ay / Math.hypot(ax, ay) + by / Math.hypot(bx, by);
+  if (Math.hypot(sx, sy) < EPS) return null;
+  let mejor = null, mejorDot = -Infinity;
+  for (const [nombre, [vx, vy]] of Object.entries(DIR_VECTOR)) {
+    const dot = (sx * vx + sy * vy) / Math.hypot(vx, vy);
+    if (dot > mejorDot) { mejorDot = dot; mejor = nombre; }
+  }
+  return mejor;
+}
+
+// El primero en llegar se queda EN ESPERA (no continua todavia: `simularHaz`
+// lo deja pasar solo si nadie mas llega a compartir la celda antes de que se
+// agote la cola de trabajo, ver el volcado de llegadas huerfanas mas abajo).
+// El segundo cierra la espera: con el mismo color no hay mezcla y el rayo
+// sigue con SU PROPIA direccion de entrada, sin cambiar de color; con un
+// color distinto, los dos se funden en uno magenta que sale por la
+// bisectriz de las dos direcciones de llegada, no por la del ultimo en
+// llegar. Una tercera llegada a la misma celda vuelve a empezar de cero.
 function entraEnCondensador(seg, r, c, dx, dy, pendientes, llegadas) {
   const clave = `${r},${c}`;
-  const previo = llegadas.get(clave);
-  const salida = dirDeVector(dx, dy);
-  if (previo !== undefined && previo !== seg.color) {
-    pendientes.push({ row: r, col: c, ...ARRANQUE, dir: salida, color: 'magenta' });
-    return 'condensador-mezcla';
+  const entrada = dirDeVector(dx, dy);
+  const lista = llegadas.get(clave) || [];
+  lista.push({ dir: entrada, color: seg.color });
+  llegadas.set(clave, lista);
+  if (lista.length === 1) return 'condensador';
+
+  const anterior = lista[lista.length - 2];
+  llegadas.delete(clave);
+  if (anterior.color === seg.color) {
+    pendientes.push({ row: r, col: c, ...ARRANQUE, dir: entrada, color: seg.color });
+    return 'condensador';
   }
-  llegadas.set(clave, seg.color);
-  pendientes.push({ row: r, col: c, ...ARRANQUE, dir: salida, color: seg.color });
-  return 'condensador';
+  const salida = bisectriz(anterior.dir, entrada) ?? entrada;
+  pendientes.push({ row: r, col: c, ...ARRANQUE, dir: salida, color: 'magenta' });
+  return 'condensador-mezcla';
 }
 
 // Traza un laser con geometria real, con lista de trabajo: cada tramo puede
@@ -178,7 +209,25 @@ export function simularHaz(config, piezas, laser) {
   const maxTramos = 4 * n * n;   // tope global: el punto fijo nunca se cuelga
   const llegadasCondensador = new Map();
 
-  while (pendientes.length && tramos.length < maxTramos) {
+  while (tramos.length < maxTramos) {
+    if (pendientes.length === 0) {
+      // Cola agotada: cualquier condensador que solo recibio UNA llegada se
+      // queda sin pareja para siempre, asi que ahora se deja pasar (ver
+      // entraEnCondensador). Si eso reabre camino (el rayo sigue y puede
+      // volver a cruzar otro condensador), el bucle continua con lo que se
+      // acabe de anadir; si no hay nada que volcar, aqui termina.
+      let volco = false;
+      for (const [clave, lista] of llegadasCondensador) {
+        if (lista.length !== 1) continue;
+        const [row, col] = clave.split(',').map(Number);
+        const { dir, color } = lista[0];
+        pendientes.push({ row, col, ...ARRANQUE, dir, color });
+        llegadasCondensador.delete(clave);
+        volco = true;
+      }
+      if (!volco) break;
+      continue;
+    }
     const seg = pendientes.shift();
     let [dx, dy] = DIR_VECTOR[seg.dir];
     let r = seg.row, c = seg.col, lx = seg.lx, ly = seg.ly;
