@@ -21,27 +21,32 @@ const SEMILLAS = {
   // pequeño, no el 5x5 de 18 pistas.
   'enigma-einstein': 20260104,
   'balanza-logica': 20260103,
-  // 20260104 daba el reto minimo del tipo (dos trominos de 3 celdas, con
-  // el reparto 3+3 forzado y nada que deducir). Este saca un reparto 3+11,
-  // que no se ve venir, y dos figuras que se dibujan bien.
-  'poligono-geometrico': 20260112,
+  // una-convexa (dificultad 2): un solo rectángulo a partir de área=8 y
+  // perímetro=12. Se resuelve mirando los factores de 8, pero el par es
+  // único -- hay deducción real sin ser el tipo más difícil del catálogo.
+  'poligono-geometrico': 20260111,
   // con-grifo-3-1objetivos: la combinación llana de los tres ejes (el de
   // objetivos incluido), que el ejemplo es una vitrina y no el reto del día.
   'mezcla-quimica': 20260121,
   'luces-fuera': 20260107,
   'relojes-arena': 20260107,
   'puentes-hashi': 20260108,
-  // pequeno (monocromo): el nonograma sortea también el eje de color, y la
-  // vitrina enseña la combinación llana -- la regla de contacto entre
-  // colores se aprende en el reto del día, no en el ejemplo de entrada.
-  'nonograma': 20260104,
-  'cajas-apiladas': 20260110,
+  // pequeno (monocromo), dificultad 2: la vitrina enseña la combinación
+  // llana -- la regla de contacto entre colores se aprende en el reto del
+  // día, no en el ejemplo de entrada.
+  'nonograma': 20260108,
+  // ligero (dificultad 2): 4 cajas, mínimo en 4 viajes -- se ve la mecánica
+  // de la carretilla sin que el reto se alargue.
+  'cajas-apiladas': 20260104,
   'anillas-encadenadas': 20260112,
   // prisma medio: el ejemplo de la sala tiene que ensenar la mecanica nueva
   // (no clasico), y medio para que aparezca el boton de lanzar (ver
   // README_TEMPLATES / Task 12) en vez del trazado automatico de pequeno.
   'laser-triangular': 20260102,
-  'riego-plantas': 20260116
+  // huerto (dificultad 2): la Tomatera solo puede regarse en los ciclos 2 y
+  // 5 -- una ventana estrecha que fuerza una deducción clara sin liar las 3
+  // plantas del reto.
+  'riego-plantas': 20260104
 };
 
 async function main() {
