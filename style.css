@@ -3146,17 +3146,25 @@ body.sala .wrap { position: relative; z-index: 1; }
     flex-wrap: wrap;
     gap: 16px;
 }
-.sala-header .brand { display: flex; align-items: center; gap: 12px; }
+.sala-header .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.15s ease;
+}
+.sala-header .brand:hover { opacity: 0.85; }
 .sala-header .brand-logo {
-    width: 52px;
-    height: 52px;
+    width: 68px;
+    height: 68px;
     border-radius: 14px;
     border: 1px solid var(--line);
     background: var(--surface-2);
     object-fit: contain;
 }
-.brand-name { font-size: 21px; font-weight: 800; letter-spacing: -.5px; }
-.brand-tag { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+.brand-name { font-size: 27px; font-weight: 800; letter-spacing: -.5px; }
+.brand-tag { font-size: 13.5px; color: var(--muted); margin-top: 1px; }
 
 .sala-nav { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .sala-nav a {
