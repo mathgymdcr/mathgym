@@ -2260,10 +2260,18 @@ li {
 }
 
 .nono-corner,
-.nono-cell,
-.nono-clue-col {
+.nono-cell {
   width: var(--nono-cell-size);
   height: var(--nono-cell-size);
+}
+
+/* min-height, no height: en color una columna puede tener mas bloques que
+   una fila de casillas alta (colores distintos no necesitan hueco), y con
+   altura fija esos numeros de mas quedaban recortados y tapados por la
+   primera fila del tablero, que se pinta encima. */
+.nono-clue-col {
+  width: var(--nono-cell-size);
+  min-height: var(--nono-cell-size);
 }
 
 .nono-clue {
