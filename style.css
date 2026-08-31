@@ -3058,9 +3058,7 @@ li {
   border: 1px solid var(--card-b);
   background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
   font-weight: 700;
   color: var(--muted, #aab3c5);
   transition: background 0.15s ease, transform 0.15s ease;
