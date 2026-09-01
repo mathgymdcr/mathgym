@@ -106,5 +106,14 @@
       "logica",
       "deduccion"
     ]
+  },
+  {
+    "fecha": "2026-09-01",
+    "titulo": "Relojes de Arena",
+    "dificultad": 4,
+    "categorias": [
+      "logica",
+      "tiempo"
+    ]
   }
 ]

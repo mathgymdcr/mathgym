@@ -1,0 +1,11 @@
+{
+  "variant": "diferido",
+  "glasses": [
+    2,
+    4,
+    11
+  ],
+  "target": 5,
+  "tolerance": 0.25,
+  "min_rondas": 3
+}
