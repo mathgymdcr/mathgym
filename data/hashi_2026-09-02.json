@@ -1,0 +1,83 @@
+{
+  "variant": "clasico",
+  "rows": 9,
+  "cols": 9,
+  "islands": [
+    {
+      "row": 0,
+      "col": 0,
+      "grado": 2
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "grado": 2
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "grado": 5
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "grado": 7
+    },
+    {
+      "row": 2,
+      "col": 6,
+      "grado": 3
+    },
+    {
+      "row": 2,
+      "col": 7,
+      "grado": 1
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "grado": 1
+    },
+    {
+      "row": 5,
+      "col": 4,
+      "grado": 4
+    },
+    {
+      "row": 5,
+      "col": 7,
+      "grado": 3
+    },
+    {
+      "row": 6,
+      "col": 0,
+      "grado": 1
+    },
+    {
+      "row": 6,
+      "col": 6,
+      "grado": 2
+    },
+    {
+      "row": 7,
+      "col": 0,
+      "grado": 2
+    },
+    {
+      "row": 7,
+      "col": 2,
+      "grado": 4
+    },
+    {
+      "row": 7,
+      "col": 4,
+      "grado": 4
+    },
+    {
+      "row": 7,
+      "col": 7,
+      "grado": 3
+    }
+  ],
+  "min_puentes": 22
+}
