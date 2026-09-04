@@ -1,0 +1,24 @@
+{
+  "variant": "medio",
+  "zonas": [
+    [
+      15
+    ],
+    [
+      17,
+      5
+    ],
+    [
+      9,
+      2
+    ]
+  ],
+  "nombresZonas": [
+    "Zona A",
+    "Zona B",
+    "Zona C"
+  ],
+  "destino": 2,
+  "capacidad": 24,
+  "min_movimientos": 6
+}
