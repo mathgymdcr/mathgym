@@ -60,6 +60,10 @@ export function crearPiezas(size) {
   return Array.from({ length: size }, () => Array(size).fill(0));
 }
 
+export function crearPiezasVertice(size) {
+  return Array.from({ length: size + 1 }, () => Array(size + 1).fill(0));
+}
+
 // Primer borde de la celda actual (coordenadas locales 0..1) que cruza el
 // rayo siguiendo (dx,dy) desde (lx,ly). Se prueban las 4 aristas del
 // cuadrado, sus 2 diagonales y las 2 medianas; por convexidad de cada
@@ -192,8 +196,9 @@ function entraEnCondensador(seg, r, c, dx, dy, pendientes, llegadas) {
 // generar mas tramos (prisma, condensador) que se procesan hasta agotar la
 // lista. `puntos` son coordenadas globales para poder dibujar cada tramo
 // como una polilinea. `config` debe venir YA normalizada (normalizaConfig).
-export function simularHaz(config, piezas, laser) {
+export function simularHaz(config, piezas, laser, piezasVertice) {
   const n = config.size;
+  const pv = piezasVertice || crearPiezasVertice(n);
   const bloqueadas = new Set(config.blocks.map((b) => `${b.row},${b.col}`));
   const emisores = new Set(config.lasers.map((l) => `${l.emitter.row},${l.emitter.col}`));
   const dianas = new Map(config.targets.map((t) => [`${t.row},${t.col}`, t]));
@@ -254,6 +259,27 @@ export function simularHaz(config, piezas, laser) {
           else { dx = -dx; }
         }
         continue;
+      }
+
+      // Espejo-vertice: vive en el borde compartido por dos celdas, no
+      // dentro de ninguna, asi que se prueba en el momento de cruzar ese
+      // borde, antes de decidir a que celda se transiciona.
+      if (hit.line === 'top' || hit.line === 'bottom') {
+        const R = hit.line === 'top' ? r : r + 1;
+        const C = hit.x <= 0.5 ? c : c + 1;
+        if (pv[R] && pv[R][C] === PIEZA.HORIZ) {
+          lx = hit.x; ly = hit.y; dy = -dy;
+          puntos.push({ x: c + lx, y: r + ly });
+          continue;
+        }
+      } else if (hit.line === 'left' || hit.line === 'right') {
+        const C = hit.line === 'left' ? c : c + 1;
+        const R = hit.y <= 0.5 ? r : r + 1;
+        if (pv[R] && pv[R][C] === PIEZA.VERT) {
+          lx = hit.x; ly = hit.y; dx = -dx;
+          puntos.push({ x: c + lx, y: r + ly });
+          continue;
+        }
       }
 
       let nr = r, nc = c, nlx = lx, nly = ly;
