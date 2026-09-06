@@ -41,17 +41,9 @@ Se añade un quinto candidato a `siguienteCruce`: el punto exacto `(0.5, 0.5)`, 
 
 Una celda con diana/prisma/condensador nunca lleva además una pieza de `piezas[r][c]` (ocupación exclusiva, como hoy), así que el candidato "centro" y los candidatos de espejo de celda nunca compiten en la misma celda. Si esa celda tiene un espejo-vértice en una de sus propias esquinas, se prueba igual que en cualquier otra celda.
 
-## 3. Esquema y modelo de datos
+## 3. Modelo de datos
 
-Nuevo campo opcional en el payload, paralelo a `piezas` (que sigue existiendo tal cual para las piezas de celda):
-
-```json
-{
-  "piezasVertice": [[0,0,0,0,0,0,0,0], [0,0,0,0,4,0,0,0], ...]
-}
-```
-
-`(size+1) × (size+1)`, mismos códigos que `PIEZA` (`3` = `VERT`, `4` = `HORIZ`; `0` = vacío). Un reto sin este campo (todo lo publicado hasta ahora) se comporta como una matriz vacía — `normalizaConfig` lo rellena si falta, igual que hace con `blocks`.
+`piezas` no vive en el payload — es el tablero mutable que arranca vacío (`crearPiezas(size)`) y que la plantilla, el jugador y el buscador de soluciones van rellenando. `piezasVertice` sigue exactamente el mismo patrón, como una segunda rejilla paralela: `crearPiezasVertice(size)` devuelve una matriz `(size+1) × (size+1)` de ceros, con los mismos códigos que `PIEZA` (`3` = `VERT`, `4` = `HORIZ`). Todas las funciones que hoy reciben `piezas` (`simularHaz`, `simularTodos`, `resuelto`, `resolverPiezas`, `piezasMinimas`) pasan a recibir también `piezasVertice`; el payload público (`lasers`/`targets`/`blocks`/`size`/`modo`/`min_piezas`) no cambia de esquema. Lo único que crece es la `solucion` que el generador calcula para validación interna, que pasa a llevar `{ piezas, piezasVertice }`.
 
 Un vértice solo admite un tipo a la vez (no se apilan horizontal y vertical en el mismo punto): simplifica el modelo y no hay ningún caso en el reto de hoy, ni en el resto del catálogo previsto, que necesite las dos cosas a la vez en el mismo sitio.
 
@@ -77,9 +69,9 @@ Si el vértice ya está ocupado, o el nuevo trazado cruza con otro rayo, o sigue
 
 ## 6. Validador (`validateLaserData`)
 
-- Valida `piezasVertice` si está presente: dimensión `(size+1)²`, valores en `{0, VERT, HORIZ}`.
+- El esquema del payload no cambia (`piezasVertice` no viaja ahí, ver sección 3): nada nuevo que validar en el JSON publicado.
 - Sustituye la comprobación de victoria por la nueva `resuelto` (llegada al centro obligatoria).
-- `piezasMinimas` (ya extendido) sigue confirmando que `min_piezas` es el mínimo real, ahora contando también los espejos-vértice de la solución guardada.
+- `piezasMinimas` (ya extendido) sigue confirmando que `min_piezas` es el mínimo real, ahora contando también los espejos-vértice de la solución guardada (`solucion.piezasVertice`).
 
 ## 7. Compatibilidad con el archivo publicado
 
