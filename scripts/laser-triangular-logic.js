@@ -17,6 +17,13 @@ export const DIR_VECTOR = {
 };
 
 const EPS = 1e-9;
+// Tolerancia para "¿el rayo pasó por el centro exacto?". Mayor que EPS a
+// propósito: el punto de arranque de emisor/prisma/condensador está
+// deliberadamente desplazado del centro (ARRANQUE, más abajo) para evitar
+// singularidades, y ese desplazamiento se propaga como un residuo del
+// orden de una milésima de celda tras una reflexión. 0.02 lo absorbe sin
+// aceptar una entrada genuinamente descentrada.
+const EPS_ALINEADO = 0.02;
 
 export const COLORES = ['neutro', 'azul', 'rojo', 'magenta'];
 
@@ -293,30 +300,43 @@ export function simularHaz(config, piezas, laser, piezasVertice) {
 
       const clave = `${nr},${nc}`;
       if (bloqueadas.has(clave)) { resultado = 'bloqueo'; break; }
-      // Cualquier emisor, propio o ajeno, absorbe el rayo. Una sola regla.
+      // Cualquier emisor, propio o ajeno, absorbe el rayo, alineado o no:
+      // esta regla no depende de la geometria fina. Una sola regla.
       if (emisores.has(clave)) {
         squaresPath.push({ row: nr, col: nc });
         puntos.push({ x: nc + 0.5, y: nr + 0.5 });
         resultado = 'emisor';
         break;
       }
-      if (dianas.has(clave)) {
-        squaresPath.push({ row: nr, col: nc });
-        puntos.push({ x: nc + 0.5, y: nr + 0.5 });
-        resultado = dianas.get(clave).color === seg.color ? 'diana' : 'diana-ajena';
-        break;
-      }
 
+      // Diana, prisma y condensador YA NO disparan al cruzar hacia su
+      // celda: hace falta entrar Y llegar al centro exacto antes de tocar
+      // cualquier borde. Si no, la pieza no hace nada -- el rayo sigue
+      // marchando dentro de esta celda como si estuviera vacia.
       r = nr; c = nc; lx = nlx; ly = nly;
       squaresPath.push({ row: r, col: c });
 
+      const diana = dianas.get(`${r},${c}`);
       const pieza = piezas[r][c];
-      if (pieza === PIEZA.PRISMA || pieza === PIEZA.CONDENSADOR) {
-        puntos.push({ x: c + 0.5, y: r + 0.5 });
-        resultado = pieza === PIEZA.PRISMA
-          ? entraEnPrisma(seg, r, c, dx, dy, pendientes)
-          : entraEnCondensador(seg, r, c, dx, dy, pendientes, llegadasCondensador);
-        break;
+      if (diana || pieza === PIEZA.PRISMA || pieza === PIEZA.CONDENSADOR) {
+        const hitCentro = siguienteCruce(lx, ly, dx, dy);
+        const alineado = hitCentro
+          && Math.abs(hitCentro.x - 0.5) < EPS_ALINEADO
+          && Math.abs(hitCentro.y - 0.5) < EPS_ALINEADO;
+        if (alineado) {
+          puntos.push({ x: c + 0.5, y: r + 0.5 });
+          if (diana) {
+            resultado = diana.color === seg.color ? 'diana' : 'diana-ajena';
+          } else {
+            resultado = pieza === PIEZA.PRISMA
+              ? entraEnPrisma(seg, r, c, dx, dy, pendientes)
+              : entraEnCondensador(seg, r, c, dx, dy, pendientes, llegadasCondensador);
+          }
+          break;
+        }
+        // no alineado: no cuenta como llegada, se sigue marchando dentro
+        // de esta misma celda con el siguiente `hit` (siguiente vuelta del
+        // for).
       }
     }
 
