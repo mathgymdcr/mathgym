@@ -55,29 +55,31 @@ describe('espejo-vertice: geometria', () => {
     expect(tramos[0].resultado).toBe('fuera')
   })
 
-  it('un espejo-vertice horizontal en (1,1) refleja el rayo hacia arriba', () => {
-    // El rayo viaja por dentro de la fila 1 (y=1.5 constante). El vertice
-    // horizontal (R=1,C=1) cubre x en [0.5,1.5] sobre la linea y=1 -- pero
-    // el rayo va por y=1.5, no por y=1: para que lo cruce hace falta que
-    // vaya en diagonal. Se dispara en 'ne' desde (1,0) para que cruce y=1.
-    const laserDiag = { emitter: { row: 1, col: 0, dir: 'ne' }, color: 'neutro-1' }
-    const config = normalizaConfig({ ...TABLERO, lasers: [laserDiag] })
-    const piezas = crearPiezas(3)
-    const piezasVertice = crearPiezasVertice(3)
-    piezasVertice[1][1] = PIEZA.HORIZ
-    const { tramos } = simularHaz(config, piezas, laserDiag, piezasVertice)
-    // Reflejado (dy invertido), el rayo vuelve hacia abajo-derecha (se) y
-    // sigue dentro del tablero en vez de salir por arriba.
-    expect(tramos[0].resultado).not.toBe('fuera')
-    expect(tramos[0].squaresPath.some(p => p.row === 1 && p.col === 0)).toBe(true)
+  it('un espejo-vertice horizontal en (2,2) refleja el rayo hacia arriba', () => {
+    // El emisor arranca en (0.501,0.502) local (ARRANQUE): un rayo 'down'
+    // cruza cada borde horizontal con x local ligeramente MAYOR que 0.5,
+    // asi que para un emisor en columna 1 el vertice relevante es C=2 (la
+    // mitad derecha del vertice), no C=1. Tablero 4x4, emisor en (1,1),
+    // para que el rebote hacia arriba no salga inmediatamente del tablero
+    // por el otro lado.
+    const laserAbajo = { emitter: { row: 1, col: 1, dir: 'down' }, color: 'neutro-1' }
+    const config = normalizaConfig({ size: 4, modo: 'clasico', lasers: [laserAbajo], targets: [], blocks: [] })
+    const piezas = crearPiezas(4)
+    const piezasVertice = crearPiezasVertice(4)
+    piezasVertice[2][2] = PIEZA.HORIZ
+    const { tramos } = simularHaz(config, piezas, laserAbajo, piezasVertice)
+    // Reflejado (dy invertido), el rayo vuelve hacia arriba: visita la fila
+    // 0 y nunca llega a la fila 3, al contrario que sin el vertice.
+    expect(tramos[0].squaresPath.some(p => p.row === 0)).toBe(true)
+    expect(tramos[0].squaresPath.some(p => p.row === 3)).toBe(false)
   })
 
-  it('un vertice sin pieza no afecta nada', () => {
-    const laserDiag = { emitter: { row: 1, col: 0, dir: 'ne' }, color: 'neutro-1' }
-    const config = normalizaConfig({ ...TABLERO, lasers: [laserDiag] })
-    const piezas = crearPiezas(3)
-    const { tramos } = simularHaz(config, piezas, laserDiag, crearPiezasVertice(3))
-    expect(tramos[0].resultado).toBe('fuera')
+  it('un vertice sin pieza no afecta nada: el mismo rayo sigue derecho', () => {
+    const laserAbajo = { emitter: { row: 1, col: 1, dir: 'down' }, color: 'neutro-1' }
+    const config = normalizaConfig({ size: 4, modo: 'clasico', lasers: [laserAbajo], targets: [], blocks: [] })
+    const piezas = crearPiezas(4)
+    const { tramos } = simularHaz(config, piezas, laserAbajo, crearPiezasVertice(4))
+    expect(tramos[0].squaresPath.some(p => p.row === 3)).toBe(true)
   })
 })
 ```
@@ -176,25 +178,28 @@ git commit -m "feat(laser): espejo-vertice, geometria del trazador"
 import { describe, it, expect } from 'vitest'
 import { simularTodos, resuelto, crearPiezas, normalizaConfig, PIEZA } from '../../scripts/laser-triangular-logic.js'
 
-// Emisor en (0,0) disparando 'se'. Un espejo '\' en (1,1) lo desvia hacia
-// 'right'; entra en la diana (0-index fila2? no, sigue en fila1) por su
-// borde IZQUIERDO a ly=0 (esquina), no por el centro: antes de este cambio
-// contaba como resuelto, ahora no debe contar.
-const CONFIG = normalizaConfig({
-  size: 4, modo: 'clasico',
-  lasers: [{ emitter: { row: 0, col: 0, dir: 'se' }, target: { row: 1, col: 3 } }],
-  blocks: []
-})
-
 describe('llegada obligatoria al centro', () => {
-  it('una diana entra desalineada: no cuenta como resuelto, el rayo sigue de largo', () => {
-    const piezas = crearPiezas(4)
-    piezas[1][1] = PIEZA.BACKSLASH // desvia 'se' -> 'right' desde (1,1)
-    const { tramos } = simularTodos(CONFIG, piezas)
-    // El rayo llega a la celda de la diana (1,3) pero por su borde, no por
-    // el centro (ly=0 al entrar desde la izquierda en horizontal exige 0.5).
-    expect(tramos[0].resultado).not.toBe('diana')
-    expect(resuelto(CONFIG, piezas)).toBe(false)
+  it('un hijo de prisma entra a su diana desalineado: no cuenta, el rayo sigue de largo', () => {
+    // Prisma en (2,4): su hijo azul (giro 'ne') visita la celda de la diana
+    // (2,5) pero por su borde, no por el centro -- es el mismo patron
+    // geometrico que motivo esta funcionalidad (ver el spec). Antes de este
+    // cambio cualquier visita bastaba para contar como diana; ahora hace
+    // falta pasar por el centro.
+    const config = normalizaConfig({
+      size: 7, modo: 'prisma',
+      lasers: [{ emitter: { row: 2, col: 3, dir: 'right' }, color: 'neutro' }],
+      targets: [{ row: 2, col: 5, color: 'azul' }, { row: 5, col: 6, color: 'rojo' }],
+      blocks: []
+    })
+    const piezas = crearPiezas(7)
+    piezas[2][4] = PIEZA.PRISMA
+    const { tramos } = simularTodos(config, piezas)
+    const azul = tramos.find((t) => t.color === 'azul')
+    // Visita la celda destino (sigue en su squaresPath) pero no se detiene
+    // ahi: continua hasta salir del tablero.
+    expect(azul.squaresPath.some((p) => p.row === 2 && p.col === 5)).toBe(true)
+    expect(azul.resultado).not.toBe('diana')
+    expect(resuelto(config, piezas)).toBe(false)
   })
 
   it('la misma diana, alcanzada en linea recta horizontal (alineada), si resuelve', () => {
