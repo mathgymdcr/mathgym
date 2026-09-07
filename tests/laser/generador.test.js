@@ -16,7 +16,7 @@ describe('buildLaserPuzzle', () => {
   it('la solución que guarda resuelve el reto de verdad', () => {
     for (const seed of SEEDS) {
       const p = buildLaserPuzzle(seed)
-      expect(resuelto(config(p), p.solucion.piezas), `seed ${seed}`).toBe(true)
+      expect(resuelto(config(p), p.solucion.piezas, p.solucion.piezasVertice), `seed ${seed}`).toBe(true)
     }
   })
 
@@ -126,7 +126,7 @@ describe('buildLaserPuzzle en los tres modos', () => {
       expect(p.modo).toBe(modo)
       const c = normalizaConfig(p)
       expect(resuelto(c, crearPiezas(p.size)), 'viene resuelto de fabrica').toBe(false)
-      expect(resuelto(c, p.solucion.piezas)).toBe(true)
+      expect(resuelto(c, p.solucion.piezas, p.solucion.piezasVertice)).toBe(true)
       expect(piezasMinimas(c, p.min_piezas - 1), 'se resuelve con menos').toBeNull()
     })
   }
@@ -184,4 +184,19 @@ describe('la solucion nunca pisa un emisor o una diana', () => {
       }
     })
   }
+})
+
+describe('generador: llegada alineada por construccion', () => {
+  it('barriendo 200 seeds, todo puzzle de prisma/condensador resuelve con su solucion guardada', () => {
+    let vistos = 0
+    for (let seed = 1; seed <= 200; seed++) {
+      let puzzle
+      try { puzzle = buildLaserPuzzle(seed) } catch { continue }
+      if (puzzle.modo === 'clasico') continue
+      vistos++
+      const c = config(puzzle)
+      expect(resuelto(c, puzzle.solucion.piezas, puzzle.solucion.piezasVertice), `seed ${seed}`).toBe(true)
+    }
+    expect(vistos).toBeGreaterThan(20) // el barrido de verdad toco casos prisma/condensador
+  })
 })

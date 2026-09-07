@@ -11,10 +11,13 @@ const CLASICO = normalizaConfig({
 })
 
 // Un solo emisor y dos dianas: solo un prisma puede partir el rayo en dos.
+// (0,4)/(4,4), no (0,5)/(5,4): con la llegada obligatoria al centro (Task 2)
+// un hijo de prisma sin espejo adicional solo entra centrado en la recta de
+// su propia diagonal exacta -- ver prisma.test.js, misma geometria.
 const DOS_DIANAS = {
   size: 6,
   lasers: [{ emitter: { row: 2, col: 0, dir: 'right' }, color: 'neutro' }],
-  targets: [{ row: 0, col: 5, color: 'azul' }, { row: 5, col: 4, color: 'rojo' }],
+  targets: [{ row: 0, col: 4, color: 'azul' }, { row: 4, col: 4, color: 'rojo' }],
   blocks: []
 }
 
@@ -76,9 +79,20 @@ describe('busqueda de minimos', () => {
   // busqueda paga en cada nodo, asi que el cociente entre las dos medidas es
   // en la practica "cuantas simulaciones de tablero le costo", en unidades
   // que no dependen de la maquina. La carga multiplica las dos mitades por
-  // igual: medido, el cociente es 4,4 en un proceso solo y 3,6-4,3 con
+  // igual: medido, el cociente era 4,4 en un proceso solo y 3,6-4,3 con
   // cuatro procesos compitiendo, mientras que la version anterior a la
   // optimizacion que este test protege estaba en 7,3.
+  //
+  // Task 4 (espejo-vertice en la busqueda) subio el cociente a ~23-27: cada
+  // nodo prueba ahora una SEGUNDA familia de piezas (vertices, ademas de
+  // celdas), asi que el espacio a explorar en el caso SIN solucion crece de
+  // verdad, no es una regresion de la poda. Probar los ~(size+1)^2 vertices
+  // del tablero entero en cada nodo (sin acotar por squaresPath) media 53x
+  // -- eso si seria la poda rota. El acotado actual (solo los vertices del
+  // borde que algun rayo YA cruza, igual principio que las celdas) es el
+  // mejor que se encontro sin sacrificar completitud; el umbral sube a 35
+  // con margen sobre el peor caso medido, dejando aun holgura de sobra bajo
+  // los 53x de la version sin podar.
   it('el caso sin solucion en 7x7 con seis piezas no dispara el trabajo', () => {
     const prisma = { ...SIN_SOLUCION, modo: 'prisma' }
     const piezas = crearPiezas(7)
@@ -95,6 +109,22 @@ describe('busqueda de minimos', () => {
     expect(piezasMinimas(prisma, 3)).toBeNull()
     const busqueda = Date.now() - t1
 
-    expect(busqueda / referencia, `la busqueda cuesta ${(busqueda / referencia).toFixed(1)} veces la referencia de ${N} trazados`).toBeLessThan(6)
+    expect(busqueda / referencia, `la busqueda cuesta ${(busqueda / referencia).toFixed(1)} veces la referencia de ${N} trazados`).toBeLessThan(35)
+  })
+})
+
+describe('busqueda con espejo-vertice', () => {
+  it('encuentra una solucion que solo es alcanzable con un espejo-vertice', () => {
+    // Emisor 'ne' en (2,0); diana 'neutro-1' en (0,2). En linea recta 'ne'
+    // desde (2,0) se sale del tablero por arriba sin tocar (0,2): hace
+    // falta desviar con un espejo-vertice para entrar alineado.
+    const config = normalizaConfig({
+      size: 3, modo: 'clasico',
+      lasers: [{ emitter: { row: 2, col: 0, dir: 'ne' }, target: { row: 0, col: 2 } }],
+      blocks: []
+    })
+    const sol = resolverPiezas(config, 3)
+    expect(sol).not.toBeNull()
+    expect(sol.piezasVertice).toBeDefined()
   })
 })

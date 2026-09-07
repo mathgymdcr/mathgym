@@ -15,7 +15,7 @@
   "targets": [
     {
       "row": 6,
-      "col": 2,
+      "col": 0,
       "color": "magenta"
     }
   ],

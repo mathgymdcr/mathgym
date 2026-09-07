@@ -17,6 +17,13 @@ export const DIR_VECTOR = {
 };
 
 const EPS = 1e-9;
+// Tolerancia para "¿el rayo pasó por el centro exacto?". Mayor que EPS a
+// propósito: el punto de arranque de emisor/prisma/condensador está
+// deliberadamente desplazado del centro (ARRANQUE, más abajo) para evitar
+// singularidades, y ese desplazamiento se propaga como un residuo del
+// orden de una milésima de celda tras una reflexión. 0.02 lo absorbe sin
+// aceptar una entrada genuinamente descentrada.
+const EPS_ALINEADO = 0.02;
 
 export const COLORES = ['neutro', 'azul', 'rojo', 'magenta'];
 
@@ -58,6 +65,10 @@ export function normalizaConfig(config) {
 
 export function crearPiezas(size) {
   return Array.from({ length: size }, () => Array(size).fill(0));
+}
+
+export function crearPiezasVertice(size) {
+  return Array.from({ length: size + 1 }, () => Array(size + 1).fill(0));
 }
 
 // Primer borde de la celda actual (coordenadas locales 0..1) que cruza el
@@ -192,8 +203,9 @@ function entraEnCondensador(seg, r, c, dx, dy, pendientes, llegadas) {
 // generar mas tramos (prisma, condensador) que se procesan hasta agotar la
 // lista. `puntos` son coordenadas globales para poder dibujar cada tramo
 // como una polilinea. `config` debe venir YA normalizada (normalizaConfig).
-export function simularHaz(config, piezas, laser) {
+export function simularHaz(config, piezas, laser, piezasVertice) {
   const n = config.size;
+  const pv = piezasVertice || crearPiezasVertice(n);
   const bloqueadas = new Set(config.blocks.map((b) => `${b.row},${b.col}`));
   const emisores = new Set(config.lasers.map((l) => `${l.emitter.row},${l.emitter.col}`));
   const dianas = new Map(config.targets.map((t) => [`${t.row},${t.col}`, t]));
@@ -256,6 +268,27 @@ export function simularHaz(config, piezas, laser) {
         continue;
       }
 
+      // Espejo-vertice: vive en el borde compartido por dos celdas, no
+      // dentro de ninguna, asi que se prueba en el momento de cruzar ese
+      // borde, antes de decidir a que celda se transiciona.
+      if (hit.line === 'top' || hit.line === 'bottom') {
+        const R = hit.line === 'top' ? r : r + 1;
+        const C = hit.x <= 0.5 ? c : c + 1;
+        if (pv[R] && pv[R][C] === PIEZA.HORIZ) {
+          lx = hit.x; ly = hit.y; dy = -dy;
+          puntos.push({ x: c + lx, y: r + ly });
+          continue;
+        }
+      } else if (hit.line === 'left' || hit.line === 'right') {
+        const C = hit.line === 'left' ? c : c + 1;
+        const R = hit.y <= 0.5 ? r : r + 1;
+        if (pv[R] && pv[R][C] === PIEZA.VERT) {
+          lx = hit.x; ly = hit.y; dx = -dx;
+          puntos.push({ x: c + lx, y: r + ly });
+          continue;
+        }
+      }
+
       let nr = r, nc = c, nlx = lx, nly = ly;
       if (hit.line === 'top') { nr = r - 1; nly = 1; nlx = hit.x; }
       else if (hit.line === 'bottom') { nr = r + 1; nly = 0; nlx = hit.x; }
@@ -267,30 +300,43 @@ export function simularHaz(config, piezas, laser) {
 
       const clave = `${nr},${nc}`;
       if (bloqueadas.has(clave)) { resultado = 'bloqueo'; break; }
-      // Cualquier emisor, propio o ajeno, absorbe el rayo. Una sola regla.
+      // Cualquier emisor, propio o ajeno, absorbe el rayo, alineado o no:
+      // esta regla no depende de la geometria fina. Una sola regla.
       if (emisores.has(clave)) {
         squaresPath.push({ row: nr, col: nc });
         puntos.push({ x: nc + 0.5, y: nr + 0.5 });
         resultado = 'emisor';
         break;
       }
-      if (dianas.has(clave)) {
-        squaresPath.push({ row: nr, col: nc });
-        puntos.push({ x: nc + 0.5, y: nr + 0.5 });
-        resultado = dianas.get(clave).color === seg.color ? 'diana' : 'diana-ajena';
-        break;
-      }
 
+      // Diana, prisma y condensador YA NO disparan al cruzar hacia su
+      // celda: hace falta entrar Y llegar al centro exacto antes de tocar
+      // cualquier borde. Si no, la pieza no hace nada -- el rayo sigue
+      // marchando dentro de esta celda como si estuviera vacia.
       r = nr; c = nc; lx = nlx; ly = nly;
       squaresPath.push({ row: r, col: c });
 
+      const diana = dianas.get(`${r},${c}`);
       const pieza = piezas[r][c];
-      if (pieza === PIEZA.PRISMA || pieza === PIEZA.CONDENSADOR) {
-        puntos.push({ x: c + 0.5, y: r + 0.5 });
-        resultado = pieza === PIEZA.PRISMA
-          ? entraEnPrisma(seg, r, c, dx, dy, pendientes)
-          : entraEnCondensador(seg, r, c, dx, dy, pendientes, llegadasCondensador);
-        break;
+      if (diana || pieza === PIEZA.PRISMA || pieza === PIEZA.CONDENSADOR) {
+        const hitCentro = siguienteCruce(lx, ly, dx, dy);
+        const alineado = hitCentro
+          && Math.abs(hitCentro.x - 0.5) < EPS_ALINEADO
+          && Math.abs(hitCentro.y - 0.5) < EPS_ALINEADO;
+        if (alineado) {
+          puntos.push({ x: c + 0.5, y: r + 0.5 });
+          if (diana) {
+            resultado = diana.color === seg.color ? 'diana' : 'diana-ajena';
+          } else {
+            resultado = pieza === PIEZA.PRISMA
+              ? entraEnPrisma(seg, r, c, dx, dy, pendientes)
+              : entraEnCondensador(seg, r, c, dx, dy, pendientes, llegadasCondensador);
+          }
+          break;
+        }
+        // no alineado: no cuenta como llegada, se sigue marchando dentro
+        // de esta misma celda con el siguiente `hit` (siguiente vuelta del
+        // for).
       }
     }
 
@@ -305,9 +351,10 @@ export function simularHaz(config, piezas, laser) {
 // condensador -- que son justamente los sitios donde los rayos se encuentran
 // a proposito. En clasico esto es exactamente la regla de hoy ("dos rayos no
 // comparten celda").
-export function simularTodos(config, piezas) {
+export function simularTodos(config, piezas, piezasVertice) {
   const c = normalizaConfig(config);
-  const tramos = c.lasers.flatMap((l) => simularHaz(c, piezas, l).tramos);
+  const pv = piezasVertice || crearPiezasVertice(c.size);
+  const tramos = c.lasers.flatMap((l) => simularHaz(c, piezas, l, pv).tramos);
 
   const visitas = new Map();
   tramos.forEach((tramo, idx) => {
@@ -338,9 +385,9 @@ export function simularTodos(config, piezas) {
 
 // Condición de victoria de la plantilla: todas las dianas alcanzadas por su
 // color y sin cruces.
-export function resuelto(config, piezas) {
+export function resuelto(config, piezas, piezasVertice) {
   const c = normalizaConfig(config);
-  const { cruces, dianasAlcanzadas } = simularTodos(c, piezas);
+  const { cruces, dianasAlcanzadas } = simularTodos(c, piezas, piezasVertice);
   return c.targets.length > 0 && cruces.size === 0 &&
     c.targets.every((t) => dianasAlcanzadas.has(`${t.row},${t.col}`));
 }
@@ -368,6 +415,23 @@ export function celdasLibres(config) {
   return libres;
 }
 
+// Vertices donde se puede anclar un espejo-vertice: para horizontal hacen
+// falta columna-1 y columna dentro del tablero (necesita celda a cada
+// lado); para vertical, fila-1 y fila. Un mismo vertice puede admitir uno
+// u otro tipo (o ninguno) segun esa disponibilidad; celdasLibres no aplica
+// aqui porque un vertice no "pertenece" a una celda concreta.
+export function verticesLibres(config) {
+  const libres = [];
+  for (let R = 0; R <= config.size; R++) {
+    for (let C = 0; C <= config.size; C++) {
+      const horizPosible = C >= 1 && C <= config.size - 1;
+      const vertPosible = R >= 1 && R <= config.size - 1;
+      if (horizPosible || vertPosible) libres.push({ row: R, col: C });
+    }
+  }
+  return libres;
+}
+
 // Menor número de piezas con el que se puede resolver, probando 0, 1, 2...
 // hasta `tope`. Devuelve null si no se resuelve con `tope` piezas o menos.
 // Es lo que convierte el "par" del reto en un dato comprobado en vez de en
@@ -384,7 +448,8 @@ export function celdasLibres(config) {
 // y tests/laser comprueba que las dos coinciden.
 export function piezasMinimas(config, tope) {
   const sol = resolverPiezas(config, tope);
-  return sol === null ? null : sol.piezas.flat().filter(Boolean).length;
+  return sol === null ? null : sol.piezas.flat().filter(Boolean).length
+    + sol.piezasVertice.flat().filter(Boolean).length;
 }
 
 // Igual que piezasMinimas pero devolviendo la colocación encontrada, para
@@ -392,7 +457,8 @@ export function piezasMinimas(config, tope) {
 export function resolverPiezas(config, tope) {
   const c = normalizaConfig(config);
   const piezas = crearPiezas(c.size);
-  if (resuelto(c, piezas)) return { piezas, total: 0 };
+  const piezasVertice = crearPiezasVertice(c.size);
+  if (resuelto(c, piezas, piezasVertice)) return { piezas, piezasVertice, total: 0 };
 
   const libres = new Set(celdasLibres(c).map((x) => `${x.row},${x.col}`));
   const tipos = tiposDisponibles(c.modo);
@@ -410,20 +476,57 @@ export function resolverPiezas(config, tope) {
   const fallidos = new Set();
 
   const buscar = (restantes) => {
-    if (restantes === 0) return resuelto(c, piezas);
+    if (restantes === 0) return resuelto(c, piezas, piezasVertice);
     const firma = `${restantes}|${[...puestas].sort().join(' ')}`;
     if (fallidos.has(firma)) return false;
 
-    const { tramos } = simularTodos(c, piezas);
+    const { tramos } = simularTodos(c, piezas, piezasVertice);
+    // Celdas y vertices candidatos salen del MISMO recorrido de squaresPath
+    // (dos pasadas por separado costaba el doble por nodo sin ganar nada:
+    // medido, la primera version con pasadas separadas ya llevaba el caso
+    // adversarial de 7x7 sin solucion a 4x el tiempo de busqueda de antes de
+    // aniadir vertices). Una celda se recoge por si misma; un vertice, del
+    // borde que comparten dos celdas CONSECUTIVAS del camino -- vive en el
+    // borde, no "pertenece" a ninguna celda, y por eso no sale de recorrer
+    // celdas sueltas.
     const vistas = new Set();
     const candidatas = [];
+    const vistasV = new Set();
+    const candidatasVertice = [];
     const recogeDe = (lista) => {
       for (const tramo of lista) {
-        for (const { row, col } of tramo.squaresPath) {
+        const camino = tramo.squaresPath;
+        for (let i = 0; i < camino.length; i++) {
+          const { row, col } = camino[i];
           const k = `${row},${col}`;
-          if (vistas.has(k) || !libres.has(k) || piezas[row][col] !== PIEZA.VACIO) continue;
-          vistas.add(k);
-          candidatas.push({ row, col });
+          if (!vistas.has(k) && libres.has(k) && piezas[row][col] === PIEZA.VACIO) {
+            vistas.add(k);
+            candidatas.push({ row, col });
+          }
+          if (i === 0) continue;
+          const previo = camino[i - 1];
+          const fin = camino[i];
+          let tipo, primero, segundo;
+          if (previo.row === fin.row) {
+            tipo = PIEZA.VERT;
+            const C = Math.max(previo.col, fin.col);
+            if (C < 1 || C > c.size - 1) continue;
+            primero = { row: fin.row, col: C };
+            segundo = { row: fin.row + 1, col: C };
+          } else {
+            tipo = PIEZA.HORIZ;
+            const R = Math.max(previo.row, fin.row);
+            if (R < 1 || R > c.size - 1) continue;
+            primero = { row: R, col: fin.col };
+            segundo = { row: R, col: fin.col + 1 };
+          }
+          for (const v of [primero, segundo]) {
+            if (v.row < 0 || v.row > c.size || v.col < 0 || v.col > c.size) continue;
+            const kv = `${v.row},${v.col}:${tipo}`;
+            if (vistasV.has(kv) || piezasVertice[v.row][v.col] !== PIEZA.VACIO) continue;
+            vistasV.add(kv);
+            candidatasVertice.push({ row: v.row, col: v.col, tipo });
+          }
         }
       }
     };
@@ -443,18 +546,33 @@ export function resolverPiezas(config, tope) {
     for (const { row, col } of candidatas) {
       for (const tipo of tipos) {
         piezas[row][col] = tipo;
-        puestas.push(`${row},${col}:${tipo}`);
+        puestas.push(`c${row},${col}:${tipo}`);
         if (buscar(restantes - 1)) return true;
         puestas.pop();
         piezas[row][col] = PIEZA.VACIO;
       }
     }
+
+    for (const { row: R, col: C, tipo } of candidatasVertice) {
+      piezasVertice[R][C] = tipo;
+      puestas.push(`v${R},${C}:${tipo}`);
+      if (buscar(restantes - 1)) return true;
+      puestas.pop();
+      piezasVertice[R][C] = PIEZA.VACIO;
+    }
+
     fallidos.add(firma);
     return false;
   };
 
   for (let k = 1; k <= tope; k++) {
-    if (buscar(k)) return { piezas: piezas.map((f) => [...f]), total: k };
+    if (buscar(k)) {
+      return {
+        piezas: piezas.map((f) => [...f]),
+        piezasVertice: piezasVertice.map((f) => [...f]),
+        total: k
+      };
+    }
   }
   return null;
 }
@@ -559,7 +677,7 @@ function colocaBloques(rand, size, hecho) {
   hecho.lasers.forEach((l) => vetadas.add(`${l.emitter.row},${l.emitter.col}`));
   hecho.targets.forEach((t) => vetadas.add(`${t.row},${t.col}`));
   const base = { size, modo: hecho.modo, lasers: hecho.lasers, targets: hecho.targets, blocks: [] };
-  hecho.lasers.forEach((l) => simularHaz(base, hecho.piezas, l).tramos
+  hecho.lasers.forEach((l) => simularHaz(base, hecho.piezas, l, hecho.piezasVertice).tramos
     .forEach((t) => t.squaresPath.forEach((p) => vetadas.add(`${p.row},${p.col}`))));
 
   const blocks = [];
@@ -610,11 +728,73 @@ function construirUnLaser(rand, size, piezas, vetadas, maxEspejos, color) {
   return { laser, target: { row: fin.row, col: fin.col, color }, camino: squaresPath };
 }
 
+// Resultados que cuentan como "el tramo se detuvo aqui, a proposito": el
+// mismo criterio que usa la victoria (diana) mas los dos de piezas
+// intermedias (prisma se ve solo desde la raiz; condensador y su segunda
+// llegada, desde un hijo).
+const RESULTADOS_DETENIDOS = new Set(['diana', 'prisma', 'condensador', 'condensador-mezcla']);
+
+// Traza el arbol y mira si el tramo de `color` se detiene exactamente en
+// `destino`. Devuelve null si ese color ni aparece en el arbol (algo previo
+// fue mal); si no, { propio, idx, ok }, con `idx` la posicion de `destino`
+// dentro de squaresPath (para localizar el borde de entrada si `ok` es
+// false). Hace falta `destino` explicito porque, bajo la regla de llegada al
+// centro (Task 2), un tramo que entra desalineado NO se detiene en esa
+// celda -- sigue de largo -- asi que ni "el ultimo punto de squaresPath" ni
+// "resultado === 'diana'" identifican por si solos donde trataba de llegar.
+function llegaA(config, piezas, piezasVertice, laserRaiz, color, destino) {
+  const { tramos } = simularHaz(config, piezas, laserRaiz, piezasVertice);
+  const propio = tramos.find((t) => t.color === color);
+  if (!propio) return null;
+  const idx = propio.squaresPath.findIndex((p) => p.row === destino.row && p.col === destino.col);
+  if (idx === -1) return { propio, idx, ok: false };
+  const ok = idx === propio.squaresPath.length - 1 && RESULTADOS_DETENIDOS.has(propio.resultado);
+  return { propio, idx, ok };
+}
+
+// Si `llegaA` ya da ok, no hace nada. Si no, calcula el espejo-vertice que
+// realinea la entrada a `destino` y lo coloca (mutando `piezasVertice`).
+// `null` si no hay hueco o si, tras colocarlo, sigue sin alinear.
+function realineaSiHaceFalta(config, piezas, piezasVertice, laserRaiz, color, destino) {
+  const estado = llegaA(config, piezas, piezasVertice, laserRaiz, color, destino);
+  if (!estado) return null;
+  if (estado.ok) return { piezas, piezasVertice };
+  if (estado.idx <= 0) return null; // sin celda previa, no hay borde que corregir
+
+  const fin = estado.propio.squaresPath[estado.idx];
+  const previo = estado.propio.squaresPath[estado.idx - 1];
+
+  // Vertice y orientacion salen del borde compartido entre `previo` y `fin`:
+  // si comparten fila, el borde es vertical (columna constante); si
+  // comparten columna, es horizontal (fila constante).
+  let R, C, tipo;
+  if (previo.row === fin.row) {
+    tipo = PIEZA.VERT;
+    C = Math.max(previo.col, fin.col);
+    R = fin.row; // se prueban los dos vertices R y R+1 de ese borde
+  } else {
+    tipo = PIEZA.HORIZ;
+    R = Math.max(previo.row, fin.row);
+    C = fin.col;
+  }
+
+  for (const [rr, cc] of tipo === PIEZA.VERT ? [[R, C], [R + 1, C]] : [[R, C], [R, C + 1]]) {
+    if (rr < 0 || rr > config.size || cc < 0 || cc > config.size) continue;
+    if (piezasVertice[rr][cc] !== PIEZA.VACIO) continue;
+    piezasVertice[rr][cc] = tipo;
+    const retrazado = llegaA(config, piezas, piezasVertice, laserRaiz, color, destino);
+    if (retrazado && retrazado.ok) return { piezas, piezasVertice };
+    piezasVertice[rr][cc] = PIEZA.VACIO;
+  }
+  return null;
+}
+
 // Los dos laseres clasicos, cada uno con su color propio (para que la regla
 // de cruce distinga "mi diana" de "la diana ajena"), montados sobre
 // `construirUnLaser` y `colocaBloques`.
 function construirClasico(rand, size) {
   const piezas = crearPiezas(size);
+  const piezasVertice = crearPiezasVertice(size);
   const vetadas = new Set();
   const lasers = [];
   const targets = [];
@@ -626,12 +806,14 @@ function construirClasico(rand, size) {
     targets.push(hecho.target);
     vetadas.add(`${hecho.laser.emitter.row},${hecho.laser.emitter.col}`);
     vetadas.add(`${hecho.target.row},${hecho.target.col}`);
-    // El rayo ya trazado puede dejar huerfano un espejo de un laser anterior
-    // (uno que giraba antes de llegar a el, tras colocar uno posterior): ese
-    // espejo no esta en `camino` y por tanto no entra en `vetadas`. Por eso
-    // la comprobacion de que ningun espejo pisa un emisor o diana se hace
-    // aparte, al final, sobre el tablero completo -- ver mas abajo.
-    hecho.camino.forEach(({ row, col }) => vetadas.add(`${row},${col}`));
+
+    const baseUno = { size, modo: 'clasico', lasers: [hecho.laser], targets: [hecho.target], blocks: [] };
+    const ok = realineaSiHaceFalta(baseUno, piezas, piezasVertice, hecho.laser, hecho.laser.color, hecho.target);
+    if (!ok) return null;
+    // El camino real (tras la posible realineacion) es el que hay que
+    // vetar para el siguiente laser, no `hecho.camino` (que es de antes).
+    simularHaz(baseUno, piezas, hecho.laser, piezasVertice).tramos[0]
+      .squaresPath.forEach(({ row, col }) => vetadas.add(`${row},${col}`));
   }
 
   // Ningun espejo -- ni el huerfano de arriba -- puede acabar en la celda de
@@ -640,30 +822,29 @@ function construirClasico(rand, size) {
   const ocupadas = [...lasers.map((l) => l.emitter), ...targets];
   if (ocupadas.some((p) => piezas[p.row][p.col] !== PIEZA.VACIO)) return null;
 
-  return { modo: 'clasico', size, lasers, targets, piezas };
+  return { modo: 'clasico', size, lasers, targets, piezas, piezasVertice };
 }
 
-// Construccion inversa, igual que en clasico: se colocan las piezas, se traza
-// con el trazador de verdad y las dianas se plantan donde acaban los rayos.
-// Asi la solucion existe por construccion.
-function construirPrisma(rand, size) {
+// Emisor + prisma en su trayecto + hasta un espejo opcional por hijo, SIN
+// decidir todavia donde van las dianas: eso es distinto en prisma (cada hijo
+// a la suya) y en condensador (los dos al mismo condensador, y solo despues
+// una diana para el magenta resultante).
+function construirArbolPrisma(rand, size) {
   const piezas = crearPiezas(size);
-  const emisor = colocaEmisor(rand, size, piezas);          // reusa la logica de clasico
+  const emisor = colocaEmisor(rand, size, piezas);
   if (!emisor) return null;
   const laser = { emitter: emisor, color: 'neutro' };
   const base = { size, modo: 'prisma', lasers: [laser], targets: [], blocks: [] };
 
-  // El prisma va en el tronco, nunca en la celda del emisor.
   const tronco = simularHaz(base, piezas, laser).tramos[0].squaresPath.slice(1);
   if (!tronco.length) return null;
   const sitio = elegir(rand, tronco);
   piezas[sitio.row][sitio.col] = PIEZA.PRISMA;
 
-  // Un espejo opcional en el camino de cada hijo, para que no sean dos rectas.
   for (let k = 0; k < 2; k++) {
-    const hijos = simularHaz(base, piezas, laser).tramos.filter((t) => t.color !== 'neutro');
-    if (hijos.length < 2) return null;
-    const hijo = hijos[k];
+    const hijosParciales = simularHaz(base, piezas, laser).tramos.filter((t) => t.color !== 'neutro');
+    if (hijosParciales.length < 2) return null;
+    const hijo = hijosParciales[k];
     const libres = hijo.squaresPath.slice(1).filter((p) => piezas[p.row][p.col] === PIEZA.VACIO);
     if (!libres.length || rand() < 0.3) continue;
     const celda = elegir(rand, libres);
@@ -672,61 +853,79 @@ function construirPrisma(rand, size) {
 
   const hijos = simularHaz(base, piezas, laser).tramos.filter((t) => t.color !== 'neutro');
   if (hijos.length !== 2) return null;
+  return { laser, piezas, hijos };
+}
+
+// Construccion inversa, igual que en clasico: se colocan las piezas, se traza
+// con el trazador de verdad y las dianas se plantan donde acaban los rayos.
+// Asi la solucion existe por construccion.
+function construirPrisma(rand, size) {
+  const arbol = construirArbolPrisma(rand, size);
+  if (!arbol) return null;
+  const { laser, piezas, hijos } = arbol;
+
   const targets = hijos.map((h) => {
     const fin = h.squaresPath[h.squaresPath.length - 1];
     return { row: fin.row, col: fin.col, color: h.color };
   });
   if (targets[0].row === targets[1].row && targets[0].col === targets[1].col) return null;
   if (targets.some((t) => piezas[t.row][t.col] !== PIEZA.VACIO)) return null;
-  if (targets.some((t) => t.row === emisor.row && t.col === emisor.col)) return null;
-
-  // Igual que en clasico: ninguna pieza -- ni siquiera una que llegara a
-  // sobrevivir hasta aqui por otro camino -- puede acabar sobre el emisor.
-  // La razon no es "el emisor nunca esta en un squaresPath.slice(1)": un
-  // hijo puede terminar EN el emisor (cualquier emisor absorbe cualquier
-  // rayo, ver simularHaz), lo que pone esa celda al FINAL de su camino, no
-  // al principio, y ahi si se muestrean candidatas de espejo. Se comprueba
-  // aparte, sobre el tablero completo, en vez de fiarse de por-donde-viene
-  // cada pieza.
-  const ocupadas = [emisor, ...targets];
+  if (targets.some((t) => t.row === laser.emitter.row && t.col === laser.emitter.col)) return null;
+  const ocupadas = [laser.emitter, ...targets];
   if (ocupadas.some((p) => piezas[p.row][p.col] !== PIEZA.VACIO)) return null;
 
-  return { modo: 'prisma', size, lasers: [laser], targets, piezas };
+  const piezasVertice = crearPiezasVertice(size);
+  const baseConTargets = { size, modo: 'prisma', lasers: [laser], targets, blocks: [] };
+  for (const hijo of hijos) {
+    const destino = targets.find((t) => t.color === hijo.color);
+    const ok = realineaSiHaceFalta(baseConTargets, piezas, piezasVertice, laser, hijo.color, destino);
+    if (!ok) return null;
+  }
+
+  return { modo: 'prisma', size, lasers: [laser], targets, piezas, piezasVertice };
 }
 
 // Como prisma, pero los dos hijos se llevan a una celda comun donde va el
 // condensador; el rayo magenta que sale de ahi termina en la unica diana.
 function construirCondensador(rand, size) {
-  const previo = construirPrisma(rand, size);
-  if (!previo) return null;
-  const { lasers, piezas } = previo;
+  const arbol = construirArbolPrisma(rand, size);
+  if (!arbol) return null;
+  const { laser, piezas, hijos } = arbol;
+  const lasers = [laser];
   const base = { size, modo: 'condensador', lasers, targets: [], blocks: [] };
 
-  const hijos = simularHaz(base, piezas, lasers[0]).tramos.filter((t) => t.color !== 'neutro');
-  if (hijos.length !== 2) return null;
   const enAzul = new Set(hijos[0].squaresPath.map((p) => `${p.row},${p.col}`));
   const comunes = hijos[1].squaresPath.filter((p) =>
     enAzul.has(`${p.row},${p.col}`) && piezas[p.row][p.col] === PIEZA.VACIO);
-  if (!comunes.length) return null;                  // sin celda comun, se descarta
+  if (!comunes.length) return null;
   const sitio = elegir(rand, comunes);
   piezas[sitio.row][sitio.col] = PIEZA.CONDENSADOR;
 
-  const magenta = simularHaz(base, piezas, lasers[0]).tramos.find((t) => t.color === 'magenta');
+  // Los dos hijos tienen que entrar alineados al condensador ANTES de que
+  // nada dependa de la mezcla: sin esto, un hijo desalineado simplemente no
+  // cuenta como llegada (Task 2) y el condensador nunca funde nada.
+  const piezasVertice = crearPiezasVertice(size);
+  for (const hijo of hijos) {
+    const ok = realineaSiHaceFalta(base, piezas, piezasVertice, laser, hijo.color, sitio);
+    if (!ok) return null;
+  }
+
+  const magenta = simularHaz(base, piezas, laser, piezasVertice).tramos.find((t) => t.color === 'magenta');
   if (!magenta) return null;
   const fin = magenta.squaresPath[magenta.squaresPath.length - 1];
   if (piezas[fin.row][fin.col] !== PIEZA.VACIO) return null;
-  if (fin.row === lasers[0].emitter.row && fin.col === lasers[0].emitter.col) return null;
+  if (fin.row === laser.emitter.row && fin.col === laser.emitter.col) return null;
   const targets = [{ row: fin.row, col: fin.col, color: 'magenta' }];
 
-  // Misma guarda que en prisma/clasico: el condensador se coloca en una
-  // celda comun a los dos hijos (ver `comunes` arriba), lo que puede volver
-  // a dejar huerfano un espejo que antes estaba en el camino de alguno de
-  // ellos. Se comprueba sobre el tablero completo, no confiando en de-donde
-  // vino cada pieza.
-  const ocupadas = [lasers[0].emitter, ...targets];
+  const ocupadas = [laser.emitter, ...targets];
   if (ocupadas.some((p) => piezas[p.row][p.col] !== PIEZA.VACIO)) return null;
 
-  return { modo: 'condensador', size, lasers, targets, piezas };
+  // Y el propio magenta, ya fundido, tiene que entrar alineado a SU diana.
+  const baseConDiana = { size, modo: 'condensador', lasers, targets, blocks: [] };
+  const okFinal = realineaSiHaceFalta(baseConDiana, piezas, piezasVertice, laser, 'magenta', fin);
+  if (!okFinal) return null;
+
+  return { modo: 'condensador', size, lasers, targets, piezas, piezasVertice };
 }
 
 // Cuantos intentos de seed (mulberry32(seed + intento*15485863)) hacen falta
@@ -736,11 +935,27 @@ function construirCondensador(rand, size) {
 // los dos hijos del prisma compartan una celda libre, con mucho el mas
 // exigente -- 335.8 (max 1300). Con 600 fallaban 13 de los 89 seeds de
 // condensador. Al excluir el total de dos piezas en medio y grande (ver
-// MIN_PIEZAS) el peor caso sube: barriendo seed=1..900 el maximo pasa a
-// 1816 intentos (condensador, que ya iba mas justo antes del cambio), con
-// clasico y prisma bastante mas holgados. 3000 deja margen de nuevo sobre
-// ese maximo, con cero fallos en esos 900 seeds.
-const MAX_INTENTOS = 3000;
+// MIN_PIEZAS) el peor caso sube: barriendo seed=1..900 el maximo pasaba a
+// 1816 intentos (condensador), con clasico y prisma bastante mas holgados.
+//
+// La Task 2 (diana/prisma/condensador exigen llegar al centro exacto, no
+// solo cruzar la celda) subio ese maximo mucho mas de lo que parecia: dos
+// seeds concretos (2 y 20280606, los que fallaban en generador.test.js)
+// necesitaban 16005 y 9025 intentos respectivamente para encontrar CUALQUIER
+// construccion valida -- muy por encima de los 3000 de antes. No es que
+// hiciera falta el espejo-vertice de la Task 5 para esos dos seeds en
+// concreto (probado: la version SIN vertice, solo con MAX_INTENTOS mas alto,
+// tambien los resuelve exactamente en esos mismos intentos); es que la
+// regla de centrado hace mucho mas raro un `condensador` valido por intento,
+// y el vertice ayuda en OTROS casos (barriendo seed=0..8000 sin acotar por
+// modo, 1 de cada 9 condensador aceptados usa un vertice -- ver
+// `tests/laser/generador.test.js`, "llegada alineada por construccion").
+// Medido de nuevo barriendo seed=0..499 con la Task 5 ya puesta y un tope de
+// 30000: condensador sube a 17269 intentos en el peor caso, clasico a 1711,
+// prisma a 282; cero fallos en esos 500 seeds. 25000 deja margen sobre ese
+// maximo (una llamada en el peor caso medido tarda ~1,7s, nada para un cron
+// diario).
+const MAX_INTENTOS = 25000;
 
 // El minimo excluye el caso de dos piezas en medio y grande: sin esto, un
 // 7x7 (un dia entero de espera) podia salir tan barato de resolver como un
@@ -770,11 +985,12 @@ export function buildLaserPuzzle(seed) {
 
     const blocks = colocaBloques(rand, size, hecho);      // como hoy: fuera de trayectos y objetos
     const config = { size, modo, lasers: hecho.lasers, targets: hecho.targets, blocks };
-    const total = hecho.piezas.flat().filter(Boolean).length;
+    const total = hecho.piezas.flat().filter(Boolean).length
+      + hecho.piezasVertice.flat().filter(Boolean).length;
     if (total < MIN_PIEZAS[variant] || total > MAX_PIEZAS[variant]) continue;
 
-    if (resuelto(config, crearPiezas(size))) continue;     // no puede venir resuelto
-    if (!resuelto(config, hecho.piezas)) continue;         // la solucion tiene que valer
+    if (resuelto(config, crearPiezas(size), crearPiezasVertice(size))) continue; // no puede venir resuelto
+    if (!resuelto(config, hecho.piezas, hecho.piezasVertice)) continue;          // la solucion tiene que valer
     if (piezasMinimas(config, total - 1) !== null) continue; // el par tiene que ser el minimo
 
     const base = size === 5 ? 2 : (size === 6 ? 3 : 4);
@@ -782,7 +998,7 @@ export function buildLaserPuzzle(seed) {
       variant, modo, size, lasers: hecho.lasers, targets: hecho.targets, blocks,
       min_piezas: total,
       dificultad: Math.min(5, base + (modo === 'clasico' ? 0 : 1)),
-      solucion: { piezas: hecho.piezas.map((f) => [...f]) },
+      solucion: { piezas: hecho.piezas.map((f) => [...f]), piezasVertice: hecho.piezasVertice.map((f) => [...f]) },
       intentos: intento + 1
     };
   }

@@ -2,11 +2,20 @@ import { describe, it, expect } from 'vitest'
 import { simularHaz, simularTodos, normalizaConfig, crearPiezas, PIEZA } from '../../scripts/laser-triangular-logic.js'
 
 // Emisor en (2,0) disparando a la derecha; el prisma va en (2,2).
+//
+// Las dianas van en (0,4) y (4,4), no en (0,5)/(5,4): la regla de llegada al
+// centro (Task 2) exige que el hijo entre alineado, y el hijo de un prisma
+// sale con direccion diagonal EXACTA (sin ningun espejo que lo realinee), asi
+// que solo llega centrado a una celda que este sobre esa misma recta. Para
+// 'ne' (dx=1,dy=-1) esa recta es row+col == 4 (col 5 cae fuera de ella y el
+// rayo solo roza su esquina, ver 'fuera' comprobado antes de este ajuste);
+// para 'se' (dx=1,dy=1) es row == col. (0,4) y (4,4) son las primeras celdas
+// de cada recta, alcanzables sin salir antes del tablero.
 const BASE = {
   size: 6,
   modo: 'prisma',
   lasers: [{ emitter: { row: 2, col: 0, dir: 'right' }, color: 'neutro' }],
-  targets: [{ row: 0, col: 5, color: 'azul' }, { row: 5, col: 4, color: 'rojo' }],
+  targets: [{ row: 0, col: 4, color: 'azul' }, { row: 4, col: 4, color: 'rojo' }],
   blocks: []
 }
 
@@ -17,9 +26,9 @@ const conPrisma = () => {
 }
 
 // Trayecto real (comprobado con un script de traza, no viene del brief):
-// tronco    (2,0) (2,1) (2,2)                         resultado 'prisma'
-// azul 'ne' (2,2) (2,3) (1,3) (1,4) (0,4) (0,5)        resultado 'diana'
-// rojo 'se' (2,2) (3,2) (3,3) (4,3) (4,4) (5,4)        resultado 'diana'
+// tronco    (2,0) (2,1) (2,2)                   resultado 'prisma'
+// azul 'ne' (2,2) (2,3) (1,3) (1,4) (0,4)        resultado 'diana'
+// rojo 'se' (2,2) (3,2) (3,3) (4,3) (4,4)        resultado 'diana'
 //
 // El azul pasa una celda extra por la fila 2 -- (2,3) -- antes de subir a la
 // fila 1. No es un bug: el punto de arranque de un hijo de prisma es siempre
@@ -76,14 +85,14 @@ describe('prisma', () => {
   })
 
   it('una diana solo se da por alcanzada por un rayo de su color', () => {
-    const c = normalizaConfig({ ...BASE, targets: [{ row: 0, col: 5, color: 'rojo' }, { row: 5, col: 4, color: 'rojo' }] })
+    const c = normalizaConfig({ ...BASE, targets: [{ row: 0, col: 4, color: 'rojo' }, { row: 4, col: 4, color: 'rojo' }] })
     const { tramos } = simularHaz(c, conPrisma(), c.lasers[0])
     const azul = tramos.find((t) => t.color === 'azul')
     // Trayecto determinista (documentado en el informe de la tarea): el hijo
-    // azul llega a (0,5), que aqui es diana rojo. Se afirma el trayecto antes
+    // azul llega a (0,4), que aqui es diana rojo. Se afirma el trayecto antes
     // de afirmar el resultado para que, si el trazador cambia y deja de pasar
     // por ahi, el test falle en vez de callarse.
-    expect(azul.squaresPath.some((p) => p.row === 0 && p.col === 5)).toBe(true)
+    expect(azul.squaresPath.some((p) => p.row === 0 && p.col === 4)).toBe(true)
     expect(azul.resultado).toBe('diana-ajena')
   })
 })

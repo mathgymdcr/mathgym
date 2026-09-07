@@ -2374,7 +2374,6 @@ li {
 }
 
 .laser-board {
-  --laser-cell-size: 36px;
   display: grid;
   grid-template-columns: repeat(var(--laser-cols), var(--laser-cell-size));
   gap: 2px;
@@ -2383,9 +2382,13 @@ li {
 }
 
 /* Envoltorio de la malla triangular (laser_triangular.js): apila el
-   tablero y el SVG de los rayos en el mismo rectángulo, para poder
-   dibujar líneas finas por encima de las celdas */
+   tablero, el SVG de los rayos y la capa de vertices en el mismo
+   rectángulo, para poder dibujar líneas finas y botones de vértice por
+   encima de las celdas. --laser-cell-size vive aquí (no en .laser-board)
+   porque la capa de vértices es HERMANA de .laser-board, no descendiente:
+   una custom property no cruza entre hermanos, solo de padre a hijo. */
 .laser-board-stack {
+  --laser-cell-size: 36px;
   position: relative;
   width: fit-content;
   margin: 8px auto;
@@ -2416,6 +2419,61 @@ li {
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
   opacity: 0.95;
+}
+
+/* Espejos-vertice: viven en el BORDE compartido por dos celdas (retícula
+   (n+1)x(n+1)), no dentro de ninguna, así que se dibujan en una capa
+   aparte por encima del tablero -- por orden en el DOM (se añade tras el
+   SVG), no por z-index, igual que el resto de esta hoja. */
+.laser-vertice-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.laser-vertice {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Mismo lenguaje visual que un espejo normal (.laser-pieza[data-pieza]):
+   barra reflectante blanca con resplandor, no un color aparte -- es la
+   MISMA pieza, solo que anclada en el vértice en vez de dentro de una
+   celda. Más corta (70% de la celda, no 100%) porque cubre solo la mitad
+   del borde compartido, no el ancho entero de una celda. */
+.laser-vertice::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  height: 3px;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(90deg, transparent, #fff, #f3d9f1, #fff, transparent);
+  border-radius: 2px;
+  opacity: 0;
+}
+
+.laser-vertice:hover::after {
+  opacity: 0.35;
+  background: #ffd23b;
+}
+
+.laser-vertice[data-pieza="horiz"]::after,
+.laser-vertice[data-pieza="vert"]::after {
+  opacity: 1;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+.laser-vertice[data-pieza="vert"]::after {
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 
 .laser-cell {
@@ -2777,7 +2835,7 @@ li {
 .laser-board { touch-action: none; }
 
 @media (max-width: 560px) {
-  .laser-board {
+  .laser-board-stack {
     --laser-cell-size: 30px;
   }
 }

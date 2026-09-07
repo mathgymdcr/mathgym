@@ -6,28 +6,28 @@
     {
       "emitter": {
         "row": 2,
-        "col": 3,
-        "dir": "right"
+        "col": 5,
+        "dir": "sw"
       },
       "color": "neutro"
     }
   ],
   "targets": [
     {
-      "row": 1,
-      "col": 6,
+      "row": 6,
+      "col": 0,
       "color": "magenta"
     }
   ],
   "blocks": [
     {
-      "row": 5,
-      "col": 2
+      "row": 4,
+      "col": 5
     },
     {
-      "row": 0,
-      "col": 4
+      "row": 2,
+      "col": 0
     }
   ],
-  "min_piezas": 3
+  "min_piezas": 4
 }
