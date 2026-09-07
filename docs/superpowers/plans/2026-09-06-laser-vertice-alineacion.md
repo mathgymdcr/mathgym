@@ -1452,29 +1452,50 @@ git commit -m "feat(laser): script de auditoria de alineacion sobre el archivo p
 **Files:**
 - No modifica código de producción — regenera artefactos derivados.
 
-- [ ] **Step 1: Regenerar el muestrario**
+- [x] **Step 1: Regenerar el muestrario**
 
 Run: `node scripts/generate-muestrario.js`
 Expected: sale sin error; revisar `git diff data/muestra/laser-triangular.json` — como el esquema del payload no cambió (Constraint global), el diff debería ser vacío o mínimo. Si `min_piezas` cambia para la semilla fija del ejemplo, es señal de que esa semilla ahora necesita un espejo-vértice: normal, dejar el diff.
 
-- [ ] **Step 2: Regenerar la matriz de debug**
+- [x] **Step 2: Regenerar la matriz de debug**
 
 Run: `node scripts/generate-debug-matrix.js`
 Expected: sale sin error.
 
-- [ ] **Step 3: Suite completa**
+- [x] **Step 3: Suite completa**
 
 Run: `npx vitest run`
 Expected: PASS en todo el repo, no solo en `tests/laser/` y `tests/plantillas/`.
 
-- [ ] **Step 4: Smoke test y validación completa**
+- [x] **Step 4: Smoke test y validación completa**
 
 Run: `node scripts/test-generator.js && node scripts/validate-retos.js --latest`
 Expected: PASS.
 
-- [ ] **Step 5: Commit de los artefactos regenerados**
+- [x] **Step 5: Commit de los artefactos regenerados**
 
 ```bash
 git add data/muestra/laser-triangular.json data/debug/
 git commit -m "chore(laser): regenera muestrario y matriz de debug tras el espejo-vertice"
 ```
+
+**Dos hallazgos de esta Task, para no repetir el analisis:**
+
+1. `node scripts/generate-debug-matrix.js` regenera LOS 12 TIPOS, no solo laser --
+   trajo tambien un diff en `data/debug/riego-plantas/*.json` y en las entradas de
+   riego de `matrix.json` (dificultad +1 en las tres variantes), por un commit
+   AJENO en `main` (`3a82e42 Anadir pareja incompatible y paridad a riego-plantas`)
+   que nunca regenero la matriz. Revertido (`git checkout`) antes de comitear: no es
+   contenido de esta rama, y mezclarlo aqui lo haria mas dificil de rastrear cuando
+   se audite el historial de riego-plantas.
+2. `node scripts/validate-retos.js --latest` fallaba con `ENOENT` sobre
+   `data/riego_2026-09-07.json` -- `reto.json` llevaba desde el commit de Task 3
+   (`1c668a6`) con contenido de un smoke test (`node scripts/test-generator.js`)
+   comitido SIN limpiar (viola la regla de siempre barrer lo que ese script ensucia)
+   y sin su data file. Arreglado en un commit aparte (`8809f01`, antes de este),
+   restaurando `reto.json` a juego con `retos/2026-09-06.json` (el ultimo daily
+   reto real archivado en esta rama, ya consistente con `data/laser_2026-09-06.json`).
+
+Con esto, **el plan de las 10 Tasks queda completo**. Pendiente fuera de alcance
+(spec seccion 9): decidir que hacer si `scripts/audita-laser-alineacion.js`
+alguna vez marca un reto publicado como desalineado (a fecha de este commit: 0/2).
