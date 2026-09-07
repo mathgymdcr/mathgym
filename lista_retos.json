@@ -162,5 +162,14 @@
       "logica",
       "geometria"
     ]
+  },
+  {
+    "fecha": "2026-09-07",
+    "titulo": "El Riego",
+    "dificultad": 5,
+    "categorias": [
+      "logica",
+      "planificacion"
+    ]
   }
 ]
