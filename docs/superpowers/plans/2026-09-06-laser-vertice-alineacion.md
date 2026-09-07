@@ -1260,7 +1260,7 @@ mismo efecto, no una regresion nueva.
 
 `validateLaserData` (`scripts/validate-retos.js:788-884`) no necesita cambios de código: ya delega toda la comprobación de solvencia en `piezasMinimas(c, declarados)`, que las Tareas 1-4 ya volvieron consciente de vértices y de la llegada al centro. Este task es solo prueba de que esa cadena funciona junta.
 
-- [ ] **Step 1: Escribir el test**
+- [x] **Step 1: Escribir el test**
 
 `validateLaserData` lee `reto.data.json_url` con `fs.readFile` (es una ruta de fichero real, no una URL de red — ver `scripts/validate-retos.js:793`), así que el test escribe un fichero temporal con el helper `escribe` que el propio fichero ya define (línea 7-12), igual que el resto de tests de este `describe`:
 
@@ -1288,12 +1288,12 @@ describe('validador: reto de condensador que necesita espejo-vertice', () => {
 })
 ```
 
-- [ ] **Step 2: Ejecutar**
+- [x] **Step 2: Ejecutar**
 
 Run: `npx vitest run tests/laser/validador.test.js`
 Expected: PASS sin cambios de código en `scripts/validate-retos.js` — es la prueba de que `piezasMinimas` ya extendido (Task 4) es suficiente.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add tests/laser/validador.test.js
