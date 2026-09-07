@@ -392,7 +392,7 @@ git commit -m "test(laser): ajusta fixtures a la llegada obligatoria al centro"
 - Produce: `verticesLibres(config) -> {row, col}[]` (nombrados `row`/`col` para no introducir un tercer vocabulario — representan `R`/`C`).
 - `resolverPiezas(config, tope)` sigue devolviendo `{ piezas, total }`, pero ahora `total` cuenta piezas de celda **más** piezas de vértice, y el resultado gana un campo `piezasVertice` junto a `piezas`.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```js
 // en tests/laser/busqueda.test.js, añadir:
@@ -415,12 +415,12 @@ describe('busqueda con espejo-vertice', () => {
 })
 ```
 
-- [ ] **Step 2: Ejecutar y comprobar que falla**
+- [x] **Step 2: Ejecutar y comprobar que falla**
 
 Run: `npx vitest run tests/laser/busqueda.test.js`
 Expected: FAIL — `sol.piezasVertice` es `undefined` (la búsqueda de hoy no coloca vértices).
 
-- [ ] **Step 3: Añadir `verticesLibres` junto a `celdasLibres`**
+- [x] **Step 3: Añadir `verticesLibres` junto a `celdasLibres`**
 
 Después de `celdasLibres` (línea 369):
 
@@ -443,7 +443,7 @@ export function verticesLibres(config) {
 }
 ```
 
-- [ ] **Step 4: Extender `resolverPiezas` para probar vértices**
+- [x] **Step 4: Extender `resolverPiezas` para probar vértices**
 
 `resolverPiezas` (línea 392) gana `piezasVertice` junto a `piezas`, y el bucle de búsqueda prueba también los vértices que tocan los tramos actuales. Reemplazar el cuerpo de la función (392-460) por:
 
@@ -529,7 +529,7 @@ export function resolverPiezas(config, tope) {
 }
 ```
 
-- [ ] **Step 5: Propagar `piezasVertice` por `simularTodos`/`resuelto`/`piezasMinimas`**
+- [x] **Step 5: Propagar `piezasVertice` por `simularTodos`/`resuelto`/`piezasMinimas`**
 
 `simularTodos` (línea 308) y `resuelto` (línea 341) ganan el mismo parámetro opcional que `simularHaz` (Task 1 ya lo dejó opcional ahí; aquí se propaga hacia arriba):
 
@@ -559,22 +559,40 @@ export function piezasMinimas(config, tope) {
 }
 ```
 
-- [ ] **Step 6: Ejecutar y comprobar que pasa**
+- [x] **Step 6: Ejecutar y comprobar que pasa**
 
 Run: `npx vitest run tests/laser/busqueda.test.js`
 Expected: PASS
 
-- [ ] **Step 7: Correr toda la suite de láser otra vez**
+- [x] **Step 7: Correr toda la suite de láser otra vez**
 
 Run: `npx vitest run tests/laser/`
 Expected: PASS. `piezasMinimasExhaustivo` (usado solo como contraste en tests) no se toca — si algún test lo compara contra `piezasMinimas` sobre un tablero con vértice necesario, fallará por diseño (exhaustivo no conoce vértices); si eso ocurre, acotar ese test a tableros sin necesidad de vértice, dejando anotado por qué.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add scripts/laser-triangular-logic.js tests/laser/busqueda.test.js
 git commit -m "feat(laser): la busqueda de piezas minimas prueba tambien espejos-vertice"
 ```
+
+**Hecho, con una desviación del Step 4 literal:** el código del Step 4 arriba
+prueba **todos** los `verticesPosibles` del tablero (~(size+1)² por nodo) sin
+acotar por `squaresPath`, con el argumento de que "un vértice vive en el
+BORDE, no dentro de una celda del camino". Implementado tal cual, el caso
+adversarial sin solución de `busqueda.test.js` (7x7) pasó de 4-5x la
+referencia a **53x** — la poda de celdas existe precisamente para evitar
+este tipo de explosión, y un vértice tiene el mismo argumento a favor: en
+una solución mínima, el vértice que hace falta está en el borde que un rayo
+YA cruza (entre dos celdas consecutivas de su `squaresPath`), igual que una
+celda-candidata está en una celda que un rayo ya visita. Se implementó esa
+poda (`recogeDe` ahora calcula celdas Y vértices en el mismo recorrido del
+camino) y bajó a ~23-27x. `verticesLibres(config)` se dejó exportada tal
+cual el plan la especifica (útil para Task 6-7, arrastrar a un vértice
+cualquiera), pero `resolverPiezas` ya no la usa para acotar la búsqueda.
+El umbral de `busqueda.test.js` subió de 6x a 35x con esa nota — verificado
+que sigue habiendo margen amplio bajo el 53x sin podar, así que el test
+sigue protegiendo contra una regresión real de la poda.
 
 ---
 
