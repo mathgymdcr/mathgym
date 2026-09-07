@@ -611,7 +611,7 @@ Los números de línea de arriba son los del archivo **antes** de las Tareas 1-4
 - Cada `construir*` sigue devolviendo `{ modo, size, lasers, targets, piezas }`, y gana `piezasVertice` en ese mismo objeto.
 - `buildLaserPuzzle(seed)` gana `solucion.piezasVertice` junto a `solucion.piezas`.
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```js
 // en tests/laser/generador.test.js, añadir:
@@ -634,12 +634,12 @@ describe('generador: llegada alineada por construccion', () => {
 });
 ```
 
-- [ ] **Step 2: Ejecutar y comprobar que falla**
+- [x] **Step 2: Ejecutar y comprobar que falla**
 
 Run: `npx vitest run tests/laser/generador.test.js`
 Expected: FAIL en algunos seeds — `resuelto(...)` da `false` porque la construcción de hoy no realinea.
 
-- [ ] **Step 3: Función compartida para realinear una pierna**
+- [x] **Step 3: Función compartida para realinear una pierna**
 
 Recibe el árbol completo ya construido (`config` con sus dianas/condensador reales, o vacías si aún no existen — ver Steps 4-5), el `color` del tramo a comprobar y el `destino` exacto (`{row,col}`) al que ese tramo debe llegar. Se necesita `destino` explícito porque, bajo la regla de llegada al centro (Task 2), un tramo que entra desalineado **no se detiene** en esa celda — sigue de largo — así que ni "el último punto de `squaresPath`" ni "`resultado === 'diana'`" identifican por sí solos dónde estaba tratando de llegar. Añadir antes de `construirPrisma` (línea 649):
 
@@ -703,7 +703,7 @@ function realineaSiHaceFalta(config, piezas, piezasVertice, laserRaiz, color, de
 }
 ```
 
-- [ ] **Step 4: Separar la construcción del árbol, y usar `realineaSiHaceFalta` en `construirPrisma`**
+- [x] **Step 4: Separar la construcción del árbol, y usar `realineaSiHaceFalta` en `construirPrisma`**
 
 `construirCondensador` reutiliza hoy `construirPrisma` entero (línea 700-701: `const previo = construirPrisma(rand, size); ...`), pero eso ya no vale: la realineación de `construirPrisma` apunta a las dianas **propias** del modo prisma, que el modo condensador ni usa ni necesita, y podría fallar (o desviar los hijos) por una razón que no le afecta. Hace falta partir `construirPrisma` en dos: el árbol compartido (emisor + prisma + espejos opcionales, sin dianas todavía) y el cierre específico de cada modo.
 
@@ -768,7 +768,7 @@ function construirPrisma(rand, size) {
 }
 ```
 
-- [ ] **Step 5: Reescribir `construirCondensador` sobre `construirArbolPrisma`**
+- [x] **Step 5: Reescribir `construirCondensador` sobre `construirArbolPrisma`**
 
 Sustituir `construirCondensador` completo (línea 699-730) por:
 
@@ -815,7 +815,7 @@ function construirCondensador(rand, size) {
 }
 ```
 
-- [ ] **Step 6: `construirClasico` también puede necesitarlo**
+- [x] **Step 6: `construirClasico` también puede necesitarlo**
 
 En `construirClasico` (línea 616), cada láser ya tiene su propio color (`neutro-1`/`neutro-2`) y su propio `target`, calculados por `construirUnLaser` (sin cambios). Sustituir el cuerpo de `construirClasico` (línea 616-644) por:
 
@@ -851,7 +851,7 @@ function construirClasico(rand, size) {
 }
 ```
 
-- [ ] **Step 7: Propagar en `buildLaserPuzzle`**
+- [x] **Step 7: Propagar en `buildLaserPuzzle`**
 
 En `buildLaserPuzzle` (línea 760), donde hoy se hace:
 
@@ -884,22 +884,55 @@ y en el objeto devuelto, `total` debe contar también los vértices:
     };
 ```
 
-- [ ] **Step 8: Ejecutar y comprobar que pasa**
+- [x] **Step 8: Ejecutar y comprobar que pasa**
 
 Run: `npx vitest run tests/laser/generador.test.js`
 Expected: PASS
 
-- [ ] **Step 9: Correr el smoke test del generador**
+- [x] **Step 9: Correr el smoke test del generador**
 
 Run: `node scripts/test-generator.js`
 Expected: PASS. Si `MAX_INTENTOS` empieza a agotarse con frecuencia (porque ahora se descartan más intentos cuando ni siquiera la realineación encuentra hueco), medirlo aquí y anotarlo — no subir `MAX_INTENTOS` sin medir antes, siguiendo el patrón que ya documenta el propio archivo junto a esa constante.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add scripts/laser-triangular-logic.js tests/laser/generador.test.js
 git commit -m "feat(laser): el generador inserta espejo-vertice cuando la llegada no alinea"
 ```
+
+**Hallazgo real, para no repetir el analisis:** el sintoma que motivo esta
+Task (7 fallos en `generador.test.js`, todos "No se pudo generar... modo=condensador"
+para seeds concretos como 2 y 20280606) **NO** era por falta de soporte de
+vertice en el generador -- era `MAX_INTENTOS=3000` insuficiente. Probado:
+la version SIN NINGUN cambio de esta Task (el commit anterior, `git show
+HEAD:...` de antes de este commit), con SOLO `MAX_INTENTOS` subido a 25000,
+resuelve esos DOS seeds exactamente en los MISMOS intentos (16005 y 9025)
+que con el codigo de esta Task puesto. La Task 2 (llegada al centro exacto)
+hizo mucho mas raro un `condensador` valido por intento -- de un maximo
+medido de 1816 (barrido de seed 1..900, antes de Task 2) a 17269 (barrido
+de seed 0..499, con Task 2 y la Task 5 ya puestas, tope de medicion 30000,
+cero fallos) --, y **eso** es lo que agotaba `MAX_INTENTOS=3000`, no la
+ausencia de vertice.
+
+El mecanismo de vertice (`realineaSiHaceFalta`) SI funciona -- confirmado
+con un barrido de seed=0..8000 sin acotar por seed real: en condensador,
+1 de cada 9 intentos aceptados usa un vertice; en clasico, ~11% (55/493);
+en prisma, ~5% (33/654) -- pero para revertir el sintoma original bastaba
+con subir `MAX_INTENTOS`. La Task 5 sigue siendo valida y util (mejora la
+tasa de exito real, sobre todo en clasico/prisma), solo que su premisa
+("el generador no puede resolver estos seeds SIN vertice") era incorrecta;
+el test nuevo de este commit ("llegada alineada por construccion", barrido
+de 200 seeds) verifica que el mecanismo se usa de verdad y produce un reto
+resoluble, no que sea LA causa de esos 7 fallos concretos.
+
+Coste medido: la suite completa paso de bajo 2 min a ~300s (`npx vitest
+run`), casi todo en `tests/laser/generador.test.js` (300s) y
+`tests/laser/compatibilidad.test.js`/`hints.test.js` (45-50s cada uno) --
+directo de que `MAX_INTENTOS` es ahora 8x mas alto y estos tests generan
+puzzles de verdad, varios en modo condensador. Sigue siendo aceptable para
+CI (nada cerca de un timeout) y para el cron diario (~1,7s el peor caso
+medido de una sola llamada).
 
 ---
 
