@@ -351,9 +351,10 @@ export function simularHaz(config, piezas, laser, piezasVertice) {
 // condensador -- que son justamente los sitios donde los rayos se encuentran
 // a proposito. En clasico esto es exactamente la regla de hoy ("dos rayos no
 // comparten celda").
-export function simularTodos(config, piezas) {
+export function simularTodos(config, piezas, piezasVertice) {
   const c = normalizaConfig(config);
-  const tramos = c.lasers.flatMap((l) => simularHaz(c, piezas, l).tramos);
+  const pv = piezasVertice || crearPiezasVertice(c.size);
+  const tramos = c.lasers.flatMap((l) => simularHaz(c, piezas, l, pv).tramos);
 
   const visitas = new Map();
   tramos.forEach((tramo, idx) => {
@@ -384,9 +385,9 @@ export function simularTodos(config, piezas) {
 
 // Condición de victoria de la plantilla: todas las dianas alcanzadas por su
 // color y sin cruces.
-export function resuelto(config, piezas) {
+export function resuelto(config, piezas, piezasVertice) {
   const c = normalizaConfig(config);
-  const { cruces, dianasAlcanzadas } = simularTodos(c, piezas);
+  const { cruces, dianasAlcanzadas } = simularTodos(c, piezas, piezasVertice);
   return c.targets.length > 0 && cruces.size === 0 &&
     c.targets.every((t) => dianasAlcanzadas.has(`${t.row},${t.col}`));
 }
@@ -414,6 +415,23 @@ export function celdasLibres(config) {
   return libres;
 }
 
+// Vertices donde se puede anclar un espejo-vertice: para horizontal hacen
+// falta columna-1 y columna dentro del tablero (necesita celda a cada
+// lado); para vertical, fila-1 y fila. Un mismo vertice puede admitir uno
+// u otro tipo (o ninguno) segun esa disponibilidad; celdasLibres no aplica
+// aqui porque un vertice no "pertenece" a una celda concreta.
+export function verticesLibres(config) {
+  const libres = [];
+  for (let R = 0; R <= config.size; R++) {
+    for (let C = 0; C <= config.size; C++) {
+      const horizPosible = C >= 1 && C <= config.size - 1;
+      const vertPosible = R >= 1 && R <= config.size - 1;
+      if (horizPosible || vertPosible) libres.push({ row: R, col: C });
+    }
+  }
+  return libres;
+}
+
 // Menor número de piezas con el que se puede resolver, probando 0, 1, 2...
 // hasta `tope`. Devuelve null si no se resuelve con `tope` piezas o menos.
 // Es lo que convierte el "par" del reto en un dato comprobado en vez de en
@@ -430,7 +448,8 @@ export function celdasLibres(config) {
 // y tests/laser comprueba que las dos coinciden.
 export function piezasMinimas(config, tope) {
   const sol = resolverPiezas(config, tope);
-  return sol === null ? null : sol.piezas.flat().filter(Boolean).length;
+  return sol === null ? null : sol.piezas.flat().filter(Boolean).length
+    + sol.piezasVertice.flat().filter(Boolean).length;
 }
 
 // Igual que piezasMinimas pero devolviendo la colocación encontrada, para
@@ -438,7 +457,8 @@ export function piezasMinimas(config, tope) {
 export function resolverPiezas(config, tope) {
   const c = normalizaConfig(config);
   const piezas = crearPiezas(c.size);
-  if (resuelto(c, piezas)) return { piezas, total: 0 };
+  const piezasVertice = crearPiezasVertice(c.size);
+  if (resuelto(c, piezas, piezasVertice)) return { piezas, piezasVertice, total: 0 };
 
   const libres = new Set(celdasLibres(c).map((x) => `${x.row},${x.col}`));
   const tipos = tiposDisponibles(c.modo);
@@ -456,20 +476,57 @@ export function resolverPiezas(config, tope) {
   const fallidos = new Set();
 
   const buscar = (restantes) => {
-    if (restantes === 0) return resuelto(c, piezas);
+    if (restantes === 0) return resuelto(c, piezas, piezasVertice);
     const firma = `${restantes}|${[...puestas].sort().join(' ')}`;
     if (fallidos.has(firma)) return false;
 
-    const { tramos } = simularTodos(c, piezas);
+    const { tramos } = simularTodos(c, piezas, piezasVertice);
+    // Celdas y vertices candidatos salen del MISMO recorrido de squaresPath
+    // (dos pasadas por separado costaba el doble por nodo sin ganar nada:
+    // medido, la primera version con pasadas separadas ya llevaba el caso
+    // adversarial de 7x7 sin solucion a 4x el tiempo de busqueda de antes de
+    // aniadir vertices). Una celda se recoge por si misma; un vertice, del
+    // borde que comparten dos celdas CONSECUTIVAS del camino -- vive en el
+    // borde, no "pertenece" a ninguna celda, y por eso no sale de recorrer
+    // celdas sueltas.
     const vistas = new Set();
     const candidatas = [];
+    const vistasV = new Set();
+    const candidatasVertice = [];
     const recogeDe = (lista) => {
       for (const tramo of lista) {
-        for (const { row, col } of tramo.squaresPath) {
+        const camino = tramo.squaresPath;
+        for (let i = 0; i < camino.length; i++) {
+          const { row, col } = camino[i];
           const k = `${row},${col}`;
-          if (vistas.has(k) || !libres.has(k) || piezas[row][col] !== PIEZA.VACIO) continue;
-          vistas.add(k);
-          candidatas.push({ row, col });
+          if (!vistas.has(k) && libres.has(k) && piezas[row][col] === PIEZA.VACIO) {
+            vistas.add(k);
+            candidatas.push({ row, col });
+          }
+          if (i === 0) continue;
+          const previo = camino[i - 1];
+          const fin = camino[i];
+          let tipo, primero, segundo;
+          if (previo.row === fin.row) {
+            tipo = PIEZA.VERT;
+            const C = Math.max(previo.col, fin.col);
+            if (C < 1 || C > c.size - 1) continue;
+            primero = { row: fin.row, col: C };
+            segundo = { row: fin.row + 1, col: C };
+          } else {
+            tipo = PIEZA.HORIZ;
+            const R = Math.max(previo.row, fin.row);
+            if (R < 1 || R > c.size - 1) continue;
+            primero = { row: R, col: fin.col };
+            segundo = { row: R, col: fin.col + 1 };
+          }
+          for (const v of [primero, segundo]) {
+            if (v.row < 0 || v.row > c.size || v.col < 0 || v.col > c.size) continue;
+            const kv = `${v.row},${v.col}:${tipo}`;
+            if (vistasV.has(kv) || piezasVertice[v.row][v.col] !== PIEZA.VACIO) continue;
+            vistasV.add(kv);
+            candidatasVertice.push({ row: v.row, col: v.col, tipo });
+          }
         }
       }
     };
@@ -489,18 +546,33 @@ export function resolverPiezas(config, tope) {
     for (const { row, col } of candidatas) {
       for (const tipo of tipos) {
         piezas[row][col] = tipo;
-        puestas.push(`${row},${col}:${tipo}`);
+        puestas.push(`c${row},${col}:${tipo}`);
         if (buscar(restantes - 1)) return true;
         puestas.pop();
         piezas[row][col] = PIEZA.VACIO;
       }
     }
+
+    for (const { row: R, col: C, tipo } of candidatasVertice) {
+      piezasVertice[R][C] = tipo;
+      puestas.push(`v${R},${C}:${tipo}`);
+      if (buscar(restantes - 1)) return true;
+      puestas.pop();
+      piezasVertice[R][C] = PIEZA.VACIO;
+    }
+
     fallidos.add(firma);
     return false;
   };
 
   for (let k = 1; k <= tope; k++) {
-    if (buscar(k)) return { piezas: piezas.map((f) => [...f]), total: k };
+    if (buscar(k)) {
+      return {
+        piezas: piezas.map((f) => [...f]),
+        piezasVertice: piezasVertice.map((f) => [...f]),
+        total: k
+      };
+    }
   }
   return null;
 }
