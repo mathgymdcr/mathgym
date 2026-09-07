@@ -1312,7 +1312,7 @@ git commit -m "test(laser): cobertura de extremo a extremo para un reto con espe
 - Produce: `auditaAlineacion(retos) -> { total, alineados, desalineados: [{fecha, motivo}] }`, función pura, testable sin tocar disco.
 - El script CLI (`node scripts/audita-laser-alineacion.js`) lee `lista_retos.json` + `data/`, llama a la función pura, y escribe `data/debug/auditoria-laser-alineacion.json` (un reporte, no un reto).
 
-- [ ] **Step 1: Escribir el test de la función pura**
+- [x] **Step 1: Escribir el test de la función pura**
 
 ```js
 // en tests/laser/compatibilidad.test.js, añadir:
@@ -1348,12 +1348,12 @@ describe('auditoria de alineacion sobre configs sueltas', () => {
 })
 ```
 
-- [ ] **Step 2: Ejecutar y comprobar que falla**
+- [x] **Step 2: Ejecutar y comprobar que falla**
 
 Run: `npx vitest run tests/laser/compatibilidad.test.js`
 Expected: FAIL — el módulo no existe.
 
-- [ ] **Step 3: Escribir `scripts/audita-laser-alineacion.js`**
+- [x] **Step 3: Escribir `scripts/audita-laser-alineacion.js`**
 
 ```js
 // ===== scripts/audita-laser-alineacion.js =====
@@ -1413,22 +1413,37 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 ```
 
-- [ ] **Step 4: Ejecutar y comprobar que pasa**
+- [x] **Step 4: Ejecutar y comprobar que pasa**
 
 Run: `npx vitest run tests/laser/compatibilidad.test.js`
 Expected: PASS
 
-- [ ] **Step 5: Correr el script de verdad sobre el archivo**
+- [x] **Step 5: Correr el script de verdad sobre el archivo**
 
 Run: `node scripts/audita-laser-alineacion.js`
 Expected: imprime el resumen; anotar el número de retos marcados — es la cifra que decide qué hacer con ellos (fuera de alcance de este plan, ver spec sección 9).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add scripts/audita-laser-alineacion.js tests/laser/compatibilidad.test.js
 git commit -m "feat(laser): script de auditoria de alineacion sobre el archivo publicado (solo lectura)"
 ```
+
+**Dos desviaciones, para no repetir el analisis:**
+1. El fixture "desalineado" del Step 1 (emisor `se` en un 2x2) resulta trivialmente
+   RESOLUBLE con 0 piezas -- mismo patron fantasma que el fixture de Task 4 (una
+   diagonal exacta sobre pocas celdas alinea sola). Se cambio por un caso sin
+   ambiguedad geometrica: un laser que emite `neutro-1` contra una diana que exige
+   `neutro-2` -- estructuralmente irresoluble, sin depender de la geometria fina.
+2. `lista_retos.json` (fecha/titulo/dificultad/categorias) **no lleva** un campo
+   `tipo` -- el `main()` del Step 3, tal cual, comparaba `entrada.tipo` (siempre
+   `undefined`) y no encontraba NUNCA un laser-triangular (0/0 en el barrido real).
+   El tipo solo vive en `retos/{fecha}.json`; se corrigio para abrir ese fichero
+   primero y filtrar ahi. Corrido de verdad sobre el archivo: **2/2 alineados, 0
+   marcados** (los dos unicos laser-triangular publicados hasta ahora,
+   2026-08-22 y 2026-09-06 -- consistente con que `tests/laser/compatibilidad.test.js`
+   ya verificaba esto mismo sobre los ficheros `data/laser_*.json`).
 
 ---
 
