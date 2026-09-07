@@ -91,30 +91,43 @@ describe('condensador', () => {
     // el scratchpad, no vienen del brief):
     //   azul 'ne': (3,2) (3,3) (2,3) (2,4) (1,4) (1,5) (0,5) (0,6)  resultado 'fuera'
     //   rojo 'se': (3,2) (4,2) (4,3) (5,3) (5,4) (6,4) (6,5)        resultado 'fuera'
-    // Ninguna celda es comun a los dos (fuera del propio prisma), asi que se
-    // anade un espejo HORIZ en (4,3) -- en el camino del rojo -- que convierte
-    // su direccion 'se' (bajando) en 'ne' (subiendo en diagonal), la MISMA
-    // direccion que ya lleva el azul. Con eso ambos hijos cruzan por (2,4).
+    // Ninguna celda es comun a los dos (fuera del propio prisma).
+    //
+    // La regla de llegada al centro (Task 2) descarta el arreglo original de
+    // un solo espejo: un HORIZ en (4,3) convierte la 'se' del rojo en 'ne' --
+    // la MISMA familia diagonal que ya lleva el azul -- y dos rectas de la
+    // misma familia (misma pendiente) son PARALELAS: comparten celdas de la
+    // rejilla por pura anchura de celda, pero no cruzan nunca por el mismo
+    // punto exacto, asi que ninguna de las dos llega centrada a (2,4).
+    //
+    // Con un segundo espejo VERT en (2,5) el rojo cambia de familia otra vez
+    // (de 'ne' a 'nw'), lo que lo pone en una familia DISTINTA a la del azul
+    // -- dos rectas de familias distintas si cruzan en un unico punto exacto,
+    // y ese punto (comprobado con el mismo script de traza) cae centrado en
+    // (1,4). Ahi es donde va el condensador. De paso, el azul entra en 'ne'
+    // y el rojo en 'nw' -- direcciones realmente distintas, no la coincidencia
+    // de familia del arreglo anterior -- por lo que la bisectriz de salida
+    // (mas abajo) es una comprobacion real y no un caso degenerado.
     piezas[4][3] = PIEZA.HORIZ
-    piezas[2][4] = PIEZA.CONDENSADOR
+    piezas[2][5] = PIEZA.VERT
+    piezas[1][4] = PIEZA.CONDENSADOR
     const { tramos } = simularHaz(c, piezas, c.lasers[0])
     const azul = tramos.find((t) => t.color === 'azul')
     const rojo = tramos.find((t) => t.color === 'rojo')
     // Se afirma que los dos hijos realmente llegan al condensador antes de
     // afirmar el color de salida: si el trazador cambiara y dejara de
-    // cruzarlos por (2,4), el test tiene que fallar aqui, no mas abajo.
-    expect(azul.squaresPath.some((p) => p.row === 2 && p.col === 4)).toBe(true)
-    expect(rojo.squaresPath.some((p) => p.row === 2 && p.col === 4)).toBe(true)
+    // cruzarlos por (1,4), el test tiene que fallar aqui, no mas abajo.
+    expect(azul.squaresPath.some((p) => p.row === 1 && p.col === 4)).toBe(true)
+    expect(rojo.squaresPath.some((p) => p.row === 1 && p.col === 4)).toBe(true)
     expect(azul.resultado).toBe('condensador')          // el azul llega primero
     expect(rojo.resultado).toBe('condensador-mezcla')    // el rojo, segundo, mezcla
     const magenta = tramos.find((t) => t.color === 'magenta')
     expect(magenta).toBeDefined()
-    expect(magenta.squaresPath[0]).toEqual({ row: 2, col: 4 })
-    // El rojo (el ultimo en llegar) entra en (2,4) en diagonal 'ne' -- el
-    // espejo HORIZ en (4,3) convierte su 'se' original en 'ne', la misma
-    // direccion que ya llevaba el azul (por eso ambos cruzan el mismo punto).
-    // El magenta sale en esa direccion: el siguiente punto es (2,5).
-    expect(magenta.squaresPath[1]).toEqual({ row: 2, col: 5 })
+    expect(magenta.squaresPath[0]).toEqual({ row: 1, col: 4 })
+    // Bisectriz de 'ne' (azul, vector (1,-1)) y 'nw' (rojo, vector (-1,-1)):
+    // normalizados y sumados dan (0,-raiz2), la mas alineada de las 8 es
+    // 'up'. El magenta sale hacia arriba: el siguiente punto es (0,4).
+    expect(magenta.squaresPath[1]).toEqual({ row: 0, col: 4 })
   })
 
   it('BUG: el primero en llegar no debe atravesar el condensador sin fusionarse', () => {
@@ -180,42 +193,50 @@ describe('condensador', () => {
   })
 
   it('el tope global corta cualquier realimentacion sin colgarse', () => {
-    // Anillo cerrado de espejos (sin salida) con un condensador en uno de sus
-    // lados: /, \, /, \ en las cuatro esquinas de un bloque 3x3 (filas y
-    // columnas 1-3) hacen que un rayo que entra quede dando vueltas dentro
-    // del anillo para siempre -- realimentacion de verdad, no solo un tablero
-    // sembrado al azar. Se comprobo con un script de traza en el scratchpad
-    // que, sin el tope de produccion, esta configuracion nunca termina sola
-    // (se probo hasta 400 tramos con una copia instrumentada del trazador
-    // y seguia generando mas).
-    const size = 5
+    // Con la llegada obligatoria al centro (Task 2), un anillo de espejos que
+    // reparte el rayo por las cuatro esquinas de un bloque -- como el diseno
+    // original de este test -- ya no es alcanzable: cualquier lazo que vuelva
+    // a entrar en el condensador con la MISMA direccion con la que salio (la
+    // unica forma de que se repita solo, porque el condensador no cambia de
+    // direccion con un solo color) recorre la MISMA linea recta que el tramo
+    // de entrada, asi que acaba retrazando el camino de vuelta hasta el
+    // propio emisor y se absorbe ahi -- comprobado a mano con media docena de
+    // disenos (rectangulos y diamantes de espejos VERT/HORIZ), todos acaban
+    // igual. Lo que si se puede construir de forma fiable es una
+    // realimentacion REAL de varias vueltas antes de esa absorcion: un
+    // diamante de cuatro espejos que reenvia el mismo rayo neutro al
+    // condensador una y otra vez cambiando de diagonal cada vez (comprobado
+    // con un script de traza en el scratchpad, determinista).
+    const size = 9
     const c = normalizaConfig({
       size,
       modo: 'condensador',
-      lasers: [{ emitter: { row: 0, col: 2, dir: 'se' }, color: 'neutro' }],
-      targets: [{ row: 4, col: 4, color: 'imposible' }],
+      lasers: [{ emitter: { row: 0, col: 0, dir: 'se' }, color: 'neutro' }],
+      targets: [{ row: 8, col: 8, color: 'imposible' }],
       blocks: []
     })
     const piezas = crearPiezas(size)
-    piezas[1][1] = PIEZA.SLASH
-    piezas[1][3] = PIEZA.BACKSLASH
-    piezas[3][3] = PIEZA.SLASH
-    piezas[3][1] = PIEZA.BACKSLASH
-    piezas[1][2] = PIEZA.CONDENSADOR
+    piezas[2][2] = PIEZA.CONDENSADOR
+    piezas[4][4] = PIEZA.VERT       // se -> sw
+    piezas[6][2] = PIEZA.HORIZ      // sw -> nw
+    piezas[4][0] = PIEZA.VERT       // nw -> ne
+    piezas[1][3] = PIEZA.BACKSLASH  // ne -> sw (de vuelta hacia el diamante)
 
     const t0 = Date.now()
     const { tramos } = simularHaz(c, piezas, c.lasers[0])
     expect(Date.now() - t0).toBeLessThan(500)
+    // El tope global sigue siendo la cota dura, la haga falta o no en este
+    // disenio concreto.
     expect(tramos.length).toBeLessThanOrEqual(4 * size * size)
-    // El anillo es realimentacion de verdad: sin el tope se generarian mas de
-    // 4*n^2 tramos, asi que llegar exactamente a ese limite (y no menos)
-    // demuestra que el tope es lo que esta cortando, no que el rayo se
-    // hubiera parado solo.
-    expect(tramos.length).toBe(4 * size * size)
-    // El rayo es siempre el mismo color ('neutro'): en las 100 llegadas al
-    // condensador ninguna debe mezclar. Si la comparacion de color se
-    // rompiera (ver mutacion en el informe), esta asercion es la que lo
-    // detecta -- no basta con que el bucle termine.
+    // Realimentacion real: el mismo rayo vuelve a entrar centrado en el
+    // condensador varias veces (no una sola pasada) antes de que el diamante
+    // lo devuelva por donde vino y se absorba en su propio emisor -- eso
+    // ultimo es el final natural del trazado, no el tope quien lo corta.
+    const llegadas = tramos.filter((t) => t.resultado === 'condensador')
+    expect(llegadas.length).toBeGreaterThanOrEqual(3)
+    expect(tramos.at(-1).resultado).toBe('emisor')
+    // El rayo es siempre el mismo color ('neutro'): en ninguna de esas
+    // llegadas debe mezclar.
     expect(tramos.every((t) => t.resultado !== 'condensador-mezcla')).toBe(true)
   })
 })

@@ -11,10 +11,13 @@ const CLASICO = normalizaConfig({
 })
 
 // Un solo emisor y dos dianas: solo un prisma puede partir el rayo en dos.
+// (0,4)/(4,4), no (0,5)/(5,4): con la llegada obligatoria al centro (Task 2)
+// un hijo de prisma sin espejo adicional solo entra centrado en la recta de
+// su propia diagonal exacta -- ver prisma.test.js, misma geometria.
 const DOS_DIANAS = {
   size: 6,
   lasers: [{ emitter: { row: 2, col: 0, dir: 'right' }, color: 'neutro' }],
-  targets: [{ row: 0, col: 5, color: 'azul' }, { row: 5, col: 4, color: 'rojo' }],
+  targets: [{ row: 0, col: 4, color: 'azul' }, { row: 4, col: 4, color: 'rojo' }],
   blocks: []
 }
 

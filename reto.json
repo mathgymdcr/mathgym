@@ -1,26 +1,26 @@
 {
-  "id": "2026-09-06-laser-triangular-001",
-  "tipo": "laser-triangular",
-  "variant": "grande",
+  "id": "2026-09-07-riego-plantas-001",
+  "tipo": "riego-plantas",
+  "variant": "vivero",
   "dificultad": 5,
   "categorias": [
     "logica",
-    "geometria"
+    "planificacion"
   ],
   "hints": [
-    "Empieza por el emisor de la fila 3, columna 4, que dispara hacia la derecha: tal cual está el tablero recorre 4 celdas y se sale del tablero. Mira dónde tendría que torcer para acabar en su diana.",
-    "Aqui hacen falta las dos piezas: el prisma parte el rayo en azul y rojo, y el condensador los vuelve a juntar en magenta, que es el color de la unica diana. Los dos rayos tienen que llegar a la misma celda, y solo esa celda puede compartirla dos rayos.",
-    "Bastan 3 piezas bien puestas: si necesitas más, seguramente estás corrigiendo un rayo que ya iba bien. Y ojo, que los rayos no pueden cruzarse fuera del prisma o el condensador: si comparten una celda que no sea una de esas dos piezas, el reto no se da por resuelto aunque todo llegue a su diana."
+    "Empieza por Helecho: con su ventana (ciclos 1, 5) y el descanso obligatorio solo hay UNA forma de repartir sus 2 riegos, así que esos días ya están decididos.",
+    "El ciclo 1 lo tienen en su ventana 4 plantas, pero la regadera solo da para 3 riegos por ciclo. Mira quién puede permitirse regar otro día y quién no, porque ahí es donde se rompe el empate.",
+    "La regla que más se olvida: ninguna planta puede regarse dos ciclos seguidos. Si te cuadran todas las dosis pero el reto no se da por bueno, casi siempre hay una planta con dos riegos pegados."
   ],
   "objectives": {
-    "winCondition": "all_lasers_on_target",
-    "parMoves": 3,
-    "maxMovesFor3Stars": 3,
-    "maxMovesFor2Stars": 5
+    "winCondition": "watering_schedule_valid",
+    "parMoves": 14,
+    "maxMovesFor3Stars": 14,
+    "maxMovesFor2Stars": 16
   },
   "data": {
-    "json_url": "data/laser_2026-09-06.json"
+    "json_url": "data/riego_2026-09-07.json"
   },
-  "titulo": "Laberinto Láser",
-  "fecha": "2026-09-06"
+  "titulo": "El Riego",
+  "fecha": "2026-09-07"
 }
