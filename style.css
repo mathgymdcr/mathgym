@@ -2446,15 +2446,17 @@ li {
 /* Mismo lenguaje visual que un espejo normal (.laser-pieza[data-pieza]):
    barra reflectante blanca con resplandor, no un color aparte -- es la
    MISMA pieza, solo que anclada en el vértice en vez de dentro de una
-   celda. Más corta (70% de la celda, no 100%) porque cubre solo la mitad
+   celda. Ancho relativo a --laser-cell-size (no al 20px fijo de
+   .laser-vertice: eso daba una barra de solo 14px, sin escalar con el
+   tablero real). 80% de la celda, no 100%, porque cubre solo la mitad
    del borde compartido, no el ancho entero de una celda. */
 .laser-vertice::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 70%;
-  height: 3px;
+  width: calc(var(--laser-cell-size) * 0.8);
+  height: 4px;
   transform: translate(-50%, -50%);
   background: linear-gradient(90deg, transparent, #fff, #f3d9f1, #fff, transparent);
   border-radius: 2px;
