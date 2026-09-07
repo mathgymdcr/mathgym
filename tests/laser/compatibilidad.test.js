@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import fs from 'node:fs/promises'
 import { normalizaConfig, piezasMinimas, resuelto, crearPiezas } from '../../scripts/laser-triangular-logic.js'
+import { auditaAlineacion } from '../../scripts/audita-laser-alineacion.js'
 
 // El archivo historico NO es reproducible: regenerar un reto pasado da otro
 // puzzle. Asi que los payloads publicados tienen que seguir abriendo tal cual,
@@ -31,5 +32,34 @@ describe('retos de laser ya publicados', () => {
       expect(resuelto(c, crearPiezas(c.size)), `${nombre} viene resuelto`).toBe(false)
       expect(piezasMinimas(c, par), `${nombre} ya no tiene solucion con ${par} piezas`).toBe(par)
     }
+  })
+})
+
+describe('auditoria de alineacion sobre configs sueltas', () => {
+  it('marca alineado un reto clasico simple sin piezas', () => {
+    const config = {
+      fecha: '2099-01-01', size: 4, modo: 'clasico',
+      lasers: [{ emitter: { row: 0, col: 0, dir: 'right' }, target: { row: 0, col: 3 } }],
+      blocks: []
+    }
+    const r = auditaAlineacion([config])
+    expect(r.total).toBe(1)
+    expect(r.alineados).toBe(1)
+    expect(r.desalineados).toEqual([])
+  })
+
+  it('marca desalineado un reto sin solucion posible', () => {
+    // El unico laser emite 'neutro-1'; la diana exige 'neutro-2', que ningun
+    // laser produce -- asi que ninguna colocacion de piezas (con o sin
+    // vertice) puede alcanzarla nunca. Sin ambiguedad geometrica: es
+    // estructuralmente irresoluble.
+    const config = {
+      fecha: '2099-01-02', size: 4, modo: 'clasico',
+      lasers: [{ emitter: { row: 0, col: 0, dir: 'right' }, color: 'neutro-1' }],
+      targets: [{ row: 0, col: 3, color: 'neutro-2' }],
+      blocks: [], min_piezas: 0
+    }
+    const r = auditaAlineacion([config])
+    expect(r.desalineados.map(d => d.fecha)).toContain('2099-01-02')
   })
 })
