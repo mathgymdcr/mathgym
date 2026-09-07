@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { RetoValidator } from '../../scripts/validate-retos.js'
+import { buildLaserPuzzle } from '../../scripts/laser-triangular-logic.js'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
@@ -97,5 +98,24 @@ describe('validateLaserData', () => {
     const ruta = await escribe({ ...fixtureDosPiezas, min_piezas: 1 })
     await expect(new RetoValidator().validateLaserData(reto(ruta)))
       .rejects.toThrow(/not solvable.*con 1 piezas o menos/i)
+  })
+})
+
+describe('validador: reto de condensador que necesita espejo-vertice', () => {
+  it('un reto real generado (seed que cae en condensador) valida sin lanzar', async () => {
+    let puzzle
+    for (let seed = 1; seed < 3000; seed++) {
+      try {
+        const p = buildLaserPuzzle(seed)
+        if (p.modo === 'condensador') { puzzle = p; break }
+      } catch { /* sigue */ }
+    }
+    expect(puzzle).toBeDefined()
+    const ruta = await escribe({
+      variant: puzzle.variant, modo: puzzle.modo, size: puzzle.size,
+      lasers: puzzle.lasers, targets: puzzle.targets, blocks: puzzle.blocks,
+      min_piezas: puzzle.min_piezas
+    })
+    await expect(new RetoValidator().validateLaserData(reto(ruta))).resolves.toBeUndefined()
   })
 })
