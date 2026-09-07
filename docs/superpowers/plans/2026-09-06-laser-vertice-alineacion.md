@@ -951,7 +951,7 @@ medido de una sola llamada).
 - Produce: `state.piezasVertice` (mismo ciclo de vida que `state.piezas`).
 - Consume: `crearPiezasVertice`, `PIEZA` (ya importados o a importar de `scripts/laser-triangular-logic.js`).
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```js
 // tests/plantillas/laser-vertice.test.js
@@ -991,12 +991,12 @@ describe('plantilla laser: overlay de vertices', () => {
 })
 ```
 
-- [ ] **Step 2: Ejecutar y comprobar que falla**
+- [x] **Step 2: Ejecutar y comprobar que falla**
 
 Run: `npx vitest run tests/plantillas/laser-vertice.test.js`
 Expected: FAIL — no existe `.laser-vertice-layer`.
 
-- [ ] **Step 3: Importar `crearPiezasVertice` y añadir estado**
+- [x] **Step 3: Importar `crearPiezasVertice` y añadir estado**
 
 En el bloque de imports (línea 29-32):
 
@@ -1020,7 +1020,7 @@ En `state` (línea 163-169):
   };
 ```
 
-- [ ] **Step 4: Montar la capa de vértices**
+- [x] **Step 4: Montar la capa de vértices**
 
 Tras `boardStack.appendChild(svg);` (línea 245), antes de `boardWrap.appendChild(boardStack);` (línea 246):
 
@@ -1047,7 +1047,7 @@ Tras `boardStack.appendChild(svg);` (línea 245), antes de `boardWrap.appendChil
   boardStack.appendChild(verticeLayer);
 ```
 
-- [ ] **Step 5: Añadir `onVerticeClick`, junto a `onCellClick`**
+- [x] **Step 5: Añadir `onVerticeClick`, junto a `onCellClick`**
 
 Después de `onCellClick` (línea 413):
 
@@ -1075,7 +1075,7 @@ Después de `onCellClick` (línea 413):
   }
 ```
 
-- [ ] **Step 6: Pasar `piezasVertice` en cada llamada al trazador**
+- [x] **Step 6: Pasar `piezasVertice` en cada llamada al trazador**
 
 `simularTodos` local (línea 452-454):
 
@@ -1089,7 +1089,7 @@ Después de `onCellClick` (línea 413):
 
 `btnReset` (línea 344-359), añadir `state.piezasVertice = crearPiezasVertice(n);` junto a `state.piezas = crearPiezas(n);`.
 
-- [ ] **Step 7: Repintar vértices en `refresh`**
+- [x] **Step 7: Repintar vértices en `refresh`**
 
 Al principio de `refresh()` (tras el bucle de celdas, línea 493, antes del `if (!autoTraza && !state.trazado) return;`):
 
@@ -1102,7 +1102,7 @@ Al principio de `refresh()` (tras el bucle de celdas, línea 493, antes del `if 
     }
 ```
 
-- [ ] **Step 8: CSS para la capa de vértices**
+- [x] **Step 8: CSS para la capa de vértices**
 
 Añadir en `style.css`, cerca de `.laser-cell` (línea ~2421):
 
@@ -1139,17 +1139,39 @@ Añadir en `style.css`, cerca de `.laser-cell` (línea ~2421):
 .laser-vertice[data-pieza="vert"]::after { width: 3px; height: 18px; opacity: 1; background: #ffd23b; }
 ```
 
-- [ ] **Step 9: Ejecutar y comprobar que pasa**
+- [x] **Step 9: Ejecutar y comprobar que pasa**
 
 Run: `npx vitest run tests/plantillas/laser-vertice.test.js tests/plantillas/`
 Expected: PASS — incluye el resto de `tests/plantillas/` para confirmar que la capa nueva no rompe el montaje de las otras 11 plantillas ni el smoke test de láser existente.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add plantillas/laser_triangular.js style.css tests/plantillas/laser-vertice.test.js
 git commit -m "feat(laser): overlay de vertices en la interfaz"
 ```
+
+**Dos desviaciones del Step 8 literal, para no repetir el analisis:**
+
+1. `--laser-cell-size` vivia solo en `.laser-board`, pero `.laser-vertice-layer`
+   es HERMANA de `.laser-board` (las dos cuelgan de `.laser-board-stack`), no
+   descendiente -- y una custom property no cruza entre hermanos, solo de
+   padre a hijo. `calc(var(--laser-cell-size) * C)` habria dado un valor vacio
+   en la capa de vertices. Se movio la definicion (base 36px y el media query
+   de 560px) a `.laser-board-stack`, que es ancestro comun de las dos.
+2. El CSS del plan pintaba el vertice colocado en amarillo (`#ffd23b`) -- que
+   en esta hoja ya significa "armada/seleccionada" (`.laser-tray-pieza.is-armada`).
+   Un espejo-vertice es la MISMA pieza fisica que un espejo normal, solo
+   anclada en el borde en vez de dentro de una celda, asi que se pinto igual
+   que `.laser-pieza[data-pieza="horiz"/"vert"]` (barra blanca con resplandor),
+   mas corta (70% en vez de 100%) porque cubre solo la mitad del borde
+   compartido. El amarillo se dejo solo para el `:hover` (mismo significado
+   que en la bandeja: "esto se puede colocar aqui").
+
+Verificado en navegador de verdad (no solo happy-dom): `python -m http.server`
++ `?tipo=laser-triangular`, armar el espejo horizontal y tocar un vertice
+interior lo coloca (barra blanca visible), tocarlo otra vez lo retira, y
+`Lanzar rayo` traza sin errores en consola.
 
 ---
 
