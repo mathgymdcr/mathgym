@@ -27,7 +27,7 @@ import { buildStandardShell, createElement, setStatus } from './shell.js';
 // que el juego, el generador diario y el validador usen exactamente el mismo
 // código: con dos copias, cualquier diferencia publicaría retos imposibles.
 import {
-  DIR_VECTOR, normalizaConfig, crearPiezas, resuelto, PIEZA, tiposDisponibles,
+  DIR_VECTOR, normalizaConfig, crearPiezas, crearPiezasVertice, resuelto, PIEZA, tiposDisponibles,
   simularTodos as trazarTodos
 } from '../scripts/laser-triangular-logic.js';
 const DIR_ROTATION = {
@@ -162,6 +162,7 @@ export async function render(root, data, hooks) {
 
   const state = {
     piezas: crearPiezas(n),
+    piezasVertice: crearPiezasVertice(n),
     won: false,
     trazado: autoTraza, // en medio/grande, si ya se pulso 'Lanzar' desde el ultimo cambio
     armada: null,       // tipo de pieza armada en la bandeja, o null
@@ -243,6 +244,30 @@ export async function render(root, data, hooks) {
   svg.setAttribute('preserveAspectRatio', 'none');
   boardStack.appendChild(board);
   boardStack.appendChild(svg);
+
+  // Capa de espejos-vertice: viven en el BORDE compartido por dos celdas, no
+  // dentro de ninguna, asi que se dibujan como una capa aparte encima del
+  // tablero, con un boton por vertice de la retícula (n+1)x(n+1).
+  const verticeLayer = createElement('div', { class: 'laser-vertice-layer' });
+  const verticeEls = [];
+  for (let R = 0; R <= n; R++) {
+    const fila = [];
+    for (let C = 0; C <= n; C++) {
+      const horizPosible = C >= 1 && C <= n - 1;
+      const vertPosible = R >= 1 && R <= n - 1;
+      const btn = createElement('button', { class: 'laser-vertice', type: 'button' });
+      btn.dataset.r = R;
+      btn.dataset.c = C;
+      btn.style.left = `calc(var(--laser-cell-size) * ${C})`;
+      btn.style.top = `calc(var(--laser-cell-size) * ${R})`;
+      if (!horizPosible && !vertPosible) btn.hidden = true;
+      btn.addEventListener('click', () => onVerticeClick(R, C, horizPosible, vertPosible));
+      verticeLayer.appendChild(btn);
+      fila.push(btn);
+    }
+    verticeEls.push(fila);
+  }
+  boardStack.appendChild(verticeLayer);
   boardWrap.appendChild(boardStack);
   ui.box.appendChild(boardWrap);
 
@@ -345,6 +370,7 @@ export async function render(root, data, hooks) {
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
     state.piezas = crearPiezas(n);
+    state.piezasVertice = crearPiezasVertice(n);
     state.won = false;
     // Reiniciar puede llegar a media de un arrastre (p.ej. desde el teclado,
     // o un segundo dedo); sin esto la bandera se queda colgada y el próximo
@@ -406,7 +432,29 @@ export async function render(root, data, hooks) {
     // "sin disparar" y aquí no hay nada más que hacer hasta pulsar el botón.
     if (!autoTraza) return;
 
-    if (resuelto(config, state.piezas)) { declararVictoria(); return; }
+    if (resuelto(config, state.piezas, state.piezasVertice)) { declararVictoria(); return; }
+    const { cruces, tramos } = simularTodos();
+    const estado = mensajeDeEstado(tramos, cruces);
+    setStatus(ui.status, estado ? estado.texto : 'Sigue ajustando los espejos', estado ? estado.tipo : 'ok');
+  }
+
+  // Igual que onCellClick, pero para un vertice: tocar uno ocupado lo
+  // retira; con una pieza armada de tipo VERT u HORIZ (las unicas que
+  // tienen anclaje de vertice) y hueco disponible para ese tipo, lo coloca.
+  function onVerticeClick(R, C, horizPosible, vertPosible) {
+    if (state.won) return;
+    if (state.piezasVertice[R][C] !== PIEZA.VACIO) {
+      state.piezasVertice[R][C] = PIEZA.VACIO;
+    } else if (state.armada === PIEZA.HORIZ && horizPosible) {
+      state.piezasVertice[R][C] = PIEZA.HORIZ;
+    } else if (state.armada === PIEZA.VERT && vertPosible) {
+      state.piezasVertice[R][C] = PIEZA.VERT;
+    } else {
+      return;
+    }
+    apagaTrazo();
+    if (!autoTraza) return;
+    if (resuelto(config, state.piezas, state.piezasVertice)) { declararVictoria(); return; }
     const { cruces, tramos } = simularTodos();
     const estado = mensajeDeEstado(tramos, cruces);
     setStatus(ui.status, estado ? estado.texto : 'Sigue ajustando los espejos', estado ? estado.tipo : 'ok');
@@ -450,7 +498,7 @@ export async function render(root, data, hooks) {
   // Un solo trazador para todos: se le pasa la configuración del reto (ya
   // normalizada) y el estado actual de las piezas.
   function simularTodos() {
-    return trazarTodos(config, state.piezas);
+    return trazarTodos(config, state.piezas, state.piezasVertice);
   }
 
   // Apaga el trazo visible del rayo tras cualquier cambio en el tablero. En
@@ -476,7 +524,7 @@ export async function render(root, data, hooks) {
     state.trazado = true;
     refresh();
     const { cruces, tramos } = simularTodos();
-    if (resuelto(config, state.piezas)) { declararVictoria(); return; }
+    if (resuelto(config, state.piezas, state.piezasVertice)) { declararVictoria(); return; }
     const estado = mensajeDeEstado(tramos, cruces);
     setStatus(ui.status, estado ? estado.texto : 'Todavía no. Mueve alguna pieza y vuelve a lanzar', estado ? estado.tipo : 'ko');
   }
@@ -489,6 +537,13 @@ export async function render(root, data, hooks) {
         const v = state.piezas[r][c];
         cell.innerHTML = '';
         if (v) cell.appendChild(piezaSpan(v));
+      }
+    }
+
+    for (let R = 0; R <= n; R++) {
+      for (let C = 0; C <= n; C++) {
+        const v = state.piezasVertice[R][C];
+        verticeEls[R][C].dataset.pieza = v === PIEZA.HORIZ ? 'horiz' : v === PIEZA.VERT ? 'vert' : '';
       }
     }
 
