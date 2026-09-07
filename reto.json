@@ -8,7 +8,7 @@
     "geometria"
   ],
   "hints": [
-    "Empieza por el emisor de la fila 7, columna 3, que dispara en diagonal hacia arriba y a la derecha: tal cual está el tablero recorre 9 celdas y se sale del tablero. Mira dónde tendría que torcer para acabar en su diana.",
+    "Empieza por el emisor de la fila 3, columna 6, que dispara en diagonal hacia abajo y a la izquierda: tal cual está el tablero recorre 9 celdas y se sale del tablero. Mira dónde tendría que torcer para acabar en su diana.",
     "Aqui hacen falta las dos piezas: el prisma parte el rayo en azul y rojo, y el condensador los vuelve a juntar en magenta, que es el color de la unica diana. Los dos rayos tienen que llegar a la misma celda, y solo esa celda puede compartirla dos rayos.",
     "Bastan 4 piezas bien puestas: si necesitas más, seguramente estás corrigiendo un rayo que ya iba bien. Y ojo, que los rayos no pueden cruzarse fuera del prisma o el condensador: si comparten una celda que no sea una de esas dos piezas, el reto no se da por resuelto aunque todo llegue a su diana."
   ],

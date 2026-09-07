@@ -5,28 +5,28 @@
   "lasers": [
     {
       "emitter": {
-        "row": 6,
-        "col": 2,
-        "dir": "ne"
+        "row": 2,
+        "col": 5,
+        "dir": "sw"
       },
       "color": "neutro"
     }
   ],
   "targets": [
     {
-      "row": 0,
-      "col": 6,
+      "row": 6,
+      "col": 0,
       "color": "magenta"
     }
   ],
   "blocks": [
     {
-      "row": 3,
-      "col": 2
+      "row": 4,
+      "col": 5
     },
     {
-      "row": 3,
-      "col": 1
+      "row": 2,
+      "col": 0
     }
   ],
   "min_piezas": 4
