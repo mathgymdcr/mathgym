@@ -1183,7 +1183,7 @@ interior lo coloca (barra blanca visible), tocarlo otra vez lo retira, y
 **Interfaces:**
 - Consume: `verticeEls` (Task 6), `onVerticeClick` (Task 6).
 
-- [ ] **Step 1: Escribir el test que falla**
+- [x] **Step 1: Escribir el test que falla**
 
 ```js
 // añadir a tests/plantillas/laser-vertice.test.js
@@ -1200,12 +1200,12 @@ it('arrastrar una pieza hasta un vertice lo coloca (con elementFromPoint simulad
 })
 ```
 
-- [ ] **Step 2: Ejecutar y comprobar que falla**
+- [x] **Step 2: Ejecutar y comprobar que falla**
 
 Run: `npx vitest run tests/plantillas/laser-vertice.test.js`
 Expected: FAIL — `soltarArrastre` solo busca `.closest('.laser-cell')`, ignora `.laser-vertice`.
 
-- [ ] **Step 3: Extender `soltarArrastre`**
+- [x] **Step 3: Extender `soltarArrastre`**
 
 Sustituir el cuerpo de `soltarArrastre` (líneas 380-395) por:
 
@@ -1231,17 +1231,25 @@ Sustituir el cuerpo de `soltarArrastre` (líneas 380-395) por:
   }
 ```
 
-- [ ] **Step 4: Ejecutar y comprobar que pasa**
+- [x] **Step 4: Ejecutar y comprobar que pasa**
 
 Run: `npx vitest run tests/plantillas/laser-vertice.test.js`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add plantillas/laser_triangular.js tests/plantillas/laser-vertice.test.js
 git commit -m "feat(laser): arrastrar una pieza hasta un vertice tambien la coloca"
 ```
+
+**Nota sin relacion con esta Task, para no confundir un futuro fallo intermitente:**
+corriendo la suite completa (`npx vitest run`) tras esta Task, `tests/poligono/validacion.test.js`
+fallo una vez por timeout (5000ms) -- por contencion de CPU con los tests de laser
+pesados (Task 5 subio `MAX_INTENTOS`) corriendo en paralelo, no por nada que esta Task
+tocara. Aislado (`npx vitest run tests/poligono/validacion.test.js`) pasa en <1s. Si
+vuelve a aparecer un timeout de un test AJENO a laser en la suite completa, es este
+mismo efecto, no una regresion nueva.
 
 ---
 
