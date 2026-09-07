@@ -5,33 +5,33 @@
   "lasers": [
     {
       "emitter": {
-        "row": 2,
-        "col": 6,
-        "dir": "nw"
+        "row": 0,
+        "col": 0,
+        "dir": "se"
       },
       "color": "neutro"
     }
   ],
   "targets": [
     {
-      "row": 0,
+      "row": 6,
       "col": 3,
       "color": "azul"
     },
     {
-      "row": 0,
-      "col": 6,
+      "row": 6,
+      "col": 0,
       "color": "rojo"
     }
   ],
   "blocks": [
     {
-      "row": 6,
-      "col": 3
+      "row": 4,
+      "col": 5
     },
     {
-      "row": 3,
-      "col": 4
+      "row": 0,
+      "col": 3
     }
   ],
   "min_piezas": 3
