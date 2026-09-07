@@ -414,6 +414,14 @@ export async function render(root, data, hooks) {
     gestoConsumido = true;
     if (typeof document.elementFromPoint !== 'function') return;
     const bajo = document.elementFromPoint(ev.clientX, ev.clientY);
+    const vertice = bajo && bajo.closest && bajo.closest('.laser-vertice');
+    if (vertice) {
+      const R = Number(vertice.dataset.r), C = Number(vertice.dataset.c);
+      const horizPosible = C >= 1 && C <= n - 1;
+      const vertPosible = R >= 1 && R <= n - 1;
+      onVerticeClick(R, C, horizPosible, vertPosible);
+      return;
+    }
     const celda = bajo && bajo.closest && bajo.closest('.laser-cell');
     if (celda && celda.dataset.fila !== undefined) {
       onCellClick(Number(celda.dataset.fila), Number(celda.dataset.col));

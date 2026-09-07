@@ -54,4 +54,16 @@ describe('plantilla laser: overlay de vertices', () => {
     verticeBorde.click()
     expect(verticeBorde.dataset.pieza).toBe('')
   })
+
+  it('arrastrar una pieza hasta un vertice lo coloca (con elementFromPoint simulado)', async () => {
+    const host = await montar(DATA)
+    const vertice = host.querySelector('.laser-vertice[data-r="2"][data-c="2"]')
+    const original = document.elementFromPoint
+    document.elementFromPoint = () => vertice
+    const trayVert = host.querySelector('[aria-label="Espejo vertical"]')
+    trayVert.dispatchEvent(new Event('pointerdown'))
+    trayVert.dispatchEvent(new Event('pointerup'))
+    document.elementFromPoint = original
+    expect(vertice.dataset.pieza).toBe('vert')
+  })
 })
