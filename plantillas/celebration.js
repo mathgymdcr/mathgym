@@ -6,6 +6,14 @@
 // justo en el momento de la celebración.
 const SVG_ESTRELLA = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6 15 9.1l7.1.8-5.3 4.8 1.5 7-6.3-3.6-6.3 3.6 1.5-7L1.9 9.9 9 9.1Z"/></svg>`;
 
+// Antes el titulo era siempre "¡Excelente trabajo!", ganaras con 1 estrella o
+// con 3 -- no distinguia nada.
+const TITULO_POR_ESTRELLAS = {
+  3: '¡Perfecto! No hace falta nada más.',
+  2: '¡Muy bien! Estás cerca de las tres estrellas.',
+  1: '¡Resuelto! Con un poco más de práctica, mejorarás la marca.'
+};
+
 /**
  * Añade las estrellas ganadas a la celebración que YA está en pantalla. Se
  * llama desde fuera (script.js) porque quien sabe la marca es el shell, no la
@@ -29,8 +37,12 @@ export function pintarEstrellas(ganadas, total = 3) {
   }
 
   const titulo = card.querySelector('.celebration-title');
-  if (titulo) titulo.insertAdjacentElement('afterend', fila);
-  else card.prepend(fila);
+  if (titulo) {
+    titulo.textContent = TITULO_POR_ESTRELLAS[Math.max(1, Math.min(3, ganadas))];
+    titulo.insertAdjacentElement('afterend', fila);
+  } else {
+    card.prepend(fila);
+  }
 
   // La imagen la decide la marca final, no el `ok` con el que la plantilla
   // abrió la celebración: sin las tres estrellas es un reto de mejorar.

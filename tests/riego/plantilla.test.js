@@ -110,6 +110,25 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
     expect(ganado, 'no dio la victoria con el calendario correcto').toBe(1)
   })
 
+  // celebrate() (que crea .celebration-overlay) tiene que haberse llamado YA
+  // cuando se dispara onSuccess: script.js pinta las estrellas y el botón de
+  // compartir DENTRO de ese overlay (pintarEstrellas/pintarCompartir hacen
+  // querySelector('.celebration-overlay .celebration-card')), así que si el
+  // orden se invierte esas dos cosas se quedan sin pintar en silencio -- sin
+  // que ningún error avise. Bug real: llegó a producción con este orden al
+  // revés.
+  it('el overlay de celebracion ya existe cuando se llama a onSuccess', async () => {
+    let habiaOverlay = null
+    const root = await montar(PAYLOAD, {
+      onSuccess: () => { habiaOverlay = !!document.querySelector('.celebration-overlay .celebration-card') }
+    })
+    celda(root, 0, 0).click()
+    celda(root, 0, 2).click()
+    celda(root, 1, 1).click()
+    celda(root, 1, 4).click()
+    expect(habiaOverlay, 'onSuccess se llamo antes de que celebrate() montara el overlay').toBe(true)
+  })
+
   it('no canta victoria si las dosis cuadran pero se riega dos seguidos', async () => {
     let ganado = 0
     const root = await montar({

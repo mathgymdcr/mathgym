@@ -247,15 +247,17 @@ export async function render(root, data, hooks) {
     if (!msgs.length && completo && !state.won) {
       state.won = true;
       setStatus(ui.status, '¡Calendario de riego resuelto!', 'ok');
-      // Primero se registra la victoria y luego se celebra, envuelto: el
-      // confeti pinta en un <canvas> y no puede llevarse por delante el
-      // progreso del jugador.
-      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.regados });
+      // celebrate() primero: onSuccess (script.js) pinta las estrellas y el
+      // botón de compartir DENTRO de .celebration-overlay, así que ese overlay
+      // tiene que existir ya cuando se llama. Va envuelto en try/catch para
+      // que un fallo del confeti (el <canvas>) no se lleve por delante el
+      // registro del progreso del jugador, que sigue siendo incondicional.
       try {
         celebrate({ ok: true, message: 'Todas las plantas regadas en su punto' });
       } catch (err) {
         console.warn('No se pudo pintar la celebración:', err);
       }
+      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.regados });
     } else if (!state.won) {
       setStatus(ui.status, msgs.length ? 'Hay algo que no cuadra' : 'Sigue repartiendo los riegos', 'ok');
     }

@@ -53,4 +53,22 @@ describe('pintarEstrellas', () => {
     pintarEstrellas(2)
     expect(document.querySelector('.celebration-avatar').src).toContain('deceerre-challenge.png')
   })
+
+  it('el titular cambia segun las estrellas ganadas, no es siempre el mismo texto', () => {
+    celebrate({ ok: true })
+    pintarEstrellas(3)
+    const conTres = document.querySelector('.celebration-title').textContent
+
+    document.body.innerHTML = ''
+    celebrate({ ok: true })
+    pintarEstrellas(2)
+    const conDos = document.querySelector('.celebration-title').textContent
+
+    document.body.innerHTML = ''
+    celebrate({ ok: true })
+    pintarEstrellas(1)
+    const conUna = document.querySelector('.celebration-title').textContent
+
+    expect(new Set([conTres, conDos, conUna]).size, 'los tres titulares deberian ser distintos').toBe(3)
+  })
 })
