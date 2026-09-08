@@ -112,7 +112,28 @@ const VARIANTES = [
 // Medido sobre 1008 fechas: la media son 30 intentos, pero la cola es larga
 // (algún seed ha llegado a 379) y con el tope en 400 fallaban 2 fechas de
 // 1008. El coste de un tope alto solo se paga en esos casos raros.
+//
+// Medido de nuevo tras el suelo de margen por planta (barrido de seeds
+// 1-400, MARGEN_MINIMO abajo): huerto n=127 media=4.6 max=18 fallos=0;
+// invernadero n=146 media=5.5 max=32 fallos=0; vivero (con margen 1)
+// n=127 media=206 max=1256 fallos=0 -- todos cómodos bajo el tope.
 const MAX_INTENTOS = 3000;
+
+// Suelo de holgura por planta (ventana.length - doses), no una suma total:
+// una suma total dejaba pasar retos con una planta de holgura 5 compensando
+// a otras tres con holgura 0 -- exactamente el caso que rompió el reto del
+// 2026-09-07 (tres de cinco plantas con ventana == dosis, cero elección).
+//
+// vivero empezó en 2 ("tablero más grande, más margen"), pero medido salió
+// al revés: con margen 2 fallan 126 de 127 seeds de vivero (agotan
+// MAX_INTENTOS) porque las 5 plantas compiten por los mismos ciclos bajo
+// capacity y descanso (y a veces la pareja incompatible), así que casi
+// ningún calendario aleatorio admite margen 2 en las cinco a la vez -- los
+// pocos que sí lo admiten necesitan entre 17000 y 137000 intentos. Un
+// tablero más grande no da más margen cuando esas restricciones compiten
+// por los mismos ciclos; con margen 1 vivero vuelve a comportarse como
+// huerto/invernadero (ver medición arriba).
+export const MARGEN_MINIMO = { huerto: 1, invernadero: 1, vivero: 1 };
 
 function barajar(rand, arr) {
   const copia = [...arr];
@@ -226,6 +247,10 @@ export function buildRiegoPuzzle(seed) {
       vueltas++;
       const candidatas = [];
       plants.forEach((p, i) => {
+        // No ofrecer un ciclo si quitarlo dejaría a esta planta por debajo
+        // de su suelo de margen -- así la poda reparte los recortes en vez
+        // de agotar la ventana de una sola planta.
+        if (p.ventana.length - p.doses <= MARGEN_MINIMO[cfg.nombre]) return;
         p.ventana.forEach((c) => {
           if (!calendario[i].includes(c)) candidatas.push({ i, c });
         });
@@ -248,9 +273,8 @@ export function buildRiegoPuzzle(seed) {
     const res = contarSoluciones(config, { tope: 2 });
     if (res.soluciones !== 1) continue;
 
-    // Con las ventanas clavadas al calendario no habría nada que decidir.
-    const holgura = plants.reduce((acc, p) => acc + (p.ventana.length - p.doses), 0);
-    if (holgura < plants.length) continue;
+    // Cierre: por si algún camino esquivara el filtro de arriba.
+    if (plants.some((p) => p.ventana.length - p.doses < MARGEN_MINIMO[cfg.nombre])) continue;
 
     return {
       variant: cfg.nombre,
