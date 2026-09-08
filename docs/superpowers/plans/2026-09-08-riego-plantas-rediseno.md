@@ -597,7 +597,72 @@ git commit -m "feat(riego): doce iconos de planta, mismo lenguaje visual que el 
 - Consume: los doce SVG de la Tarea 4, `MARGEN_MINIMO`/`MEDIDAS` no directamente (son de otras capas) — esta tarea solo toca la plantilla.
 - Produce: `hooks.onSuccess({ movimientos, consultas })` — `consultas` es nuevo; `movimientos` no cambia.
 
-- [ ] **Step 1: Escribir los tests que fallan**
+- [ ] **Step 1: Escribir los tests que fallan, y adaptar cuatro tests existentes que quedan incompatibles**
+
+Este archivo tiene HOY cuatro tests que asumen que la ventana/incompatibilidad se pintan directamente en la fila (`.riego-ventana-nota`) o en las instrucciones — dejan de ser ciertos en cuanto esa información se mueve a la ficha. Hay que adaptarlos ANTES de añadir los tests nuevos, en el mismo archivo:
+
+1. `it('escribe la ventana de cada planta en texto junto a su nombre', ...)` (línea 40-47) — sustituir por, abriendo la ficha de cada planta antes de mirar su contenido:
+
+```js
+  it('escribe la ventana de cada planta en su ficha, no en la fila', async () => {
+    const root = await montar()
+    const filas = root.querySelectorAll('.riego-nombre')
+    filas[0].click()
+    // Albahaca: ventana [0,2,3] -> ciclos 1-indexados 1,3,4 -> "1" suelto y "3 a 4" seguidos.
+    expect(root.querySelector('.riego-ficha').textContent).toContain('Disponible: ciclos 1 y 3 a 4.')
+    filas[1].click()
+    // Cactus: ventana [1,3,4] -> ciclos 2,4,5.
+    expect(root.querySelector('.riego-ficha').textContent).toContain('Disponible: ciclos 2 y 4 a 5.')
+  })
+```
+
+2. `it('sigue entendiendo el payload antiguo sin ventanas ni descanso', ...)` (línea 144-152) — la aserción `expect(root.querySelectorAll('.riego-ventana-nota')).toHaveLength(0)` deja de distinguir nada (esa clase ya no se pinta en la fila para NINGÚN payload): sustituir esa línea por una comprobación de que la ficha, para una planta sin ventana real, dice que no hay restricción:
+
+```js
+  it('sigue entendiendo el payload antiguo sin ventanas ni descanso', async () => {
+    const root = await montar({
+      cycles: 4,
+      capacity_per_cycle: 2,
+      plants: [{ id: 'A', doses: 2 }, { id: 'B', doses: 1 }]
+    })
+    root.querySelectorAll('.riego-nombre')[0].click()
+    expect(root.querySelector('.riego-ficha').textContent).toContain('Sin restricción de ventana')
+    expect(root.querySelector('.feedback.ko')).toBeNull()
+  })
+```
+
+3. `it('dice "solo ciclos pares/impares"...', ...)` (línea 153-165) — mismo cambio que el (1), abrir la ficha de cada planta:
+
+```js
+  it('dice "solo ciclos pares/impares" cuando la ventana cae exacta en esa paridad', async () => {
+    const root = await montar({
+      cycles: 6,
+      capacity: 2,
+      plants: [
+        { id: 'Par', doses: 2, ventana: [1, 3, 5] },    // 1-indexado: 2, 4, 6 -> pares
+        { id: 'Impar', doses: 2, ventana: [0, 2, 4] }   // 1-indexado: 1, 3, 5 -> impares
+      ]
+    })
+    const filas = root.querySelectorAll('.riego-nombre')
+    filas[0].click()
+    expect(root.querySelector('.riego-ficha').textContent).toContain('Disponible: solo ciclos pares.')
+    filas[1].click()
+    expect(root.querySelector('.riego-ficha').textContent).toContain('Disponible: solo ciclos impares.')
+  })
+```
+
+4. `it('anuncia la pareja en las instrucciones', ...)` (dentro de `describe('con pareja incompatible', ...)`) — ya no es cierto (la frase se movió a la ficha, no a las instrucciones): renombrar y adaptar:
+
+```js
+    it('anuncia la pareja en la ficha de cada una, no en las instrucciones', async () => {
+      const root = await montar(PAYLOAD_INCOMPATIBLE)
+      expect(root.querySelector('.template-box').textContent).not.toContain('no pueden regarse en el mismo ciclo')
+      root.querySelectorAll('.riego-nombre')[0].click() // Albahaca
+      expect(root.querySelector('.riego-ficha').textContent).toContain('No puede regarse el mismo ciclo que Cactus.')
+    })
+```
+
+Con esos cuatro adaptados, añadir los tests nuevos:
 
 ```js
 // en tests/riego/plantilla.test.js, añadir:
@@ -676,7 +741,7 @@ describe('ficha de planta (icono, ventana, incompatibilidad) en vez de texto fij
 - [ ] **Step 2: Ejecutar y comprobar que fallan**
 
 Run: `npx vitest run tests/riego/plantilla.test.js`
-Expected: FAIL en los seis casos nuevos — no existe `.riego-ficha`, no hay `<img>` en `.riego-nombre`, `marca.consultas` es `undefined`, y la ventana/incompatibilidad todavía salen en las instrucciones.
+Expected: FAIL en los seis casos nuevos (no existe `.riego-ficha`, no hay `<img>` en `.riego-nombre`, `marca.consultas` es `undefined`) Y en los cuatro adaptados del Step 1 (siguen buscando `.riego-ficha`, que tampoco existe todavía) — diez fallos en total, ninguno en el resto del archivo.
 
 - [ ] **Step 3: Mapa de iconos por nombre de planta**
 
