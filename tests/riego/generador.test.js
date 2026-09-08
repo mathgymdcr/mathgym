@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildRiegoPuzzle, contarSoluciones } from '../../scripts/riego-logic.js'
+import { buildRiegoPuzzle, contarSoluciones, MARGEN_MINIMO } from '../../scripts/riego-logic.js'
 
 const SEEDS = [20260831, 20260918, 20261210, 20270501, 21, 44, 97, 20280707]
 const config = (p) => ({
@@ -127,5 +127,18 @@ describe('buildRiegoPuzzle', () => {
       }
     }
     expect(vista, 'ninguna planta en 500 seeds tuvo ventana de paridad exacta').toBe(true)
+  })
+})
+
+describe('buildRiegoPuzzle: ninguna planta con holgura cero', () => {
+  it('cada planta tiene al menos el margen mínimo de su variante', () => {
+    for (const seed of SEEDS) {
+      const p = buildRiegoPuzzle(seed)
+      for (const planta of p.plants) {
+        const holgura = planta.ventana.length - planta.doses
+        expect(holgura, `seed ${seed} (${p.variant}): ${planta.id} sin margen`)
+          .toBeGreaterThanOrEqual(MARGEN_MINIMO[p.variant])
+      }
+    }
   })
 })
