@@ -3137,6 +3137,15 @@ li {
   margin: 4px 0;
 }
 
+/* Para la última fila de plantas la envoltura de la tabla no tiene sitio
+   debajo (solo queda la fila de totales, más baja que la ficha): se abre
+   hacia arriba en vez de hacia abajo. Solo cambia la dirección, el resto
+   de .riego-ficha se mantiene igual. */
+.riego-ficha-arriba {
+  top: auto;
+  bottom: 100%;
+}
+
 .riego-cell {
   width: 34px;
   height: 34px;

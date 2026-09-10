@@ -30,6 +30,10 @@ const montar = async (config = PAYLOAD, hooks = {}) => {
 const celda = (root, fila, ciclo) =>
   root.querySelector(`.riego-cell[data-planta="${fila}"][data-ciclo="${ciclo}"]`)
 
+// La victoria ya no se declara sola al completar el tablero: hace falta
+// pulsar «Comprobar».
+const comprobar = (root) => root.querySelector('.riego-btn-comprobar').click()
+
 describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
   it('usa el shell estándar del resto del catálogo', async () => {
     const root = await montar()
@@ -101,14 +105,35 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
     expect(root.textContent.toLowerCase()).toContain('capacidad')
   })
 
-  it('gana al completar el calendario válido y llama a onSuccess una vez', async () => {
+  it('no gana solo con completar el tablero: hace falta pulsar Comprobar', async () => {
     let ganado = 0
     const root = await montar(PAYLOAD, { onSuccess: () => { ganado++ } })
     celda(root, 0, 0).click()
     celda(root, 0, 2).click()
     celda(root, 1, 1).click()
     celda(root, 1, 4).click()
+    expect(ganado, 'no debería ganar sin pulsar Comprobar').toBe(0)
+    expect(root.textContent).toContain('Todo listo')
+  })
+
+  it('gana al pulsar Comprobar con el calendario válido y llama a onSuccess una vez', async () => {
+    let ganado = 0
+    const root = await montar(PAYLOAD, { onSuccess: () => { ganado++ } })
+    celda(root, 0, 0).click()
+    celda(root, 0, 2).click()
+    celda(root, 1, 1).click()
+    celda(root, 1, 4).click()
+    comprobar(root)
     expect(ganado, 'no dio la victoria con el calendario correcto').toBe(1)
+    comprobar(root)
+    expect(ganado, 'volver a pulsar Comprobar tras ganar no debería sumar otra vez').toBe(1)
+  })
+
+  it('Comprobar avisa si el tablero aún no está completo', async () => {
+    const root = await montar(PAYLOAD)
+    celda(root, 0, 0).click()
+    comprobar(root)
+    expect(root.textContent.toLowerCase()).toContain('faltan riegos')
   })
 
   // celebrate() (que crea .celebration-overlay) tiene que haberse llamado YA
@@ -127,6 +152,7 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
     celda(root, 0, 2).click()
     celda(root, 1, 1).click()
     celda(root, 1, 4).click()
+    comprobar(root)
     expect(habiaOverlay, 'onSuccess se llamo antes de que celebrate() montara el overlay').toBe(true)
   })
 
@@ -139,6 +165,7 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
     }, { onSuccess: () => { ganado++ } })
     celda(root, 0, 0).click()
     celda(root, 0, 1).click()
+    comprobar(root)
     expect(ganado).toBe(0)
   })
 
@@ -264,19 +291,78 @@ describe('ficha de planta (icono, ventana, incompatibilidad) en vez de texto fij
     celda(root, 0, 2).click()
     celda(root, 1, 1).click()
     celda(root, 1, 4).click()
+    comprobar(root)
     expect(marca.consultas).toBe(0)
   })
 
   it('volver a consultar la misma planta suma al contador', async () => {
     let marca = null
     const root = await montar(PAYLOAD, { onSuccess: (m) => { marca = m } })
-    root.querySelectorAll('.riego-nombre')[0].click() // Albahaca, gratis
-    root.querySelectorAll('.riego-nombre')[0].click() // Albahaca otra vez, +1
-    root.querySelectorAll('.riego-nombre')[0].click() // Albahaca otra vez, +1
+    const filas = root.querySelectorAll('.riego-nombre')
+    // Clicar la MISMA fila mientras su ficha ya está abierta la cierra
+    // (toggle) en vez de recargarla, así que para sumar dos consultas de más
+    // hay que intercalar con la otra planta -- cada vez que se reabre
+    // Albahaca/Cactus ya estaban en `consultadas`.
+    filas[0].click() // Albahaca, gratis (primera vez)
+    filas[1].click() // Cactus, gratis (primera vez), cierra la de Albahaca
+    filas[0].click() // Albahaca otra vez, +1
+    filas[1].click() // Cactus otra vez, +1
     celda(root, 0, 0).click()
     celda(root, 0, 2).click()
     celda(root, 1, 1).click()
     celda(root, 1, 4).click()
+    comprobar(root)
     expect(marca.consultas).toBe(2)
+  })
+
+  it('tocar el icono de la planta cuya ficha ya está abierta la cierra sin recargarla', async () => {
+    let marca = null
+    const root = await montar(PAYLOAD, { onSuccess: (m) => { marca = m } })
+    const filas = root.querySelectorAll('.riego-nombre')
+    filas[0].click() // Albahaca, gratis, abre la ficha
+    expect(root.querySelector('.riego-ficha')).not.toBeNull()
+    filas[0].click() // misma planta, misma ficha abierta: toggle-close
+    expect(root.querySelector('.riego-ficha'), 'debería cerrarla, no recargarla').toBeNull()
+    celda(root, 0, 0).click()
+    celda(root, 0, 2).click()
+    celda(root, 1, 1).click()
+    celda(root, 1, 4).click()
+    comprobar(root)
+    // La primera vista de Albahaca fue gratis y el toggle-close no cuenta
+    // como una segunda consulta.
+    expect(marca.consultas).toBe(0)
+  })
+
+  it('la ficha de la última planta se abre hacia arriba, no hacia abajo', async () => {
+    const root = await montar()
+    // Ojo: `.riego-nombre` también etiqueta la celda "Por ciclo" de la fila
+    // de totales (`.riego-totales`), que no lleva planta ni click -- por eso
+    // el filtro por `.riego-planta` y no un `querySelectorAll('.riego-nombre')` a secas.
+    const filas = root.querySelectorAll('.riego-planta .riego-nombre')
+    filas[0].click()
+    expect(root.querySelector('.riego-ficha').classList.contains('riego-ficha-arriba'), 'la primera no debería abrirse hacia arriba').toBe(false)
+    filas[filas.length - 1].click()
+    expect(root.querySelector('.riego-ficha').classList.contains('riego-ficha-arriba'), 'la última debería abrirse hacia arriba').toBe(true)
+  })
+
+  it('un click dentro de la ficha ya abierta no burbujea y no cobra otra consulta', async () => {
+    let marca = null
+    const root = await montar(PAYLOAD, { onSuccess: (m) => { marca = m } })
+    root.querySelectorAll('.riego-nombre')[0].click() // Albahaca, gratis
+    root.querySelector('.riego-ficha p').click()      // click dentro de la ficha, no en el <td>
+    expect(root.querySelector('.riego-ficha'), 'un click dentro no debería cerrarla').not.toBeNull()
+    celda(root, 0, 0).click()
+    celda(root, 0, 2).click()
+    celda(root, 1, 1).click()
+    celda(root, 1, 4).click()
+    comprobar(root)
+    expect(marca.consultas).toBe(0)
+  })
+
+  it('hay un botón «Comprobar» que decide la victoria, en vez de detectarla sola', async () => {
+    const root = await montar()
+    const btn = root.querySelector('.riego-btn-comprobar')
+    expect(btn).not.toBeNull()
+    expect(btn.textContent).toBe('Comprobar')
   })
 })

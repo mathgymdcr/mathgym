@@ -3,10 +3,14 @@
 // los escribe el generador en cada reto (maxMovesFor3Stars y compañía) y hasta
 // ahora no los leía nadie.
 //
-// El catálogo mide de dos maneras, según el tipo:
-//   - "te pasaste del par": movimientos (9 tipos) o pesadas (la balanza)
+// El catálogo mide de tres maneras, según el tipo -- y un mismo reto puede
+// declarar más de una a la vez (riego-plantas manda movimientos Y consultas):
+//   - "te pasaste del par": movimientos (la mayoría de tipos) o pesadas (la
+//     balanza)
 //   - "fallaste al comprobar": el enigma y el polígono, donde no hay nada que
 //     optimizar salvo acertar a la primera
+//   - "consultaste de más": riego-plantas, que penaliza volver a mirar la
+//     ficha de una planta ya vista
 //
 // Resolver un reto nunca baja de una estrella: la peor marca posible sigue
 // siendo haberlo sacado.
@@ -14,8 +18,12 @@
 export const MAX_ESTRELLAS = 3;
 
 // Cada medida, con el nombre del campo que trae la marca de la partida y los
-// dos umbrales del reto. El orden importa: se usa la primera cuyo reto traiga
-// umbral, así que un reto de movimientos no se puntúa nunca por fallos.
+// dos umbrales del reto. Un reto puede declarar varias medidas a la vez (ver
+// riego-plantas: movimientos + consultas); `estrellasDe` se queda con la
+// PEOR nota de todas las que el reto declara Y la plantilla reporta -- no
+// solo la primera. `medidaDe`, más abajo, sigue usando "la primera que trae
+// umbral" porque solo sirve para decidir QUÉ meta enseñar en pantalla
+// (`parDe`), donde no cabe mostrar más de una a la vez.
 const MEDIDAS = [
   {
     marca: 'movimientos',
