@@ -735,7 +735,11 @@ class MathGymGenerator {
         winCondition: 'watering_schedule_valid',
         parMoves: totalRiegos,
         maxMovesFor3Stars: totalRiegos,
-        maxMovesFor2Stars: totalRiegos + 2
+        maxMovesFor2Stars: totalRiegos + 2,
+        // Disciplina de memoria, no dificultad del calendario -- fijo,
+        // no depende de la semilla (ver spec sección 5).
+        maxConsultasFor3Stars: 0,
+        maxConsultasFor2Stars: 2
       },
       data: { json_url: `data/${dataFileName}` }
     };

@@ -34,6 +34,12 @@ const MEDIDAS = [
     unidad: null,   // "Fallos: 0 / máximo 0" antes de fallar no dice nada
     tres: (o) => primeroFinito(o.maxErrorsFor3Stars),
     dos: (o) => primeroFinito(o.maxErrorsFor2Stars, sumar(o.maxErrorsFor3Stars, 2))
+  },
+  {
+    marca: 'consultas',
+    unidad: null,   // no se enseña como meta en pantalla, solo cuenta al ganar
+    tres: (o) => primeroFinito(o.maxConsultasFor3Stars),
+    dos: (o) => primeroFinito(o.maxConsultasFor2Stars, sumar(o.maxConsultasFor3Stars, 2))
   }
 ];
 
@@ -54,23 +60,29 @@ function medidaDe(objectives) {
 
 /**
  * @param {object|null} objectives  el bloque `objectives` del reto
- * @param {{movimientos?: number, pesadas?: number, fallos?: number}} marca
+ * @param {{movimientos?: number, pesadas?: number, fallos?: number, consultas?: number}} marca
  *        lo que ha hecho quien juega, tal y como lo reporta la plantilla
  * @returns {1|2|3}
  */
 export function estrellasDe(objectives, marca = {}) {
-  const medida = medidaDe(objectives);
-  if (!medida) return MAX_ESTRELLAS;
+  const medidas = MEDIDAS.filter((m) => Number.isFinite(m.tres(objectives || {})));
+  if (!medidas.length) return MAX_ESTRELLAS;
 
-  const valor = marca ? marca[medida.marca] : undefined;
-  // Sin marca no se castiga: una plantilla que aún no reporta su contador da
-  // las tres, igual que antes de que existieran las estrellas.
-  if (!Number.isFinite(valor)) return MAX_ESTRELLAS;
-
-  if (valor <= medida.tres(objectives)) return 3;
-  const dos = medida.dos(objectives);
-  if (Number.isFinite(dos) && valor <= dos) return 2;
-  return 1;
+  let peor = MAX_ESTRELLAS;
+  for (const medida of medidas) {
+    const valor = marca ? marca[medida.marca] : undefined;
+    // Esta medida concreta no se reporta (una plantilla que no cuenta
+    // consultas, o un reto viejo sin esa medida en marca): no penaliza.
+    if (!Number.isFinite(valor)) continue;
+    let nota;
+    if (valor <= medida.tres(objectives)) nota = 3;
+    else {
+      const dos = medida.dos(objectives);
+      nota = (Number.isFinite(dos) && valor <= dos) ? 2 : 1;
+    }
+    peor = Math.min(peor, nota);
+  }
+  return peor;
 }
 
 /**
