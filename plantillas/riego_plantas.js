@@ -10,7 +10,28 @@
 // El payload antiguo (sin `ventana` ni `descanso`) se sigue entendiendo.
 
 import { celebrate } from './celebration.js';
-import { buildStandardShell, createElement, setStatus } from './shell.js';
+import { buildStandardShell, createElement, pintarIcono, setStatus } from './shell.js';
+
+// Mapeo independiente del banco de nombres del generador (scripts/riego-
+// logic.js no se importa aquí: la plantilla no necesita saber CÓMO se
+// eligen los nombres, solo pintar un icono para cada uno que pueda
+// aparecer). Si algún nombre no está aquí (payload editado a mano con un
+// nombre nuevo), sencillamente no se pinta icono -- pintarIcono con
+// `undefined` deja el texto vacío, no revienta.
+const ICONO_PLANTA = {
+  Albahaca: 'assets/planta-albahaca.svg',
+  Tomatera: 'assets/planta-tomatera.svg',
+  Cactus: 'assets/planta-cactus.svg',
+  Orquídea: 'assets/planta-orquidea.svg',
+  Helecho: 'assets/planta-helecho.svg',
+  Romero: 'assets/planta-romero.svg',
+  Lavanda: 'assets/planta-lavanda.svg',
+  Menta: 'assets/planta-menta.svg',
+  Aloe: 'assets/planta-aloe.svg',
+  Petunia: 'assets/planta-petunia.svg',
+  Jazmín: 'assets/planta-jazmin.svg',
+  Perejil: 'assets/planta-perejil.svg'
+};
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
@@ -55,9 +76,8 @@ export async function render(root, data, hooks) {
     instructionsHTML: `
       <h3>Cómo se juega</h3>
       <p><strong>Objetivo:</strong> organiza el calendario para que cada planta reciba <strong>exactamente</strong> sus riegos.</p>
-      <p>Cada planta solo bebe en los ciclos que dice su ficha, junto a su nombre. Toca una celda para regarla; tócala otra vez para marcarla con <strong>×</strong> (para recordar que esa planta no va ahí); una tercera vez la deja vacía. La × no cuenta para ganar, es solo para no dudar dos veces.</p>
+      <p>Toca el icono de una planta para ver su ventana de riego (y con quién no puede coincidir, si aplica) durante unos segundos. Toca una celda para regarla; tócala otra vez para marcarla con <strong>×</strong> (para recordar que esa planta no va ahí); una tercera vez la deja vacía. La × no cuenta para ganar, es solo para no dudar dos veces.</p>
       ${descanso ? '<p>Ninguna planta se puede regar <strong>dos ciclos seguidos</strong>: la tierra tiene que secarse entre riego y riego.</p>' : ''}
-      ${incompatibles ? `<p><strong>${incompatibles[0]}</strong> y <strong>${incompatibles[1]}</strong> no pueden regarse en el mismo ciclo.</p>` : ''}
       <p>Y la regadera da para <strong>${capacity} riego${capacity === 1 ? '' : 's'} por ciclo</strong> como mucho.</p>
     `
   });
@@ -66,6 +86,9 @@ export async function render(root, data, hooks) {
   const state = {
     grid: plants.map(() => Array(cycles).fill(false)),
     regados: 0,   // riegos abiertos en total, la marca del reto
+    consultadas: new Set(),  // ids de planta ya vistas al menos una vez (gratis)
+    consultas: 0,            // repeticiones sobre una planta YA vista (la marca de la ficha)
+    fichaTimer: null,
     won: false
   };
 
@@ -89,15 +112,13 @@ export async function render(root, data, hooks) {
   plants.forEach((planta, i) => {
     const tr = createElement('tr', { class: `riego-planta riego-planta-${i}` });
     const nombre = createElement('td', { class: 'riego-nombre' });
+    nombre.addEventListener('click', () => onNombreClick(i));
+    const icono = createElement('span', { class: 'riego-icono' });
+    pintarIcono(icono, ICONO_PLANTA[planta.id], planta.id);
+    nombre.appendChild(icono);
     const nombreTexto = createElement('div', { class: 'riego-nombre-texto' });
     nombreTexto.textContent = planta.id;
     nombre.appendChild(nombreTexto);
-    const nota = ventanaTexto(planta, cycles);
-    if (nota) {
-      const notaEl = createElement('div', { class: 'riego-ventana-nota' });
-      notaEl.textContent = nota;
-      nombre.appendChild(notaEl);
-    }
     tr.appendChild(nombre);
 
     celdas.push([]);
@@ -137,6 +158,9 @@ export async function render(root, data, hooks) {
   btnReset.addEventListener('click', () => {
     state.grid = plants.map(() => Array(cycles).fill(false));
     state.won = false;
+    state.consultadas = new Set();
+    state.consultas = 0;
+    cerrarFicha();
     setStatus(ui.result, '', '');
     setStatus(ui.status, 'Listo para empezar', 'ok');
     refresh();
@@ -213,6 +237,45 @@ export async function render(root, data, hooks) {
     refresh();
   }
 
+  // Tocar el icono/nombre de una planta abre su ficha (ventana + con quién
+  // no puede coincidir, si aplica) durante 5s. La primera vez que se ve CADA
+  // planta es gratis; volver a abrir una ya vista suma a `consultas`, que
+  // cuenta para las estrellas junto a `movimientos` (ver estrellas.js).
+  function onNombreClick(i) {
+    if (state.won) return;
+    const planta = plants[i];
+    if (state.consultadas.has(planta.id)) state.consultas += 1;
+    else state.consultadas.add(planta.id);
+
+    cerrarFicha();
+    const ficha = createElement('div', { class: 'riego-ficha' });
+    const ventana = ventanaTexto(planta, cycles);
+    if (ventana) {
+      const p = createElement('p');
+      p.textContent = ventana;
+      ficha.appendChild(p);
+    }
+    if (incompatibles && incompatibles.includes(planta.id)) {
+      const otra = incompatibles.find((id) => id !== planta.id);
+      const p = createElement('p');
+      p.textContent = `No puede regarse el mismo ciclo que ${otra}.`;
+      ficha.appendChild(p);
+    }
+    if (!ficha.childNodes.length) {
+      const p = createElement('p');
+      p.textContent = 'Sin restricción de ventana: puede regarse en cualquier ciclo.';
+      ficha.appendChild(p);
+    }
+    celdas[i][0].closest('tr').querySelector('.riego-nombre').appendChild(ficha);
+    state.fichaTimer = setTimeout(cerrarFicha, 5000);
+  }
+
+  function cerrarFicha() {
+    if (state.fichaTimer) { clearTimeout(state.fichaTimer); state.fichaTimer = null; }
+    const abierta = root.querySelector('.riego-ficha');
+    if (abierta) abierta.remove();
+  }
+
   function refresh() {
     plants.forEach((planta, i) => {
       const tiene = riegosDePlanta(i);
@@ -257,7 +320,7 @@ export async function render(root, data, hooks) {
       } catch (err) {
         console.warn('No se pudo pintar la celebración:', err);
       }
-      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.regados });
+      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.regados, consultas: state.consultas });
     } else if (!state.won) {
       setStatus(ui.status, msgs.length ? 'Hay algo que no cuadra' : 'Sigue repartiendo los riegos', 'ok');
     }
