@@ -788,7 +788,7 @@
     "titulo": "El Riego",
     "variant": "invernadero",
     "seed": 0,
-    "dificultad": 3,
+    "dificultad": 4,
     "json_url": "data/debug/riego-plantas/invernadero.json"
   },
   {
@@ -796,7 +796,7 @@
     "titulo": "El Riego",
     "variant": "huerto",
     "seed": 1,
-    "dificultad": 2,
+    "dificultad": 3,
     "json_url": "data/debug/riego-plantas/huerto.json"
   },
   {
@@ -804,7 +804,7 @@
     "titulo": "El Riego",
     "variant": "vivero",
     "seed": 6,
-    "dificultad": 4,
+    "dificultad": 5,
     "json_url": "data/debug/riego-plantas/vivero.json"
   },
   {
