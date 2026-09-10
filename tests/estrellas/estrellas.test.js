@@ -88,6 +88,33 @@ describe('estrellasDe, casos de borde', () => {
   })
 })
 
+describe('estrellasDe, dos medidas a la vez (riego-plantas)', () => {
+  const obj = {
+    maxMovesFor3Stars: 14, maxMovesFor2Stars: 16,
+    maxConsultasFor3Stars: 0, maxConsultasFor2Stars: 2
+  }
+
+  it('las dos en su umbral de tres estrellas dan tres', () => {
+    expect(estrellasDe(obj, { movimientos: 14, consultas: 0 })).toBe(3)
+  })
+
+  it('movimientos perfectos pero demasiadas consultas: gana la peor', () => {
+    expect(estrellasDe(obj, { movimientos: 14, consultas: 5 })).toBe(1)
+  })
+
+  it('consultas perfectas pero muchos movimientos: gana la peor', () => {
+    expect(estrellasDe(obj, { movimientos: 40, consultas: 0 })).toBe(1)
+  })
+
+  it('las dos a medio camino dan dos', () => {
+    expect(estrellasDe(obj, { movimientos: 16, consultas: 2 })).toBe(2)
+  })
+
+  it('si la marca no reporta consultas, esa medida no penaliza', () => {
+    expect(estrellasDe(obj, { movimientos: 14 })).toBe(3)
+  })
+})
+
 describe('parDe', () => {
   it('describe la meta de los tipos de movimientos', () => {
     expect(parDe({ parMoves: 6, maxMovesFor3Stars: 6 })).toEqual({ valor: 6, unidad: 'movimientos' })
