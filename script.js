@@ -97,8 +97,9 @@ async function mostrarReto(fecha) {
     // (nonograma, para decidir si el acierto se ve en vivo o hace falta
     // pulsar "Comprobar").
     await window.Templates.render(reto.tipo, { ...(reto.data || {}), dificultad: reto.dificultad }, cont, {
-      // `marca` es lo que ha hecho quien juega, en la unidad que cuenta el par
-      // de su tipo: { movimientos }, { pesadas } o { fallos }.
+      // `marca` es lo que ha hecho quien juega: { movimientos }, { pesadas } o
+      // { fallos } según el tipo -- y un tipo puede reportar más de una clave
+      // a la vez (riego-plantas manda { movimientos, consultas }).
       onSuccess(marca) {
         const estrellas = estrellasDe(reto.objectives, marca);
         pintarEstrellas(estrellas);

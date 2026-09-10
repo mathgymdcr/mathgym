@@ -76,9 +76,10 @@ export async function render(root, data, hooks) {
     instructionsHTML: `
       <h3>Cómo se juega</h3>
       <p><strong>Objetivo:</strong> organiza el calendario para que cada planta reciba <strong>exactamente</strong> sus riegos.</p>
-      <p>Toca el icono de una planta para ver su ventana de riego (y con quién no puede coincidir, si aplica) durante unos segundos. Toca una celda para regarla; tócala otra vez para marcarla con <strong>×</strong> (para recordar que esa planta no va ahí); una tercera vez la deja vacía. La × no cuenta para ganar, es solo para no dudar dos veces.</p>
+      <p>Toca el icono de una planta para ver su ventana de riego (y con quién no puede coincidir, si aplica) durante unos segundos. Volver a mirar la ficha de una planta que ya has visto de más cuenta como una consulta y puede costarte estrellas. Toca una celda para regarla; tócala otra vez para marcarla con <strong>×</strong> (para recordar que esa planta no va ahí); una tercera vez la deja vacía. La × no cuenta para ganar, es solo para no dudar dos veces.</p>
       ${descanso ? '<p>Ninguna planta se puede regar <strong>dos ciclos seguidos</strong>: la tierra tiene que secarse entre riego y riego.</p>' : ''}
       <p>Y la regadera da para <strong>${capacity} riego${capacity === 1 ? '' : 's'} por ciclo</strong> como mucho.</p>
+      <p>Cuando el calendario esté completo, pulsa <strong>«Comprobar»</strong>: solo entonces se decide si está resuelto.</p>
     `
   });
   root.append(ui.box);
@@ -89,6 +90,7 @@ export async function render(root, data, hooks) {
     consultadas: new Set(),  // ids de planta ya vistas al menos una vez (gratis)
     consultas: 0,            // repeticiones sobre una planta YA vista (la marca de la ficha)
     fichaTimer: null,
+    fichaAbierta: null,      // índice de la planta cuya ficha está abierta, o null
     won: false
   };
 
@@ -114,7 +116,11 @@ export async function render(root, data, hooks) {
     const nombre = createElement('td', { class: 'riego-nombre' });
     nombre.addEventListener('click', () => onNombreClick(i));
     const icono = createElement('span', { class: 'riego-icono' });
-    pintarIcono(icono, ICONO_PLANTA[planta.id], planta.id);
+    // Sin alt: el nombre ya se pinta como texto justo al lado
+    // (`nombreTexto`), así que pasarlo también como alt haría que un lector
+    // de pantalla lo anunciara dos veces. pintarIcono sin alt marca la
+    // imagen `aria-hidden` (ver shell.js).
+    pintarIcono(icono, ICONO_PLANTA[planta.id] || '');
     nombre.appendChild(icono);
     const nombreTexto = createElement('div', { class: 'riego-nombre-texto' });
     nombreTexto.textContent = planta.id;
@@ -153,6 +159,10 @@ export async function render(root, data, hooks) {
   ui.box.appendChild(wrap);
 
   const controls = createElement('div', { class: 'riego-controls' });
+  const btnComprobar = createElement('button', { class: 'btn riego-btn-comprobar' });
+  btnComprobar.textContent = 'Comprobar';
+  btnComprobar.addEventListener('click', () => comprobar());
+  controls.appendChild(btnComprobar);
   const btnReset = createElement('button', { class: 'btn btn-secondary' });
   btnReset.textContent = 'Reiniciar';
   btnReset.addEventListener('click', () => {
@@ -243,12 +253,27 @@ export async function render(root, data, hooks) {
   // cuenta para las estrellas junto a `movimientos` (ver estrellas.js).
   function onNombreClick(i) {
     if (state.won) return;
+
+    // Tocar el icono de la planta cuya ficha YA está abierta la cierra sin
+    // volver a abrirla y sin cobrar otra consulta -- toggle, no recarga.
+    if (state.fichaAbierta === i) {
+      cerrarFicha();
+      return;
+    }
+
     const planta = plants[i];
     if (state.consultadas.has(planta.id)) state.consultas += 1;
     else state.consultadas.add(planta.id);
 
     cerrarFicha();
-    const ficha = createElement('div', { class: 'riego-ficha' });
+    // Para la última fila no hay sitio debajo (solo la fila de totales), así
+    // que su ficha se abre hacia arriba en vez de hacia abajo.
+    const esUltima = i === plants.length - 1;
+    const ficha = createElement('div', { class: esUltima ? 'riego-ficha riego-ficha-arriba' : 'riego-ficha' });
+    // Sin esto, cualquier click DENTRO de la ficha (leerla, un doble toque
+    // sin querer) burbujea hasta el <td> que la contiene y vuelve a disparar
+    // onNombreClick, cobrando otra consulta de más.
+    ficha.addEventListener('click', (e) => e.stopPropagation());
     const ventana = ventanaTexto(planta, cycles);
     if (ventana) {
       const p = createElement('p');
@@ -267,6 +292,7 @@ export async function render(root, data, hooks) {
       ficha.appendChild(p);
     }
     celdas[i][0].closest('tr').querySelector('.riego-nombre').appendChild(ficha);
+    state.fichaAbierta = i;
     state.fichaTimer = setTimeout(cerrarFicha, 5000);
   }
 
@@ -274,6 +300,7 @@ export async function render(root, data, hooks) {
     if (state.fichaTimer) { clearTimeout(state.fichaTimer); state.fichaTimer = null; }
     const abierta = root.querySelector('.riego-ficha');
     if (abierta) abierta.remove();
+    state.fichaAbierta = null;
   }
 
   function refresh() {
@@ -307,23 +334,46 @@ export async function render(root, data, hooks) {
       setStatus(ui.result, '', '');
     }
 
-    if (!msgs.length && completo && !state.won) {
-      state.won = true;
-      setStatus(ui.status, '¡Calendario de riego resuelto!', 'ok');
-      // celebrate() primero: onSuccess (script.js) pinta las estrellas y el
-      // botón de compartir DENTRO de .celebration-overlay, así que ese overlay
-      // tiene que existir ya cuando se llama. Va envuelto en try/catch para
-      // que un fallo del confeti (el <canvas>) no se lleve por delante el
-      // registro del progreso del jugador, que sigue siendo incondicional.
-      try {
-        celebrate({ ok: true, message: 'Todas las plantas regadas en su punto' });
-      } catch (err) {
-        console.warn('No se pudo pintar la celebración:', err);
-      }
-      if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.regados, consultas: state.consultas });
-    } else if (!state.won) {
-      setStatus(ui.status, msgs.length ? 'Hay algo que no cuadra' : 'Sigue repartiendo los riegos', 'ok');
+    // La victoria ya NO se declara sola al completar el tablero: hace falta
+    // pulsar «Comprobar» (ver comprobar()), igual que laser-triangular en
+    // medio/grande. El feedback en vivo (errores de capacidad/descanso/
+    // ventana, dosis completas o pasadas) se mantiene aquí sin cambios.
+    if (!state.won) {
+      setStatus(ui.status, msgs.length ? 'Hay algo que no cuadra'
+        : (completo ? 'Todo listo. Pulsa «Comprobar».' : 'Sigue repartiendo los riegos'), 'ok');
     }
+  }
+
+  // Único punto donde se decide la victoria: solo se llama al pulsar
+  // «Comprobar», nunca desde refresh(). Repetir la comprobación sin haber
+  // cambiado nada no cuesta nada (no hay contador de intentos de comprobar).
+  function comprobar() {
+    if (state.won) return;
+    const msgs = problemas();
+    const completo = plants.every((planta, i) => riegosDePlanta(i) === planta.doses);
+
+    if (msgs.length) {
+      setStatus(ui.status, msgs[0], 'ko');
+      return;
+    }
+    if (!completo) {
+      setStatus(ui.status, 'Aún faltan riegos por repartir', 'ko');
+      return;
+    }
+
+    state.won = true;
+    setStatus(ui.status, '¡Calendario de riego resuelto!', 'ok');
+    // celebrate() primero: onSuccess (script.js) pinta las estrellas y el
+    // botón de compartir DENTRO de .celebration-overlay, así que ese overlay
+    // tiene que existir ya cuando se llama. Va envuelto en try/catch para
+    // que un fallo del confeti (el <canvas>) no se lleve por delante el
+    // registro del progreso del jugador, que sigue siendo incondicional.
+    try {
+      celebrate({ ok: true, message: 'Todas las plantas regadas en su punto' });
+    } catch (err) {
+      console.warn('No se pudo pintar la celebración:', err);
+    }
+    if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.regados, consultas: state.consultas });
   }
 }
 
