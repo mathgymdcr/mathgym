@@ -79,3 +79,29 @@ describe('validateRiegoData con incompatibles', () => {
       .rejects.toThrow(/incompatibles debe ser un par/i)
   })
 })
+
+describe('validateRiegoData exige margen por planta, no por suma total', () => {
+  it('rechaza una planta con holgura cero aunque la suma total cumpliera antes', async () => {
+    // REGRESIÓN: el código anterior sumaba holgura total; pasaba si suma >= num_plantas.
+    // El nuevo código verifica cada planta por separado; rechaza si alguna tiene
+    // holgura < MARGEN_MINIMO[variant] (1 para huerto/invernadero/vivero).
+    //
+    // Este payload tiene una solución ÚNICA (requiere descanso para forzar Menta):
+    // - Helecho: 1 dose, ventana [6] → holgura 0, FORZADA al ciclo 6
+    // - Menta: 3 doses, ventana [0,1,2,3,4] → holgura 2, pero el descanso (gap>=2)
+    //   obliga a {0,2,4}, la única forma de poner 3 dosis no-consecutivas en 5 ciclos.
+    //
+    // CONTRASTE DE LA REGRESIÓN:
+    // - Suma total: 0 + 2 = 2, plantas: 2 → viejo check: 2 < 2? FALSE → PASA (bug)
+    // - Por planta: Helecho 0 < 1 → RECHAZA, nombrando Helecho (correcto)
+    const reto = await retoConPayload({
+      cycles: 7, capacity: 1,
+      plants: [
+        { id: 'Helecho', doses: 1, ventana: [6] },           // holgura 0 - VIOLA piso
+        { id: 'Menta', doses: 3, ventana: [0, 1, 2, 3, 4] }  // holgura 2 - cumple
+      ]
+    })
+    await expect(new RetoValidator().validateRiegoData(reto))
+      .rejects.toThrow(/sin margen.*Helecho/i)
+  })
+})
