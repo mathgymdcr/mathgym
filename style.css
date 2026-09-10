@@ -3094,21 +3094,47 @@ li {
   text-align: right;
   padding-right: 8px;
   font-weight: 600;
+  position: relative;
+  cursor: pointer;
 }
 
 .riego-nombre-texto {
   white-space: nowrap;
 }
 
-/* La ventana de cada planta, en texto, junto a su nombre: antes se veía
-   tachada directamente en el tablero y no había nada que deducir. */
-.riego-ventana-nota {
-  font-weight: 400;
-  font-size: 0.72rem;
-  color: var(--muted, #aab3c5);
+.riego-icono {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.riego-icono img {
+  width: 100%;
+  height: 100%;
+}
+
+/* Ficha temporal (ventana + con quién no puede coincidir) que se abre al
+   tocar el icono/nombre de una planta y se autocierra sola a los 5s. */
+.riego-ficha {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  min-width: 220px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface-2, #212b3b);
+  border: 1px solid var(--accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .4);
+  font-size: .85rem;
+  text-align: left;
   white-space: normal;
-  max-width: 170px;
-  margin-left: auto;
+}
+
+.riego-ficha p {
+  margin: 4px 0;
 }
 
 .riego-cell {
