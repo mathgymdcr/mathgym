@@ -11,7 +11,7 @@ import { pistasDe, pistasColorDe, resolverNonograma } from './nonograma-logic.js
 import { solveCajas } from './cajas-logic.js';
 import { resolverAnillas } from './anillas-logic.js';
 import { resuelto as laserResuelto, piezasMinimas, crearPiezas, normalizaConfig, MODOS, COLORES, DIR_VECTOR } from './laser-triangular-logic.js';
-import { contarSoluciones as contarRiegos, combinacionesPlanta } from './riego-logic.js';
+import { contarSoluciones as contarRiegos, combinacionesPlanta, MARGEN_MINIMO } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
@@ -942,10 +942,16 @@ class RetoValidator {
       throw new Error('Riego-plantas ambiguo: hay al menos 2 calendarios válidos distintos');
     }
 
-    // Con las ventanas clavadas a la solución no hay nada que decidir.
-    const holgura = data.plants.reduce((acc, p) => acc + (p.ventana.length - p.doses), 0);
-    if (holgura < data.plants.length) {
-      throw new Error(`Riego-plantas sin margen de decisión: holgura total ${holgura} para ${data.plants.length} plantas`);
+    // Con las ventanas clavadas a la solución no hay nada que decidir --
+    // por planta, no por suma total (una planta de holgura 5 no puede
+    // compensar a otra de holgura 0: ver MARGEN_MINIMO en riego-logic.js).
+    const variant = MARGEN_MINIMO[data.variant] !== undefined ? data.variant : 'huerto';
+    const falta = data.plants.find((p) => (p.ventana.length - p.doses) < MARGEN_MINIMO[variant]);
+    if (falta) {
+      throw new Error(
+        `Riego-plantas sin margen de decisión: ${falta.id} solo tiene holgura ` +
+        `${falta.ventana.length - falta.doses} (mínimo ${MARGEN_MINIMO[variant]} para ${variant})`
+      );
     }
   }
 
