@@ -35,5 +35,9 @@
         5
       ]
     }
+  ],
+  "incompatibles": [
+    "Lavanda",
+    "Menta"
   ]
 }

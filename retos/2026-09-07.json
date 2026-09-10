@@ -8,15 +8,17 @@
     "planificacion"
   ],
   "hints": [
-    "Empieza por Helecho: con su ventana (ciclos 1, 5) y el descanso obligatorio solo hay UNA forma de repartir sus 2 riegos, así que esos días ya están decididos.",
-    "El ciclo 1 lo tienen en su ventana 4 plantas, pero la regadera solo da para 3 riegos por ciclo. Mira quién puede permitirse regar otro día y quién no, porque ahí es donde se rompe el empate.",
+    "Empieza por Jazmín: con su ventana (ciclos 4, 5, 6) y el descanso obligatorio solo hay UNA forma de repartir sus 2 riegos, así que esos días ya están decididos.",
+    "El ciclo 6 lo tienen en su ventana 5 plantas, pero la regadera solo da para 3 riegos por ciclo. Mira quién puede permitirse regar otro día y quién no, porque ahí es donde se rompe el empate.",
     "La regla que más se olvida: ninguna planta puede regarse dos ciclos seguidos. Si te cuadran todas las dosis pero el reto no se da por bueno, casi siempre hay una planta con dos riegos pegados."
   ],
   "objectives": {
     "winCondition": "watering_schedule_valid",
-    "parMoves": 14,
-    "maxMovesFor3Stars": 14,
-    "maxMovesFor2Stars": 16
+    "parMoves": 12,
+    "maxMovesFor3Stars": 12,
+    "maxMovesFor2Stars": 14,
+    "maxConsultasFor3Stars": 0,
+    "maxConsultasFor2Stars": 2
   },
   "data": {
     "json_url": "data/riego_2026-09-07.json"
