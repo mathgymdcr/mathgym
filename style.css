@@ -791,6 +791,12 @@ li {
   color: var(--fg);
 }
 
+.polygon-hint {
+  margin-top: 8px !important;
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
 /* Contenedor principal */
 .polygon-container {
   display: flex;

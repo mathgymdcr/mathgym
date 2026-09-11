@@ -33,6 +33,7 @@ export async function render(root, data, hooks) {
 
   // Actualizar el objetivo mostrado (buildShell se ejecutó antes de cargar config)
   const instructionsP = ui.box.querySelector('.polygon-instructions p');
+  const hintP = ui.box.querySelector('.polygon-hint');
   if (instructionsP) {
     const totales = (config.n_figuras ?? 1) > 1 ? ' (totales de las dos figuras)' : '';
     const forma = {
@@ -45,6 +46,24 @@ export async function render(root, data, hooks) {
     }[config.formas ?? 'libre'] || '';
     instructionsP.innerHTML =
       `<strong>Objetivo:</strong> Área = ${config.area}, Perímetro = ${config.perimeter}${totales}${forma}`;
+  }
+  if (hintP) {
+    const ENTRANTE =
+      'Un «entrante» es una esquina que gira hacia dentro de la figura en vez de hacia fuera: ' +
+      'un ángulo interior de 270° (una muesca), en lugar de los 90° de una esquina normal.';
+    const SIN_ENTRANTES =
+      'Sin entrantes, la única figura posible (con pasos rectos horizontales y verticales) es un rectángulo: ' +
+      'todas sus esquinas giran hacia fuera, a 90°.';
+    const hint = {
+      'libre': '',
+      'convexa': SIN_ENTRANTES,
+      'concava': ENTRANTE,
+      'ambas-convexas': `Las dos figuras serán rectángulos: ${SIN_ENTRANTES}`,
+      'una-de-cada': `Una figura será un rectángulo y la otra necesita al menos un entrante. ${ENTRANTE}`,
+      'ambas-concavas': `Las dos figuras necesitan al menos un entrante. ${ENTRANTE}`
+    }[config.formas ?? 'libre'] || '';
+    hintP.textContent = hint;
+    hintP.hidden = !hint;
   }
 
   // Inicializar variables del juego
@@ -427,6 +446,7 @@ function buildShell(data) {
   const instructions = createElement('div', { class: 'polygon-instructions' });
   instructions.innerHTML = `
     <p><strong>Objetivo:</strong> ${data.area ? `Área = ${data.area}, Perímetro = ${data.perimeter}` : 'Construir polígono con medidas específicas'}</p>
+    <p class="polygon-hint"></p>
   `;
   box.appendChild(instructions);
 

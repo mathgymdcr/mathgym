@@ -59,16 +59,39 @@ export async function render(root, data, hooks) {
   // ---------- Eventos ----------
   ui.weighButton.addEventListener('click', function () { onWeigh(ui, state); });
   ui.clearButton.addEventListener('click', function () { clearPlates(ui, state); });
-  ui.resetButton.addEventListener('click', function () { render(root, data, hooks); });
+  ui.resetButton.addEventListener('click', function () { reiniciarPartida(); });
   ui.checkButton.addEventListener('click', function () { onCheck(ui, state, config, hooks); });
 
+  // "Reiniciar" sortea una moneda anómala nueva en vez de repetir la del
+  // generador: si no lo hiciera, cualquiera podría pesar sin ton ni son
+  // hasta identificar al impostor por fuerza bruta, pulsar Reiniciar y
+  // colar esa respuesta ya conocida en una única pesada "limpia", como si
+  // la hubiera deducido. Cambiar la moneda no cambia la dificultad (el
+  // mínimo teórico depende de n_monedas/variant/k_impostoras, no de cuál
+  // moneda es la falsa), así que sigue siendo el mismo reto de hoy.
+  function reiniciarPartida() {
+    generateAnomalies(state, config, true);
+    state.weighings = 0;
+    state.selectedCoin = null;
+    state.log = [];
+    state.answer = { heavy: new Set(), light: new Set(), single: null, singleSign: 1 };
+    state.gameWon = false;
+    ui.weighingsCount.textContent = '0';
+    renderCoins(ui.coinsContainer, state);
+    renderBalance(ui.balanceContainer, state);
+    renderAnswerSelector(ui.answerContainer, state);
+    setStatus(ui.message, '', '');
+    setStatus(ui.result, '', '');
+  }
+
   // ========================= LÓGICA =========================
-  function generateAnomalies(s, cfg) {
+  function generateAnomalies(s, cfg, forceRandom) {
     // Si el generador ya fijó qué moneda(s) son anómalas (seedeado por
-    // fecha), se usan tal cual -- así el reto de hoy es el mismo para
-    // todo el mundo. Solo se cae a Math.random() si faltan (datos
-    // antiguos o de prueba manual sin generador).
-    if (Array.isArray(cfg.anomalies) && cfg.anomalies.length > 0) {
+    // fecha), se usan tal cual en el primer render -- así el reto de hoy
+    // empieza igual para todo el mundo. Solo se cae a Math.random() si
+    // faltan (datos antiguos o de prueba manual sin generador) o si
+    // reiniciarPartida() pide explícitamente una nueva al azar.
+    if (!forceRandom && Array.isArray(cfg.anomalies) && cfg.anomalies.length > 0) {
       s.anomalies = cfg.anomalies;
       return;
     }
