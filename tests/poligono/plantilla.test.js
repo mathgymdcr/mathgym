@@ -110,4 +110,48 @@ describe('plantilla de poligono', () => {
     j.validar()
     expect(j.ganado()).toBe(0)
   })
+
+  it('pulsar dos nodos en la misma fila, no contiguos, rellena los segmentos intermedios de una vez', async () => {
+    const j = await monta(UNA)
+    nodo(j.host, 0, 0).click()
+    nodo(j.host, 0, 3).click()
+    expect(segmento(j.host, 0, 0, 0, 1).classList.contains('puesta')).toBe(true)
+    expect(segmento(j.host, 0, 1, 0, 2).classList.contains('puesta')).toBe(true)
+    expect(segmento(j.host, 0, 2, 0, 3).classList.contains('puesta')).toBe(true)
+  })
+
+  it('lo mismo en columna', async () => {
+    const j = await monta(UNA)
+    nodo(j.host, 0, 0).click()
+    nodo(j.host, 3, 0).click()
+    expect(segmento(j.host, 0, 0, 1, 0).classList.contains('puesta')).toBe(true)
+    expect(segmento(j.host, 1, 0, 2, 0).classList.contains('puesta')).toBe(true)
+    expect(segmento(j.host, 2, 0, 3, 0).classList.contains('puesta')).toBe(true)
+  })
+
+  it('el relleno no borra un segmento intermedio ya puesto', async () => {
+    const j = await monta(UNA)
+    nodo(j.host, 0, 1).click()
+    nodo(j.host, 0, 2).click()
+    nodo(j.host, 0, 0).click()
+    nodo(j.host, 0, 3).click()
+    expect(segmento(j.host, 0, 0, 0, 1).classList.contains('puesta')).toBe(true)
+    expect(segmento(j.host, 0, 1, 0, 2).classList.contains('puesta')).toBe(true)
+    expect(segmento(j.host, 0, 2, 0, 3).classList.contains('puesta')).toBe(true)
+  })
+
+  it('el relleno puede dejar un nodo a grado 3 a proposito; Validar lo rechaza', async () => {
+    const j = await monta(UNA)
+    // Grado 2 en (2,2): aristas a (2,3) y a (1,2).
+    nodo(j.host, 2, 3).click()
+    nodo(j.host, 2, 2).click()
+    nodo(j.host, 1, 2).click()
+    nodo(j.host, 2, 2).click()
+    // Relleno de (2,0) a (2,4): sin comprobar grado, (2,2) pasa a grado 3.
+    nodo(j.host, 2, 0).click()
+    nodo(j.host, 2, 4).click()
+    expect(segmento(j.host, 2, 1, 2, 2).classList.contains('puesta')).toBe(true)
+    j.validar()
+    expect(j.ganado()).toBe(0)
+  })
 })

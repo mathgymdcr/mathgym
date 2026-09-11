@@ -36,32 +36,24 @@ export async function render(root, data, hooks) {
   const hintP = ui.box.querySelector('.polygon-hint');
   if (instructionsP) {
     const totales = (config.n_figuras ?? 1) > 1 ? ' (totales de las dos figuras)' : '';
-    const forma = {
-      'libre': '',
-      'convexa': ' · sin entrantes',
-      'concava': ' · con al menos un entrante',
-      'ambas-convexas': ' · las dos sin entrantes',
-      'una-de-cada': ' · una sin entrantes y otra con al menos uno',
-      'ambas-concavas': ' · las dos con al menos un entrante'
-    }[config.formas ?? 'libre'] || '';
+    // El área y el perímetro NO dicen aquí si hace falta un entrante o no --
+    // eso es parte de lo que hay que deducir jugando (para algunos pares de
+    // área/perímetro hay más de una familia de figura válida, y `formas` es
+    // justo lo que desempata cuál toca hoy). Decirlo por adelantado sería
+    // regalar esa deducción.
     instructionsP.innerHTML =
-      `<strong>Objetivo:</strong> Área = ${config.area}, Perímetro = ${config.perimeter}${totales}${forma}`;
+      `<strong>Objetivo:</strong> Área = ${config.area}, Perímetro = ${config.perimeter}${totales}`;
   }
   if (hintP) {
-    const ENTRANTE =
-      'Un «entrante» es una esquina que gira hacia dentro de la figura en vez de hacia fuera: ' +
-      'un ángulo interior de 270° (una muesca), en lugar de los 90° de una esquina normal.';
-    const SIN_ENTRANTES =
-      'Sin entrantes, la única figura posible (con pasos rectos horizontales y verticales) es un rectángulo: ' +
-      'todas sus esquinas giran hacia fuera, a 90°.';
-    const hint = {
-      'libre': '',
-      'convexa': SIN_ENTRANTES,
-      'concava': ENTRANTE,
-      'ambas-convexas': `Las dos figuras serán rectángulos: ${SIN_ENTRANTES}`,
-      'una-de-cada': `Una figura será un rectángulo y la otra necesita al menos un entrante. ${ENTRANTE}`,
-      'ambas-concavas': `Las dos figuras necesitan al menos un entrante. ${ENTRANTE}`
-    }[config.formas ?? 'libre'] || '';
+    // Explica la REGLA (qué es un entrante, que sin entrantes solo cabe un
+    // rectángulo) sin decir si el reto de HOY necesita uno o no -- eso sigue
+    // oculto. Solo se enseña si `formas` de verdad restringe algo: en
+    // 'libre' cualquier figura vale y esta explicación no aportaría nada.
+    const hint = (config.formas && config.formas !== 'libre')
+      ? 'Un «entrante» es una esquina que gira hacia dentro de la figura en vez de hacia fuera: ' +
+        'un ángulo interior de 270° (una muesca), en lugar de los 90° de una esquina normal. ' +
+        'Con pasos rectos horizontales y verticales, una figura SIN entrantes es siempre un rectángulo.'
+      : '';
     hintP.textContent = hint;
     hintP.hidden = !hint;
   }
@@ -191,10 +183,41 @@ export async function render(root, data, hooks) {
     }
   }
 
+  // Añade las aristas unitarias que falten en el camino recto entre `a` y
+  // `b` (misma fila o misma columna, ya comprobado por quien llama). Un
+  // solo paso de deshacer para todo el relleno, no uno por segmento -- y
+  // ninguno si el relleno no añade nada nuevo (todo ya estaba puesto).
+  function rellenaLinea(a, b, state) {
+    const pasos = [];
+    if (a.r === b.r) {
+      const [c1, c2] = a.c < b.c ? [a.c, b.c] : [b.c, a.c];
+      for (let c = c1; c < c2; c++) pasos.push([{ r: a.r, c }, { r: a.r, c: c + 1 }]);
+    } else {
+      const [r1, r2] = a.r < b.r ? [a.r, b.r] : [b.r, a.r];
+      for (let r = r1; r < r2; r++) pasos.push([{ r, c: a.c }, { r: r + 1, c: a.c }]);
+    }
+
+    const nuevas = new Set(state.aristas);
+    let cambia = false;
+    for (const [p, q] of pasos) {
+      const clave = claveArista(p, q);
+      if (!nuevas.has(clave)) {
+        nuevas.add(clave);
+        cambia = true;
+      }
+    }
+    if (!cambia) return;
+    pushHistory(state);
+    state.aristas = nuevas;
+  }
+
   // Un nodo pulsado se selecciona; pulsar un segundo nodo ADYACENTE traza
-  // el segmento entre los dos y limpia la selección. Da igual el grado que
-  // tenga cada nodo o si el tablero ya está cerrado: cualquier nodo libre
-  // sirve de punto de partida, así que cerrar una figura no bloquea nada.
+  // el segmento entre los dos y limpia la selección. Pulsar uno en la misma
+  // fila o columna (aunque no sea contiguo) rellena de una vez todos los
+  // segmentos del camino recto entre ambos -- ver rellenaLinea. Da igual el
+  // grado que tenga cada nodo o si el tablero ya está cerrado: cualquier
+  // nodo libre sirve de punto de partida, así que cerrar una figura no
+  // bloquea nada.
   function onNodeClick(e, state, ui) {
     const dot = e.currentTarget;
     const nodo = { r: +dot.dataset.r, c: +dot.dataset.c };
@@ -213,8 +236,24 @@ export async function render(root, data, hooks) {
     }
 
     const vecino = Math.abs(state.seleccionado.r - nodo.r) + Math.abs(state.seleccionado.c - nodo.c) === 1;
+    const enLinea = state.seleccionado.r === nodo.r || state.seleccionado.c === nodo.c;
+
+    if (!vecino && enLinea) {
+      // Misma fila o columna pero no contiguo: relleno de todos los
+      // segmentos unitarios del camino recto entre los dos, de una sola
+      // vez. Solo añade los que faltan (nunca quita uno ya puesto, igual
+      // que pulsar dos nodos con la arista ya trazada no la borra) y SIN
+      // comprobar grado 2 ni cruces -- si el relleno deja la figura
+      // inválida, «Validar» ya lo detecta (figurasDeAristas().invalido);
+      // el jugador lo corrige borrando el segmento que sobra.
+      rellenaLinea(state.seleccionado, nodo, state);
+      state.seleccionado = null;
+      refresh(ui, state);
+      return;
+    }
+
     if (!vecino) {
-      // No adyacente: mueve la selección al nuevo nodo en vez de fallar.
+      // Ni contiguo ni en línea: mueve la selección al nuevo nodo en vez de fallar.
       state.seleccionado = nodo;
       refresh(ui, state);
       return;
