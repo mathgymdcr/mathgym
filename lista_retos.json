@@ -197,5 +197,14 @@
     "categorias": [
       "geometria"
     ]
+  },
+  {
+    "fecha": "2026-09-11",
+    "titulo": "Mezcla Exacta",
+    "dificultad": 3,
+    "categorias": [
+      "volumen",
+      "movimiento"
+    ]
   }
 ]
