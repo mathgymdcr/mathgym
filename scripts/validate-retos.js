@@ -6,7 +6,7 @@ import { solveMezcla, initialLevelsMezcla, minimoExigidoMezcla, objetivosMezcla 
 import { solveLightsOutFor } from './lightsout-logic.js';
 import { alcanzable, clasifica, repartos } from './poligono-logic.js';
 import { solveRelojes } from './relojes-logic.js';
-import { solveHashi, construirPares } from './hashi-logic.js';
+import { solveHashi, construirPares, FORMA_FIJA } from './hashi-logic.js';
 import { pistasDe, pistasColorDe, resolverNonograma } from './nonograma-logic.js';
 import { solveCajas } from './cajas-logic.js';
 import { resolverAnillas } from './anillas-logic.js';
@@ -545,6 +545,19 @@ class RetoValidator {
       // 8 es el máximo físico: 4 direcciones x 2 puentes.
       if (isla.grado < 1 || isla.grado > 8) {
         throw new Error(`Puentes-hashi grado fuera de rango 1..8: ${JSON.stringify(isla)}`);
+      }
+      // La forma no es decoración: cuadrado/triángulo/rectángulo dicen el
+      // grado sin número visible, así que si no coincide el reto miente.
+      if (isla.forma != null) {
+        if (!(isla.forma in FORMA_FIJA)) {
+          throw new Error(`Puentes-hashi forma desconocida: ${JSON.stringify(isla)}`);
+        }
+        if (isla.grado !== FORMA_FIJA[isla.forma]) {
+          throw new Error(
+            `Puentes-hashi forma "${isla.forma}" exige grado ${FORMA_FIJA[isla.forma]}, ` +
+            `pero la isla tiene grado ${isla.grado}: ${JSON.stringify(isla)}`
+          );
+        }
       }
       const clave = `${isla.row},${isla.col}`;
       if (celdas.has(clave)) {

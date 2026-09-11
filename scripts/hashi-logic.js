@@ -330,13 +330,36 @@ function eligeEje(opciones, seed, mascara) {
 // nombres, que es lo que se sortea.
 export const NOMBRES_VARIANTE = Object.keys(VARIANTES);
 
-export function varianteDeSeed(seed) {
+export function tamanoDeSeed(seed) {
   return eligeEje(NOMBRES_VARIANTE, seed, 0x71b3d40f);
 }
 
+// Eje independiente del tamaño (mismo patrón que incompatibles en riego):
+// cuando toca, los chips de grado 2/3/4 se dibujan con su forma fija
+// (rectángulo/triángulo/cuadrado) en vez de círculo libre, y pierden el
+// número -- la forma YA dice el grado. El grado exacto que le corresponde a
+// cada forma no se sortea, es la clave del reto: dos formas con el mismo
+// grado no tendrían sentido.
+export const FORMA_FIJA = { cuadrado: 4, triangulo: 3, rectangulo: 2 };
+const GRADO_A_FORMA = Object.fromEntries(
+  Object.entries(FORMA_FIJA).map(([forma, grado]) => [grado, forma])
+);
+
+export function formasDeSeed(seed) {
+  return eligeEje([true, false], seed, 0x9c14e0a2);
+}
+
+// Solo para reporte externo (tests/ejes/reparto.test.js): el tamaño real
+// que usa el generador es tamanoDeSeed, no este sufijo.
+export function varianteDeSeed(seed) {
+  const tamano = tamanoDeSeed(seed);
+  return formasDeSeed(seed) ? `${tamano}-formas` : tamano;
+}
+
 export function buildHashiPuzzle(seed) {
-  const variant = varianteDeSeed(seed);
+  const variant = tamanoDeSeed(seed);
   const cfg = VARIANTES[variant];
+  const formas = formasDeSeed(seed);
 
   for (let intento = 0; intento < MAX_INTENTOS; intento++) {
     const rand = mulberry32((seed + intento * 7919) >>> 0);
@@ -352,13 +375,27 @@ export function buildHashiPuzzle(seed) {
     const res = solveHashi({ rows: cand.rows, cols: cand.cols, islands: cand.islands }, { tope: 2 });
     if (res.soluciones !== 1) continue;
 
+    // Si toca el eje, hace falta al menos una isla de grado 2/3/4: si no hay
+    // ninguna, el reto saldría marcado "formas" sin que se vea ninguna forma
+    // fija, y eso sería la dificultad extra sin nada que deducir a cambio.
+    let islands = cand.islands;
+    if (formas) {
+      const elegibles = cand.islands.filter((isla) => GRADO_A_FORMA[isla.grado]);
+      if (!elegibles.length) continue;
+      islands = cand.islands.map((isla) =>
+        GRADO_A_FORMA[isla.grado] ? { ...isla, forma: GRADO_A_FORMA[isla.grado] } : isla
+      );
+    }
+
     const total = cand.puentes.reduce((acc, p) => acc + p.count, 0);
+    const base = variant === 'pequeno' ? 2 : (cand.islands.length >= 15 ? 4 : 3);
     return {
       variant,
       rows: cand.rows,
       cols: cand.cols,
-      islands: cand.islands,
-      dificultad: variant === 'pequeno' ? 2 : (cand.islands.length >= 15 ? 4 : 3),
+      islands,
+      formas,
+      dificultad: Math.min(5, base + (formas ? 1 : 0)),
       solucion: { puentes: cand.puentes, total },
       intentos: intento + 1
     };

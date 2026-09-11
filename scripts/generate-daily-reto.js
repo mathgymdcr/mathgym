@@ -522,14 +522,15 @@ class MathGymGenerator {
     // de solución ÚNICA viven en hashi-logic.js, que el validador reusa para
     // volver a contar soluciones sobre el JSON ya escrito.
     const puzzle = buildHashiPuzzle(seed);
-    const { variant, rows, cols, islands, dificultad, solucion } = puzzle;
+    const { variant, rows, cols, islands, formas, dificultad, solucion } = puzzle;
 
     const config = {
       variant,
       rows,
       cols,
       islands,
-      min_puentes: solucion.total
+      min_puentes: solucion.total,
+      ...(formas ? { formas: true } : {})
     };
 
     const dataFileName = `hashi_${fecha}.json`;

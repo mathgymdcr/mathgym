@@ -708,7 +708,7 @@
     "titulo": "Conecta los Chips",
     "variant": "clasico",
     "seed": 0,
-    "dificultad": 3,
+    "dificultad": 4,
     "json_url": "data/debug/puentes-hashi/clasico.json"
   },
   {
@@ -716,7 +716,7 @@
     "titulo": "Conecta los Chips",
     "variant": "pequeno",
     "seed": 4,
-    "dificultad": 2,
+    "dificultad": 3,
     "json_url": "data/debug/puentes-hashi/pequeno.json"
   },
   {

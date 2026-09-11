@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildHashiPuzzle, solveHashi, construirPares } from '../../scripts/hashi-logic.js'
+import { buildHashiPuzzle, solveHashi, construirPares, formasDeSeed, varianteDeSeed, FORMA_FIJA } from '../../scripts/hashi-logic.js'
 
 const SEEDS = [20260821, 20260901, 20261115, 20270102, 1, 7, 42, 12345]
 
@@ -79,7 +79,7 @@ describe('buildHashiPuzzle', () => {
         expect(p.cols).toBe(9)
       }
       expect(p.dificultad).toBeGreaterThanOrEqual(2)
-      expect(p.dificultad).toBeLessThanOrEqual(4)
+      expect(p.dificultad).toBeLessThanOrEqual(5)
     }
     expect([...vistas].sort()).toEqual(['clasico', 'pequeno'])
   })
@@ -90,6 +90,66 @@ describe('buildHashiPuzzle', () => {
       const hayDoble = p.solucion.puentes.some((b) => b.count === 2)
       const hayCiclo = p.solucion.puentes.length >= p.islands.length
       expect(hayDoble || hayCiclo, `seed ${seed}`).toBe(true)
+    }
+  })
+})
+
+describe('eje de formas de chip', () => {
+  const baseDificultad = (variant, nIslas) =>
+    variant === 'pequeno' ? 2 : (nIslas >= 15 ? 4 : 3)
+
+  it('formasDeSeed es determinista y da los dos valores en un barrido de seeds', () => {
+    const vistos = new Set()
+    for (let seed = 0; seed < 60; seed++) {
+      const a = formasDeSeed(seed)
+      const b = formasDeSeed(seed)
+      expect(a, `seed ${seed}`).toBe(b)
+      vistos.add(a)
+    }
+    expect([...vistos].sort()).toEqual([false, true])
+  })
+
+  it('FORMA_FIJA fija el grado exacto de cada forma no circular', () => {
+    expect(FORMA_FIJA).toEqual({ cuadrado: 4, triangulo: 3, rectangulo: 2 })
+  })
+
+  it('varianteDeSeed añade el sufijo -formas cuando el eje toca, y nada más', () => {
+    for (let seed = 0; seed < 60; seed++) {
+      const p = buildHashiPuzzle(seed)
+      const esperado = formasDeSeed(seed) ? `${p.variant}-formas` : p.variant
+      expect(varianteDeSeed(seed), `seed ${seed}`).toBe(esperado)
+    }
+  })
+
+  it('cuando el eje toca: al menos una isla tiene forma, y toda isla con forma cuadra con su grado fijo', () => {
+    for (let seed = 0; seed < 60; seed++) {
+      if (!formasDeSeed(seed)) continue
+      const p = buildHashiPuzzle(seed)
+      expect(p.formas, `seed ${seed}`).toBe(true)
+      const conForma = p.islands.filter((isla) => isla.forma)
+      expect(conForma.length, `seed ${seed}`).toBeGreaterThan(0)
+      for (const isla of conForma) {
+        expect(Object.keys(FORMA_FIJA), `seed ${seed}`).toContain(isla.forma)
+        expect(isla.grado, `seed ${seed}, isla ${JSON.stringify(isla)}`).toBe(FORMA_FIJA[isla.forma])
+      }
+    }
+  })
+
+  it('cuando el eje NO toca: ninguna isla lleva forma, y el payload no marca formas', () => {
+    for (let seed = 0; seed < 60; seed++) {
+      if (formasDeSeed(seed)) continue
+      const p = buildHashiPuzzle(seed)
+      expect(p.formas, `seed ${seed}`).toBeFalsy()
+      expect(p.islands.some((isla) => isla.forma), `seed ${seed}`).toBe(false)
+    }
+  })
+
+  it('la dificultad sube +1 (tope 5) exactamente cuando el eje toca', () => {
+    for (let seed = 0; seed < 60; seed++) {
+      const p = buildHashiPuzzle(seed)
+      const base = baseDificultad(p.variant, p.islands.length)
+      const esperada = Math.min(5, base + (formasDeSeed(seed) ? 1 : 0))
+      expect(p.dificultad, `seed ${seed}`).toBe(esperada)
     }
   })
 })

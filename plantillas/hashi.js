@@ -33,6 +33,12 @@ export async function render(root, data, hooks) {
   const islaEnCelda = new Map();
   islas.forEach((isla, idx) => islaEnCelda.set(`${isla.row},${isla.col}`, idx));
 
+  // Los chips con forma fija no llevan número: la forma ya dice el grado, y
+  // esa regla solo se explica cuando el reto de verdad la usa.
+  const parrafoFormas = islas.some((isla) => isla.forma) ? `
+      <p>Algunos chips no llevan número: su forma ya dice cuántos cables piden. Cuadrado son 4, triángulo 3 y rectángulo 2. El chip redondeado normal sigue mostrando su número como siempre.</p>
+    ` : '';
+
   const ui = buildStandardShell({
     tipo: 'puentes-hashi',
     gameClass: 'hashi-game',
@@ -41,6 +47,7 @@ export async function render(root, data, hooks) {
       <p><strong>Objetivo:</strong> une todos los chips con cables rectos (horizontales o verticales) hasta que el número de cada chip coincida con la cantidad de cables que le llegan.</p>
       <p>Toca un chip y luego otro alineado con él para tender un cable. Vuelve a tocar el mismo par para añadir un segundo cable paralelo; una tercera vez lo borra.</p>
       <p>Los cables no pueden cruzarse ni pasar por encima de otro chip, y al final todos los chips deben quedar conectados en una sola red.</p>
+      ${parrafoFormas}
     `
   });
   root.append(ui.box);
@@ -78,7 +85,7 @@ export async function render(root, data, hooks) {
       if (idx !== undefined) {
         cell.classList.add('is-island');
         const btn = createElement('button', { class: 'hashi-island-btn', type: 'button' });
-        pintarChip(btn, islas[idx].grado);
+        pintarChip(btn, islas[idx].grado, islas[idx].forma);
         btn.addEventListener('click', () => onIslandClick(idx));
         cell.appendChild(btn);
         islandEls[idx] = cell;
@@ -340,31 +347,70 @@ export function ladoDeGrado(grado) {
   return 30 + Math.round(((g - 1) / 7) * 10);   // 30px con grado 1, 40px con grado 8
 }
 
-function pintarChip(btn, grado) {
+// Las tres formas fijas (cuadrado=4, triángulo=3, rectángulo=2, ver
+// FORMA_FIJA en scripts/hashi-logic.js) dicen su grado con el cuerpo, así
+// que no llevan número -- el chip libre (circulo, sin forma) es el único
+// que sigue enseñándolo. Cuadrado reutiliza el mismo cuerpo cuadrado de
+// siempre: no hay colisión posible porque un chip libre nunca cae en
+// grado 2/3/4 cuando el eje de formas está activo (ver hashi-logic.js).
+function cuerpoDeForma(forma, color) {
+  if (forma === 'triangulo') {
+    return `<polygon points="50,14 86,80 14,80" fill="${color.cuerpo}"></polygon>`;
+  }
+  if (forma === 'rectangulo') {
+    return `<rect x="10" y="32" width="80" height="36" rx="8" fill="${color.cuerpo}"></rect>`;
+  }
+  return `<rect x="20" y="20" width="60" height="60" rx="9" fill="${color.cuerpo}"></rect>`;
+}
+
+// Las patillas fijas (pensadas para el cuerpo cuadrado 20..80) dejan hueco
+// contra los otros cuerpos si no se adaptan: rectángulo es más bajo (32..68)
+// y triángulo no tiene lado vertical al que anclar una patilla lateral sin
+// que flote fuera de su silueta.
+function patillasDeForma(forma, color) {
+  const pin = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color.cuerpo}"></rect>`;
+
+  if (forma === 'triangulo') {
+    // Solo la base (ancha, y=80) y una patilla en el vértice (y=14): sin
+    // lados verticales, no hay dónde anclar patillas laterales.
+    const base = [28, 50, 72].map((cx) => pin(cx - 5, 78, 10, 16)).join('');
+    const vertice = pin(45, 0, 10, 14);
+    return base + vertice;
+  }
+
+  // Cuadrado/círculo tocan el cuerpo 20..80 con la patilla de siempre
+  // (16px, hueco de 2px). Rectángulo es 32..68: la misma patilla dejaría
+  // un hueco de 10px, así que se alarga hasta tocarlo.
+  const [arriba, abajo] = forma === 'rectangulo' ? [[6, 26], [68, 26]] : [[6, 16], [78, 16]];
+  return [33, 50, 67].map((centro) => {
+    const d = centro - 5;
+    return pin(d, arriba[0], 10, arriba[1]) + pin(d, abajo[0], 10, abajo[1]) +
+      pin(6, d, 16, 10) + pin(78, d, 16, 10);
+  }).join('');
+}
+
+function pintarChip(btn, grado, forma) {
   const color = colorDeGrado(grado);
   const lado = ladoDeGrado(grado);
   btn.dataset.grado = String(grado);
   btn.dataset.color = color.nombre;
+  if (forma) btn.dataset.forma = forma;
   btn.style.width = `${lado}px`;
   btn.style.height = `${lado}px`;
 
   // Tres patillas por lado, no más: a 30px cada una mide menos de 3px y con
-  // cuatro se empastan. Salen del cuerpo (20..80) hacia el borde del cuadro.
-  const patillas = [33, 50, 67].map((centro) => {
-    const d = centro - 5;
-    return `
-      <rect x="${d}" y="6" width="10" height="16" rx="2" fill="${color.cuerpo}"></rect>
-      <rect x="${d}" y="78" width="10" height="16" rx="2" fill="${color.cuerpo}"></rect>
-      <rect x="6" y="${d}" width="16" height="10" rx="2" fill="${color.cuerpo}"></rect>
-      <rect x="78" y="${d}" width="16" height="10" rx="2" fill="${color.cuerpo}"></rect>`;
-  }).join('');
+  // cuatro se empastan. patillasDeForma las adapta al cuerpo de cada forma.
+  const patillas = patillasDeForma(forma, color);
+
+  const texto = forma ? '' : `
+      <text x="52" y="53" fill="${color.texto}" font-size="38" font-weight="700"
+            text-anchor="middle" dominant-baseline="central">${grado}</text>`;
 
   btn.innerHTML = `
     <svg viewBox="0 0 100 100" width="${lado}" height="${lado}" aria-hidden="true" focusable="false">
       ${patillas}
-      <rect x="20" y="20" width="60" height="60" rx="9" fill="${color.cuerpo}"></rect>
+      ${cuerpoDeForma(forma, color)}
       <circle cx="30" cy="30" r="4" fill="${color.texto}" opacity="0.5"></circle>
-      <text x="52" y="53" fill="${color.texto}" font-size="38" font-weight="700"
-            text-anchor="middle" dominant-baseline="central">${grado}</text>
+      ${texto}
     </svg>`;
 }

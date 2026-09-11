@@ -34,13 +34,14 @@ const MODULOS = {
 // incompatibilidad de pareja) -- la paridad (solo ciclos pares/impares) no
 // cuenta como eje aparte: no la sortea el generador, sale sola del ruido de
 // la ventana (ver tests/riego/generador.test.js), asi que no tiene una
-// varianteDeSeed que verificar aqui.
+// varianteDeSeed que verificar aqui. puentes-hashi tiene dos ejes (tamano y
+// formas de chip).
 const ESPERADAS = {
   'anillas-encadenadas': 3,
   'cajas-apiladas': 3,
   'laser-triangular': 8,
   'nonograma': 5,
-  'puentes-hashi': 2,
+  'puentes-hashi': 4,
   'riego-plantas': 6
 }
 

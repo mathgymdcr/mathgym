@@ -21,7 +21,14 @@ describe('plantillas/hashi.js con el payload del generador', () => {
     expect(root.querySelectorAll('.hashi-cell')).toHaveLength(p.rows * p.cols)
     const botones = [...root.querySelectorAll('.hashi-island-btn')]
     expect(botones).toHaveLength(p.islands.length)
-    expect(botones.map((b) => Number(b.textContent))).toEqual(p.islands.map((i) => i.grado))
+    // El grado siempre va en el dataset; el texto visible solo lo lleva el
+    // chip libre (sin forma fija) -- ver plantillas/hashi.js:cuerpoDeForma.
+    expect(botones.map((b) => Number(b.dataset.grado))).toEqual(p.islands.map((i) => i.grado))
+    p.islands.forEach((isla, idx) => {
+      const texto = botones[idx].textContent.trim()
+      if (isla.forma) expect(texto, `isla ${idx} con forma ${isla.forma}`).toBe('')
+      else expect(texto, `isla ${idx} libre`).toBe(String(isla.grado))
+    })
     expect(root.querySelector('.feedback.ko')).toBeNull()
   })
 })
