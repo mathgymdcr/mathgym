@@ -3586,6 +3586,10 @@ section.streak { margin-top: 36px; }
 /* Hoy gana al "hecho": es la casilla que el jugador busca primero. */
 .punch.today { background: var(--gold); border: 2px solid var(--gold); color: var(--bg); }
 .punch.today .dow { opacity: .85; }
+/* Las estrellas son --gold igual que el fondo de "hoy": sin este cambio de
+   color, un hoy ya completado con estrellas se vuelve invisible sobre su
+   propio círculo. */
+.punch.today .punch-estrellas { color: var(--bg); }
 
 /* ---------- grupos musculares ---------- */
 section.groups { margin-top: 52px; }
