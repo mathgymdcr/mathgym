@@ -48,6 +48,14 @@ const MEDIDAS = [
     unidad: null,   // no se enseña como meta en pantalla, solo cuenta al ganar
     tres: (o) => primeroFinito(o.maxConsultasFor3Stars),
     dos: (o) => primeroFinito(o.maxConsultasFor2Stars, sumar(o.maxConsultasFor3Stars, 2))
+  },
+  {
+    // codigo-secreto (Mastermind): no hay "movimientos" que optimizar, hay
+    // intentos hasta acertar la combinación completa.
+    marca: 'intentos',
+    unidad: 'intentos',
+    tres: (o) => primeroFinito(o.maxIntentosFor3Stars, o.parIntentos),
+    dos: (o) => primeroFinito(o.maxIntentosFor2Stars, sumar(o.parIntentos, 2))
   }
 ];
 

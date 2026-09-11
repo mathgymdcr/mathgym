@@ -3709,6 +3709,92 @@ section.groups { margin-top: 52px; }
     line-height: 1.5;
 }
 
+/* ===== Código Secreto (codigo_secreto.js) ===== */
+.codigo-secreto-info {
+  color: var(--muted);
+  font-size: .85rem;
+  margin: 4px 0 14px;
+  text-align: center;
+}
+
+.codigo-secreto-slots,
+.codigo-secreto-paleta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.codigo-secreto-slot,
+.codigo-secreto-swatch {
+  width: 48px;
+  height: 48px;
+  font-size: 1.6rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid var(--card-b);
+  background: var(--surface-2, #212b3b);
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease;
+}
+
+.codigo-secreto-swatch:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.codigo-secreto-slot.seleccionada {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(209, 99, 204, .35);
+}
+
+.codigo-secreto-slot.lleno {
+  background: rgba(255, 255, 255, .04);
+}
+
+.codigo-secreto-slot:disabled,
+.codigo-secreto-swatch:disabled {
+  cursor: default;
+  opacity: .6;
+}
+
+.codigo-secreto-historial {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.codigo-secreto-fila-historial {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.codigo-secreto-pegs {
+  display: flex;
+  gap: 4px;
+  font-size: 1.2rem;
+}
+
+.codigo-secreto-marca {
+  font-size: .85rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 /* ===== Compartir resultado (celebración) ===== */
 .celebration-compartir {
   display: flex;

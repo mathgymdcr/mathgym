@@ -512,6 +512,68 @@ function mulberry32(seed) {
 // nonograma -- tamaño, espejo y color -- estaban muertos a la vez, y el
 // tipo publicaba siempre `medio-color`. El eje de color, que se añadió en
 // el PR #10, no llegó a verse nunca.
+// El seed empaqueta year*10000+month*100+day: NO es un contador de días (de
+// un 31 a un 1 salta 70, no 1). Esto sí lo es -- días reales desde el epoch
+// Unix, para poder pasar de "día ordinal" a "seed de ese día" y viceversa.
+function diasDesdeEpoca(seed) {
+  const year = Math.floor(seed / 10000);
+  const month = Math.floor((seed % 10000) / 100) - 1;
+  const day = seed % 100;
+  return Math.floor(Date.UTC(year, month, day) / 86400000);
+}
+
+function seedDeDia(diaOrdinal) {
+  const fecha = new Date(diaOrdinal * 86400000);
+  return fecha.getUTCFullYear() * 10000 + (fecha.getUTCMonth() + 1) * 100 + fecha.getUTCDate();
+}
+
+// Mismo orden que `this.templates` en scripts/generate-daily-reto.js: de ahí
+// sale qué residuo de `seed % ORDEN_TEMPLATES.length` le toca a nonograma.
+// Duplicado a propósito (igual que SITIO se duplica en compartir.js y
+// generate-sitemap.js): importar el generador aquí crearía un ciclo, porque
+// el generador ya importa este módulo. tests/nonograma/reparto-figuras.test.js
+// cruza esta lista contra `this.templates` para que un tipo nuevo no la
+// desincronice en silencio -- que es exactamente lo que rompió esta función
+// la primera vez (ver comentario en `buildNonogramaPuzzle`).
+export const ORDEN_TEMPLATES = [
+  'enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'mezcla-quimica',
+  'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas',
+  'anillas-encadenadas', 'laser-triangular', 'riego-plantas', 'codigo-secreto'
+];
+
+function esDiaDeNonograma(diaOrdinal) {
+  const seed = seedDeDia(diaOrdinal);
+  return ORDEN_TEMPLATES[seed % ORDEN_TEMPLATES.length] === 'nonograma';
+}
+
+// Primer día desde el que se cuenta: cualquier fecha anterior a que el sitio
+// existiera sirve como ancla, con tal de ser fija y anterior a toda fecha
+// real que se le vaya a pasar a este módulo.
+const ANCLA_DIAS = Math.floor(Date.UTC(2020, 0, 1) / 86400000);
+
+// Cuántas veces le tocó nonograma ANTES de este día (sin contar el propio):
+// ese conteo, y no el seed ni los días reales, es lo único que avanza en +1
+// EXACTO entre dos ocurrencias sucesivas de nonograma sin importar cuántos
+// días reales separen esa fecha de la anterior -- así que rotar el banco con
+// este conteo nunca repite hasta que el banco entero dé la vuelta, cueste lo
+// que cueste el hueco real en días. Antes se aproximaba este conteo con
+// `Math.floor(seed / 12)` (antes) o con los días reales directamente
+// (versión intermedia de este mismo arreglo): ambas fallaban porque el hueco
+// real entre dos ocurrencias de nonograma NO es constante -- depende de qué
+// otros tipos compiten por selectTemplate y de los saltos del seed al
+// cruzar un cambio de mes -- así que un hueco que por coincidencia fuera
+// múltiplo del tamaño del banco (3-6 figuras) repetía dibujo sí o sí. Contar
+// ocurrencias de verdad no tiene ese problema: el conteo SIEMPRE avanza
+// exactamente 1 de una ocurrencia a la siguiente, sea cual sea el hueco.
+function ocurrenciasPrevias(seed) {
+  const dia = diasDesdeEpoca(seed);
+  let cuenta = 0;
+  for (let d = ANCLA_DIAS; d < dia; d++) {
+    if (esDiaDeNonograma(d)) cuenta++;
+  }
+  return cuenta;
+}
+
 function eligeEje(opciones, seed, mascara) {
   return opciones[Math.floor(mulberry32((seed ^ mascara) >>> 0)() * opciones.length)];
 }
@@ -544,7 +606,31 @@ export function buildNonogramaPuzzle(seed) {
 
   const banco = color ? BANCO_COLOR : BANCO_FIGURAS;
   const candidatas = banco.filter((f) => f.filas.length === lado);
-  const inicio = Math.floor(seed / (VARIANTES.length * 4)) % candidatas.length;
+  // `inicio` avanza en cada ocurrencia sucesiva de nonograma, para no repetir
+  // dibujo dos veces seguidas (los bancos por lado son de solo 3-6 figuras).
+  // Antes era `Math.floor(seed / 12) % candidatas.length`: con selectTemplate
+  // en `seed % 12`, dos fechas consecutivas de nonograma diferían en 12 y
+  // dividir entre 12 convertía ese salto en +1 exacto.
+  //
+  // Se rompió al llegar codigo-secreto (selectTemplate pasó a `seed % 13`):
+  // el hueco real entre dos ocurrencias de nonograma NUNCA fue constante --
+  // depende de qué otros tipos compiten por selectTemplate y de que el seed
+  // empaqueta year*10000+month*100+day, así que ni con N=12 el salto era
+  // siempre 12 al cruzar un cambio de mes (de día 31 a día 1 el seed salta
+  // 70, no 1). Solo no se había visto porque hacía falta que ese cruce
+  // cayera justo en una fecha de nonograma; con N=13 pasó a las primeras.
+  //
+  // Cambiar `Math.floor(seed / 12)` por días de calendario reales (ver
+  // diasDesdeEpoca, intento intermedio de este mismo arreglo) reduce el
+  // problema pero no lo elimina: sigue siendo lineal en el hueco, así que
+  // sigue repitiendo garantizado cada vez que ese hueco es múltiplo exacto
+  // del tamaño del banco (3-6) -- y con hueco típico ~13 días eso pasa varias
+  // veces en 4 años. La única cuenta que avanza en +1 EXACTO de una
+  // ocurrencia de nonograma a la siguiente SIN IMPORTAR el hueco real en
+  // días es contar ocurrencias de verdad (ver ocurrenciasPrevias): con eso
+  // el banco rota una vuelta completa (candidatas.length ocurrencias) antes
+  // de repetir, siempre.
+  const inicio = ocurrenciasPrevias(seed) % candidatas.length;
 
   for (let k = 0; k < candidatas.length; k++) {
     const figura = candidatas[(inicio + k) % candidatas.length];
