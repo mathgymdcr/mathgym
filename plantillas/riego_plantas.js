@@ -35,6 +35,10 @@ const ICONO_PLANTA = {
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
+  // Un bocadillo abierto de una montada anterior (tests, o una recarga que
+  // no llegó a cerrarlo) vive en document.body, fuera de `root` -- limpiarlo
+  // aquí es lo mismo que hace celebrate() con .celebration-overlay.
+  document.querySelectorAll('.riego-deceerre-overlay').forEach((o) => o.remove());
 
   let config;
   try {
@@ -76,7 +80,7 @@ export async function render(root, data, hooks) {
     instructionsHTML: `
       <h3>Cómo se juega</h3>
       <p><strong>Objetivo:</strong> organiza el calendario para que cada planta reciba <strong>exactamente</strong> sus riegos.</p>
-      <p>Toca el icono de una planta para ver su ventana de riego (y con quién no puede coincidir, si aplica) durante unos segundos. Volver a mirar la ficha de una planta que ya has visto de más cuenta como una consulta y puede costarte estrellas. Toca una celda para regarla; tócala otra vez para marcarla con <strong>×</strong> (para recordar que esa planta no va ahí); una tercera vez la deja vacía. La × no cuenta para ganar, es solo para no dudar dos veces.</p>
+      <p>Toca la tarjeta de una planta para que Deceerre te cuente su ventana de riego (y con quién no puede coincidir, si aplica) durante unos segundos. Volver a mirar la tarjeta de una planta que ya has visto de más cuenta como una consulta y puede costarte estrellas. Toca una celda para regarla; tócala otra vez para marcarla con <strong>×</strong> (para recordar que esa planta no va ahí); una tercera vez la deja vacía. La × no cuenta para ganar, es solo para no dudar dos veces.</p>
       ${descanso ? '<p>Ninguna planta se puede regar <strong>dos ciclos seguidos</strong>: la tierra tiene que secarse entre riego y riego.</p>' : ''}
       <p>Y la regadera da para <strong>${capacity} riego${capacity === 1 ? '' : 's'} por ciclo</strong> como mucho.</p>
       <p>Cuando el calendario esté completo, pulsa <strong>«Comprobar»</strong>: solo entonces se decide si está resuelto.</p>
@@ -114,14 +118,6 @@ export async function render(root, data, hooks) {
   plants.forEach((planta, i) => {
     const tr = createElement('tr', { class: `riego-planta riego-planta-${i}` });
     const nombre = createElement('td', { class: 'riego-nombre' });
-    nombre.addEventListener('click', () => onNombreClick(i));
-    const icono = createElement('span', { class: 'riego-icono' });
-    // Sin alt: el nombre ya se pinta como texto justo al lado
-    // (`nombreTexto`), así que pasarlo también como alt haría que un lector
-    // de pantalla lo anunciara dos veces. pintarIcono sin alt marca la
-    // imagen `aria-hidden` (ver shell.js).
-    pintarIcono(icono, ICONO_PLANTA[planta.id] || '');
-    nombre.appendChild(icono);
     const nombreTexto = createElement('div', { class: 'riego-nombre-texto' });
     nombreTexto.textContent = planta.id;
     nombre.appendChild(nombreTexto);
@@ -156,7 +152,34 @@ export async function render(root, data, hooks) {
 
   const wrap = createElement('div', { class: 'riego-tabla-wrap' });
   wrap.appendChild(tabla);
-  ui.box.appendChild(wrap);
+
+  // Las tarjetas grandes (icono + nombre) van repartidas en los dos
+  // márgenes del tablero, que en escritorio suelen quedar vacíos -- por
+  // eso alternan de lateral en vez de ir todas juntas. Es solo reparto
+  // visual: el índice que decide la fila de la tabla no cambia.
+  const layout = createElement('div', { class: 'riego-layout' });
+  const cardsIzq = createElement('div', { class: 'riego-cards riego-cards-left' });
+  const cardsDer = createElement('div', { class: 'riego-cards riego-cards-right' });
+  plants.forEach((planta, i) => {
+    const card = createElement('button', {
+      type: 'button', class: 'riego-planta-card', 'data-planta': String(i)
+    });
+    card.addEventListener('click', () => onCardClick(i));
+    const iconoCard = createElement('span', { class: 'riego-planta-card-icono' });
+    // Sin alt: el nombre ya sale como texto justo debajo, así que pasarlo
+    // también como alt haría que un lector de pantalla lo anunciara dos
+    // veces (mismo motivo que el icono de cabecera en shell.js).
+    pintarIcono(iconoCard, ICONO_PLANTA[planta.id] || '');
+    card.appendChild(iconoCard);
+    const nombreCard = createElement('span', { class: 'riego-planta-card-nombre' });
+    nombreCard.textContent = planta.id;
+    card.appendChild(nombreCard);
+    (i % 2 === 0 ? cardsIzq : cardsDer).appendChild(card);
+  });
+  layout.appendChild(cardsIzq);
+  layout.appendChild(wrap);
+  layout.appendChild(cardsDer);
+  ui.box.appendChild(layout);
 
   const controls = createElement('div', { class: 'riego-controls' });
   const btnComprobar = createElement('button', { class: 'btn riego-btn-comprobar' });
@@ -247,15 +270,16 @@ export async function render(root, data, hooks) {
     refresh();
   }
 
-  // Tocar el icono/nombre de una planta abre su ficha (ventana + con quién
-  // no puede coincidir, si aplica) durante 5s. La primera vez que se ve CADA
-  // planta es gratis; volver a abrir una ya vista suma a `consultas`, que
-  // cuenta para las estrellas junto a `movimientos` (ver estrellas.js).
-  function onNombreClick(i) {
+  // Tocar la tarjeta de una planta abre el bocadillo de Deceerre (ventana +
+  // con quién no puede coincidir, si aplica) durante 5s. La primera vez que
+  // se ve CADA planta es gratis; volver a abrir una ya vista suma a
+  // `consultas`, que cuenta para las estrellas junto a `movimientos` (ver
+  // estrellas.js).
+  function onCardClick(i) {
     if (state.won) return;
 
-    // Tocar el icono de la planta cuya ficha YA está abierta la cierra sin
-    // volver a abrirla y sin cobrar otra consulta -- toggle, no recarga.
+    // Tocar la tarjeta de la planta cuyo bocadillo YA está abierto lo cierra
+    // sin volver a abrirlo y sin cobrar otra consulta -- toggle, no recarga.
     if (state.fichaAbierta === i) {
       cerrarFicha();
       return;
@@ -266,40 +290,56 @@ export async function render(root, data, hooks) {
     else state.consultadas.add(planta.id);
 
     cerrarFicha();
-    // Para la última fila no hay sitio debajo (solo la fila de totales), así
-    // que su ficha se abre hacia arriba en vez de hacia abajo.
-    const esUltima = i === plants.length - 1;
-    const ficha = createElement('div', { class: esUltima ? 'riego-ficha riego-ficha-arriba' : 'riego-ficha' });
-    // Sin esto, cualquier click DENTRO de la ficha (leerla, un doble toque
-    // sin querer) burbujea hasta el <td> que la contiene y vuelve a disparar
-    // onNombreClick, cobrando otra consulta de más.
-    ficha.addEventListener('click', (e) => e.stopPropagation());
+
+    // El bocadillo se monta como overlay centrado sobre toda la pantalla
+    // (mismo patrón que celebrate() en celebration.js), no colgado de la
+    // tarjeta: así funciona igual en escritorio y en móvil, sin depender de
+    // que haya hueco al lado de la tarjeta pulsada.
+    const overlay = createElement('div', { class: 'riego-deceerre-overlay' });
+    overlay.addEventListener('click', cerrarFicha);
+    const card = createElement('div', { class: 'riego-deceerre-card' });
+    const figura = createElement('div', { class: 'riego-deceerre-figura' });
+    figura.appendChild(createElement('img', { src: 'assets/deceerre-cabeza.png', alt: 'Deceerre' }));
+    card.appendChild(figura);
+
+    // Caja de pista con bombilla (fondo claro, borde grueso) en vez de la
+    // tarjeta plana que compartía con .coach-bubble de home.js -- esa sigue
+    // siendo la de la portada, esta es propia del riego.
+    const bocadillo = createElement('div', { class: 'riego-deceerre-bocadillo' });
+    const bombilla = createElement('div', { class: 'riego-deceerre-bombilla', 'aria-hidden': 'true' });
+    bombilla.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#140a3c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.46 1.1 1.2 1.1 2.2h5c0-1 .5-1.74 1.1-2.2A6 6 0 0 0 12 3Z" fill="#f8c818"/></svg>';
+    bocadillo.appendChild(bombilla);
+    let huboTexto = false;
     const ventana = ventanaTexto(planta, cycles);
     if (ventana) {
       const p = createElement('p');
       p.textContent = ventana;
-      ficha.appendChild(p);
+      bocadillo.appendChild(p);
+      huboTexto = true;
     }
     if (incompatibles && incompatibles.includes(planta.id)) {
       const otra = incompatibles.find((id) => id !== planta.id);
       const p = createElement('p');
       p.textContent = `No puede regarse el mismo ciclo que ${otra}.`;
-      ficha.appendChild(p);
+      bocadillo.appendChild(p);
+      huboTexto = true;
     }
-    if (!ficha.childNodes.length) {
+    if (!huboTexto) {
       const p = createElement('p');
       p.textContent = 'Sin restricción de ventana: puede regarse en cualquier ciclo.';
-      ficha.appendChild(p);
+      bocadillo.appendChild(p);
     }
-    celdas[i][0].closest('tr').querySelector('.riego-nombre').appendChild(ficha);
+    card.appendChild(bocadillo);
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
     state.fichaAbierta = i;
     state.fichaTimer = setTimeout(cerrarFicha, 5000);
   }
 
   function cerrarFicha() {
     if (state.fichaTimer) { clearTimeout(state.fichaTimer); state.fichaTimer = null; }
-    const abierta = root.querySelector('.riego-ficha');
-    if (abierta) abierta.remove();
+    document.querySelectorAll('.riego-deceerre-overlay').forEach((o) => o.remove());
     state.fichaAbierta = null;
   }
 

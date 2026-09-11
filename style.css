@@ -3071,9 +3071,13 @@ li {
 
 /* ===== El Riego (riego_plantas.js) ===== */
 .riego-tabla-wrap {
-  width: 100%;
   overflow-x: auto;
   margin: 8px 0 12px;
+  /* Dentro de .riego-layout es un item flex más, entre las dos columnas de
+     tarjetas -- un width:100% aquí lo obligaba a ocupar su propia línea
+     entera y tiraba las columnas cada una a la suya. */
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .riego-tabla {
@@ -3094,56 +3098,171 @@ li {
   text-align: right;
   padding-right: 8px;
   font-weight: 600;
-  position: relative;
-  cursor: pointer;
 }
 
 .riego-nombre-texto {
   white-space: nowrap;
 }
 
-.riego-icono {
-  display: inline-flex;
-  width: 28px;
-  height: 28px;
-  vertical-align: middle;
-  margin-right: 6px;
+/* Tablero al centro, tarjetas de planta repartidas en los dos márgenes que
+   en escritorio suelen quedar vacíos. Por debajo del breakpoint (mismo que
+   .deceerre-instructions) no hay margen que aprovechar: pasa a columna con
+   el tablero primero y las tarjetas debajo en cuadrícula. */
+.riego-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.riego-icono img {
+.riego-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 140px;
+  max-width: 180px;
+}
+
+.riego-planta-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--card-b);
+  background: var(--surface-2, #212b3b);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.riego-planta-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.riego-planta-card-icono {
+  display: inline-flex;
+  width: 64px;
+  height: 64px;
+}
+
+.riego-planta-card-icono img {
   width: 100%;
   height: 100%;
 }
 
-/* Ficha temporal (ventana + con quién no puede coincidir) que se abre al
-   tocar el icono/nombre de una planta y se autocierra sola a los 5s. */
-.riego-ficha {
+.riego-planta-card-nombre {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+@media (max-width: 622px) {
+  .riego-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .riego-layout .riego-tabla-wrap {
+    order: -1;
+  }
+  .riego-cards {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: none;
+  }
+  .riego-planta-card {
+    flex: 1 1 30%;
+  }
+}
+
+/* Overlay centrado con la cara de Deceerre y su bocadillo de cómic (ventana
+   + con quién no puede coincidir). Se abre al tocar una tarjeta y se
+   autocierra a los 5s; tocar el propio overlay (en cualquier punto) lo
+   cierra antes, igual que .celebration-overlay en celebration.js. */
+.riego-deceerre-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .55);
+  padding: 16px;
+}
+
+.riego-deceerre-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 280px;
+}
+
+/* Insignia circular tras la cabeza (recorte de assets/deceerre-cabeza.png,
+   no la figura entera) para que resalte sobre el fondo oscurecido del
+   overlay -- sin esto la cabeza sola, sin cuerpo, se perdía contra el
+   backdrop semitransparente. */
+.riego-deceerre-figura {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #140a3c;
+  background: radial-gradient(circle at 50% 40%, var(--accent), #8a2189 70%);
+}
+
+.riego-deceerre-figura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 42%;
+}
+
+/* Caja de pista (fondo claro, borde grueso a juego con el resto del
+   overlay) con una bombilla encima en vez del rabito de cómic de antes:
+   la idea ya no es "Deceerre habla", es "aquí va una pista". La bombilla
+   se monta como insignia circular que se solapa con el borde superior,
+   mismo patrón que .riego-deceerre-figura. */
+.riego-deceerre-bocadillo {
+  position: relative;
+  background: #fff9ec;
+  border: 4px solid #140a3c;
+  border-radius: 22px;
+  padding: 22px 18px 14px;
+  font-size: .9rem;
+  line-height: 1.5;
+  color: #140a3c;
+  text-align: center;
+}
+
+.riego-deceerre-bombilla {
   position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 5;
-  min-width: 220px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: var(--surface-2, #212b3b);
-  border: 1px solid var(--accent);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .4);
-  font-size: .85rem;
-  text-align: left;
-  white-space: normal;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff9ec;
+  border: 4px solid #140a3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 4px #fff9ec, 0 0 12px 2px rgba(248, 200, 24, .7);
 }
 
-.riego-ficha p {
+.riego-deceerre-bombilla svg {
+  width: 20px;
+  height: 20px;
+}
+
+.riego-deceerre-bocadillo p {
   margin: 4px 0;
-}
-
-/* Para la última fila de plantas la envoltura de la tabla no tiene sitio
-   debajo (solo queda la fila de totales, más baja que la ficha): se abre
-   hacia arriba en vez de hacia abajo. Solo cambia la dirección, el resto
-   de .riego-ficha se mantiene igual. */
-.riego-ficha-arriba {
-  top: auto;
-  bottom: 100%;
 }
 
 .riego-cell {

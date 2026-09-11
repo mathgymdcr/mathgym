@@ -2,6 +2,6 @@
   <g fill="none" stroke="#140A3C" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
     <path d="M70 150 L60 188 a8 8 0 0 0 8 10 h64 a8 8 0 0 0 8 -10 L142 150 Z" fill="#1788C7"/>
     <path d="M100 150 V56" stroke-width="6"/>
-    <path d="M100 140 l-16 -8 M100 140 l16 -8 M100 122 l-16 -8 M100 122 l16 -8 M100 104 l-16 -8 M100 104 l16 -8 M100 86 l-16 -8 M100 86 l16 -8 M100 68 l-14 -8 M100 68 l14 -8" stroke="#10608E" stroke-width="6"/>
+    <path d="M100 140 l-16 -8 M100 140 l16 -8 M100 122 l-16 -8 M100 122 l16 -8 M100 104 l-16 -8 M100 104 l16 -8 M100 86 l-16 -8 M100 86 l16 -8 M100 68 l-14 -8 M100 68 l14 -8" stroke="#2B8A3E" stroke-width="6"/>
   </g>
 </svg>
