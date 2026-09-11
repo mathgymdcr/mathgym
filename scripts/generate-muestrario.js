@@ -46,11 +46,7 @@ const SEMILLAS = {
   // huerto (dificultad 2): la Tomatera solo puede regarse en los ciclos 2 y
   // 5 -- una ventana estrecha que fuerza una deducción clara sin liar las 3
   // plantas del reto.
-  'riego-plantas': 20260104,
-  // 4-4-con-repeticion: la variante más simple (4 posiciones, solo 4
-  // colores, con repetición permitida) para que el ejemplo enseñe la
-  // mecánica sin la carga de una combinación de 6 colores sin repetir.
-  'codigo-secreto': 7
+  'riego-plantas': 20260104
 };
 
 async function main() {

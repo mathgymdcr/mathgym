@@ -19,7 +19,6 @@ import { buildCajasPuzzle, buildCajasHints } from './cajas-logic.js';
 import { buildAnillasPuzzle, buildAnillasHints } from './anillas-logic.js';
 import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
 import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
-import { buildCodigoSecretoPuzzle } from './codigo-secreto-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -52,8 +51,7 @@ class MathGymGenerator {
       'cajas-apiladas': this.generateCajas.bind(this),
       'anillas-encadenadas': this.generateAnillas.bind(this),
       'laser-triangular': this.generateLaser.bind(this),
-      'riego-plantas': this.generateRiego.bind(this),
-      'codigo-secreto': this.generateCodigoSecreto.bind(this)
+      'riego-plantas': this.generateRiego.bind(this)
     };
   }
 
@@ -743,36 +741,6 @@ class MathGymGenerator {
         // no depende de la semilla (ver spec sección 5).
         maxConsultasFor3Stars: 0,
         maxConsultasFor2Stars: 2
-      },
-      data: { json_url: `data/${dataFileName}` }
-    };
-  }
-
-  async generateCodigoSecreto(seed, fecha) {
-    // Mastermind: no hay solvencia que comprobar (cualquier combinación es
-    // un reto válido), así que aquí no hace falta reusar un solver como en
-    // el resto del catálogo -- solo la combinación sorteada.
-    const puzzle = buildCodigoSecretoPuzzle(seed);
-    const { variant, dificultad, parIntentos, payload } = puzzle;
-
-    const dataFileName = `codigo-secreto_${fecha}.json`;
-    await fs.mkdir('data', { recursive: true });
-    await fs.writeFile(
-      path.join('data', dataFileName),
-      JSON.stringify(payload, null, 2)
-    );
-
-    return {
-      id: `${fecha}-codigo-secreto-001`,
-      tipo: 'codigo-secreto',
-      variant,
-      dificultad,
-      categorias: ['deduccion', 'logica'],
-      objectives: {
-        winCondition: 'crack_the_code',
-        parIntentos,
-        maxIntentosFor3Stars: parIntentos,
-        maxIntentosFor2Stars: parIntentos + 2
       },
       data: { json_url: `data/${dataFileName}` }
     };

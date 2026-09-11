@@ -38,16 +38,6 @@ describe('estrellasDe, por pesadas', () => {
   })
 })
 
-describe('estrellasDe, por intentos (codigo-secreto)', () => {
-  const obj = { maxIntentosFor3Stars: 7, maxIntentosFor2Stars: 9 }
-
-  it('usa los umbrales del codigo-secreto', () => {
-    expect(estrellasDe(obj, { intentos: 7 })).toBe(3)
-    expect(estrellasDe(obj, { intentos: 9 })).toBe(2)
-    expect(estrellasDe(obj, { intentos: 10 })).toBe(1)
-  })
-})
-
 describe('estrellasDe, por comprobaciones fallidas', () => {
   const obj = { maxErrorsFor3Stars: 0, maxErrorsFor2Stars: 2 }
 
@@ -132,10 +122,6 @@ describe('parDe', () => {
 
   it('describe la meta de la balanza en pesadas', () => {
     expect(parDe({ maxWeighingsFor3Stars: 3 })).toEqual({ valor: 3, unidad: 'pesadas' })
-  })
-
-  it('describe la meta de codigo-secreto en intentos', () => {
-    expect(parDe({ parIntentos: 7, maxIntentosFor3Stars: 7 })).toEqual({ valor: 7, unidad: 'intentos' })
   })
 
   it('no hay meta que enseñar donde se mide por fallos', () => {

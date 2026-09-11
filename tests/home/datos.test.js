@@ -24,11 +24,6 @@ describe('metaDeReto', () => {
     expect(meta.minimo).toEqual({ valor: 3, unidad: 'pesadas' })
   })
 
-  it('en codigo-secreto son los intentos, no los movimientos', () => {
-    const meta = metaDeReto({ tipo: 'codigo-secreto', dificultad: 3, objectives: { parIntentos: 7 } })
-    expect(meta.minimo).toEqual({ valor: 7, unidad: 'intentos' })
-  })
-
   it('se calla el dato en vez de inventarlo si el reto no lo trae', () => {
     expect(metaDeReto({ ...base, objectives: {} }).minimo).toBeNull()
     expect(metaDeReto({ ...base }).minimo).toBeNull()

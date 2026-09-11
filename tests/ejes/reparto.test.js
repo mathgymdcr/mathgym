@@ -6,7 +6,6 @@ import * as laser from '../../scripts/laser-triangular-logic.js'
 import * as nonograma from '../../scripts/nonograma-logic.js'
 import * as hashi from '../../scripts/hashi-logic.js'
 import * as riego from '../../scripts/riego-logic.js'
-import * as codigoSecreto from '../../scripts/codigo-secreto-logic.js'
 
 // El fallo que este test existe para impedir:
 //
@@ -26,8 +25,7 @@ const MODULOS = {
   'laser-triangular': laser,
   'nonograma': nonograma,
   'puentes-hashi': hashi,
-  'riego-plantas': riego,
-  'codigo-secreto': codigoSecreto
+  'riego-plantas': riego
 }
 
 // Cuantas variantes distintas tiene que publicar cada tipo. nonograma tiene
@@ -37,16 +35,14 @@ const MODULOS = {
 // cuenta como eje aparte: no la sortea el generador, sale sola del ruido de
 // la ventana (ver tests/riego/generador.test.js), asi que no tiene una
 // varianteDeSeed que verificar aqui. puentes-hashi tiene dos ejes (tamano y
-// formas de chip). codigo-secreto tiene tres (longitud, colores disponibles
-// y repeticion) y los 18 salen sobre 111 dias reales en 4 anios.
+// formas de chip).
 const ESPERADAS = {
   'anillas-encadenadas': 3,
   'cajas-apiladas': 3,
   'laser-triangular': 8,
   'nonograma': 5,
   'puentes-hashi': 4,
-  'riego-plantas': 6,
-  'codigo-secreto': 18
+  'riego-plantas': 6
 }
 
 function seedsRealesDe(tipo, dias = 1460) {
