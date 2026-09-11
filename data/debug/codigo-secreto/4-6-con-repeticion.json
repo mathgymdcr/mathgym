@@ -1,0 +1,11 @@
+{
+  "longitud": 4,
+  "colores_disponibles": 6,
+  "permite_repeticion": true,
+  "solucion": [
+    "morado",
+    "amarillo",
+    "morado",
+    "amarillo"
+  ]
+}

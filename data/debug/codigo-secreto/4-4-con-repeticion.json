@@ -1,0 +1,11 @@
+{
+  "longitud": 4,
+  "colores_disponibles": 4,
+  "permite_repeticion": true,
+  "solucion": [
+    "verde",
+    "rojo",
+    "verde",
+    "rojo"
+  ]
+}
