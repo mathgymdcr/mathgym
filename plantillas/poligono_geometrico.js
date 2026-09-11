@@ -36,27 +36,14 @@ export async function render(root, data, hooks) {
   const hintP = ui.box.querySelector('.polygon-hint');
   if (instructionsP) {
     const totales = (config.n_figuras ?? 1) > 1 ? ' (totales de las dos figuras)' : '';
-    // El área y el perímetro NO dicen aquí si hace falta un entrante o no --
-    // eso es parte de lo que hay que deducir jugando (para algunos pares de
-    // área/perímetro hay más de una familia de figura válida, y `formas` es
-    // justo lo que desempata cuál toca hoy). Decirlo por adelantado sería
-    // regalar esa deducción.
     instructionsP.innerHTML =
       `<strong>Objetivo:</strong> Área = ${config.area}, Perímetro = ${config.perimeter}${totales}`;
   }
-  if (hintP) {
-    // Explica la REGLA (qué es un entrante, que sin entrantes solo cabe un
-    // rectángulo) sin decir si el reto de HOY necesita uno o no -- eso sigue
-    // oculto. Solo se enseña si `formas` de verdad restringe algo: en
-    // 'libre' cualquier figura vale y esta explicación no aportaría nada.
-    const hint = (config.formas && config.formas !== 'libre')
-      ? 'Un «entrante» es una esquina que gira hacia dentro de la figura en vez de hacia fuera: ' +
-        'un ángulo interior de 270° (una muesca), en lugar de los 90° de una esquina normal. ' +
-        'Con pasos rectos horizontales y verticales, una figura SIN entrantes es siempre un rectángulo.'
-      : '';
-    hintP.textContent = hint;
-    hintP.hidden = !hint;
-  }
+  // `formas` (entrantes/salientes) solo se usa al generar el reto, para que
+  // el área y el perímetro pedidos no siempre los cumpla el rectángulo más
+  // simple -- aquí en el juego no se enseña ni se comprueba: gana cualquier
+  // figura que sume el área y el perímetro pedidos, sea o no un rectángulo.
+  if (hintP) hintP.hidden = true;
 
   // Inicializar variables del juego
   const gameState = initializeGame(config, ui.canvases.grid.parentElement);
@@ -99,7 +86,6 @@ export async function render(root, data, hooks) {
       history: [],
       future: [],
       nFiguras: config.n_figuras ?? 1,
-      formas: config.formas ?? 'libre',
       targetArea: config.area,
       targetPerimeter: config.perimeter
     };
@@ -407,28 +393,17 @@ export async function render(root, data, hooks) {
           return;
         }
 
-        // Área, perímetro y convexidad los decide poligono-logic.js, el
-        // mismo módulo que usan el generador y el validador: dos copias con
-        // cualquier diferencia publicarían retos imposibles de cumplir.
+        // Área y perímetro los decide poligono-logic.js, el mismo módulo que
+        // usan el generador y el validador: dos copias con cualquier
+        // diferencia publicarían retos imposibles de cumplir. `formas`
+        // (entrantes/salientes) solo entra al generar el reto -- aquí gana
+        // cualquier figura que sume el área y el perímetro pedidos, sea o no
+        // un rectángulo.
         const medidas = ciclos.map(medidasDeFigura);
         const area = medidas.reduce((acc, m) => acc + m.area, 0);
         const perimetro = medidas.reduce((acc, m) => acc + m.perimetro, 0);
-        const convexas = medidas.filter((m) => m.convexa).length;
 
-        const cumpleForma = {
-          'libre': () => true,
-          'convexa': () => convexas === 1,
-          'concava': () => convexas === 0,
-          'ambas-convexas': () => convexas === 2,
-          'una-de-cada': () => convexas === 1,
-          'ambas-concavas': () => convexas === 0
-        }[state.formas];
-
-        const ok = area === state.targetArea
-          && perimetro === state.targetPerimeter
-          && (cumpleForma ? cumpleForma() : true);
-
-        if (ok) {
+        if (area === state.targetArea && perimetro === state.targetPerimeter) {
           setStatus(ui.result, `Correcto! A=${area}, P=${perimetro}`, 'ok');
           celebrate({ ok: true });
           if (hooks && hooks.onSuccess) hooks.onSuccess({ fallos: state.fallos || 0 });

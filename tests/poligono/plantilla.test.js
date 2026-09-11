@@ -102,13 +102,15 @@ describe('plantilla de poligono', () => {
     expect(j.ganado()).toBe(0)
   })
 
-  it('rechaza la forma equivocada aunque los numeros cuadren', async () => {
-    // (12,16) lo dan el rectangulo 2x6 Y una L: pidiendo concava, el
-    // rectangulo no vale.
+  it('gana con el area y el perimetro pedidos aunque no sea la forma que forzo el generador', async () => {
+    // `formas` solo sesga qué (area,perimetro) elige el generador para que
+    // el rectangulo simple no siempre valga -- en el juego no se comprueba:
+    // (12,16) lo dan el rectangulo 2x6 Y una L, y aqui gana el rectangulo
+    // igual, aunque el reto se generara pidiendo 'concava'.
     const j = await monta({ gridSize: 8, n_figuras: 1, area: 12, perimeter: 16, formas: 'concava' })
     dibujaRectangulo(j.host, 0, 0, 2, 6)
     j.validar()
-    expect(j.ganado()).toBe(0)
+    expect(j.ganado()).toBe(1)
   })
 
   it('pulsar dos nodos en la misma fila, no contiguos, rellena los segmentos intermedios de una vez', async () => {
