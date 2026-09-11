@@ -4,8 +4,8 @@
     <path d="M100 150 V64"/>
     <path d="M100 110 Q76 100 66 78"/>
     <path d="M100 90 Q124 80 134 58"/>
-    <circle cx="80" cy="92" r="18" fill="#F8C818"/>
-    <circle cx="122" cy="112" r="16" fill="#C99A0F"/>
-    <circle cx="100" cy="64" r="15" fill="#F8C818"/>
+    <circle cx="80" cy="92" r="18" fill="#E03131"/>
+    <circle cx="122" cy="112" r="16" fill="#C92A2A"/>
+    <circle cx="100" cy="64" r="15" fill="#E03131"/>
   </g>
 </svg>

@@ -2,10 +2,10 @@
   <g fill="none" stroke="#140A3C" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
     <path d="M70 150 L60 188 a8 8 0 0 0 8 10 h64 a8 8 0 0 0 8 -10 L142 150 Z" fill="#1788C7"/>
     <path d="M100 150 V70"/>
-    <ellipse cx="76" cy="96" rx="22" ry="14" fill="#F8C818" transform="rotate(-30 76 96)"/>
-    <ellipse cx="124" cy="96" rx="22" ry="14" fill="#F8C818" transform="rotate(30 124 96)"/>
-    <ellipse cx="70" cy="130" rx="20" ry="13" fill="#F8C818" transform="rotate(-25 70 130)"/>
-    <ellipse cx="130" cy="130" rx="20" ry="13" fill="#F8C818" transform="rotate(25 130 130)"/>
-    <ellipse cx="100" cy="68" rx="18" ry="24" fill="#F8C818"/>
+    <ellipse cx="76" cy="96" rx="22" ry="14" fill="#37B24D" transform="rotate(-30 76 96)"/>
+    <ellipse cx="124" cy="96" rx="22" ry="14" fill="#37B24D" transform="rotate(30 124 96)"/>
+    <ellipse cx="70" cy="130" rx="20" ry="13" fill="#37B24D" transform="rotate(-25 70 130)"/>
+    <ellipse cx="130" cy="130" rx="20" ry="13" fill="#37B24D" transform="rotate(25 130 130)"/>
+    <ellipse cx="100" cy="68" rx="18" ry="24" fill="#2B8A3E"/>
   </g>
 </svg>

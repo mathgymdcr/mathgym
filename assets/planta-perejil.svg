@@ -2,7 +2,7 @@
   <g fill="none" stroke="#140A3C" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
     <path d="M70 150 L60 188 a8 8 0 0 0 8 10 h64 a8 8 0 0 0 8 -10 L142 150 Z" fill="#1788C7"/>
     <path d="M100 150 V96"/>
-    <path d="M100 96 q-30 -6 -34 -34 q26 2 34 26 q8 -24 34 -26 q-4 28 -34 34 Z" fill="#10608E"/>
-    <path d="M100 120 q-22 -4 -25 -26 q20 2 25 20 q5 -18 25 -20 q-3 22 -25 26 Z" fill="#1788C7"/>
+    <path d="M100 96 q-30 -6 -34 -34 q26 2 34 26 q8 -24 34 -26 q-4 28 -34 34 Z" fill="#2B8A3E"/>
+    <path d="M100 120 q-22 -4 -25 -26 q20 2 25 20 q5 -18 25 -20 q-3 22 -25 26 Z" fill="#8CE99A"/>
   </g>
 </svg>

@@ -2,9 +2,9 @@
   <g fill="none" stroke="#140A3C" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
     <path d="M70 150 L60 188 a8 8 0 0 0 8 10 h64 a8 8 0 0 0 8 -10 L142 150 Z" fill="#1788C7"/>
     <path d="M100 150 V64"/>
-    <path d="M100 118 Q66 108 60 82 Q90 88 100 118 Z" fill="#10608E"/>
-    <path d="M100 118 Q134 108 140 82 Q110 88 100 118 Z" fill="#10608E"/>
-    <path d="M100 80 Q70 70 64 46 Q92 52 100 80 Z" fill="#1788C7"/>
-    <path d="M100 80 Q130 70 136 46 Q108 52 100 80 Z" fill="#1788C7"/>
+    <path d="M100 118 Q66 108 60 82 Q90 88 100 118 Z" fill="#2B8A3E"/>
+    <path d="M100 118 Q134 108 140 82 Q110 88 100 118 Z" fill="#2B8A3E"/>
+    <path d="M100 80 Q70 70 64 46 Q92 52 100 80 Z" fill="#8CE99A"/>
+    <path d="M100 80 Q130 70 136 46 Q108 52 100 80 Z" fill="#8CE99A"/>
   </g>
 </svg>

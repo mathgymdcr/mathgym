@@ -30,6 +30,8 @@ const montar = async (config = PAYLOAD, hooks = {}) => {
 const celda = (root, fila, ciclo) =>
   root.querySelector(`.riego-cell[data-planta="${fila}"][data-ciclo="${ciclo}"]`)
 
+const tarjeta = (root, i) => root.querySelector(`.riego-planta-card[data-planta="${i}"]`)
+
 // La victoria ya no se declara sola al completar el tablero: hace falta
 // pulsar «Comprobar».
 const comprobar = (root) => root.querySelector('.riego-btn-comprobar').click()
@@ -41,15 +43,15 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
     expect(root.textContent).toContain('Cómo se juega')
   })
 
-  it('escribe la ventana de cada planta en su ficha, no en la fila', async () => {
+  it('escribe la ventana de cada planta en el bocadillo de Deceerre, no en la fila', async () => {
     const root = await montar()
-    const filas = root.querySelectorAll('.riego-nombre')
-    filas[0].click()
+    expect(root.textContent).not.toContain('Disponible: ciclos')
+    tarjeta(root, 0).click()
     // Albahaca: ventana [0,2,3] -> ciclos 1-indexados 1,3,4 -> "1" suelto y "3 a 4" seguidos.
-    expect(root.querySelector('.riego-ficha').textContent).toContain('Disponible: ciclos 1 y 3 a 4.')
-    filas[1].click()
+    expect(document.querySelector('.riego-deceerre-overlay').textContent).toContain('Disponible: ciclos 1 y 3 a 4.')
+    tarjeta(root, 1).click()
     // Cactus: ventana [1,3,4] -> ciclos 2,4,5.
-    expect(root.querySelector('.riego-ficha').textContent).toContain('Disponible: ciclos 2 y 4 a 5.')
+    expect(document.querySelector('.riego-deceerre-overlay').textContent).toContain('Disponible: ciclos 2 y 4 a 5.')
   })
 
   it('ya no tacha nada por su cuenta: todas las celdas se pueden tocar', async () => {
@@ -175,8 +177,8 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
       capacity_per_cycle: 2,
       plants: [{ id: 'A', doses: 2 }, { id: 'B', doses: 1 }]
     })
-    root.querySelectorAll('.riego-nombre')[0].click()
-    expect(root.querySelector('.riego-ficha').textContent).toContain('Sin restricción de ventana')
+    tarjeta(root, 0).click()
+    expect(document.querySelector('.riego-deceerre-overlay').textContent).toContain('Sin restricción de ventana')
     expect(root.querySelector('.feedback.ko')).toBeNull()
   })
 
@@ -189,11 +191,10 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
         { id: 'Impar', doses: 2, ventana: [0, 2, 4] }   // 1-indexado: 1, 3, 5 -> impares
       ]
     })
-    const filas = root.querySelectorAll('.riego-nombre')
-    filas[0].click()
-    expect(root.querySelector('.riego-ficha').textContent).toContain('Disponible: solo ciclos pares.')
-    filas[1].click()
-    expect(root.querySelector('.riego-ficha').textContent).toContain('Disponible: solo ciclos impares.')
+    tarjeta(root, 0).click()
+    expect(document.querySelector('.riego-deceerre-overlay').textContent).toContain('Disponible: solo ciclos pares.')
+    tarjeta(root, 1).click()
+    expect(document.querySelector('.riego-deceerre-overlay').textContent).toContain('Disponible: solo ciclos impares.')
   })
 
   describe('con pareja incompatible', () => {
@@ -207,11 +208,11 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
       ]
     }
 
-    it('anuncia la pareja en la ficha de cada una, no en las instrucciones', async () => {
+    it('anuncia la pareja en el bocadillo de cada una, no en las instrucciones', async () => {
       const root = await montar(PAYLOAD_INCOMPATIBLE)
       expect(root.querySelector('.template-box').textContent).not.toContain('no pueden regarse en el mismo ciclo')
-      root.querySelectorAll('.riego-nombre')[0].click() // Albahaca
-      expect(root.querySelector('.riego-ficha').textContent).toContain('No puede regarse el mismo ciclo que Cactus.')
+      tarjeta(root, 0).click() // Albahaca
+      expect(document.querySelector('.riego-deceerre-overlay').textContent).toContain('No puede regarse el mismo ciclo que Cactus.')
     })
 
     it('avisa si las dos riegan el mismo ciclo', async () => {
@@ -239,7 +240,33 @@ describe('plantillas/riego_plantas.js con ventanas y descanso', () => {
   })
 })
 
-describe('ficha de planta (icono, ventana, incompatibilidad) en vez de texto fijo', () => {
+describe('tarjetas de planta repartidas alrededor del tablero', () => {
+  it('reparte una tarjeta por planta entre los dos laterales', async () => {
+    const root = await montar()
+    const izquierda = root.querySelectorAll('.riego-cards-left .riego-planta-card')
+    const derecha = root.querySelectorAll('.riego-cards-right .riego-planta-card')
+    expect(izquierda.length + derecha.length).toBe(PAYLOAD.plants.length)
+    // Albahaca (índice 0) va a la izquierda, Cactus (índice 1) a la derecha.
+    expect(izquierda[0].getAttribute('data-planta')).toBe('0')
+    expect(derecha[0].getAttribute('data-planta')).toBe('1')
+  })
+
+  it('cada tarjeta lleva el icono grande y el nombre de su planta', async () => {
+    const root = await montar()
+    const carta = tarjeta(root, 0)
+    expect(carta.querySelector('img')).not.toBeNull()
+    expect(carta.textContent).toContain('Albahaca')
+  })
+
+  it('el nombre en la fila de la tabla ya no lleva icono ni es lo que se toca', async () => {
+    const root = await montar()
+    expect(root.querySelectorAll('.riego-nombre img')).toHaveLength(0)
+    root.querySelectorAll('.riego-nombre')[0].click()
+    expect(document.querySelector('.riego-deceerre-overlay'), 'la fila ya no abre nada').toBeNull()
+  })
+})
+
+describe('bocadillo de Deceerre (ventana, incompatibilidad) en vez de texto fijo', () => {
   it('la ventana ya no sale en las instrucciones fijas', async () => {
     const root = await montar()
     expect(root.textContent).not.toContain('Disponible: ciclos')
@@ -258,35 +285,38 @@ describe('ficha de planta (icono, ventana, incompatibilidad) en vez de texto fij
     expect(instrucciones).not.toContain('no pueden regarse en el mismo ciclo')
   })
 
-  it('cada planta tiene un icono', async () => {
+  it('tocar una tarjeta abre el bocadillo de Deceerre con la cara y la ventana de esa planta', async () => {
     const root = await montar()
-    const iconos = root.querySelectorAll('.riego-nombre img')
-    expect(iconos.length).toBe(PAYLOAD.plants.length)
+    tarjeta(root, 0).click()
+    const overlay = document.querySelector('.riego-deceerre-overlay')
+    expect(overlay).not.toBeNull()
+    expect(overlay.querySelector('img[alt="Deceerre"]')).not.toBeNull()
+    expect(overlay.textContent).toContain('Disponible')
   })
 
-  it('tocar el icono abre una ficha con la ventana de esa planta', async () => {
-    const root = await montar()
-    root.querySelectorAll('.riego-nombre')[0].click()
-    const ficha = root.querySelector('.riego-ficha')
-    expect(ficha).not.toBeNull()
-    expect(ficha.textContent).toContain('Disponible')
-  })
-
-  it('la ficha se autocierra a los 5 segundos', async () => {
+  it('el bocadillo se autocierra a los 5 segundos', async () => {
     vi.useFakeTimers()
     const root = await montar()
-    root.querySelectorAll('.riego-nombre')[0].click()
-    expect(root.querySelector('.riego-ficha')).not.toBeNull()
+    tarjeta(root, 0).click()
+    expect(document.querySelector('.riego-deceerre-overlay')).not.toBeNull()
     vi.advanceTimersByTime(5000)
-    expect(root.querySelector('.riego-ficha')).toBeNull()
+    expect(document.querySelector('.riego-deceerre-overlay')).toBeNull()
     vi.useRealTimers()
+  })
+
+  it('pulsar el propio overlay (clic fuera de la tarjeta) lo cierra antes de tiempo', async () => {
+    const root = await montar()
+    tarjeta(root, 0).click()
+    const overlay = document.querySelector('.riego-deceerre-overlay')
+    overlay.click()
+    expect(document.querySelector('.riego-deceerre-overlay')).toBeNull()
   })
 
   it('la primera consulta de cada planta es gratis', async () => {
     let marca = null
     const root = await montar(PAYLOAD, { onSuccess: (m) => { marca = m } })
-    root.querySelectorAll('.riego-nombre')[0].click()
-    root.querySelectorAll('.riego-nombre')[1].click()
+    tarjeta(root, 0).click()
+    tarjeta(root, 1).click()
     celda(root, 0, 0).click()
     celda(root, 0, 2).click()
     celda(root, 1, 1).click()
@@ -298,15 +328,14 @@ describe('ficha de planta (icono, ventana, incompatibilidad) en vez de texto fij
   it('volver a consultar la misma planta suma al contador', async () => {
     let marca = null
     const root = await montar(PAYLOAD, { onSuccess: (m) => { marca = m } })
-    const filas = root.querySelectorAll('.riego-nombre')
-    // Clicar la MISMA fila mientras su ficha ya está abierta la cierra
-    // (toggle) en vez de recargarla, así que para sumar dos consultas de más
+    // Pulsar la MISMA tarjeta mientras su bocadillo ya está abierto lo cierra
+    // (toggle) en vez de recargarlo, así que para sumar dos consultas de más
     // hay que intercalar con la otra planta -- cada vez que se reabre
     // Albahaca/Cactus ya estaban en `consultadas`.
-    filas[0].click() // Albahaca, gratis (primera vez)
-    filas[1].click() // Cactus, gratis (primera vez), cierra la de Albahaca
-    filas[0].click() // Albahaca otra vez, +1
-    filas[1].click() // Cactus otra vez, +1
+    tarjeta(root, 0).click() // Albahaca, gratis (primera vez)
+    tarjeta(root, 1).click() // Cactus, gratis (primera vez), cierra la de Albahaca
+    tarjeta(root, 0).click() // Albahaca otra vez, +1
+    tarjeta(root, 1).click() // Cactus otra vez, +1
     celda(root, 0, 0).click()
     celda(root, 0, 2).click()
     celda(root, 1, 1).click()
@@ -315,14 +344,13 @@ describe('ficha de planta (icono, ventana, incompatibilidad) en vez de texto fij
     expect(marca.consultas).toBe(2)
   })
 
-  it('tocar el icono de la planta cuya ficha ya está abierta la cierra sin recargarla', async () => {
+  it('tocar la tarjeta de la planta cuyo bocadillo ya está abierto lo cierra sin recargarlo', async () => {
     let marca = null
     const root = await montar(PAYLOAD, { onSuccess: (m) => { marca = m } })
-    const filas = root.querySelectorAll('.riego-nombre')
-    filas[0].click() // Albahaca, gratis, abre la ficha
-    expect(root.querySelector('.riego-ficha')).not.toBeNull()
-    filas[0].click() // misma planta, misma ficha abierta: toggle-close
-    expect(root.querySelector('.riego-ficha'), 'debería cerrarla, no recargarla').toBeNull()
+    tarjeta(root, 0).click() // Albahaca, gratis, abre el bocadillo
+    expect(document.querySelector('.riego-deceerre-overlay')).not.toBeNull()
+    tarjeta(root, 0).click() // misma planta, mismo bocadillo abierto: toggle-close
+    expect(document.querySelector('.riego-deceerre-overlay'), 'debería cerrarlo, no recargarlo').toBeNull()
     celda(root, 0, 0).click()
     celda(root, 0, 2).click()
     celda(root, 1, 1).click()
@@ -330,32 +358,6 @@ describe('ficha de planta (icono, ventana, incompatibilidad) en vez de texto fij
     comprobar(root)
     // La primera vista de Albahaca fue gratis y el toggle-close no cuenta
     // como una segunda consulta.
-    expect(marca.consultas).toBe(0)
-  })
-
-  it('la ficha de la última planta se abre hacia arriba, no hacia abajo', async () => {
-    const root = await montar()
-    // Ojo: `.riego-nombre` también etiqueta la celda "Por ciclo" de la fila
-    // de totales (`.riego-totales`), que no lleva planta ni click -- por eso
-    // el filtro por `.riego-planta` y no un `querySelectorAll('.riego-nombre')` a secas.
-    const filas = root.querySelectorAll('.riego-planta .riego-nombre')
-    filas[0].click()
-    expect(root.querySelector('.riego-ficha').classList.contains('riego-ficha-arriba'), 'la primera no debería abrirse hacia arriba').toBe(false)
-    filas[filas.length - 1].click()
-    expect(root.querySelector('.riego-ficha').classList.contains('riego-ficha-arriba'), 'la última debería abrirse hacia arriba').toBe(true)
-  })
-
-  it('un click dentro de la ficha ya abierta no burbujea y no cobra otra consulta', async () => {
-    let marca = null
-    const root = await montar(PAYLOAD, { onSuccess: (m) => { marca = m } })
-    root.querySelectorAll('.riego-nombre')[0].click() // Albahaca, gratis
-    root.querySelector('.riego-ficha p').click()      // click dentro de la ficha, no en el <td>
-    expect(root.querySelector('.riego-ficha'), 'un click dentro no debería cerrarla').not.toBeNull()
-    celda(root, 0, 0).click()
-    celda(root, 0, 2).click()
-    celda(root, 1, 1).click()
-    celda(root, 1, 4).click()
-    comprobar(root)
     expect(marca.consultas).toBe(0)
   })
 
