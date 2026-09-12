@@ -3872,6 +3872,13 @@ section.groups { margin-top: 52px; }
   justify-content: center;
 }
 
+.cinta-ficha-volando {
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .35);
+}
+
 /* ===== Compartir resultado (celebración) ===== */
 .celebration-compartir {
   display: flex;

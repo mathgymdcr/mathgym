@@ -8,9 +8,10 @@ import { celebrate } from './celebration.js';
 import { buildStandardShell, createElement, setStatus } from './shell.js';
 import { simulaSalida, ordenEliminacion } from '../scripts/cinta-transportadora-logic.js';
 
-const RETRASO_ROTACION_MS = 300;
-const RETRASO_PAUSA_MS = 150;
+const RETRASO_ROTACION_MS = 420;
+const RETRASO_PAUSA_MS = 220;
 const RETRASO_PASO_MS = RETRASO_ROTACION_MS + RETRASO_PAUSA_MS;
+const RETRASO_VUELO_MS = 480;
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
@@ -36,13 +37,21 @@ export async function render(root, data, hooks) {
 
   const m = patronSalto + 1;
 
+  // Orden de HUECOS que vacía el brazo -- no depende de qué caja hay en cada
+  // uno, así que enseñarlo no da la solución (la colocación sí es secreta).
+  // Sirve para ilustrar el patrón de salto con un ejemplo concreto en vez de
+  // solo describirlo en abstracto.
+  const ejemploHuecos = ordenEliminacion(nCajas, m).slice(0, Math.min(4, nCajas));
+  const ejemploTexto = ejemploHuecos.join(' → ') + (nCajas > ejemploHuecos.length ? ' → …' : '');
+
   const ui = buildStandardShell({
     tipo: 'cinta-transportadora',
     gameClass: 'cinta-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
       <p><strong>Objetivo:</strong> coloca las ${nCajas} cajas en los huecos de la cinta para que el brazo las saque en este orden: <strong>${ordenObjetivo.join(', ')}</strong>.</p>
-      <p>El brazo empieza en el hueco 1: voltea una caja, se salta ${patronSalto} sin mirar${patronSalto === 1 ? '' : 's'} y voltea la siguiente, dando vueltas a la cinta hasta sacarlas todas.</p>
+      <p>El brazo gira siempre en el mismo sentido, empezando apuntando al hueco 1. En cada parada saca la caja de ese hueco y sigue girando; pasa de largo por los ${patronSalto} hueco${patronSalto === 1 ? '' : 's'} siguientes que aún tengan caja (los huecos ya vaciados no cuentan para el salto) y para en el siguiente para sacar esa.</p>
+      <p>Ejemplo con este patrón: vacía los huecos en el orden <strong>${ejemploTexto}</strong> -- ojo, eso es el orden de HUECOS, no el de cajas; a ti te toca decidir qué caja va en cada hueco para que las cajas salgan en el orden pedido arriba.</p>
       <p>Toca una caja de la bandeja y luego un hueco vacío para colocarla. Toca un hueco ya ocupado para devolver esa caja a la bandeja. Pulsa <strong>«Iniciar»</strong> cuando la cinta esté completa.</p>
     `
   });
@@ -219,9 +228,7 @@ export async function render(root, data, hooks) {
       huecos[idx].classList.add('volteando');
       const caja = colocacion[idx];
       salidaReal.push(caja);
-      const ficha = createElement('span', { class: 'cinta-salida-ficha' });
-      ficha.textContent = caja;
-      salidaWrap.appendChild(ficha);
+      volarFichaAlaSalida(huecos[idx], caja, salidaWrap);
       await esperar(RETRASO_PAUSA_MS);
 
       huecos[idx].classList.remove('volteando');
@@ -255,6 +262,37 @@ export async function render(root, data, hooks) {
 
 function esperar(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Ficha "voladora": clona el hueco de origen y la caja de destino con
+// getBoundingClientRect y anima entre las dos con position:fixed -- FLIP
+// sencillo, sin librería. La ficha real se añade oculta a salidaWrap desde
+// el principio para reservar su hueco en el flujo (flex-wrap) y así saber
+// dónde aterriza el vuelo antes de que exista visualmente.
+function volarFichaAlaSalida(huecoEl, caja, salidaWrap) {
+  const ficha = createElement('span', { class: 'cinta-salida-ficha' });
+  ficha.textContent = caja;
+  ficha.style.visibility = 'hidden';
+  salidaWrap.appendChild(ficha);
+
+  const origen = huecoEl.getBoundingClientRect();
+  const destino = ficha.getBoundingClientRect();
+
+  const volando = createElement('span', { class: 'cinta-salida-ficha cinta-ficha-volando' });
+  volando.textContent = caja;
+  volando.style.left = `${origen.left + origen.width / 2 - destino.width / 2}px`;
+  volando.style.top = `${origen.top + origen.height / 2 - destino.height / 2}px`;
+  document.body.appendChild(volando);
+  void volando.offsetHeight; // fuerza reflow antes de animar
+
+  volando.style.transition = `left ${RETRASO_VUELO_MS}ms cubic-bezier(.3,0,.2,1), top ${RETRASO_VUELO_MS}ms cubic-bezier(.3,0,.2,1)`;
+  volando.style.left = `${destino.left}px`;
+  volando.style.top = `${destino.top}px`;
+
+  setTimeout(() => {
+    volando.remove();
+    ficha.style.visibility = 'visible';
+  }, RETRASO_VUELO_MS);
 }
 
 async function loadConfig(data) {
