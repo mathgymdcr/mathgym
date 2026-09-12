@@ -91,9 +91,17 @@ describe('diasDelCarne', () => {
 })
 
 describe('tiposPorGrupo', () => {
-  it('reparte los doce tipos sin perder ni repetir ninguno', () => {
+  it('reparte los tipos visibles sin perder ni repetir ninguno (oculto se queda fuera)', () => {
     const repartidos = tiposPorGrupo().flatMap((g) => g.tipos.map((t) => t.tipo))
-    expect(repartidos.sort()).toEqual(TIPOS.map((t) => t.tipo).sort())
+    const visibles = TIPOS.filter((t) => !t.oculto).map((t) => t.tipo)
+    expect(repartidos.sort()).toEqual(visibles.sort())
+  })
+
+  it('no lista ningún tipo oculto (alcanzable solo desde debug.html)', () => {
+    const repartidos = tiposPorGrupo().flatMap((g) => g.tipos.map((t) => t.tipo))
+    for (const t of TIPOS.filter((t) => t.oculto)) {
+      expect(repartidos, `${t.tipo} no debería salir en la sala`).not.toContain(t.tipo)
+    }
   })
 
   it('respeta el orden de grupos del diseño', () => {

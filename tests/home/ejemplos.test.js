@@ -65,7 +65,9 @@ describe('ejemplos de prueba desde la portada', () => {
 
   it('cada ficha de ejercicio apunta a su ejemplo, no a una página aparte', async () => {
     await abrirPortada()
-    for (const t of TIPOS) {
+    // Los `oculto: true` (ver catalogo-tipos.js) no tienen ficha en la sala
+    // a propósito.
+    for (const t of TIPOS.filter((t) => !t.oculto)) {
       expect(fichaDe(t.tipo), `${t.tipo}: sin enlace a su ejemplo`).not.toBeNull()
     }
   })

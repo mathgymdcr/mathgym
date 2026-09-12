@@ -117,8 +117,16 @@ class MathGymGenerator {
     return (year * 10000) + (month * 100) + day;
   }
 
+  // Los tipos `oculto: true` (ver catalogo-tipos.js) siguen registrados en
+  // `this.templates` -- generate-debug-matrix.js y generate-muestrario.js
+  // los llaman directamente, sin pasar por aquí -- pero nunca deben salir
+  // como reto real de un día, así que quedan fuera de la rotación.
+  templatesVisibles() {
+    return Object.keys(this.templates).filter((tipo) => !tipoInfo(tipo).oculto);
+  }
+
   selectTemplate(seed) {
-    const templates = Object.keys(this.templates);
+    const templates = this.templatesVisibles();
     return templates[seed % templates.length];
   }
 

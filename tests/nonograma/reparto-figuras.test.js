@@ -8,14 +8,15 @@ import { ORDEN_TEMPLATES, ejesDeSeed, buildNonogramaPuzzle } from '../../scripts
 // selectTemplate, que vive en generate-daily-reto.js. Importarlo desde ahí
 // crearía un ciclo (el generador ya importa este módulo), así que
 // ORDEN_TEMPLATES es una copia local, a propósito, del orden real de
-// `this.templates`. Este test es la red que impide que se desincronicen: el
-// día que se registre un tipo nuevo y se le olvide tocar ORDEN_TEMPLATES,
-// nonograma volvería a repetir dibujo en silencio -- como ya pasó dos veces
-// (con codigo-secreto primero, con cinta-transportadora después) -- en vez
-// de fallar aquí, con un mensaje directo.
-describe('ORDEN_TEMPLATES no se desincroniza de this.templates', () => {
+// `templatesVisibles()` -- los tipos `oculto: true` no entran en la
+// rotación real, así que tampoco aquí. Este test es la red que impide que
+// se desincronicen: el día que se registre un tipo nuevo (visible) y se le
+// olvide tocar ORDEN_TEMPLATES, nonograma volvería a repetir dibujo en
+// silencio -- como ya pasó con codigo-secreto y con cinta-transportadora --
+// en vez de fallar aquí, con un mensaje directo.
+describe('ORDEN_TEMPLATES no se desincroniza de templatesVisibles()', () => {
   it('mismos tipos, mismo orden', () => {
-    const real = Object.keys(new MathGymGenerator().templates)
+    const real = new MathGymGenerator().templatesVisibles()
     expect(ORDEN_TEMPLATES).toEqual(real)
   })
 })

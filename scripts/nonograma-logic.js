@@ -527,18 +527,20 @@ function seedDeDia(diaOrdinal) {
   return fecha.getUTCFullYear() * 10000 + (fecha.getUTCMonth() + 1) * 100 + fecha.getUTCDate();
 }
 
-// Mismo orden que `this.templates` en scripts/generate-daily-reto.js: de ahí
-// sale qué residuo de `seed % ORDEN_TEMPLATES.length` le toca a nonograma.
-// Duplicado a propósito (igual que SITIO se duplica en compartir.js y
-// generate-sitemap.js): importar el generador aquí crearía un ciclo, porque
-// el generador ya importa este módulo. tests/nonograma/reparto-figuras.test.js
-// cruza esta lista contra `this.templates` para que un tipo nuevo no la
-// desincronice en silencio -- que es exactamente lo que rompió esta función
-// la primera vez (ver comentario en `buildNonogramaPuzzle`).
+// Mismo orden que `this.templatesVisibles()` en scripts/generate-daily-reto.js
+// (los tipos `oculto: true` quedan fuera de la rotación real, así que tampoco
+// entran aquí): de ahí sale qué residuo de `seed % ORDEN_TEMPLATES.length` le
+// toca a nonograma. Duplicado a propósito (igual que SITIO se duplica en
+// compartir.js y generate-sitemap.js): importar el generador aquí crearía un
+// ciclo, porque el generador ya importa este módulo.
+// tests/nonograma/reparto-figuras.test.js cruza esta lista contra
+// `templatesVisibles()` para que un tipo nuevo no la desincronice en
+// silencio -- que es exactamente lo que rompió esta función la primera vez
+// (ver comentario en `buildNonogramaPuzzle`).
 export const ORDEN_TEMPLATES = [
   'enigma-einstein', 'balanza-logica', 'poligono-geometrico', 'mezcla-quimica',
   'luces-fuera', 'relojes-arena', 'puentes-hashi', 'nonograma', 'cajas-apiladas',
-  'anillas-encadenadas', 'laser-triangular', 'riego-plantas', 'cinta-transportadora'
+  'anillas-encadenadas', 'laser-triangular', 'riego-plantas'
 ];
 
 function esDiaDeNonograma(diaOrdinal) {

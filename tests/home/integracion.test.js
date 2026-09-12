@@ -59,7 +59,7 @@ describe('index.html + script.js', () => {
       expect(document.querySelector('.workout-name')).not.toBeNull()
     })
     expect(document.querySelector('.workout-name').textContent).toBe('Objeto Oculto')
-    expect(document.querySelectorAll('.exercise')).toHaveLength(TIPOS.length)
+    expect(document.querySelectorAll('.exercise')).toHaveLength(TIPOS.filter((t) => !t.oculto).length)
     expect(document.getElementById('contenedor-interactivo').style.display).toBe('none')
   })
 

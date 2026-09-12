@@ -2,6 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { TIPOS } from '../../catalogo-tipos.js'
 import { pintarSala } from '../../home.js'
 
+// Los `oculto: true` (ver catalogo-tipos.js) no salen en la sala a propósito.
+const TIPOS_VISIBLES = TIPOS.filter((t) => !t.oculto)
+
 // El mockup traía los textos escritos a mano; aquí se comprueba que en la home
 // real salen del reto del día y del catálogo, sin literales duplicados.
 
@@ -68,18 +71,24 @@ describe('pintarSala', () => {
   it('lista los doce tipos repartidos en sus grupos, enlazados a su ejemplo', () => {
     pintarSala(root, { reto: RETO, progreso: PROGRESO })
     const fichas = root.querySelectorAll('.exercise')
-    expect(fichas).toHaveLength(TIPOS.length)
+    expect(fichas).toHaveLength(TIPOS_VISIBLES.length)
     expect(root.querySelectorAll('.group')).toHaveLength(4)
     for (const ficha of fichas) {
       expect(ficha.getAttribute('href')).toBe(`?tipo=${ficha.dataset.tipo}`)
     }
   })
 
+  it('el contador de "N ejercicios" cuenta solo los visibles, no TIPOS.length', () => {
+    pintarSala(root, { reto: RETO, progreso: PROGRESO })
+    const texto = root.querySelector('.groups-head p').textContent
+    expect(texto).toContain(`${TIPOS_VISIBLES.length} ejercicios`)
+  })
+
   it('no se cae si el reto no se pudo cargar: lo dice donde va el nombre', () => {
     pintarSala(root, { reto: null, progreso: PROGRESO })
     expect(root.querySelector('.workout-name').textContent).toMatch(/no se pudo cargar/i)
     // El resto de la sala sigue en pie.
-    expect(root.querySelectorAll('.exercise')).toHaveLength(TIPOS.length)
+    expect(root.querySelectorAll('.exercise')).toHaveLength(TIPOS_VISIBLES.length)
     expect(root.querySelectorAll('.punch')).toHaveLength(7)
   })
 })

@@ -60,7 +60,9 @@ async function main() {
   const lista = JSON.parse(await fs.readFile(path.join(RAIZ, 'lista_retos.json'), 'utf8'));
   const reto = JSON.parse(await fs.readFile(path.join(RAIZ, 'reto.json'), 'utf8'));
   const fechas = lista.map((r) => r.fecha).filter(Boolean).sort();
-  const xml = construirSitemap(TIPOS.map((t) => t.tipo), fechas, reto.fecha);
+  // `oculto: true` (ver catalogo-tipos.js) tampoco entra al sitemap: sin
+  // esto Google indexaría un ejemplo que no se anuncia en ningún sitio.
+  const xml = construirSitemap(TIPOS.filter((t) => !t.oculto).map((t) => t.tipo), fechas, reto.fecha);
   await fs.writeFile(path.join(RAIZ, 'sitemap.xml'), xml);
   console.log(`🗺️  sitemap.xml escrito con ${(xml.match(/<url>/g) || []).length} URLs`);
 }
