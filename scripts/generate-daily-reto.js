@@ -21,6 +21,7 @@ import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
 import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
 import { buildCintaPuzzle } from './cinta-transportadora-logic.js';
 import { buildFabricaPuzzle } from './fabrica-logic.js';
+import { buildRedPuzzle } from './red-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,7 +56,8 @@ class MathGymGenerator {
       'laser-triangular': this.generateLaser.bind(this),
       'riego-plantas': this.generateRiego.bind(this),
       'cinta-transportadora': this.generateCinta.bind(this),
-      'fabrica-de-bloques': this.generateFabrica.bind(this)
+      'fabrica-de-bloques': this.generateFabrica.bind(this),
+      'desenreda-la-red': this.generateRed.bind(this)
     };
   }
 
@@ -812,6 +814,34 @@ class MathGymGenerator {
         maxErrorsFor3Stars: 0,
         maxErrorsFor2Stars: 2
       },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateRed(seed, fecha) {
+    // Arbol al azar (planar por construccion, ningun test de planaridad
+    // ni solver de unicidad hace falta) + posiciones iniciales con al
+    // menos un cruce real, comprobado dentro del propio generador.
+    const puzzle = buildRedPuzzle(seed);
+    const { variant, dificultad, payload } = puzzle;
+
+    const dataFileName = `desenreda-la-red_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-desenreda-la-red-001`,
+      tipo: 'desenreda-la-red',
+      variant,
+      dificultad,
+      categorias: ['logica', 'espacial'],
+      // Sin par de movimientos: es un puzzle de manipulacion, no de
+      // optimizacion -- cualquier disposicion final sin cruces vale, asi
+      // que no hay "numero minimo de arrastres" que medir.
+      objectives: { winCondition: 'no_crossings' },
       data: { json_url: `data/${dataFileName}` }
     };
   }
