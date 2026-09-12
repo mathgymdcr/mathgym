@@ -50,7 +50,10 @@ const SEMILLAS = {
   // 6-salto1-ascendente: la variante mas simple (6 cajas, salta solo 1,
   // orden ascendente) para que el ejemplo enseñe la mecanica sin la carga
   // de un objetivo intercalado con 10 cajas.
-  'cinta-transportadora': 26
+  'cinta-transportadora': 26,
+  // 6x6: el tamaño más pequeño, para que la vitrina enseñe la mecánica sin
+  // liar con demasiados módulos.
+  'planos-del-invernadero': 2
 };
 
 async function main() {

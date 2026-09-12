@@ -1046,5 +1046,29 @@
     "seed": 51,
     "dificultad": 5,
     "json_url": "data/debug/cinta-transportadora/10-salto1-intercalado.json"
+  },
+  {
+    "tipo": "planos-del-invernadero",
+    "titulo": "Planos del Invernadero",
+    "variant": "8",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/planos-del-invernadero/8.json"
+  },
+  {
+    "tipo": "planos-del-invernadero",
+    "titulo": "Planos del Invernadero",
+    "variant": "10",
+    "seed": 1,
+    "dificultad": 4,
+    "json_url": "data/debug/planos-del-invernadero/10.json"
+  },
+  {
+    "tipo": "planos-del-invernadero",
+    "titulo": "Planos del Invernadero",
+    "variant": "6",
+    "seed": 2,
+    "dificultad": 2,
+    "json_url": "data/debug/planos-del-invernadero/6.json"
   }
 ]

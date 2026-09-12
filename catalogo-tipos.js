@@ -135,6 +135,16 @@ export const TIPOS = [
     generado: true,
     // Pendiente de decidir el lanzamiento: alcanzable solo desde debug.html.
     oculto: true
+  },
+  {
+    tipo: 'planos-del-invernadero',
+    nombre: 'Planos del Invernadero',
+    grupo: 'Visión espacial',
+    icono: 'assets/icono-planos-del-invernadero.svg',
+    resumen: 'Traza los módulos rectangulares del invernadero para que cada uno tenga exactamente el área que marca su pista.',
+    generado: true,
+    // En desarrollo: sin merge a producción todavía.
+    oculto: true
   }
 ];
 
