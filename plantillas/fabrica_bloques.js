@@ -8,6 +8,7 @@ import { celebrate } from './celebration.js';
 import { buildStandardShell, createElement, setStatus } from './shell.js';
 
 const SIMBOLO_OP = { suma: '+', resta: '−', multiplicacion: '×', division: '÷' };
+const PALETA_REGIONES = ['#3D8BE0', '#E85B4A', '#3DBE7A', '#F8C818', '#D163CC', '#4FB8C4', '#E0973D', '#8C7AE6', '#5C9DE8', '#C4526E'];
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
@@ -45,14 +46,28 @@ export async function render(root, data, hooks) {
     etiquetaDeCelda.set(`${f},${c}`, `${region.objetivo}${SIMBOLO_OP[region.operacion]}`);
   }
 
+  const colorDeRegion = new Map();
+  regiones.forEach((region, i) => colorDeRegion.set(region, PALETA_REGIONES[i % PALETA_REGIONES.length]));
+
   const ui = buildStandardShell({
     tipo: 'fabrica-de-bloques',
     gameClass: 'fabrica-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> rellena la rejilla de ${n}x${n} con dígitos del 1 al ${n} sin repetir ninguno en la misma fila ni en la misma columna.</p>
-      <p>Cada región (el grupo de celdas con el mismo borde grueso) lleva en su esquina una pista como «12+» o «6×»: combinando con esa operación los dígitos que pongas en TODAS sus celdas tienes que llegar exactamente a ese número. Las celdas sin pista y sin operación ya vienen con su dígito fijado.</p>
-      <p>Toca una celda vacía y luego un número del panel para escribirlo; toca el mismo número otra vez (o «borrar») para vaciarla. Pulsa <strong>«Comprobar»</strong> cuando la rejilla esté completa.</p>
+      <p><strong>Objetivo:</strong> rellena la rejilla de ${n}x${n} con dígitos del 1 al ${n}.</p>
+      <ul>
+        <li>No repitas dígito en la misma fila.</li>
+        <li>No repitas dígito en la misma columna.</li>
+        <li>Cada color marca una región distinta.</li>
+        <li>Una región lleva una pista, como «12+» o «6×».</li>
+        <li>Combina con esa operación los dígitos de TODA la región.</li>
+        <li>El resultado tiene que ser exacto: ni más ni menos.</li>
+        <li>Una celda sin pista ya trae su dígito fijado.</li>
+        <li>Toca un número del panel para seleccionarlo.</li>
+        <li>Toca una celda para escribir ahí el número seleccionado.</li>
+        <li>Toca la misma celda otra vez para vaciarla.</li>
+        <li>Pulsa «Comprobar» cuando la rejilla esté completa.</li>
+      </ul>
     `
   });
   root.appendChild(ui.box);
@@ -74,7 +89,7 @@ export async function render(root, data, hooks) {
     }
   }
 
-  let seleccion = null;
+  let herramienta = null; // numero 1..n, 'borrar', o null (nada seleccionado)
   let fallos = 0;
   let ganado = false;
 
@@ -84,6 +99,7 @@ export async function render(root, data, hooks) {
     for (let c = 0; c < n; c++) {
       const celda = createElement('button', { class: 'fabrica-celda', type: 'button' });
       const region = regionDeCelda[f][c];
+      celda.style.backgroundColor = colorDeRegion.get(region);
       if (c === 0 || regionDeCelda[f][c - 1] !== region) celda.classList.add('borde-izq');
       if (c === n - 1 || regionDeCelda[f][c + 1] !== region) celda.classList.add('borde-der');
       if (f === 0 || regionDeCelda[f - 1][c] !== region) celda.classList.add('borde-arriba');
@@ -105,9 +121,14 @@ export async function render(root, data, hooks) {
         valorSpan.textContent = valores[f][c];
       } else {
         celda.addEventListener('click', () => {
-          if (ganado) return;
-          seleccion = [f, c];
-          pintarSeleccion();
+          if (ganado || herramienta == null) return;
+          if (herramienta === 'borrar') {
+            valores[f][c] = 0;
+          } else {
+            valores[f][c] = valores[f][c] === herramienta ? 0 : herramienta;
+          }
+          valorSpan.textContent = valores[f][c] || '';
+          actualizarMensaje();
         });
       }
 
@@ -117,49 +138,53 @@ export async function render(root, data, hooks) {
   }
   ui.box.appendChild(tablero);
 
-  function pintarSeleccion() {
-    for (let f = 0; f < n; f++) {
-      for (let c = 0; c < n; c++) {
-        celdas[f][c].celda.classList.toggle(
-          'seleccionada',
-          !!seleccion && seleccion[0] === f && seleccion[1] === c
-        );
-      }
-    }
+  const numpad = createElement('div', { class: 'fabrica-numpad' });
+  const botonesHerramienta = [];
+
+  function seleccionaHerramienta(valor, boton) {
+    if (ganado) return;
+    herramienta = herramienta === valor ? null : valor;
+    botonesHerramienta.forEach(({ boton: b, valor: v }) => {
+      b.classList.toggle('seleccionado', herramienta === v);
+    });
   }
 
-  const numpad = createElement('div', { class: 'fabrica-numpad' });
   for (let v = 1; v <= n; v++) {
     const boton = createElement('button', { class: 'fabrica-num', type: 'button' });
     boton.textContent = v;
-    boton.addEventListener('click', () => {
-      if (ganado || !seleccion) return;
-      const [f, c] = seleccion;
-      if (fijadas[f][c]) return;
-      valores[f][c] = valores[f][c] === v ? 0 : v;
-      celdas[f][c].valorSpan.textContent = valores[f][c] || '';
-      actualizarMensaje();
-    });
+    boton.addEventListener('click', () => seleccionaHerramienta(v, boton));
     numpad.appendChild(boton);
+    botonesHerramienta.push({ boton, valor: v });
   }
   const btnBorrar = createElement('button', { class: 'fabrica-num fabrica-num-borrar', type: 'button' });
   btnBorrar.textContent = 'Borrar';
-  btnBorrar.addEventListener('click', () => {
-    if (ganado || !seleccion) return;
-    const [f, c] = seleccion;
-    if (fijadas[f][c]) return;
-    valores[f][c] = 0;
-    celdas[f][c].valorSpan.textContent = '';
-    actualizarMensaje();
-  });
+  btnBorrar.addEventListener('click', () => seleccionaHerramienta('borrar', btnBorrar));
   numpad.appendChild(btnBorrar);
+  botonesHerramienta.push({ boton: btnBorrar, valor: 'borrar' });
   ui.box.appendChild(numpad);
 
   const btnComprobar = createElement('button', { class: 'btn' });
   btnComprobar.textContent = 'Comprobar';
+  const btnReiniciar = createElement('button', { class: 'btn btn-secondary' });
+  btnReiniciar.textContent = 'Reiniciar';
   const controles = createElement('div', { class: 'panel-controls' });
   controles.appendChild(btnComprobar);
+  controles.appendChild(btnReiniciar);
   ui.box.appendChild(controles);
+
+  btnReiniciar.addEventListener('click', () => {
+    if (ganado) return;
+    for (let f = 0; f < n; f++) {
+      for (let c = 0; c < n; c++) {
+        if (fijadas[f][c]) continue;
+        valores[f][c] = 0;
+        celdas[f][c].valorSpan.textContent = '';
+      }
+    }
+    herramienta = null;
+    botonesHerramienta.forEach(({ boton }) => boton.classList.remove('seleccionado'));
+    actualizarMensaje();
+  });
 
   function actualizarMensaje() {
     if (ganado) return;

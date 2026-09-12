@@ -14,8 +14,9 @@ beforeAll(() => {
 
 // Contrato entre el payload que escribe el generador y lo que lee
 // plantillas/fabrica_bloques.js: monta el tablero, rellena la solución de
-// verdad clic a clic (celda -> numpad) y comprueba que la plantilla la da
-// por buena -- no solo que no reviente al montar.
+// verdad clic a clic (numpad -> celda, el usuario elige primero el número
+// y luego dónde ponerlo) y comprueba que la plantilla la da por buena --
+// no solo que no reviente al montar.
 describe('plantillas/fabrica_bloques.js con el payload del generador', () => {
   it('pinta rejilla, bordes de región y celdas dadas; resolverla dispara onSuccess', async () => {
     const mod = await import('../../plantillas/fabrica_bloques.js');
@@ -53,14 +54,15 @@ describe('plantillas/fabrica_bloques.js con el payload del generador', () => {
     const numpad = [...root.querySelectorAll('.fabrica-num')].filter((b) => !b.classList.contains('fabrica-num-borrar'));
     expect(numpad).toHaveLength(n);
 
-    for (let f = 0; f < n; f++) {
-      for (let c = 0; c < n; c++) {
-        const celda = celdas[f * n + c];
-        if (celda.disabled) continue;
-        celda.click();
-        const valor = payload.solucion[f][c];
-        const boton = numpad.find((b) => b.textContent === String(valor));
-        boton.click();
+    for (let v = 1; v <= n; v++) {
+      const boton = numpad.find((b) => b.textContent === String(v));
+      boton.click(); // selecciona el número una vez...
+      for (let f = 0; f < n; f++) {
+        for (let c = 0; c < n; c++) {
+          const celda = celdas[f * n + c];
+          if (celda.disabled) continue;
+          if (payload.solucion[f][c] === v) celda.click(); // ...y se aplica a cada celda que lo necesite
+        }
       }
     }
 
