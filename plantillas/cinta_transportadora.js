@@ -37,22 +37,24 @@ export async function render(root, data, hooks) {
 
   const m = patronSalto + 1;
 
-  // Orden de HUECOS que vacía el brazo -- no depende de qué caja hay en cada
-  // uno, así que enseñarlo no da la solución (la colocación sí es secreta).
-  // Sirve para ilustrar el patrón de salto con un ejemplo concreto en vez de
-  // solo describirlo en abstracto.
-  const ejemploHuecos = ordenEliminacion(nCajas, m).slice(0, Math.min(4, nCajas));
-  const ejemploTexto = ejemploHuecos.join(' → ') + (nCajas > ejemploHuecos.length ? ' → …' : '');
-
   const ui = buildStandardShell({
     tipo: 'cinta-transportadora',
     gameClass: 'cinta-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> coloca las ${nCajas} cajas en los huecos de la cinta para que el brazo las saque en este orden: <strong>${ordenObjetivo.join(', ')}</strong>.</p>
-      <p>El brazo gira siempre en el mismo sentido, empezando apuntando al hueco 1. En cada parada saca la caja de ese hueco y sigue girando; pasa de largo por los ${patronSalto} hueco${patronSalto === 1 ? '' : 's'} siguientes que aún tengan caja (los huecos ya vaciados no cuentan para el salto) y para en el siguiente para sacar esa.</p>
-      <p>Ejemplo con este patrón: vacía los huecos en el orden <strong>${ejemploTexto}</strong> -- ojo, eso es el orden de HUECOS, no el de cajas; a ti te toca decidir qué caja va en cada hueco para que las cajas salgan en el orden pedido arriba.</p>
-      <p>Toca una caja de la bandeja y luego un hueco vacío para colocarla. Toca un hueco ya ocupado para devolver esa caja a la bandeja. Pulsa <strong>«Iniciar»</strong> cuando la cinta esté completa.</p>
+      <p><strong>Objetivo:</strong> coloca las ${nCajas} cajas en los huecos para que el brazo las saque en este orden: <strong>${ordenObjetivo.join(', ')}</strong>.</p>
+      <ul>
+        <li>El brazo gira en sentido horario (como las agujas del reloj).</li>
+        <li>Empieza apuntando al hueco 1.</li>
+        <li>En cada parada saca la caja de ese hueco.</li>
+        <li>Después salta ${patronSalto} hueco${patronSalto === 1 ? '' : 's'} con caja sin sacarla${patronSalto === 1 ? '' : 's'}.</li>
+        <li>Un hueco ya vaciado no cuenta para ese salto.</li>
+        <li>Para en el siguiente hueco con caja y la saca.</li>
+        <li>Repite hasta sacarlas todas.</li>
+        <li>Toca una caja de la bandeja y luego un hueco vacío para colocarla.</li>
+        <li>Toca un hueco ya ocupado para devolver esa caja a la bandeja.</li>
+        <li>Pulsa «Iniciar» cuando la cinta esté completa.</li>
+      </ul>
     `
   });
   root.appendChild(ui.box);
