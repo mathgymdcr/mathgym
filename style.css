@@ -3759,6 +3759,57 @@ section.groups { margin-top: 52px; }
   opacity: .7;
 }
 
+.cinta-hueco.volteando {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, .12);
+  transform: translate(-50%, -50%) scale(1.12);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.cinta-hueco.vaciado {
+  opacity: .35;
+}
+
+.cinta-brazo-eje {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--brand);
+  z-index: 3;
+}
+
+.cinta-brazo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 38%;
+  margin-top: 0;
+  background: linear-gradient(to bottom, var(--brand), var(--accent));
+  border-radius: 3px;
+  transform-origin: top center;
+  transform: translateX(-50%) rotate(0deg);
+  transition: transform .3s cubic-bezier(.45, 0, .2, 1);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.cinta-brazo-garra {
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  background: var(--bg);
+}
+
 .cinta-bandeja-wrap {
   margin-bottom: 14px;
 }

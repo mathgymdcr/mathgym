@@ -6,9 +6,11 @@
 
 import { celebrate } from './celebration.js';
 import { buildStandardShell, createElement, setStatus } from './shell.js';
-import { simulaSalida } from '../scripts/cinta-transportadora-logic.js';
+import { simulaSalida, ordenEliminacion } from '../scripts/cinta-transportadora-logic.js';
 
-const RETRASO_PASO_MS = 450;
+const RETRASO_ROTACION_MS = 300;
+const RETRASO_PAUSA_MS = 150;
+const RETRASO_PASO_MS = RETRASO_ROTACION_MS + RETRASO_PAUSA_MS;
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
@@ -54,6 +56,10 @@ export async function render(root, data, hooks) {
   const circulo = createElement('div', { class: 'cinta-circulo' });
   const huecos = [];
   const RADIO_PORCENTAJE = 38;
+
+  // Ángulo (en grados, horario desde el norte) del hueco i-ésimo.
+  const anguloHueco = (i) => (i * 360 / nCajas);
+
   for (let i = 0; i < nCajas; i++) {
     const angulo = -Math.PI / 2 + i * (2 * Math.PI / nCajas);
     const x = 50 + RADIO_PORCENTAJE * Math.cos(angulo);
@@ -69,6 +75,24 @@ export async function render(root, data, hooks) {
     huecos.push(hueco);
     circulo.appendChild(hueco);
   }
+
+  const brazo = createElement('div', { class: 'cinta-brazo' });
+  const brazoGarra = createElement('div', { class: 'cinta-brazo-garra' });
+  brazo.appendChild(brazoGarra);
+  const brazoEje = createElement('div', { class: 'cinta-brazo-eje' });
+
+  // El brazo apunta al hueco 1 (norte) en reposo. rotate(0) apunta al sur,
+  // así que hay que restar 180 al rumbo (horario desde el norte) del hueco.
+  function apuntarBrazo(i, { animar = true } = {}) {
+    brazo.style.transition = animar ? '' : 'none';
+    brazo.style.transform = `translateX(-50%) rotate(${anguloHueco(i) - 180}deg)`;
+    if (!animar) void brazo.offsetHeight; // fuerza reflow antes de reactivar la transición
+  }
+
+  circulo.appendChild(brazo);
+  circulo.appendChild(brazoEje);
+  apuntarBrazo(0, { animar: false });
+
   stage.appendChild(circulo);
   ui.box.appendChild(stage);
 
@@ -162,6 +186,8 @@ export async function render(root, data, hooks) {
     }
     seleccionada = null;
     salidaWrap.innerHTML = '';
+    huecos.forEach((h) => h.classList.remove('volteando', 'vaciado'));
+    apuntarBrazo(0, { animar: false });
     pintarBandeja();
     actualizarMensaje();
   });
@@ -177,14 +203,29 @@ export async function render(root, data, hooks) {
     btnIniciar.disabled = true;
     btnReiniciar.disabled = true;
     salidaWrap.innerHTML = '';
+    huecos.forEach((h) => h.classList.remove('volteando', 'vaciado'));
     setStatus(ui.result, 'La cinta está en marcha...', '');
 
-    const salidaReal = simulaSalida(colocacion, m);
-    for (const caja of salidaReal) {
+    // ordenEliminacion depende solo de n y m, no de qué caja hay en cada
+    // hueco -- es el mismo recorrido circular que usa simulaSalida, así que
+    // sirve para saber a qué hueco apuntar en cada paso de la animación.
+    const posiciones = ordenEliminacion(nCajas, m);
+    const salidaReal = [];
+    for (const posUno of posiciones) {
+      const idx = posUno - 1;
+      apuntarBrazo(idx);
+      await esperar(RETRASO_ROTACION_MS);
+
+      huecos[idx].classList.add('volteando');
+      const caja = colocacion[idx];
+      salidaReal.push(caja);
       const ficha = createElement('span', { class: 'cinta-salida-ficha' });
       ficha.textContent = caja;
       salidaWrap.appendChild(ficha);
-      await esperar(RETRASO_PASO_MS);
+      await esperar(RETRASO_PAUSA_MS);
+
+      huecos[idx].classList.remove('volteando');
+      huecos[idx].classList.add('vaciado');
     }
 
     const acierto = salidaReal.length === ordenObjetivo.length
