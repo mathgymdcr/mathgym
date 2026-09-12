@@ -3713,6 +3713,114 @@ section.groups { margin-top: 52px; }
     line-height: 1.5;
 }
 
+/* ===== La Cinta Sin Fin (cinta_transportadora.js) ===== */
+.cinta-info {
+  color: var(--muted);
+  font-size: .85rem;
+  margin: 4px 0 14px;
+  text-align: center;
+}
+
+.cinta-stage {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.cinta-circulo {
+  position: relative;
+  width: min(320px, 80vw);
+  aspect-ratio: 1;
+}
+
+.cinta-hueco {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--card-b);
+  background: var(--surface-2, #212b3b);
+  color: var(--fg);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cinta-hueco.ocupado {
+  border-color: var(--accent);
+  background: rgba(209, 99, 204, .18);
+}
+
+.cinta-hueco:disabled {
+  cursor: default;
+  opacity: .7;
+}
+
+.cinta-bandeja-wrap {
+  margin-bottom: 14px;
+}
+
+.cinta-bandeja-label {
+  color: var(--muted);
+  font-size: .8rem;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.cinta-bandeja {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.cinta-caja {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--card-b);
+  background: var(--surface-2, #212b3b);
+  color: var(--fg);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cinta-caja:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.cinta-caja.seleccionada {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(209, 99, 204, .35);
+}
+
+.cinta-salida {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 12px;
+  min-height: 32px;
+}
+
+.cinta-salida-ficha {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ===== Compartir resultado (celebración) ===== */
 .celebration-compartir {
   display: flex;

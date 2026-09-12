@@ -19,6 +19,15 @@
 // `generado: true` significa que hay un generador diario en
 // scripts/generate-daily-reto.js; `false` es una plantilla que existe pero
 // cuyo contenido todavía se escribe a mano.
+//
+// `oculto: true` saca el tipo de la sala (home.js) y de sitemap.xml, y de
+// `selectTemplate` (generate-daily-reto.js) -- así nunca sale como reto real
+// de ningún día ni aparece listado en la portada. NO es una restricción de
+// acceso de verdad (como el candado de debug.html, disuasorio, no seguridad
+// real): sigue siendo generable a mano, sigue teniendo muestra y matriz de
+// debug, y `?tipo=` sigue montándolo si alguien escribe la URL exacta -- lo
+// único que hace es no anunciarlo. Se usa para publicar un tipo nuevo solo
+// alcanzable desde debug.html mientras se decide su lanzamiento.
 
 export const TIPOS = [
   {
@@ -116,6 +125,16 @@ export const TIPOS = [
     icono: 'assets/icono-laser-triangular.svg',
     resumen: 'Coloca espejos para llevar cada rayo hasta su diana sin que los trayectos se crucen: las diagonales giran el haz y los espejos planos lo devuelven.',
     generado: true
+  },
+  {
+    tipo: 'cinta-transportadora',
+    nombre: 'La Cinta Sin Fin',
+    grupo: 'Secuencias y estados',
+    icono: 'assets/icono-cinta-transportadora.svg',
+    resumen: 'Coloca las cajas en la cinta circular para que el brazo, volteando una y saltándose otras siempre igual, las saque en el orden que se pide.',
+    generado: true,
+    // Pendiente de decidir el lanzamiento: alcanzable solo desde debug.html.
+    oculto: true
   }
 ];
 

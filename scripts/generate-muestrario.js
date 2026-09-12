@@ -46,7 +46,11 @@ const SEMILLAS = {
   // huerto (dificultad 2): la Tomatera solo puede regarse en los ciclos 2 y
   // 5 -- una ventana estrecha que fuerza una deducción clara sin liar las 3
   // plantas del reto.
-  'riego-plantas': 20260104
+  'riego-plantas': 20260104,
+  // 6-salto1-ascendente: la variante mas simple (6 cajas, salta solo 1,
+  // orden ascendente) para que el ejemplo enseñe la mecanica sin la carga
+  // de un objetivo intercalado con 10 cajas.
+  'cinta-transportadora': 26
 };
 
 async function main() {

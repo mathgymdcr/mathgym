@@ -19,7 +19,8 @@ window.Templates = (function() {
     'cajas-apiladas': () => import('./cajas.js'),            // ✅ NUEVA PLANTILLA
     'nonograma': () => import('./nonograma.js'),             // ✅ NUEVA PLANTILLA
     'laser-triangular': () => import('./laser_triangular.js'), // ✅ NUEVA PLANTILLA
-    'puentes-hashi': () => import('./hashi.js')                 // ✅ NUEVA PLANTILLA
+    'puentes-hashi': () => import('./hashi.js'),                // ✅ NUEVA PLANTILLA
+    'cinta-transportadora': () => import('./cinta_transportadora.js') // ✅ NUEVA PLANTILLA
   };
 
   // --- Función principal para renderizar plantillas ---

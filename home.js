@@ -58,10 +58,12 @@ export function diasDelCarne(fechaHoy, completadas = {}) {
   return dias;
 }
 
+// `oculto` saca el tipo de la sala -- ver el comentario de ese campo en
+// catalogo-tipos.js. No es un candado real, solo evita anunciarlo aquí.
 export function tiposPorGrupo() {
   return GRUPOS.map((grupo) => ({
     grupo,
-    tipos: TIPOS.filter((t) => t.grupo === grupo)
+    tipos: TIPOS.filter((t) => t.grupo === grupo && !t.oculto)
   }));
 }
 
@@ -185,14 +187,16 @@ function pintarCarne(reto, progreso) {
 
 function pintarGrupos() {
   const seccion = el('section', 'groups');
+  const grupos = tiposPorGrupo();
+  const totalVisible = grupos.reduce((acc, g) => acc + g.tipos.length, 0);
 
   const cabeza = el('div', 'groups-head');
   cabeza.appendChild(el('h2', 'display', 'Grupos musculares'));
   cabeza.appendChild(el('p', null,
-    `${TIPOS.length} ejercicios, agrupados por el tipo de músculo mental que trabajan`));
+    `${totalVisible} ejercicios, agrupados por el tipo de músculo mental que trabajan`));
   seccion.appendChild(cabeza);
 
-  for (const { grupo, tipos } of tiposPorGrupo()) {
+  for (const { grupo, tipos } of grupos) {
     const bloque = el('div', 'group');
     bloque.appendChild(el('div', 'group-label', grupo));
     const fila = el('div', 'exercise-row');
