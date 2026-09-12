@@ -902,5 +902,149 @@
     "seed": 41,
     "dificultad": 4,
     "json_url": "data/debug/laser-triangular/medio-condensador.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "8-salto2-descendente",
+    "seed": 0,
+    "dificultad": 4,
+    "json_url": "data/debug/cinta-transportadora/8-salto2-descendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "10-salto2-descendente",
+    "seed": 1,
+    "dificultad": 5,
+    "json_url": "data/debug/cinta-transportadora/10-salto2-descendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "10-salto2-intercalado",
+    "seed": 3,
+    "dificultad": 5,
+    "json_url": "data/debug/cinta-transportadora/10-salto2-intercalado.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "10-salto2-ascendente",
+    "seed": 4,
+    "dificultad": 5,
+    "json_url": "data/debug/cinta-transportadora/10-salto2-ascendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "10-salto1-ascendente",
+    "seed": 5,
+    "dificultad": 4,
+    "json_url": "data/debug/cinta-transportadora/10-salto1-ascendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "6-salto2-ascendente",
+    "seed": 7,
+    "dificultad": 3,
+    "json_url": "data/debug/cinta-transportadora/6-salto2-ascendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "8-salto2-ascendente",
+    "seed": 10,
+    "dificultad": 4,
+    "json_url": "data/debug/cinta-transportadora/8-salto2-ascendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "10-salto1-descendente",
+    "seed": 11,
+    "dificultad": 4,
+    "json_url": "data/debug/cinta-transportadora/10-salto1-descendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "6-salto1-descendente",
+    "seed": 13,
+    "dificultad": 2,
+    "json_url": "data/debug/cinta-transportadora/6-salto1-descendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "8-salto2-intercalado",
+    "seed": 14,
+    "dificultad": 5,
+    "json_url": "data/debug/cinta-transportadora/8-salto2-intercalado.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "6-salto1-intercalado",
+    "seed": 16,
+    "dificultad": 3,
+    "json_url": "data/debug/cinta-transportadora/6-salto1-intercalado.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "8-salto1-intercalado",
+    "seed": 18,
+    "dificultad": 4,
+    "json_url": "data/debug/cinta-transportadora/8-salto1-intercalado.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "6-salto2-descendente",
+    "seed": 22,
+    "dificultad": 3,
+    "json_url": "data/debug/cinta-transportadora/6-salto2-descendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "6-salto1-ascendente",
+    "seed": 26,
+    "dificultad": 2,
+    "json_url": "data/debug/cinta-transportadora/6-salto1-ascendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "8-salto1-descendente",
+    "seed": 28,
+    "dificultad": 3,
+    "json_url": "data/debug/cinta-transportadora/8-salto1-descendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "6-salto2-intercalado",
+    "seed": 33,
+    "dificultad": 4,
+    "json_url": "data/debug/cinta-transportadora/6-salto2-intercalado.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "8-salto1-ascendente",
+    "seed": 41,
+    "dificultad": 3,
+    "json_url": "data/debug/cinta-transportadora/8-salto1-ascendente.json"
+  },
+  {
+    "tipo": "cinta-transportadora",
+    "titulo": "La Cinta Sin Fin",
+    "variant": "10-salto1-intercalado",
+    "seed": 51,
+    "dificultad": 5,
+    "json_url": "data/debug/cinta-transportadora/10-salto1-intercalado.json"
   }
 ]
