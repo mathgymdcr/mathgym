@@ -38,9 +38,19 @@ export async function render(root, data, hooks) {
     gameClass: 'invernadero-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> divide la rejilla de ${n}x${n} en módulos rectangulares -- uno por cada pista -- de forma que el área de cada módulo (en celdas) sea exactamente el número de su pista.</p>
-      <p>Cada módulo tiene que contener EXACTAMENTE una pista, y entre todos tienen que cubrir el tablero completo sin solaparse.</p>
-      <p>Toca una celda para marcar la primera esquina de un módulo, y toca otra para marcar la esquina opuesta: se rellena el rectángulo entre ambas. Toca cualquier celda de un módulo ya trazado para deshacerlo. Pulsa <strong>«Comprobar»</strong> cuando la rejilla esté completa.</p>
+      <p><strong>Objetivo:</strong> divide la rejilla de ${n}x${n} en módulos rectangulares, uno por cada pista.</p>
+      <ul>
+        <li>El área de un módulo es su número de celdas.</li>
+        <li>Esa área tiene que ser igual a su pista.</li>
+        <li>Cada módulo contiene exactamente una pista.</li>
+        <li>Los módulos cubren el tablero entero.</li>
+        <li>Los módulos nunca se solapan.</li>
+        <li>Toca una celda: marca la primera esquina.</li>
+        <li>Toca otra celda: marca la esquina opuesta.</li>
+        <li>Se rellena el rectángulo entre las dos.</li>
+        <li>Toca un módulo ya trazado para deshacerlo.</li>
+        <li>Pulsa «Comprobar» cuando la rejilla esté completa.</li>
+      </ul>
     `
   });
   root.appendChild(ui.box);
