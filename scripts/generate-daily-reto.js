@@ -20,6 +20,7 @@ import { buildAnillasPuzzle, buildAnillasHints } from './anillas-logic.js';
 import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
 import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
 import { buildCintaPuzzle } from './cinta-transportadora-logic.js';
+import { buildFabricaPuzzle } from './fabrica-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -53,7 +54,8 @@ class MathGymGenerator {
       'anillas-encadenadas': this.generateAnillas.bind(this),
       'laser-triangular': this.generateLaser.bind(this),
       'riego-plantas': this.generateRiego.bind(this),
-      'cinta-transportadora': this.generateCinta.bind(this)
+      'cinta-transportadora': this.generateCinta.bind(this),
+      'fabrica-de-bloques': this.generateFabrica.bind(this)
     };
   }
 
@@ -778,6 +780,35 @@ class MathGymGenerator {
       categorias: ['logica', 'algoritmos'],
       objectives: {
         winCondition: 'output_order_matches',
+        maxErrorsFor3Stars: 0,
+        maxErrorsFor2Stars: 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateFabrica(seed, fecha) {
+    // KenKen/Calcudoku: cuadrado latino + regiones que cierran una
+    // operacion. La solvencia (unicidad) se recomprueba dentro del propio
+    // generador con contarSoluciones antes de devolver el puzzle.
+    const puzzle = buildFabricaPuzzle(seed);
+    const { variant, dificultad, payload } = puzzle;
+
+    const dataFileName = `fabrica-de-bloques_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-fabrica-de-bloques-001`,
+      tipo: 'fabrica-de-bloques',
+      variant,
+      dificultad,
+      categorias: ['logica', 'calculo'],
+      objectives: {
+        winCondition: 'grid_matches_solution',
         maxErrorsFor3Stars: 0,
         maxErrorsFor2Stars: 2
       },
