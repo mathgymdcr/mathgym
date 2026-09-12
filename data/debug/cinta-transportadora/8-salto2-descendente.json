@@ -1,0 +1,24 @@
+{
+  "n_cajas": 8,
+  "patron_salto": 2,
+  "orden_objetivo": [
+    8,
+    7,
+    6,
+    5,
+    4,
+    3,
+    2,
+    1
+  ],
+  "solucion_colocacion": [
+    6,
+    4,
+    8,
+    2,
+    5,
+    7,
+    1,
+    3
+  ]
+}

@@ -13,6 +13,7 @@ import { resolverAnillas } from './anillas-logic.js';
 import { resuelto as laserResuelto, piezasMinimas, crearPiezas, normalizaConfig, MODOS, COLORES, DIR_VECTOR } from './laser-triangular-logic.js';
 import { contarSoluciones as contarRiegos, combinacionesPlanta, MARGEN_MINIMO } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
+import { simulaSalida } from './cinta-transportadora-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -144,6 +145,10 @@ class RetoValidator {
 
       case 'riego-plantas':
         await this.validateRiegoData(reto);
+        break;
+
+      case 'cinta-transportadora':
+        await this.validateCintaData(reto);
         break;
     }
   }
@@ -964,6 +969,44 @@ class RetoValidator {
       throw new Error(
         `Riego-plantas sin margen de decisión: ${falta.id} solo tiene holgura ` +
         `${falta.ventana.length - falta.doses} (mínimo ${MARGEN_MINIMO[variant]} para ${variant})`
+      );
+    }
+  }
+
+  async validateCintaData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Cinta-transportadora reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!Number.isInteger(data.n_cajas) || data.n_cajas < 3 || data.n_cajas > 20) {
+      throw new Error(`Cinta-transportadora n_cajas inválido: ${data.n_cajas}`);
+    }
+    if (!Number.isInteger(data.patron_salto) || data.patron_salto < 0) {
+      throw new Error(`Cinta-transportadora patron_salto inválido: ${data.patron_salto}`);
+    }
+
+    const esPermutacion = (arr) => Array.isArray(arr) && arr.length === data.n_cajas &&
+      new Set(arr).size === data.n_cajas &&
+      arr.every((v) => Number.isInteger(v) && v >= 1 && v <= data.n_cajas);
+
+    if (!esPermutacion(data.orden_objetivo)) {
+      throw new Error('Cinta-transportadora orden_objetivo debe ser una permutación de 1..n_cajas');
+    }
+    if (!esPermutacion(data.solucion_colocacion)) {
+      throw new Error('Cinta-transportadora solucion_colocacion debe ser una permutación de 1..n_cajas');
+    }
+
+    // Solvencia: la colocación que escribió el generador tiene que sacar
+    // de verdad las cajas en el orden pedido -- misma simulación que usa
+    // la plantilla, no una copia que pueda desincronizarse.
+    const salida = simulaSalida(data.solucion_colocacion, data.patron_salto + 1);
+    if (JSON.stringify(salida) !== JSON.stringify(data.orden_objetivo)) {
+      throw new Error(
+        `Cinta-transportadora solucion_colocacion no produce orden_objetivo: sale ${salida.join(',')}`
       );
     }
   }

@@ -116,6 +116,14 @@ export const TIPOS = [
     icono: 'assets/icono-laser-triangular.svg',
     resumen: 'Coloca espejos para llevar cada rayo hasta su diana sin que los trayectos se crucen: las diagonales giran el haz y los espejos planos lo devuelven.',
     generado: true
+  },
+  {
+    tipo: 'cinta-transportadora',
+    nombre: 'La Cinta Sin Fin',
+    grupo: 'Secuencias y estados',
+    icono: 'assets/icono-cinta-transportadora.svg',
+    resumen: 'Coloca las cajas en la cinta circular para que el brazo, volteando una y saltándose otras siempre igual, las saque en el orden que se pide.',
+    generado: true
   }
 ];
 

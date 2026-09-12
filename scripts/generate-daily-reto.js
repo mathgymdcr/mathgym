@@ -19,6 +19,7 @@ import { buildCajasPuzzle, buildCajasHints } from './cajas-logic.js';
 import { buildAnillasPuzzle, buildAnillasHints } from './anillas-logic.js';
 import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
 import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
+import { buildCintaPuzzle } from './cinta-transportadora-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -51,7 +52,8 @@ class MathGymGenerator {
       'cajas-apiladas': this.generateCajas.bind(this),
       'anillas-encadenadas': this.generateAnillas.bind(this),
       'laser-triangular': this.generateLaser.bind(this),
-      'riego-plantas': this.generateRiego.bind(this)
+      'riego-plantas': this.generateRiego.bind(this),
+      'cinta-transportadora': this.generateCinta.bind(this)
     };
   }
 
@@ -741,6 +743,35 @@ class MathGymGenerator {
         // no depende de la semilla (ver spec sección 5).
         maxConsultasFor3Stars: 0,
         maxConsultasFor2Stars: 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateCinta(seed, fecha) {
+    // Josephus resuelto al revés: la colocación sale de una fórmula
+    // cerrada (ordenEliminacion + biyección inversa), sin solver ni
+    // comprobación de unicidad que hacer aquí.
+    const puzzle = buildCintaPuzzle(seed);
+    const { variant, dificultad, payload } = puzzle;
+
+    const dataFileName = `cinta-transportadora_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-cinta-transportadora-001`,
+      tipo: 'cinta-transportadora',
+      variant,
+      dificultad,
+      categorias: ['logica', 'algoritmos'],
+      objectives: {
+        winCondition: 'output_order_matches',
+        maxErrorsFor3Stars: 0,
+        maxErrorsFor2Stars: 2
       },
       data: { json_url: `data/${dataFileName}` }
     };
