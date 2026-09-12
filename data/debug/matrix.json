@@ -1046,5 +1046,53 @@
     "seed": 51,
     "dificultad": 5,
     "json_url": "data/debug/cinta-transportadora/10-salto1-intercalado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Fábrica de Bloques",
+    "variant": "6-basicas",
+    "seed": 0,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Fábrica de Bloques",
+    "variant": "4-todas",
+    "seed": 1,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/4-todas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Fábrica de Bloques",
+    "variant": "5-todas",
+    "seed": 3,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Fábrica de Bloques",
+    "variant": "5-basicas",
+    "seed": 5,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Fábrica de Bloques",
+    "variant": "6-todas",
+    "seed": 6,
+    "dificultad": 5,
+    "json_url": "data/debug/fabrica-de-bloques/6-todas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Fábrica de Bloques",
+    "variant": "4-basicas",
+    "seed": 9,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas.json"
   }
 ]

@@ -50,7 +50,11 @@ const SEMILLAS = {
   // 6-salto1-ascendente: la variante mas simple (6 cajas, salta solo 1,
   // orden ascendente) para que el ejemplo enseñe la mecanica sin la carga
   // de un objetivo intercalado con 10 cajas.
-  'cinta-transportadora': 26
+  'cinta-transportadora': 26,
+  // 4x4-basicas: solo suma y resta, el tamaño más pequeño -- la vitrina
+  // enseña la mecánica (región + cuadrado latino) sin multiplicación ni
+  // división todavía.
+  'fabrica-de-bloques': 9
 };
 
 async function main() {

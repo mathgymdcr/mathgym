@@ -14,6 +14,7 @@ import { resuelto as laserResuelto, piezasMinimas, crearPiezas, normalizaConfig,
 import { contarSoluciones as contarRiegos, combinacionesPlanta, MARGEN_MINIMO } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { simulaSalida } from './cinta-transportadora-logic.js';
+import { contarSoluciones as contarFabrica } from './fabrica-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -149,6 +150,10 @@ class RetoValidator {
 
       case 'cinta-transportadora':
         await this.validateCintaData(reto);
+        break;
+
+      case 'fabrica-de-bloques':
+        await this.validateFabricaData(reto);
         break;
     }
   }
@@ -1008,6 +1013,79 @@ class RetoValidator {
       throw new Error(
         `Cinta-transportadora solucion_colocacion no produce orden_objetivo: sale ${salida.join(',')}`
       );
+    }
+  }
+
+  async validateFabricaData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Fabrica-de-bloques reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const n = data.tablero && data.tablero.ancho;
+    if (![4, 5, 6].includes(n) || (data.tablero && data.tablero.alto) !== n) {
+      throw new Error(`Fabrica-de-bloques tablero inválido: ${JSON.stringify(data.tablero)}`);
+    }
+
+    if (!Array.isArray(data.solucion) || data.solucion.length !== n) {
+      throw new Error('Fabrica-de-bloques solucion inválida');
+    }
+    for (const fila of data.solucion) {
+      if (!Array.isArray(fila) || fila.length !== n || new Set(fila).size !== n) {
+        throw new Error('Fabrica-de-bloques solucion no es un cuadrado latino válido (fila repetida)');
+      }
+      for (const v of fila) {
+        if (!Number.isInteger(v) || v < 1 || v > n) {
+          throw new Error(`Fabrica-de-bloques valor fuera de rango en la solución: ${v}`);
+        }
+      }
+    }
+    for (let c = 0; c < n; c++) {
+      const columna = data.solucion.map((fila) => fila[c]);
+      if (new Set(columna).size !== n) {
+        throw new Error(`Fabrica-de-bloques solucion no es un cuadrado latino válido (columna ${c} repetida)`);
+      }
+    }
+
+    if (!Array.isArray(data.regiones) || data.regiones.length === 0) {
+      throw new Error('Fabrica-de-bloques reto sin regiones');
+    }
+    const vistas = new Set();
+    for (const region of data.regiones) {
+      if (!Array.isArray(region.celdas) || region.celdas.length === 0) {
+        throw new Error(`Fabrica-de-bloques región ${region.id} sin celdas`);
+      }
+      for (const [f, c] of region.celdas) {
+        if (!Number.isInteger(f) || !Number.isInteger(c) || f < 0 || f >= n || c < 0 || c >= n) {
+          throw new Error(`Fabrica-de-bloques región ${region.id} con celda fuera de tablero: [${f},${c}]`);
+        }
+        const clave = `${f},${c}`;
+        if (vistas.has(clave)) {
+          throw new Error(`Fabrica-de-bloques celda [${f},${c}] pertenece a más de una región`);
+        }
+        vistas.add(clave);
+      }
+    }
+    if (vistas.size !== n * n) {
+      throw new Error(`Fabrica-de-bloques regiones no cubren todo el tablero (${vistas.size}/${n * n} celdas)`);
+    }
+
+    // Solvencia y unicidad: se RECALCULA sobre el payload publicado con el
+    // mismo solver que usa el generador -- no se confía en que el reparto
+    // de regiones ya escrito siga siendo único (mismo patrón que
+    // hashi/nonograma/riego: recontar, no releer un flag de "ya validado").
+    const { soluciones, primera } = contarFabrica(n, data.regiones, { tope: 2 });
+    if (soluciones !== 1) {
+      throw new Error(
+        `Fabrica-de-bloques reto sin solución única: el solver encuentra ${soluciones} ` +
+        `solucion(es) (debe ser exactamente 1)`
+      );
+    }
+    if (JSON.stringify(primera) !== JSON.stringify(data.solucion)) {
+      throw new Error('Fabrica-de-bloques la solución publicada no coincide con la que el solver encuentra');
     }
   }
 
