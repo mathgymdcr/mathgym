@@ -1,0 +1,24 @@
+{
+  "tablero": {
+    "ancho": 6,
+    "alto": 6
+  },
+  "inicio": {
+    "f": 1,
+    "c": 0,
+    "orientacion": {
+      "U": 1,
+      "D": 6,
+      "N": 2,
+      "S": 5,
+      "E": 3,
+      "O": 4
+    }
+  },
+  "meta": {
+    "f": 2,
+    "c": 2,
+    "cara": 3
+  },
+  "minimo": 5
+}

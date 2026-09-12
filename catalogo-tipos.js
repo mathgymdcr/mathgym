@@ -146,6 +146,16 @@ export const TIPOS = [
     // En desarrollo: sin merge a producción todavía, y sin decidir si
     // hace falta oculto:true al llegar ese momento.
     oculto: true
+  },
+  {
+    tipo: 'cubo-transportista',
+    nombre: 'El Cubo Transportista',
+    grupo: 'Visión espacial',
+    icono: 'assets/icono-cubo-transportista.svg',
+    resumen: 'Haz rodar el cubo hasta la meta mostrando la cara que se pide, en el menor número de vueltas posible.',
+    generado: true,
+    // En desarrollo: sin merge a producción todavía.
+    oculto: true
   }
 ];
 
