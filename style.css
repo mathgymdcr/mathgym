@@ -4002,3 +4002,63 @@ section.groups { margin-top: 52px; }
 .celebration-compartir .btn {
   min-width: 190px;
 }
+
+/* ===== Radar de Asteroides ===== */
+.radar-info {
+  color: var(--muted);
+  font-size: .85rem;
+  margin: 4px 0 14px;
+  text-align: center;
+}
+
+.radar-tablero {
+  display: grid;
+  gap: 2px;
+  max-width: min(460px, 90vw);
+  aspect-ratio: 1;
+  margin: 0 auto 18px;
+  background: var(--card-b);
+  border: 2px solid var(--card-b);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.radar-celda {
+  position: relative;
+  background: var(--surface-2, #212b3b);
+  border: none;
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  aspect-ratio: 1;
+}
+
+.radar-celda.con-pista {
+  background: rgba(255, 255, 255, .06);
+  color: var(--muted);
+  cursor: default;
+}
+
+.radar-celda.marcada {
+  background: rgba(232, 91, 74, .3);
+}
+
+.radar-marca {
+  width: 55%;
+  height: 55%;
+  border-radius: 50%;
+  background: transparent;
+  pointer-events: none;
+}
+
+.radar-celda.marcada .radar-marca {
+  background: #E85B4A;
+}
+
+.radar-celda:disabled {
+  cursor: default;
+}

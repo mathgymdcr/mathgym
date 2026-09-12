@@ -50,9 +50,19 @@ export async function render(root, data, hooks) {
     gameClass: 'fabrica-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> rellena la rejilla de ${n}x${n} con dígitos del 1 al ${n} sin repetir ninguno en la misma fila ni en la misma columna.</p>
-      <p>Cada región (el grupo de celdas con el mismo borde grueso) lleva en su esquina una pista como «12+» o «6×»: combinando con esa operación los dígitos que pongas en TODAS sus celdas tienes que llegar exactamente a ese número. Las celdas sin pista y sin operación ya vienen con su dígito fijado.</p>
-      <p>Toca una celda vacía y luego un número del panel para escribirlo; toca el mismo número otra vez (o «borrar») para vaciarla. Pulsa <strong>«Comprobar»</strong> cuando la rejilla esté completa.</p>
+      <p><strong>Objetivo:</strong> rellena la rejilla de ${n}x${n} con dígitos del 1 al ${n}.</p>
+      <ul>
+        <li>No repitas dígito en la misma fila.</li>
+        <li>No repitas dígito en la misma columna.</li>
+        <li>El borde grueso marca los grupos de celdas (regiones).</li>
+        <li>Cada región lleva una pista, como «12+» o «6×».</li>
+        <li>Combina con esa operación los dígitos de TODA la región.</li>
+        <li>El resultado tiene que ser exacto: ni más ni menos.</li>
+        <li>Una celda sin pista ya trae su dígito fijado.</li>
+        <li>Toca una celda vacía y luego un número para escribirlo.</li>
+        <li>Toca el mismo número otra vez (o «Borrar») para vaciarla.</li>
+        <li>Pulsa «Comprobar» cuando la rejilla esté completa.</li>
+      </ul>
     `
   });
   root.appendChild(ui.box);

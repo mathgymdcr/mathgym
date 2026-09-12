@@ -15,6 +15,7 @@ import { contarSoluciones as contarRiegos, combinacionesPlanta, MARGEN_MINIMO } 
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { simulaSalida } from './cinta-transportadora-logic.js';
 import { contarSoluciones as contarFabrica } from './fabrica-logic.js';
+import { contarSoluciones as contarRadar, cuentaVecinos } from './radar-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -154,6 +155,10 @@ class RetoValidator {
 
       case 'fabrica-de-bloques':
         await this.validateFabricaData(reto);
+        break;
+
+      case 'radar-asteroides':
+        await this.validateRadarData(reto);
         break;
     }
   }
@@ -1086,6 +1091,73 @@ class RetoValidator {
     }
     if (JSON.stringify(primera) !== JSON.stringify(data.solucion)) {
       throw new Error('Fabrica-de-bloques la solución publicada no coincide con la que el solver encuentra');
+    }
+  }
+
+  async validateRadarData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Radar-asteroides reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const n = data.tablero && data.tablero.ancho;
+    if (![5, 6, 7].includes(n) || (data.tablero && data.tablero.alto) !== n) {
+      throw new Error(`Radar-asteroides tablero inválido: ${JSON.stringify(data.tablero)}`);
+    }
+
+    if (!Array.isArray(data.solucion) || data.solucion.length !== n) {
+      throw new Error('Radar-asteroides solucion inválida');
+    }
+    let totalReal = 0;
+    for (const fila of data.solucion) {
+      if (!Array.isArray(fila) || fila.length !== n) {
+        throw new Error('Radar-asteroides solucion con forma inválida');
+      }
+      for (const v of fila) {
+        if (typeof v !== 'boolean') throw new Error('Radar-asteroides solucion debe ser booleanos');
+        if (v) totalReal++;
+      }
+    }
+    if (totalReal !== data.asteroides_totales) {
+      throw new Error(
+        `Radar-asteroides asteroides_totales (${data.asteroides_totales}) no coincide con ` +
+        `los que hay de verdad en la solución (${totalReal})`
+      );
+    }
+
+    if (!Array.isArray(data.pistas) || data.pistas.length === 0) {
+      throw new Error('Radar-asteroides reto sin pistas');
+    }
+    for (const p of data.pistas) {
+      if (!Number.isInteger(p.f) || !Number.isInteger(p.c) || p.f < 0 || p.f >= n || p.c < 0 || p.c >= n) {
+        throw new Error(`Radar-asteroides pista fuera de tablero: ${JSON.stringify(p)}`);
+      }
+      if (data.solucion[p.f][p.c]) {
+        throw new Error(`Radar-asteroides pista en [${p.f},${p.c}] cae sobre un asteroide de verdad`);
+      }
+      const real = cuentaVecinos(data.solucion, p.f, p.c);
+      if (p.valor !== real) {
+        throw new Error(
+          `Radar-asteroides pista en [${p.f},${p.c}] dice ${p.valor} pero la solución tiene ${real} vecinos con asteroide`
+        );
+      }
+    }
+
+    // Solvencia y unicidad: se RECALCULA sobre el payload publicado, mismo
+    // patrón que fabrica-de-bloques/planos-del-invernadero -- no se confía
+    // en que el recorte de pistas del generador siga siendo único.
+    const { soluciones, primera } = contarRadar(n, data.pistas, data.asteroides_totales, { tope: 2 });
+    if (soluciones !== 1) {
+      throw new Error(
+        `Radar-asteroides reto sin solución única: el solver encuentra ${soluciones} ` +
+        `solucion(es) (debe ser exactamente 1)`
+      );
+    }
+    if (JSON.stringify(primera) !== JSON.stringify(data.solucion)) {
+      throw new Error('Radar-asteroides la solución publicada no coincide con la que el solver encuentra');
     }
   }
 
