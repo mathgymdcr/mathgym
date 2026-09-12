@@ -21,6 +21,7 @@ import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
 import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
 import { buildCintaPuzzle } from './cinta-transportadora-logic.js';
 import { buildFabricaPuzzle } from './fabrica-logic.js';
+import { buildDronPuzzle } from './dron-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,7 +56,8 @@ class MathGymGenerator {
       'laser-triangular': this.generateLaser.bind(this),
       'riego-plantas': this.generateRiego.bind(this),
       'cinta-transportadora': this.generateCinta.bind(this),
-      'fabrica-de-bloques': this.generateFabrica.bind(this)
+      'fabrica-de-bloques': this.generateFabrica.bind(this),
+      'ruta-del-dron': this.generateDron.bind(this)
     };
   }
 
@@ -807,6 +809,35 @@ class MathGymGenerator {
       variant,
       dificultad,
       categorias: ['logica', 'calculo'],
+      objectives: {
+        winCondition: 'grid_matches_solution',
+        maxErrorsFor3Stars: 0,
+        maxErrorsFor2Stars: 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateDron(seed, fecha) {
+    // Instrucciones al azar en todo el tablero; evaluaTablero confirma
+    // dentro del propio generador que hay un unico inicio con la cadena
+    // mas larga hasta la meta antes de devolver el puzzle.
+    const puzzle = buildDronPuzzle(seed);
+    const { variant, dificultad, payload } = puzzle;
+
+    const dataFileName = `ruta-del-dron_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-ruta-del-dron-001`,
+      tipo: 'ruta-del-dron',
+      variant,
+      dificultad,
+      categorias: ['logica', 'deduccion'],
       objectives: {
         winCondition: 'grid_matches_solution',
         maxErrorsFor3Stars: 0,

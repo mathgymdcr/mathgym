@@ -15,6 +15,7 @@ import { contarSoluciones as contarRiegos, combinacionesPlanta, MARGEN_MINIMO } 
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { simulaSalida } from './cinta-transportadora-logic.js';
 import { contarSoluciones as contarFabrica } from './fabrica-logic.js';
+import { evaluaTablero } from './dron-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -154,6 +155,10 @@ class RetoValidator {
 
       case 'fabrica-de-bloques':
         await this.validateFabricaData(reto);
+        break;
+
+      case 'ruta-del-dron':
+        await this.validateDronData(reto);
         break;
     }
   }
@@ -1086,6 +1091,67 @@ class RetoValidator {
     }
     if (JSON.stringify(primera) !== JSON.stringify(data.solucion)) {
       throw new Error('Fabrica-de-bloques la solución publicada no coincide con la que el solver encuentra');
+    }
+  }
+
+  async validateDronData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Ruta-del-dron reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const n = data.tablero && data.tablero.ancho;
+    if (![5, 6].includes(n) || (data.tablero && data.tablero.alto) !== n) {
+      throw new Error(`Ruta-del-dron tablero inválido: ${JSON.stringify(data.tablero)}`);
+    }
+
+    const { meta } = data;
+    if (!meta || !Number.isInteger(meta.f) || !Number.isInteger(meta.c) || meta.f < 0 || meta.f >= n || meta.c < 0 || meta.c >= n) {
+      throw new Error(`Ruta-del-dron meta inválida: ${JSON.stringify(meta)}`);
+    }
+
+    if (!Array.isArray(data.instrucciones) || data.instrucciones.length !== n) {
+      throw new Error('Ruta-del-dron instrucciones inválidas');
+    }
+    const DIRECCIONES_VALIDAS = new Set(['N', 'S', 'E', 'O']);
+    for (let f = 0; f < n; f++) {
+      const fila = data.instrucciones[f];
+      if (!Array.isArray(fila) || fila.length !== n) {
+        throw new Error(`Ruta-del-dron instrucciones con forma inválida en la fila ${f}`);
+      }
+      for (let c = 0; c < n; c++) {
+        const instr = fila[c];
+        if (f === meta.f && c === meta.c) {
+          if (instr !== null) throw new Error('Ruta-del-dron la meta no debe llevar instrucción');
+          continue;
+        }
+        if (!instr || !DIRECCIONES_VALIDAS.has(instr.direccion) || !Number.isInteger(instr.distancia) || instr.distancia < 1) {
+          throw new Error(`Ruta-del-dron instrucción inválida en [${f},${c}]: ${JSON.stringify(instr)}`);
+        }
+      }
+    }
+
+    if (!data.solucion || !Number.isInteger(data.solucion.f) || !Number.isInteger(data.solucion.c)) {
+      throw new Error('Ruta-del-dron solucion inválida');
+    }
+
+    // Solvencia y unicidad: se RECALCULA sobre el payload publicado --
+    // mismo patrón que el resto del catálogo, no se confía en que el
+    // generador lo dejara bien.
+    const { ganadores, mejorLongitud } = evaluaTablero(n, data.instrucciones, meta);
+    if (ganadores.length !== 1) {
+      throw new Error(
+        `Ruta-del-dron reto ambiguo: ${ganadores.length} inicios empatan en la cadena más larga (${mejorLongitud} saltos)`
+      );
+    }
+    if (mejorLongitud < 2) {
+      throw new Error('Ruta-del-dron reto trivial: la cadena más larga tiene menos de 2 saltos');
+    }
+    if (ganadores[0].f !== data.solucion.f || ganadores[0].c !== data.solucion.c) {
+      throw new Error('Ruta-del-dron la solución publicada no coincide con el inicio que encuentra el solver');
     }
   }
 

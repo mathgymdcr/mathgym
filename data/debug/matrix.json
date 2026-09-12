@@ -1094,5 +1094,21 @@
     "seed": 9,
     "dificultad": 2,
     "json_url": "data/debug/fabrica-de-bloques/4-basicas.json"
+  },
+  {
+    "tipo": "ruta-del-dron",
+    "titulo": "Ruta del Dron",
+    "variant": "6",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/ruta-del-dron/6.json"
+  },
+  {
+    "tipo": "ruta-del-dron",
+    "titulo": "Ruta del Dron",
+    "variant": "5",
+    "seed": 2,
+    "dificultad": 2,
+    "json_url": "data/debug/ruta-del-dron/5.json"
   }
 ]
