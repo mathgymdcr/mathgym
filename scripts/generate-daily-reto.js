@@ -21,6 +21,7 @@ import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
 import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
 import { buildCintaPuzzle } from './cinta-transportadora-logic.js';
 import { buildFabricaPuzzle } from './fabrica-logic.js';
+import { buildTrazoPuzzle } from './trazo-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,7 +56,8 @@ class MathGymGenerator {
       'laser-triangular': this.generateLaser.bind(this),
       'riego-plantas': this.generateRiego.bind(this),
       'cinta-transportadora': this.generateCinta.bind(this),
-      'fabrica-de-bloques': this.generateFabrica.bind(this)
+      'fabrica-de-bloques': this.generateFabrica.bind(this),
+      'trazo-perimetral': this.generateTrazo.bind(this)
     };
   }
 
@@ -807,6 +809,37 @@ class MathGymGenerator {
       variant,
       dificultad,
       categorias: ['logica', 'calculo'],
+      objectives: {
+        winCondition: 'grid_matches_solution',
+        maxErrorsFor3Stars: 0,
+        maxErrorsFor2Stars: 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateTrazo(seed, fecha) {
+    // Slitherlink por 2-coloreado de celdas (dentro/fuera): la
+    // solvencia (un unico circuito simple) sale gratis de que la region
+    // "dentro" se construye conexa y sin agujeros. La unicidad de las
+    // pistas reveladas SI se recomprueba con contarSoluciones antes de
+    // devolver el puzzle.
+    const puzzle = buildTrazoPuzzle(seed);
+    const { variant, dificultad, payload } = puzzle;
+
+    const dataFileName = `trazo-perimetral_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-trazo-perimetral-001`,
+      tipo: 'trazo-perimetral',
+      variant,
+      dificultad,
+      categorias: ['logica', 'geometria'],
       objectives: {
         winCondition: 'grid_matches_solution',
         maxErrorsFor3Stars: 0,

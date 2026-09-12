@@ -4002,3 +4002,86 @@ section.groups { margin-top: 52px; }
 .celebration-compartir .btn {
   min-width: 190px;
 }
+
+/* ===== El Trazo Perimetral ===== */
+.trazo-info {
+  color: var(--muted);
+  font-size: .85rem;
+  margin: 4px 0 14px;
+  text-align: center;
+}
+
+.trazo-tablero {
+  position: relative;
+  width: min(420px, 88vw);
+  aspect-ratio: 1;
+  margin: 0 auto 18px;
+}
+
+.trazo-punto {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--muted);
+  pointer-events: none;
+}
+
+.trazo-numero {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  font-size: .95rem;
+  color: var(--fg);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.trazo-arista {
+  position: absolute;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.trazo-arista::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, .12);
+  border-radius: 2px;
+}
+
+.trazo-arista.activa::after {
+  background: var(--brand);
+}
+
+.trazo-arista-h {
+  height: 18px;
+  margin-top: -9px;
+}
+
+.trazo-arista-h::after {
+  left: 2px;
+  right: 2px;
+  top: 7px;
+  height: 4px;
+}
+
+.trazo-arista-v {
+  width: 18px;
+  margin-left: -9px;
+}
+
+.trazo-arista-v::after {
+  top: 2px;
+  bottom: 2px;
+  left: 7px;
+  width: 4px;
+}
+
+.trazo-arista:disabled {
+  cursor: default;
+}

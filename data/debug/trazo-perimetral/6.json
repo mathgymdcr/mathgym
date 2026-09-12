@@ -1,0 +1,133 @@
+{
+  "tablero": {
+    "ancho": 6,
+    "alto": 6
+  },
+  "pistas": [
+    {
+      "f": 4,
+      "c": 4,
+      "valor": 0
+    },
+    {
+      "f": 3,
+      "c": 2,
+      "valor": 1
+    },
+    {
+      "f": 1,
+      "c": 0,
+      "valor": 3
+    },
+    {
+      "f": 5,
+      "c": 3,
+      "valor": 1
+    },
+    {
+      "f": 2,
+      "c": 0,
+      "valor": 2
+    },
+    {
+      "f": 2,
+      "c": 2,
+      "valor": 1
+    },
+    {
+      "f": 4,
+      "c": 1,
+      "valor": 2
+    },
+    {
+      "f": 5,
+      "c": 5,
+      "valor": 0
+    },
+    {
+      "f": 0,
+      "c": 2,
+      "valor": 1
+    },
+    {
+      "f": 1,
+      "c": 4,
+      "valor": 1
+    },
+    {
+      "f": 4,
+      "c": 2,
+      "valor": 2
+    },
+    {
+      "f": 1,
+      "c": 1,
+      "valor": 1
+    },
+    {
+      "f": 0,
+      "c": 4,
+      "valor": 3
+    },
+    {
+      "f": 3,
+      "c": 1,
+      "valor": 1
+    },
+    {
+      "f": 3,
+      "c": 4,
+      "valor": 0
+    }
+  ],
+  "solucion": [
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ],
+    [
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  ]
+}

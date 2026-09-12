@@ -15,6 +15,7 @@ import { contarSoluciones as contarRiegos, combinacionesPlanta, MARGEN_MINIMO } 
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { simulaSalida } from './cinta-transportadora-logic.js';
 import { contarSoluciones as contarFabrica } from './fabrica-logic.js';
+import { contarSoluciones as contarTrazo, pistaDeCelda as pistaDeCeldaTrazo } from './trazo-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -154,6 +155,10 @@ class RetoValidator {
 
       case 'fabrica-de-bloques':
         await this.validateFabricaData(reto);
+        break;
+
+      case 'trazo-perimetral':
+        await this.validateTrazoData(reto);
         break;
     }
   }
@@ -1086,6 +1091,64 @@ class RetoValidator {
     }
     if (JSON.stringify(primera) !== JSON.stringify(data.solucion)) {
       throw new Error('Fabrica-de-bloques la solución publicada no coincide con la que el solver encuentra');
+    }
+  }
+
+  async validateTrazoData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Trazo-perimetral reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const n = data.tablero && data.tablero.ancho;
+    if (![5, 6, 7].includes(n) || (data.tablero && data.tablero.alto) !== n) {
+      throw new Error(`Trazo-perimetral tablero inválido: ${JSON.stringify(data.tablero)}`);
+    }
+
+    if (!Array.isArray(data.solucion) || data.solucion.length !== n) {
+      throw new Error('Trazo-perimetral solucion inválida');
+    }
+    for (const fila of data.solucion) {
+      if (!Array.isArray(fila) || fila.length !== n || fila.some((v) => typeof v !== 'boolean')) {
+        throw new Error('Trazo-perimetral solucion debe ser una rejilla de booleanos');
+      }
+    }
+
+    if (!Array.isArray(data.pistas) || data.pistas.length === 0) {
+      throw new Error('Trazo-perimetral reto sin pistas');
+    }
+    for (const p of data.pistas) {
+      if (!Number.isInteger(p.f) || !Number.isInteger(p.c) || p.f < 0 || p.f >= n || p.c < 0 || p.c >= n) {
+        throw new Error(`Trazo-perimetral pista fuera de tablero: ${JSON.stringify(p)}`);
+      }
+      const real = pistaDeCeldaTrazo(n, data.solucion, p.f, p.c);
+      if (p.valor !== real) {
+        throw new Error(
+          `Trazo-perimetral pista en [${p.f},${p.c}] dice ${p.valor} pero la solución tiene ${real}`
+        );
+      }
+    }
+
+    // Solvencia y unicidad: se RECALCULA sobre el payload publicado, con
+    // un tope de nodos generoso -- no se confía en que el recorte del
+    // generador siga siendo único, pero tampoco se deja el validador sin
+    // límite (un reto corrupto con muy pocas pistas podría colgar el cron).
+    const entradas = data.pistas.map((p) => [`${p.f},${p.c}`, p.valor]);
+    const { soluciones, primera, agotado } = contarTrazo(n, entradas, { tope: 2, maxNodos: 5000000 });
+    if (agotado) {
+      throw new Error('Trazo-perimetral: no se pudo confirmar la unicidad dentro del presupuesto de nodos del validador');
+    }
+    if (soluciones !== 1) {
+      throw new Error(
+        `Trazo-perimetral reto sin solución única: el solver encuentra ${soluciones} ` +
+        `solucion(es) (debe ser exactamente 1)`
+      );
+    }
+    if (JSON.stringify(primera) !== JSON.stringify(data.solucion)) {
+      throw new Error('Trazo-perimetral la solución publicada no coincide con la que el solver encuentra');
     }
   }
 

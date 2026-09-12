@@ -1094,5 +1094,29 @@
     "seed": 9,
     "dificultad": 2,
     "json_url": "data/debug/fabrica-de-bloques/4-basicas.json"
+  },
+  {
+    "tipo": "trazo-perimetral",
+    "titulo": "El Trazo Perimetral",
+    "variant": "6",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/trazo-perimetral/6.json"
+  },
+  {
+    "tipo": "trazo-perimetral",
+    "titulo": "El Trazo Perimetral",
+    "variant": "7",
+    "seed": 1,
+    "dificultad": 4,
+    "json_url": "data/debug/trazo-perimetral/7.json"
+  },
+  {
+    "tipo": "trazo-perimetral",
+    "titulo": "El Trazo Perimetral",
+    "variant": "5",
+    "seed": 2,
+    "dificultad": 2,
+    "json_url": "data/debug/trazo-perimetral/5.json"
   }
 ]
