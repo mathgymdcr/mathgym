@@ -1096,6 +1096,30 @@
     "json_url": "data/debug/fabrica-de-bloques/4-basicas.json"
   },
   {
+    "tipo": "planos-del-invernadero",
+    "titulo": "Planos del Invernadero",
+    "variant": "8",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/planos-del-invernadero/8.json"
+  },
+  {
+    "tipo": "planos-del-invernadero",
+    "titulo": "Planos del Invernadero",
+    "variant": "10",
+    "seed": 1,
+    "dificultad": 4,
+    "json_url": "data/debug/planos-del-invernadero/10.json"
+  },
+  {
+    "tipo": "planos-del-invernadero",
+    "titulo": "Planos del Invernadero",
+    "variant": "6",
+    "seed": 2,
+    "dificultad": 2,
+    "json_url": "data/debug/planos-del-invernadero/6.json"
+  },
+  {
     "tipo": "radar-asteroides",
     "titulo": "Radar de Asteroides",
     "variant": "6",
@@ -1118,6 +1142,38 @@
     "seed": 3,
     "dificultad": 4,
     "json_url": "data/debug/radar-asteroides/7.json"
+  },
+  {
+    "tipo": "ruta-del-dron",
+    "titulo": "Ruta del Dron",
+    "variant": "6",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/ruta-del-dron/6.json"
+  },
+  {
+    "tipo": "ruta-del-dron",
+    "titulo": "Ruta del Dron",
+    "variant": "5",
+    "seed": 2,
+    "dificultad": 2,
+    "json_url": "data/debug/ruta-del-dron/5.json"
+  },
+  {
+    "tipo": "cubo-transportista",
+    "titulo": "El Cubo Transportista",
+    "variant": "6",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/cubo-transportista/6.json"
+  },
+  {
+    "tipo": "cubo-transportista",
+    "titulo": "El Cubo Transportista",
+    "variant": "5",
+    "seed": 2,
+    "dificultad": 2,
+    "json_url": "data/debug/cubo-transportista/5.json"
   },
   {
     "tipo": "desenreda-la-red",
