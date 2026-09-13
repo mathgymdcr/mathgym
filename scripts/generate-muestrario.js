@@ -54,7 +54,10 @@ const SEMILLAS = {
   // 4x4-basicas: solo suma y resta, el tamaño más pequeño -- la vitrina
   // enseña la mecánica (región + cuadrado latino) sin multiplicación ni
   // división todavía.
-  'fabrica-de-bloques': 9
+  'fabrica-de-bloques': 9,
+  // 6x6: el tamaño más pequeño, para que la vitrina enseñe la mecánica sin
+  // liar con demasiados módulos.
+  'planos-del-invernadero': 2
 };
 
 async function main() {

@@ -143,8 +143,17 @@ export const TIPOS = [
     icono: 'assets/icono-fabrica-de-bloques.svg',
     resumen: 'Rellena la rejilla sin repetir dígito en fila ni columna, cerrando la operación que pide cada región.',
     generado: true,
-    // En desarrollo: sin merge a producción todavía, y sin decidir si
-    // hace falta oculto:true al llegar ese momento.
+    // Pendiente de decidir el lanzamiento: alcanzable solo desde debug.html.
+    oculto: true
+  },
+  {
+    tipo: 'planos-del-invernadero',
+    nombre: 'Planos del Invernadero',
+    grupo: 'Visión espacial',
+    icono: 'assets/icono-planos-del-invernadero.svg',
+    resumen: 'Traza los módulos rectangulares del invernadero para que cada uno tenga exactamente el área que marca su pista.',
+    generado: true,
+    // En desarrollo: sin merge a producción todavía.
     oculto: true
   }
 ];

@@ -15,6 +15,7 @@ import { contarSoluciones as contarRiegos, combinacionesPlanta, MARGEN_MINIMO } 
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { simulaSalida } from './cinta-transportadora-logic.js';
 import { contarSoluciones as contarFabrica } from './fabrica-logic.js';
+import { contarSoluciones as contarInvernadero } from './invernadero-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -154,6 +155,10 @@ class RetoValidator {
 
       case 'fabrica-de-bloques':
         await this.validateFabricaData(reto);
+        break;
+
+      case 'planos-del-invernadero':
+        await this.validateInvernaderoData(reto);
         break;
     }
   }
@@ -1086,6 +1091,72 @@ class RetoValidator {
     }
     if (JSON.stringify(primera) !== JSON.stringify(data.solucion)) {
       throw new Error('Fabrica-de-bloques la solución publicada no coincide con la que el solver encuentra');
+    }
+  }
+
+  async validateInvernaderoData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Planos-del-invernadero reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const n = data.tablero && data.tablero.ancho;
+    if (![6, 8, 10].includes(n) || (data.tablero && data.tablero.alto) !== n) {
+      throw new Error(`Planos-del-invernadero tablero inválido: ${JSON.stringify(data.tablero)}`);
+    }
+
+    if (!Array.isArray(data.solucion) || data.solucion.length === 0) {
+      throw new Error('Planos-del-invernadero reto sin solucion');
+    }
+    const cubierta = Array.from({ length: n }, () => Array(n).fill(false));
+    for (const r of data.solucion) {
+      if (
+        !Number.isInteger(r.f) || !Number.isInteger(r.c) ||
+        !Number.isInteger(r.ancho) || !Number.isInteger(r.alto) ||
+        r.f < 0 || r.c < 0 || r.f + r.alto > n || r.c + r.ancho > n
+      ) {
+        throw new Error(`Planos-del-invernadero rectángulo fuera de tablero: ${JSON.stringify(r)}`);
+      }
+      for (let f = r.f; f < r.f + r.alto; f++) {
+        for (let c = r.c; c < r.c + r.ancho; c++) {
+          if (cubierta[f][c]) {
+            throw new Error(`Planos-del-invernadero celda [${f},${c}] cubierta por más de un rectángulo`);
+          }
+          cubierta[f][c] = true;
+        }
+      }
+    }
+    for (const fila of cubierta) {
+      if (fila.some((v) => !v)) {
+        throw new Error('Planos-del-invernadero la solución no cubre todo el tablero');
+      }
+    }
+
+    if (!Array.isArray(data.pistas) || data.pistas.length !== data.solucion.length) {
+      throw new Error('Planos-del-invernadero número de pistas distinto del número de rectángulos');
+    }
+    for (const pista of data.pistas) {
+      if (!Number.isInteger(pista.f) || !Number.isInteger(pista.c) || !Number.isInteger(pista.valor)) {
+        throw new Error(`Planos-del-invernadero pista inválida: ${JSON.stringify(pista)}`);
+      }
+    }
+
+    // Solvencia y unicidad: se RECALCULA sobre el payload publicado, mismo
+    // patrón que fabrica-de-bloques/hashi/nonograma -- no se confía en que
+    // el generador ya lo comprobara.
+    const { soluciones, primera } = contarInvernadero(n, data.pistas, { tope: 2 });
+    if (soluciones !== 1) {
+      throw new Error(
+        `Planos-del-invernadero reto sin solución única: el solver encuentra ${soluciones} ` +
+        `solucion(es) (debe ser exactamente 1)`
+      );
+    }
+    const normaliza = (rects) => rects.map((r) => `${r.f},${r.c},${r.ancho},${r.alto}`).sort();
+    if (JSON.stringify(normaliza(primera)) !== JSON.stringify(normaliza(data.solucion))) {
+      throw new Error('Planos-del-invernadero la solución publicada no coincide con la que el solver encuentra');
     }
   }
 
