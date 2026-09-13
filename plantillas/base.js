@@ -21,7 +21,8 @@ window.Templates = (function() {
     'laser-triangular': () => import('./laser_triangular.js'), // ✅ NUEVA PLANTILLA
     'puentes-hashi': () => import('./hashi.js'),                // ✅ NUEVA PLANTILLA
     'cinta-transportadora': () => import('./cinta_transportadora.js'), // ✅ NUEVA PLANTILLA
-    'fabrica-de-bloques': () => import('./fabrica_bloques.js')
+    'fabrica-de-bloques': () => import('./fabrica_bloques.js'),
+    'androides-en-la-fabrica': () => import('./androides_fabrica.js')
   };
 
   // --- Función principal para renderizar plantillas ---

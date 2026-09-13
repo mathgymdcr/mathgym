@@ -1094,5 +1094,21 @@
     "seed": 9,
     "dificultad": 2,
     "json_url": "data/debug/fabrica-de-bloques/4-basicas.json"
+  },
+  {
+    "tipo": "androides-en-la-fabrica",
+    "titulo": "Androides en la Fábrica",
+    "variant": "3",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/androides-en-la-fabrica/3.json"
+  },
+  {
+    "tipo": "androides-en-la-fabrica",
+    "titulo": "Androides en la Fábrica",
+    "variant": "4",
+    "seed": 2,
+    "dificultad": 4,
+    "json_url": "data/debug/androides-en-la-fabrica/4.json"
   }
 ]

@@ -146,6 +146,16 @@ export const TIPOS = [
     // En desarrollo: sin merge a producción todavía, y sin decidir si
     // hace falta oculto:true al llegar ese momento.
     oculto: true
+  },
+  {
+    tipo: 'androides-en-la-fabrica',
+    nombre: 'Androides en la Fábrica',
+    grupo: 'Deducción',
+    icono: 'assets/icono-androides-en-la-fabrica.svg',
+    resumen: 'Coloca la clase y el modelo de cada sala sin repetir modelo en fila ni columna, y respetando qué salas vecinas deben tocarse o no.',
+    generado: true,
+    // En desarrollo: sin merge a producción todavía.
+    oculto: true
   }
 ];
 

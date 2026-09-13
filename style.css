@@ -3996,6 +3996,164 @@ section.groups { margin-top: 52px; }
   font-size: .8rem;
 }
 
+/* ===== Androides en la Fábrica ===== */
+.androides-info {
+  color: var(--muted);
+  font-size: .85rem;
+  margin: 4px 0 14px;
+  text-align: center;
+}
+
+.androides-tablero-wrap {
+  position: relative;
+  max-width: min(420px, 90vw);
+  margin: 0 auto 18px;
+}
+
+.androides-tablero {
+  display: grid;
+  gap: 2px;
+  aspect-ratio: 1;
+  background: var(--card-b);
+  border: 2px solid var(--card-b);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.androides-celda {
+  position: relative;
+  background-color: var(--surface-2, #212b3b);
+  background-image: linear-gradient(rgba(15, 18, 28, .55), rgba(15, 18, 28, .55));
+  border: 1px solid rgba(255, 255, 255, .1);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  aspect-ratio: 1;
+}
+
+.androides-celda.con-clase {
+  background-image: linear-gradient(rgba(15, 18, 28, .45), rgba(15, 18, 28, .45));
+}
+
+.androides-celda-valor {
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .7);
+}
+
+.androides-celda.modelo-fijo .androides-celda-valor {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.androides-celda.clase-fija::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: .8;
+}
+
+.androides-celda:disabled {
+  cursor: default;
+  opacity: .85;
+}
+
+.androides-marca {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(15, 18, 28, .85);
+  border: 1px solid rgba(255, 255, 255, .3);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.androides-marca.misma { color: #3DBE7A; }
+.androides-marca.distinta { color: #E85B4A; }
+
+.androides-panel {
+  margin-bottom: 10px;
+}
+
+.androides-panel-titulo {
+  text-align: center;
+  color: var(--muted);
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 6px;
+}
+
+.androides-numpad {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.androides-num {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--card-b);
+  background: var(--surface-2, #212b3b);
+  color: var(--fg);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.androides-num:hover {
+  border-color: var(--accent);
+}
+
+.androides-num.seleccionado {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(209, 99, 204, .35);
+}
+
+.androides-num-borrar {
+  width: auto;
+  padding: 0 14px;
+  font-size: .8rem;
+}
+
+.androides-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, .15);
+  cursor: pointer;
+}
+
+.androides-swatch:hover {
+  border-color: var(--accent);
+}
+
+.androides-swatch.seleccionado {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px var(--brand);
+}
+
 /* ===== Compartir resultado (celebración) ===== */
 .celebration-compartir {
   display: flex;

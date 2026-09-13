@@ -54,7 +54,10 @@ const SEMILLAS = {
   // 4x4-basicas: solo suma y resta, el tamaño más pequeño -- la vitrina
   // enseña la mecánica (región + cuadrado latino) sin multiplicación ni
   // división todavía.
-  'fabrica-de-bloques': 9
+  'fabrica-de-bloques': 9,
+  // 3x3/3 clases: el tamaño más pequeño de las dos variantes, para que la
+  // vitrina enseñe las dos capas (modelo + clase) sin abrumar.
+  'androides-en-la-fabrica': 0
 };
 
 async function main() {

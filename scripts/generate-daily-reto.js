@@ -21,6 +21,7 @@ import { buildLaserPuzzle, buildLaserHints } from './laser-triangular-logic.js';
 import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
 import { buildCintaPuzzle } from './cinta-transportadora-logic.js';
 import { buildFabricaPuzzle } from './fabrica-logic.js';
+import { buildAndroidesPuzzle } from './androides-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,7 +56,8 @@ class MathGymGenerator {
       'laser-triangular': this.generateLaser.bind(this),
       'riego-plantas': this.generateRiego.bind(this),
       'cinta-transportadora': this.generateCinta.bind(this),
-      'fabrica-de-bloques': this.generateFabrica.bind(this)
+      'fabrica-de-bloques': this.generateFabrica.bind(this),
+      'androides-en-la-fabrica': this.generateAndroides.bind(this)
     };
   }
 
@@ -807,6 +809,35 @@ class MathGymGenerator {
       variant,
       dificultad,
       categorias: ['logica', 'calculo'],
+      objectives: {
+        winCondition: 'grid_matches_solution',
+        maxErrorsFor3Stars: 0,
+        maxErrorsFor2Stars: 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateAndroides(seed, fecha) {
+    // Cuadrado latino (modelo) + clases con pistas de adyacencia, dos
+    // capas independientes. La unicidad de ambas se recomprueba dentro
+    // del propio generador antes de devolver el puzzle.
+    const puzzle = buildAndroidesPuzzle(seed);
+    const { variant, dificultad, payload } = puzzle;
+
+    const dataFileName = `androides-en-la-fabrica_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-androides-en-la-fabrica-001`,
+      tipo: 'androides-en-la-fabrica',
+      variant,
+      dificultad,
+      categorias: ['logica', 'espacial'],
       objectives: {
         winCondition: 'grid_matches_solution',
         maxErrorsFor3Stars: 0,
