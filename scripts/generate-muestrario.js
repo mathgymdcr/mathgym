@@ -62,7 +62,9 @@ const SEMILLAS = {
   // liar con un tablero grande.
   'radar-asteroides': 2,
   // 5x5: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
-  'ruta-del-dron': 2
+  'ruta-del-dron': 2,
+  // 5x5: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
+  'cubo-transportista': 2
 };
 
 async function main() {

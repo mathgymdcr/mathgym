@@ -18,6 +18,7 @@ import { contarSoluciones as contarFabrica } from './fabrica-logic.js';
 import { contarSoluciones as contarInvernadero } from './invernadero-logic.js';
 import { contarSoluciones as contarRadar, cuentaVecinos } from './radar-logic.js';
 import { evaluaTablero } from './dron-logic.js';
+import { bfsDesde as bfsCubo } from './cubo-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -169,6 +170,10 @@ class RetoValidator {
 
       case 'ruta-del-dron':
         await this.validateDronData(reto);
+        break;
+
+      case 'cubo-transportista':
+        await this.validateCuboData(reto);
         break;
     }
   }
@@ -1295,6 +1300,53 @@ class RetoValidator {
     }
     if (ganadores[0].f !== data.solucion.f || ganadores[0].c !== data.solucion.c) {
       throw new Error('Ruta-del-dron la solución publicada no coincide con el inicio que encuentra el solver');
+    }
+  }
+
+  async validateCuboData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Cubo-transportista reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const n = data.tablero && data.tablero.ancho;
+    if (![5, 6].includes(n) || (data.tablero && data.tablero.alto) !== n) {
+      throw new Error(`Cubo-transportista tablero inválido: ${JSON.stringify(data.tablero)}`);
+    }
+
+    const CARAS = new Set([1, 2, 3, 4, 5, 6]);
+    const { inicio, meta } = data;
+    if (
+      !inicio || !inicio.orientacion || !CARAS.has(inicio.orientacion.U) ||
+      inicio.f < 0 || inicio.f >= n || inicio.c < 0 || inicio.c >= n
+    ) {
+      throw new Error(`Cubo-transportista inicio inválido: ${JSON.stringify(inicio)}`);
+    }
+    if (!meta || !CARAS.has(meta.cara) || meta.f < 0 || meta.f >= n || meta.c < 0 || meta.c >= n) {
+      throw new Error(`Cubo-transportista meta inválida: ${JSON.stringify(meta)}`);
+    }
+    if (meta.f === inicio.f && meta.c === inicio.c) {
+      throw new Error('Cubo-transportista la meta coincide con el inicio');
+    }
+    if (!Number.isInteger(data.minimo) || data.minimo < 2) {
+      throw new Error(`Cubo-transportista minimo inválido: ${data.minimo}`);
+    }
+
+    // Solvencia: se RECALCULA con el mismo BFS que la plantilla y el
+    // generador -- no se confía en el minimo ya escrito.
+    const estados = bfsCubo(n, inicio);
+    const enMeta = estados.filter((e) => e.f === meta.f && e.c === meta.c && e.orientacion.U === meta.cara);
+    if (enMeta.length === 0) {
+      throw new Error('Cubo-transportista la meta no es alcanzable desde el inicio');
+    }
+    const mejor = Math.min(...enMeta.map((e) => e.distancia));
+    if (mejor !== data.minimo) {
+      throw new Error(
+        `Cubo-transportista minimo publicado (${data.minimo}) no coincide con el que encuentra el BFS (${mejor})`
+      );
     }
   }
 

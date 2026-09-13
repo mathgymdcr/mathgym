@@ -4196,3 +4196,127 @@ section.groups { margin-top: 52px; }
 .dron-celda:disabled {
   cursor: default;
 }
+
+/* ===== El Cubo Transportista ===== */
+.cubo-info {
+  color: var(--muted);
+  font-size: .85rem;
+  margin: 4px 0 14px;
+  text-align: center;
+}
+
+.cubo-tablero {
+  display: grid;
+  gap: 2px;
+  max-width: min(400px, 80vw);
+  aspect-ratio: 1;
+  margin: 0 auto 18px;
+  background: var(--card-b);
+  border: 2px solid var(--card-b);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cubo-celda {
+  position: relative;
+  background: var(--surface-2, #212b3b);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cubo-celda.inicio::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.cubo-celda.meta {
+  background: rgba(61, 190, 122, .18);
+}
+
+.cubo-meta-num {
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: #3DBE7A;
+}
+
+.cubo-celda.con-cubo {
+  box-shadow: inset 0 0 0 3px var(--brand);
+}
+
+.cubo-figura {
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 44px);
+  grid-template-areas:
+    ".    norte  .   "
+    "oeste arriba este"
+    ".    sur    .   ";
+  gap: 4px;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.cubo-cara {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border-radius: 6px;
+  background: var(--surface-2, #212b3b);
+  border: 1px solid var(--card-b);
+  color: var(--muted);
+}
+
+.cubo-cara-arriba {
+  grid-area: arriba;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.cubo-cara-norte { grid-area: norte; }
+.cubo-cara-sur { grid-area: sur; }
+.cubo-cara-este { grid-area: este; }
+.cubo-cara-oeste { grid-area: oeste; }
+
+.cubo-controles {
+  display: grid;
+  grid-template-columns: repeat(3, 52px);
+  grid-template-rows: repeat(2, 52px);
+  grid-template-areas:
+    ".  n  ."
+    "o  s  e";
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.cubo-flecha {
+  border-radius: 10px;
+  border: 1px solid var(--card-b);
+  background: var(--surface-2, #212b3b);
+  color: var(--fg);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.cubo-flecha:hover {
+  border-color: var(--accent);
+}
+
+.cubo-flecha:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.cubo-flecha-n { grid-area: n; }
+.cubo-flecha-o { grid-area: o; }
+.cubo-flecha-e { grid-area: e; }
+.cubo-flecha-s { grid-area: s; }

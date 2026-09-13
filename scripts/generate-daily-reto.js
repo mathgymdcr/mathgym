@@ -24,6 +24,7 @@ import { buildFabricaPuzzle } from './fabrica-logic.js';
 import { buildInvernaderoPuzzle } from './invernadero-logic.js';
 import { buildRadarPuzzle } from './radar-logic.js';
 import { buildDronPuzzle } from './dron-logic.js';
+import { buildCuboPuzzle } from './cubo-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -61,7 +62,8 @@ class MathGymGenerator {
       'fabrica-de-bloques': this.generateFabrica.bind(this),
       'planos-del-invernadero': this.generateInvernadero.bind(this),
       'radar-asteroides': this.generateRadar.bind(this),
-      'ruta-del-dron': this.generateDron.bind(this)
+      'ruta-del-dron': this.generateDron.bind(this),
+      'cubo-transportista': this.generateCubo.bind(this)
     };
   }
 
@@ -906,6 +908,36 @@ class MathGymGenerator {
         winCondition: 'grid_matches_solution',
         maxErrorsFor3Stars: 0,
         maxErrorsFor2Stars: 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateCubo(seed, fecha) {
+    // BFS sobre el espacio (posicion, orientacion): el minimo real de
+    // movimientos sale directamente del propio BFS que ya demuestra la
+    // solvencia, sin comprobacion aparte.
+    const puzzle = buildCuboPuzzle(seed);
+    const { variant, dificultad, payload } = puzzle;
+
+    const dataFileName = `cubo-transportista_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-cubo-transportista-001`,
+      tipo: 'cubo-transportista',
+      variant,
+      dificultad,
+      categorias: ['logica', 'espacial'],
+      objectives: {
+        winCondition: 'cube_reaches_target',
+        parMoves: payload.minimo,
+        maxMovesFor3Stars: payload.minimo,
+        maxMovesFor2Stars: payload.minimo + Math.ceil(payload.minimo * 0.5)
       },
       data: { json_url: `data/${dataFileName}` }
     };

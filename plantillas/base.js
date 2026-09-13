@@ -24,7 +24,8 @@ window.Templates = (function() {
     'fabrica-de-bloques': () => import('./fabrica_bloques.js'),
     'planos-del-invernadero': () => import('./planos_invernadero.js'),
     'radar-asteroides': () => import('./radar_asteroides.js'),
-    'ruta-del-dron': () => import('./ruta_dron.js')
+    'ruta-del-dron': () => import('./ruta_dron.js'),
+    'cubo-transportista': () => import('./cubo_transportista.js')
   };
 
   // --- Función principal para renderizar plantillas ---
