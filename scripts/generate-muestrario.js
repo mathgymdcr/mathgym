@@ -64,7 +64,9 @@ const SEMILLAS = {
   // 5x5: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
   'ruta-del-dron': 2,
   // 5x5: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
-  'cubo-transportista': 2
+  'cubo-transportista': 2,
+  // 8 nodos: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
+  'desenreda-la-red': 2
 };
 
 async function main() {

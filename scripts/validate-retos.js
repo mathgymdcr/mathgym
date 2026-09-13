@@ -19,6 +19,7 @@ import { contarSoluciones as contarInvernadero } from './invernadero-logic.js';
 import { contarSoluciones as contarRadar, cuentaVecinos } from './radar-logic.js';
 import { evaluaTablero } from './dron-logic.js';
 import { bfsDesde as bfsCubo } from './cubo-logic.js';
+import { cuentaCruces } from './red-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -174,6 +175,10 @@ class RetoValidator {
 
       case 'cubo-transportista':
         await this.validateCuboData(reto);
+        break;
+
+      case 'desenreda-la-red':
+        await this.validateRedData(reto);
         break;
     }
   }
@@ -1347,6 +1352,59 @@ class RetoValidator {
       throw new Error(
         `Cubo-transportista minimo publicado (${data.minimo}) no coincide con el que encuentra el BFS (${mejor})`
       );
+    }
+  }
+
+  async validateRedData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Desenreda-la-red reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const n = data.nodos;
+    if (![8, 10].includes(n)) {
+      throw new Error(`Desenreda-la-red nodos inválido: ${n}`);
+    }
+    if (!Array.isArray(data.aristas) || data.aristas.length !== n - 1) {
+      throw new Error(`Desenreda-la-red debe tener exactamente ${n - 1} aristas (árbol)`);
+    }
+    const vistos = new Set();
+    for (const [a, b] of data.aristas) {
+      if (!Number.isInteger(a) || !Number.isInteger(b) || a === b || a < 0 || a >= n || b < 0 || b >= n) {
+        throw new Error(`Desenreda-la-red arista inválida: [${a},${b}]`);
+      }
+      const clave = [a, b].sort().join('-');
+      if (vistos.has(clave)) throw new Error(`Desenreda-la-red arista repetida: [${a},${b}]`);
+      vistos.add(clave);
+    }
+    // Conexo: BFS desde el nodo 0 debe alcanzar los n nodos -- con
+    // exactamente n-1 aristas, conexo implica árbol (sin ciclos).
+    const vecinos = Array.from({ length: n }, () => []);
+    for (const [a, b] of data.aristas) { vecinos[a].push(b); vecinos[b].push(a); }
+    const alcanzados = new Set([0]);
+    const cola = [0];
+    while (cola.length) {
+      const actual = cola.pop();
+      for (const v of vecinos[actual]) {
+        if (!alcanzados.has(v)) { alcanzados.add(v); cola.push(v); }
+      }
+    }
+    if (alcanzados.size !== n) {
+      throw new Error('Desenreda-la-red las aristas no forman un árbol conexo');
+    }
+
+    if (!Array.isArray(data.posiciones_iniciales) || data.posiciones_iniciales.length !== n) {
+      throw new Error('Desenreda-la-red posiciones_iniciales inválidas');
+    }
+
+    // Solvencia: al menos un cruce real en las posiciones publicadas --
+    // si no, no hay nada que desenredar.
+    const cruces = cuentaCruces(data.posiciones_iniciales, data.aristas);
+    if (cruces < 1) {
+      throw new Error('Desenreda-la-red reto trivial: las posiciones iniciales no tienen ningún cruce');
     }
   }
 

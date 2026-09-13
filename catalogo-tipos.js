@@ -185,6 +185,16 @@ export const TIPOS = [
     generado: true,
     // En desarrollo: sin merge a producción todavía.
     oculto: true
+  },
+  {
+    tipo: 'desenreda-la-red',
+    nombre: 'Desenreda la Red',
+    grupo: 'Visión espacial',
+    icono: 'assets/icono-desenreda-la-red.svg',
+    resumen: 'Arrastra los nodos hasta que ningún cable se cruce con otro -- sin rejilla, solo espacio libre.',
+    generado: true,
+    // En desarrollo: sin merge a producción todavía.
+    oculto: true
   }
 ];
 
