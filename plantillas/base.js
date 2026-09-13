@@ -26,7 +26,8 @@ window.Templates = (function() {
     'radar-asteroides': () => import('./radar_asteroides.js'),
     'ruta-del-dron': () => import('./ruta_dron.js'),
     'cubo-transportista': () => import('./cubo_transportista.js'),
-    'desenreda-la-red': () => import('./red_enredada.js')
+    'desenreda-la-red': () => import('./red_enredada.js'),
+    'senal-perdida': () => import('./senal_perdida.js')
   };
 
   // --- Función principal para renderizar plantillas ---

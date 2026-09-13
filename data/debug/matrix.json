@@ -1190,5 +1190,117 @@
     "seed": 2,
     "dificultad": 2,
     "json_url": "data/debug/desenreda-la-red/8.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "enigma",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/senal-perdida/enigma.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "puente",
+    "seed": 1,
+    "dificultad": 3,
+    "json_url": "data/debug/senal-perdida/puente.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "asteroide",
+    "seed": 2,
+    "dificultad": 4,
+    "json_url": "data/debug/senal-perdida/asteroide.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "cifrado",
+    "seed": 3,
+    "dificultad": 4,
+    "json_url": "data/debug/senal-perdida/cifrado.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "cartografo",
+    "seed": 4,
+    "dificultad": 4,
+    "json_url": "data/debug/senal-perdida/cartografo.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "balanza",
+    "seed": 5,
+    "dificultad": 3,
+    "json_url": "data/debug/senal-perdida/balanza.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "mecanismo",
+    "seed": 7,
+    "dificultad": 4,
+    "json_url": "data/debug/senal-perdida/mecanismo.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "satelite",
+    "seed": 11,
+    "dificultad": 3,
+    "json_url": "data/debug/senal-perdida/satelite.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "brujula",
+    "seed": 12,
+    "dificultad": 3,
+    "json_url": "data/debug/senal-perdida/brujula.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "linterna",
+    "seed": 14,
+    "dificultad": 4,
+    "json_url": "data/debug/senal-perdida/linterna.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "telescopio",
+    "seed": 15,
+    "dificultad": 4,
+    "json_url": "data/debug/senal-perdida/telescopio.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "pendulo",
+    "seed": 18,
+    "dificultad": 4,
+    "json_url": "data/debug/senal-perdida/pendulo.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "estrella",
+    "seed": 25,
+    "dificultad": 3,
+    "json_url": "data/debug/senal-perdida/estrella.json"
+  },
+  {
+    "tipo": "senal-perdida",
+    "titulo": "Señal Perdida",
+    "variant": "circuito",
+    "seed": 26,
+    "dificultad": 3,
+    "json_url": "data/debug/senal-perdida/circuito.json"
   }
 ]

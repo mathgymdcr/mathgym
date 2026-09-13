@@ -195,6 +195,16 @@ export const TIPOS = [
     generado: true,
     // En desarrollo: sin merge a producción todavía.
     oculto: true
+  },
+  {
+    tipo: 'senal-perdida',
+    nombre: 'Señal Perdida',
+    grupo: 'Deducción',
+    icono: 'assets/icono-senal-perdida.svg',
+    resumen: 'Coloca cada letra en su celda de la rejilla a partir de pistas sobre su fila y columna, y descifra el mensaje.',
+    generado: true,
+    // En desarrollo: sin merge a producción todavía.
+    oculto: true
   }
 ];
 

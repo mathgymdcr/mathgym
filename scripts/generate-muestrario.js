@@ -66,7 +66,10 @@ const SEMILLAS = {
   // 5x5: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
   'cubo-transportista': 2,
   // 8 nodos: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
-  'desenreda-la-red': 2
+  'desenreda-la-red': 2,
+  // ENIGMA (6 letras, rejilla 6x6): la palabra más corta del banco, para
+  // que la vitrina enseñe la mecánica sin abrumar con demasiadas pistas.
+  'senal-perdida': 0
 };
 
 async function main() {

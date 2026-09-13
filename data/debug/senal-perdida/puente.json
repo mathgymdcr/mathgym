@@ -1,0 +1,177 @@
+{
+  "alfabeto": [
+    "P",
+    "U",
+    "E",
+    "N",
+    "T"
+  ],
+  "tablero": {
+    "ancho": 6,
+    "alto": 6
+  },
+  "solucion": {
+    "P": [
+      4,
+      1
+    ],
+    "U": [
+      1,
+      0
+    ],
+    "E": [
+      1,
+      4
+    ],
+    "N": [
+      3,
+      1
+    ],
+    "T": [
+      2,
+      4
+    ]
+  },
+  "mensaje_cifrado": [
+    [
+      4,
+      1
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      3,
+      1
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      1,
+      4
+    ]
+  ],
+  "pistas": [
+    {
+      "tipo": "consecutivos_x",
+      "a": "N",
+      "b": "P",
+      "valor": true
+    },
+    {
+      "tipo": "consecutivos_x",
+      "a": "N",
+      "b": "T",
+      "valor": true
+    },
+    {
+      "tipo": "mismo_y",
+      "a": "T",
+      "b": "U",
+      "valor": false
+    },
+    {
+      "tipo": "orden_y",
+      "a": "T",
+      "b": "U",
+      "valor": false
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "P",
+      "valor": "impar"
+    },
+    {
+      "tipo": "cuadrado_x",
+      "a": "P",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "P",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "U",
+      "valor": "impar"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "U",
+      "valor": "par"
+    },
+    {
+      "tipo": "cuadrado_x",
+      "a": "U",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "U",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "E",
+      "valor": "impar"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "E",
+      "valor": "par"
+    },
+    {
+      "tipo": "cuadrado_x",
+      "a": "E",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "E",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "N",
+      "valor": "impar"
+    },
+    {
+      "tipo": "primo_x",
+      "a": "N",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "N",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "T",
+      "valor": "par"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "T",
+      "valor": "par"
+    },
+    {
+      "tipo": "primo_x",
+      "a": "T",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "T",
+      "valor": true
+    }
+  ]
+}

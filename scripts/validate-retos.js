@@ -20,6 +20,7 @@ import { contarSoluciones as contarRadar, cuentaVecinos } from './radar-logic.js
 import { evaluaTablero } from './dron-logic.js';
 import { bfsDesde as bfsCubo } from './cubo-logic.js';
 import { cuentaCruces } from './red-logic.js';
+import { contarSoluciones as contarSenal, cumplePista as cumplePistaSenal } from './senal-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -179,6 +180,10 @@ class RetoValidator {
 
       case 'desenreda-la-red':
         await this.validateRedData(reto);
+        break;
+
+      case 'senal-perdida':
+        await this.validateSenalData(reto);
         break;
     }
   }
@@ -1405,6 +1410,90 @@ class RetoValidator {
     const cruces = cuentaCruces(data.posiciones_iniciales, data.aristas);
     if (cruces < 1) {
       throw new Error('Desenreda-la-red reto trivial: las posiciones iniciales no tienen ningún cruce');
+    }
+  }
+
+  async validateSenalData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Señal-perdida reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const n = data.tablero && data.tablero.ancho;
+    if (!Number.isInteger(n) || n < 6 || (data.tablero && data.tablero.alto) !== n) {
+      throw new Error(`Señal-perdida tablero inválido: ${JSON.stringify(data.tablero)}`);
+    }
+
+    if (!Array.isArray(data.alfabeto) || data.alfabeto.length === 0) {
+      throw new Error('Señal-perdida reto sin alfabeto');
+    }
+    if (!data.solucion || typeof data.solucion !== 'object') {
+      throw new Error('Señal-perdida reto sin solucion');
+    }
+    const celdasUsadas = new Set();
+    for (const letra of data.alfabeto) {
+      const pos = data.solucion[letra];
+      if (
+        !Array.isArray(pos) || pos.length !== 2 ||
+        !Number.isInteger(pos[0]) || !Number.isInteger(pos[1]) ||
+        pos[0] < 0 || pos[0] >= n || pos[1] < 0 || pos[1] >= n
+      ) {
+        throw new Error(`Señal-perdida posición inválida para "${letra}": ${JSON.stringify(pos)}`);
+      }
+      const clave = `${pos[0]},${pos[1]}`;
+      if (celdasUsadas.has(clave)) {
+        throw new Error(`Señal-perdida dos letras comparten celda: ${clave}`);
+      }
+      celdasUsadas.add(clave);
+    }
+
+    if (!Array.isArray(data.mensaje_cifrado) || data.mensaje_cifrado.length === 0) {
+      throw new Error('Señal-perdida reto sin mensaje_cifrado');
+    }
+    const posInversa = new Map();
+    for (const letra of data.alfabeto) {
+      const [x, y] = data.solucion[letra];
+      posInversa.set(`${x},${y}`, letra);
+    }
+    const descifrado = data.mensaje_cifrado.map(([x, y]) => {
+      const letra = posInversa.get(`${x},${y}`);
+      if (!letra) throw new Error(`Señal-perdida mensaje_cifrado apunta a una celda sin letra: [${x},${y}]`);
+      return letra;
+    }).join('');
+    if (!descifrado) {
+      throw new Error('Señal-perdida el mensaje cifrado no descifra ninguna palabra');
+    }
+
+    if (!Array.isArray(data.pistas) || data.pistas.length === 0) {
+      throw new Error('Señal-perdida reto sin pistas');
+    }
+    for (const p of data.pistas) {
+      if (!cumplePistaSenal(p, data.solucion)) {
+        throw new Error(`Señal-perdida pista falsa sobre la solución publicada: ${JSON.stringify(p)}`);
+      }
+    }
+
+    // Solvencia y unicidad: se RECALCULA sobre el payload publicado, mismo
+    // patrón que el resto del catálogo -- no se confía en que el recorte
+    // de pistas del generador siga siendo único.
+    const { soluciones, primera } = contarSenal(data.alfabeto, n, data.pistas, { tope: 2 });
+    if (soluciones !== 1) {
+      throw new Error(
+        `Señal-perdida reto sin solución única: el solver encuentra ${soluciones} ` +
+        `solucion(es) (debe ser exactamente 1)`
+      );
+    }
+    // JSON.stringify de un objeto es sensible al orden de sus claves, y
+    // `primera` las inserta en orden MRV (no en el orden de `alfabeto') --
+    // comparar letra a letra evita un falso "no coincide" por puro orden.
+    const coincide = data.alfabeto.every((letra) => (
+      primera[letra] && primera[letra][0] === data.solucion[letra][0] && primera[letra][1] === data.solucion[letra][1]
+    ));
+    if (!coincide) {
+      throw new Error('Señal-perdida la solución publicada no coincide con la que el solver encuentra');
     }
   }
 

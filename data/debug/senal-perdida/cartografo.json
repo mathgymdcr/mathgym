@@ -1,0 +1,207 @@
+{
+  "alfabeto": [
+    "C",
+    "A",
+    "R",
+    "T",
+    "O",
+    "G",
+    "F"
+  ],
+  "tablero": {
+    "ancho": 7,
+    "alto": 7
+  },
+  "solucion": {
+    "C": [
+      1,
+      1
+    ],
+    "A": [
+      6,
+      2
+    ],
+    "R": [
+      2,
+      3
+    ],
+    "T": [
+      6,
+      0
+    ],
+    "O": [
+      3,
+      0
+    ],
+    "G": [
+      5,
+      3
+    ],
+    "F": [
+      5,
+      0
+    ]
+  },
+  "mensaje_cifrado": [
+    [
+      1,
+      1
+    ],
+    [
+      6,
+      2
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      6,
+      0
+    ],
+    [
+      3,
+      0
+    ],
+    [
+      5,
+      3
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      6,
+      2
+    ],
+    [
+      5,
+      0
+    ],
+    [
+      3,
+      0
+    ]
+  ],
+  "pistas": [
+    {
+      "tipo": "suma_y",
+      "a": "F",
+      "b": "G",
+      "valor": 3
+    },
+    {
+      "tipo": "orden_x",
+      "a": "A",
+      "b": "F",
+      "valor": false
+    },
+    {
+      "tipo": "orden_y",
+      "a": "G",
+      "b": "R",
+      "valor": false
+    },
+    {
+      "tipo": "orden_x",
+      "a": "F",
+      "b": "T",
+      "valor": true
+    },
+    {
+      "tipo": "orden_y",
+      "a": "F",
+      "b": "T",
+      "valor": false
+    },
+    {
+      "tipo": "orden_x",
+      "a": "F",
+      "b": "O",
+      "valor": false
+    },
+    {
+      "tipo": "orden_y",
+      "a": "F",
+      "b": "O",
+      "valor": false
+    },
+    {
+      "tipo": "mismo_x",
+      "a": "F",
+      "b": "G",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "C",
+      "valor": "impar"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "C",
+      "valor": "impar"
+    },
+    {
+      "tipo": "cuadrado_x",
+      "a": "C",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "C",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "A",
+      "valor": "par"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "A",
+      "valor": "par"
+    },
+    {
+      "tipo": "primo_y",
+      "a": "A",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "R",
+      "valor": "par"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "R",
+      "valor": "impar"
+    },
+    {
+      "tipo": "primo_x",
+      "a": "R",
+      "valor": true
+    },
+    {
+      "tipo": "primo_y",
+      "a": "R",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "O",
+      "valor": "impar"
+    },
+    {
+      "tipo": "primo_x",
+      "a": "O",
+      "valor": true
+    },
+    {
+      "tipo": "primo_x",
+      "a": "F",
+      "valor": true
+    }
+  ]
+}
