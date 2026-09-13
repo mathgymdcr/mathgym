@@ -165,6 +165,16 @@ export const TIPOS = [
     generado: true,
     // En desarrollo: sin merge a producción todavía.
     oculto: true
+  },
+  {
+    tipo: 'ruta-del-dron',
+    nombre: 'Ruta del Dron',
+    grupo: 'Deducción',
+    icono: 'assets/icono-ruta-del-dron.svg',
+    resumen: 'Encuentra la única baldosa de inicio cuya cadena de instrucciones llega a la meta recorriendo el camino más largo.',
+    generado: true,
+    // En desarrollo: sin merge a producción todavía.
+    oculto: true
   }
 ];
 

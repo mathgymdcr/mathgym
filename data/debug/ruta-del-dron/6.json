@@ -1,0 +1,169 @@
+{
+  "tablero": {
+    "ancho": 6,
+    "alto": 6
+  },
+  "meta": {
+    "f": 0,
+    "c": 0
+  },
+  "instrucciones": [
+    [
+      null,
+      {
+        "direccion": "N",
+        "distancia": 3
+      },
+      {
+        "direccion": "E",
+        "distancia": 3
+      },
+      {
+        "direccion": "O",
+        "distancia": 3
+      },
+      {
+        "direccion": "E",
+        "distancia": 1
+      },
+      {
+        "direccion": "O",
+        "distancia": 1
+      }
+    ],
+    [
+      {
+        "direccion": "E",
+        "distancia": 2
+      },
+      {
+        "direccion": "S",
+        "distancia": 3
+      },
+      {
+        "direccion": "S",
+        "distancia": 3
+      },
+      {
+        "direccion": "S",
+        "distancia": 2
+      },
+      {
+        "direccion": "E",
+        "distancia": 2
+      },
+      {
+        "direccion": "O",
+        "distancia": 3
+      }
+    ],
+    [
+      {
+        "direccion": "N",
+        "distancia": 2
+      },
+      {
+        "direccion": "O",
+        "distancia": 1
+      },
+      {
+        "direccion": "N",
+        "distancia": 2
+      },
+      {
+        "direccion": "O",
+        "distancia": 3
+      },
+      {
+        "direccion": "O",
+        "distancia": 2
+      },
+      {
+        "direccion": "N",
+        "distancia": 1
+      }
+    ],
+    [
+      {
+        "direccion": "S",
+        "distancia": 3
+      },
+      {
+        "direccion": "N",
+        "distancia": 3
+      },
+      {
+        "direccion": "S",
+        "distancia": 2
+      },
+      {
+        "direccion": "O",
+        "distancia": 3
+      },
+      {
+        "direccion": "N",
+        "distancia": 1
+      },
+      {
+        "direccion": "N",
+        "distancia": 3
+      }
+    ],
+    [
+      {
+        "direccion": "E",
+        "distancia": 1
+      },
+      {
+        "direccion": "E",
+        "distancia": 1
+      },
+      {
+        "direccion": "O",
+        "distancia": 2
+      },
+      {
+        "direccion": "E",
+        "distancia": 2
+      },
+      {
+        "direccion": "S",
+        "distancia": 2
+      },
+      {
+        "direccion": "N",
+        "distancia": 3
+      }
+    ],
+    [
+      {
+        "direccion": "N",
+        "distancia": 3
+      },
+      {
+        "direccion": "S",
+        "distancia": 2
+      },
+      {
+        "direccion": "N",
+        "distancia": 2
+      },
+      {
+        "direccion": "O",
+        "distancia": 3
+      },
+      {
+        "direccion": "O",
+        "distancia": 2
+      },
+      {
+        "direccion": "N",
+        "distancia": 1
+      }
+    ]
+  ],
+  "solucion": {
+    "f": 5,
+    "c": 3
+  }
+}

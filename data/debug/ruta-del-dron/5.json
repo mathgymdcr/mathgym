@@ -1,0 +1,123 @@
+{
+  "tablero": {
+    "ancho": 5,
+    "alto": 5
+  },
+  "meta": {
+    "f": 4,
+    "c": 4
+  },
+  "instrucciones": [
+    [
+      {
+        "direccion": "E",
+        "distancia": 3
+      },
+      {
+        "direccion": "N",
+        "distancia": 2
+      },
+      {
+        "direccion": "S",
+        "distancia": 1
+      },
+      {
+        "direccion": "S",
+        "distancia": 3
+      },
+      {
+        "direccion": "S",
+        "distancia": 1
+      }
+    ],
+    [
+      {
+        "direccion": "O",
+        "distancia": 1
+      },
+      {
+        "direccion": "N",
+        "distancia": 1
+      },
+      {
+        "direccion": "E",
+        "distancia": 3
+      },
+      {
+        "direccion": "E",
+        "distancia": 3
+      },
+      {
+        "direccion": "S",
+        "distancia": 3
+      }
+    ],
+    [
+      {
+        "direccion": "N",
+        "distancia": 3
+      },
+      {
+        "direccion": "E",
+        "distancia": 3
+      },
+      {
+        "direccion": "N",
+        "distancia": 2
+      },
+      {
+        "direccion": "N",
+        "distancia": 2
+      },
+      {
+        "direccion": "S",
+        "distancia": 3
+      }
+    ],
+    [
+      {
+        "direccion": "E",
+        "distancia": 3
+      },
+      {
+        "direccion": "N",
+        "distancia": 3
+      },
+      {
+        "direccion": "N",
+        "distancia": 3
+      },
+      {
+        "direccion": "N",
+        "distancia": 1
+      },
+      {
+        "direccion": "N",
+        "distancia": 3
+      }
+    ],
+    [
+      {
+        "direccion": "N",
+        "distancia": 2
+      },
+      {
+        "direccion": "E",
+        "distancia": 2
+      },
+      {
+        "direccion": "N",
+        "distancia": 2
+      },
+      {
+        "direccion": "E",
+        "distancia": 3
+      },
+      null
+    ]
+  ],
+  "solucion": {
+    "f": 3,
+    "c": 4
+  }
+}
