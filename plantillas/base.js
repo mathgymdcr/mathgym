@@ -22,7 +22,8 @@ window.Templates = (function() {
     'puentes-hashi': () => import('./hashi.js'),                // ✅ NUEVA PLANTILLA
     'cinta-transportadora': () => import('./cinta_transportadora.js'), // ✅ NUEVA PLANTILLA
     'fabrica-de-bloques': () => import('./fabrica_bloques.js'),
-    'planos-del-invernadero': () => import('./planos_invernadero.js')
+    'planos-del-invernadero': () => import('./planos_invernadero.js'),
+    'radar-asteroides': () => import('./radar_asteroides.js')
   };
 
   // --- Función principal para renderizar plantillas ---

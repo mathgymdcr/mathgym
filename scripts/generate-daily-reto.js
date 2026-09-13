@@ -22,6 +22,7 @@ import { buildRiegoPuzzle, buildRiegoHints } from './riego-logic.js';
 import { buildCintaPuzzle } from './cinta-transportadora-logic.js';
 import { buildFabricaPuzzle } from './fabrica-logic.js';
 import { buildInvernaderoPuzzle } from './invernadero-logic.js';
+import { buildRadarPuzzle } from './radar-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,7 +58,8 @@ class MathGymGenerator {
       'riego-plantas': this.generateRiego.bind(this),
       'cinta-transportadora': this.generateCinta.bind(this),
       'fabrica-de-bloques': this.generateFabrica.bind(this),
-      'planos-del-invernadero': this.generateInvernadero.bind(this)
+      'planos-del-invernadero': this.generateInvernadero.bind(this),
+      'radar-asteroides': this.generateRadar.bind(this)
     };
   }
 
@@ -838,6 +840,37 @@ class MathGymGenerator {
       variant,
       dificultad,
       categorias: ['logica', 'geometria'],
+      objectives: {
+        winCondition: 'grid_matches_solution',
+        maxErrorsFor3Stars: 0,
+        maxErrorsFor2Stars: 2
+      },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateRadar(seed, fecha) {
+    // Buscaminas por pistas: cada celda revelada es el conteo real de
+    // asteroides vecinos sobre la solución sorteada. La unicidad SÍ hace
+    // falta comprobarla (a diferencia de cinta/fabrica): buildRadarPuzzle
+    // parte de revelar todo y poda pistas mientras la solución siga siendo
+    // única.
+    const puzzle = buildRadarPuzzle(seed);
+    const { variant, dificultad, payload } = puzzle;
+
+    const dataFileName = `radar-asteroides_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-radar-asteroides-001`,
+      tipo: 'radar-asteroides',
+      variant,
+      dificultad,
+      categorias: ['logica', 'deduccion'],
       objectives: {
         winCondition: 'grid_matches_solution',
         maxErrorsFor3Stars: 0,

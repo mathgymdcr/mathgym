@@ -57,7 +57,10 @@ const SEMILLAS = {
   'fabrica-de-bloques': 9,
   // 6x6: el tamaño más pequeño, para que la vitrina enseñe la mecánica sin
   // liar con demasiados módulos.
-  'planos-del-invernadero': 2
+  'planos-del-invernadero': 2,
+  // 5x5: el tamaño más pequeño, para que la vitrina enseñe la mecánica sin
+  // liar con un tablero grande.
+  'radar-asteroides': 2
 };
 
 async function main() {

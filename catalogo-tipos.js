@@ -155,6 +155,16 @@ export const TIPOS = [
     generado: true,
     // En desarrollo: sin merge a producción todavía.
     oculto: true
+  },
+  {
+    tipo: 'radar-asteroides',
+    nombre: 'Radar de Asteroides',
+    grupo: 'Deducción',
+    icono: 'assets/icono-radar-asteroides.svg',
+    resumen: 'Marca los asteroides escondidos a partir de cuántos hay alrededor de cada casilla escaneada, sin marcar ninguna de más.',
+    generado: true,
+    // En desarrollo: sin merge a producción todavía.
+    oculto: true
   }
 ];
 

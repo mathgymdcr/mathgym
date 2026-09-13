@@ -1,0 +1,86 @@
+{
+  "tablero": {
+    "ancho": 5,
+    "alto": 5
+  },
+  "pistas": [
+    {
+      "f": 0,
+      "c": 0,
+      "valor": 0
+    },
+    {
+      "f": 0,
+      "c": 2,
+      "valor": 1
+    },
+    {
+      "f": 0,
+      "c": 3,
+      "valor": 1
+    },
+    {
+      "f": 1,
+      "c": 3,
+      "valor": 1
+    },
+    {
+      "f": 2,
+      "c": 0,
+      "valor": 3
+    },
+    {
+      "f": 3,
+      "c": 3,
+      "valor": 1
+    },
+    {
+      "f": 3,
+      "c": 4,
+      "valor": 1
+    },
+    {
+      "f": 4,
+      "c": 4,
+      "valor": 1
+    }
+  ],
+  "asteroides_totales": 5,
+  "solucion": [
+    [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      true,
+      false,
+      false
+    ],
+    [
+      false,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      true,
+      true,
+      false,
+      false,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  ]
+}

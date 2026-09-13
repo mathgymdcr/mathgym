@@ -1094,5 +1094,29 @@
     "seed": 9,
     "dificultad": 2,
     "json_url": "data/debug/fabrica-de-bloques/4-basicas.json"
+  },
+  {
+    "tipo": "radar-asteroides",
+    "titulo": "Radar de Asteroides",
+    "variant": "6",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/radar-asteroides/6.json"
+  },
+  {
+    "tipo": "radar-asteroides",
+    "titulo": "Radar de Asteroides",
+    "variant": "5",
+    "seed": 2,
+    "dificultad": 2,
+    "json_url": "data/debug/radar-asteroides/5.json"
+  },
+  {
+    "tipo": "radar-asteroides",
+    "titulo": "Radar de Asteroides",
+    "variant": "7",
+    "seed": 3,
+    "dificultad": 4,
+    "json_url": "data/debug/radar-asteroides/7.json"
   }
 ]
