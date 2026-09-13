@@ -215,5 +215,14 @@
       "logica",
       "tablero"
     ]
+  },
+  {
+    "fecha": "2026-09-13",
+    "titulo": "Relojes de Arena",
+    "dificultad": 4,
+    "categorias": [
+      "logica",
+      "tiempo"
+    ]
   }
 ]
