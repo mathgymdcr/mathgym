@@ -224,5 +224,14 @@
       "logica",
       "tiempo"
     ]
+  },
+  {
+    "fecha": "2026-09-14",
+    "titulo": "Conecta los Chips",
+    "dificultad": 2,
+    "categorias": [
+      "logica",
+      "grafos"
+    ]
   }
 ]
