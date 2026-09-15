@@ -49,7 +49,7 @@ export async function render(root, data, hooks) {
     gameClass: 'cinta-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> coloca los ${nCajas} personajes en las cápsulas de la estación para que la nave los entregue en este orden: <strong>${ordenObjetivo.join(', ')}</strong> (la fila de siluetas bajo la estación muestra ese mismo orden).</p>
+      <p><strong>Objetivo:</strong> coloca los ${nCajas} personajes en las cápsulas de la estación para que la nave los entregue en el orden que marca la fila de siluetas bajo la estación.</p>
       <ul>
         <li>La nave gira en sentido horario (como las agujas del reloj).</li>
         <li>Empieza apuntando a la cápsula 1.</li>
@@ -118,7 +118,7 @@ export async function render(root, data, hooks) {
 
   const bandejaWrap = createElement('div', { class: 'cinta-bandeja-wrap' });
   const bandejaLabel = createElement('div', { class: 'cinta-bandeja-label' });
-  bandejaLabel.textContent = 'Cajas por colocar';
+  bandejaLabel.textContent = 'Personajes por colocar';
   const bandeja = createElement('div', { class: 'cinta-bandeja' });
   bandejaWrap.appendChild(bandejaLabel);
   bandejaWrap.appendChild(bandeja);
@@ -163,9 +163,6 @@ export async function render(root, data, hooks) {
       const tile = createElement('button', { class: 'cinta-caja', type: 'button' });
       const retrato = createElement('img', { class: 'cinta-caja-retrato', src: personajeUrl(caja), alt: '' });
       tile.appendChild(retrato);
-      const numero = createElement('span', { class: 'cinta-caja-num' });
-      numero.textContent = caja;
-      tile.appendChild(numero);
       tile.classList.toggle('seleccionada', seleccionada === caja);
       tile.addEventListener('click', () => {
         if (ganado || corriendo) return;
@@ -183,7 +180,6 @@ export async function render(root, data, hooks) {
     const caja = colocacion[i];
     if (caja != null) {
       retrato.src = personajeUrl(caja);
-      numero.textContent = caja;
     } else {
       retrato.removeAttribute('src');
       numero.textContent = i + 1;

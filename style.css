@@ -3767,18 +3767,7 @@ section.groups { margin-top: 52px; }
 }
 
 .cinta-hueco.ocupado .cinta-hueco-num {
-  position: absolute;
-  right: -4px;
-  bottom: -4px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  font-size: .6rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: none;
 }
 
 .cinta-hueco.ocupado {
@@ -3878,22 +3867,6 @@ section.groups { margin-top: 52px; }
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-
-.cinta-caja-num {
-  position: absolute;
-  right: 2px;
-  bottom: 2px;
-  min-width: 15px;
-  height: 15px;
-  padding: 0 2px;
-  border-radius: 50%;
-  background: rgba(20, 10, 60, .7);
-  color: #fff;
-  font-size: .6rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .cinta-caja:hover {
