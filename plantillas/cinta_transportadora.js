@@ -1,8 +1,10 @@
 // ===== plantillas/cinta_transportadora.js =====
-// La Cinta Sin Fin · Josephus inverso. La simulación de la cinta
-// (simulaSalida) vive en scripts/cinta-transportadora-logic.js, compartida
-// con el generador y el validador: los tres tienen que estar de acuerdo en
-// qué sale y en qué orden.
+// La Ronda Espacial · Josephus inverso, vestido de estación orbital: los
+// personajes (assets/espacio/personaje-N.svg) sustituyen a las cajas y la
+// nave sustituye al brazo. La simulación (simulaSalida) vive en
+// scripts/cinta-transportadora-logic.js, compartida con el generador y el
+// validador: los tres tienen que estar de acuerdo en qué sale y en qué
+// orden -- el reskin de aquí no toca esa lógica, solo el pintado.
 
 import { celebrate } from './celebration.js';
 import { buildStandardShell, createElement, setStatus } from './shell.js';
@@ -12,6 +14,11 @@ const RETRASO_ROTACION_MS = 420;
 const RETRASO_PAUSA_MS = 220;
 const RETRASO_PASO_MS = RETRASO_ROTACION_MS + RETRASO_PAUSA_MS;
 const RETRASO_VUELO_MS = 480;
+const N_PERSONAJES = 10;
+
+function personajeUrl(id) {
+  return `assets/espacio/personaje-${((id - 1) % N_PERSONAJES) + 1}.svg`;
+}
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
@@ -42,25 +49,25 @@ export async function render(root, data, hooks) {
     gameClass: 'cinta-game',
     instructionsHTML: `
       <h3>Cómo se juega</h3>
-      <p><strong>Objetivo:</strong> coloca las ${nCajas} cajas en los huecos para que el brazo las saque en este orden: <strong>${ordenObjetivo.join(', ')}</strong>.</p>
+      <p><strong>Objetivo:</strong> coloca los ${nCajas} personajes en las cápsulas de la estación para que la nave los entregue en este orden: <strong>${ordenObjetivo.join(', ')}</strong> (la fila de siluetas bajo la estación muestra ese mismo orden).</p>
       <ul>
-        <li>El brazo gira en sentido horario (como las agujas del reloj).</li>
-        <li>Empieza apuntando al hueco 1.</li>
-        <li>En cada parada saca la caja de ese hueco.</li>
-        <li>Después salta ${patronSalto} hueco${patronSalto === 1 ? '' : 's'} con caja sin sacarla${patronSalto === 1 ? '' : 's'}.</li>
-        <li>Un hueco ya vaciado no cuenta para ese salto.</li>
-        <li>Para en el siguiente hueco con caja y la saca.</li>
-        <li>Repite hasta sacarlas todas.</li>
-        <li>Toca una caja de la bandeja y luego un hueco vacío para colocarla.</li>
-        <li>Toca un hueco ya ocupado para devolver esa caja a la bandeja.</li>
-        <li>Pulsa «Iniciar» cuando la cinta esté completa.</li>
+        <li>La nave gira en sentido horario (como las agujas del reloj).</li>
+        <li>Empieza apuntando a la cápsula 1.</li>
+        <li>En cada parada recoge al personaje de esa cápsula.</li>
+        <li>Después salta ${patronSalto} cápsula${patronSalto === 1 ? '' : 's'} con personaje sin recogerlo${patronSalto === 1 ? '' : 's'}.</li>
+        <li>Una cápsula ya vaciada no cuenta para ese salto.</li>
+        <li>Para en la siguiente cápsula con personaje y lo recoge.</li>
+        <li>Repite hasta recogerlos todos.</li>
+        <li>Toca un personaje de la bandeja y luego una cápsula vacía para colocarlo.</li>
+        <li>Toca una cápsula ya ocupada para devolver ese personaje a la bandeja.</li>
+        <li>Pulsa «Iniciar» cuando la estación esté completa.</li>
       </ul>
     `
   });
   root.appendChild(ui.box);
 
   const infoLine = createElement('div', { class: 'cinta-info' });
-  infoLine.textContent = `${nCajas} cajas · voltea 1, salta ${patronSalto}`;
+  infoLine.textContent = `${nCajas} personajes · recoge 1, salta ${patronSalto}`;
   ui.box.appendChild(infoLine);
 
   const stage = createElement('div', { class: 'cinta-stage' });
@@ -80,6 +87,8 @@ export async function render(root, data, hooks) {
     hueco.style.left = `${x}%`;
     hueco.style.top = `${y}%`;
     hueco.dataset.posicion = i + 1;
+    const retrato = createElement('img', { class: 'cinta-hueco-retrato', alt: '' });
+    hueco.appendChild(retrato);
     const numero = createElement('span', { class: 'cinta-hueco-num' });
     numero.textContent = i + 1;
     hueco.appendChild(numero);
@@ -127,6 +136,19 @@ export async function render(root, data, hooks) {
   const salidaWrap = createElement('div', { class: 'cinta-salida' });
   ui.box.appendChild(salidaWrap);
 
+  // La fila de siluetas es el objetivo YA colocado junto al tablero: un
+  // slot por posición de ordenObjetivo, precargado con la silueta (sombra)
+  // del personaje esperado ahí. revelarSlot() lo colorea al llegar la nave.
+  function pintarSalidaSlots() {
+    salidaWrap.innerHTML = '';
+    ordenObjetivo.forEach((esperado) => {
+      const slot = createElement('div', { class: 'cinta-salida-slot' });
+      const img = createElement('img', { class: 'cinta-salida-silueta', src: personajeUrl(esperado), alt: '' });
+      slot.appendChild(img);
+      salidaWrap.appendChild(slot);
+    });
+  }
+
   // colocacion[i] = caja en la posicion i+1, o null si esta vacia.
   const colocacion = new Array(nCajas).fill(null);
   const cajasDisponibles = new Set(Array.from({ length: nCajas }, (_, i) => i + 1));
@@ -139,7 +161,11 @@ export async function render(root, data, hooks) {
     bandeja.innerHTML = '';
     for (const caja of [...cajasDisponibles].sort((a, b) => a - b)) {
       const tile = createElement('button', { class: 'cinta-caja', type: 'button' });
-      tile.textContent = caja;
+      const retrato = createElement('img', { class: 'cinta-caja-retrato', src: personajeUrl(caja), alt: '' });
+      tile.appendChild(retrato);
+      const numero = createElement('span', { class: 'cinta-caja-num' });
+      numero.textContent = caja;
+      tile.appendChild(numero);
       tile.classList.toggle('seleccionada', seleccionada === caja);
       tile.addEventListener('click', () => {
         if (ganado || corriendo) return;
@@ -152,9 +178,16 @@ export async function render(root, data, hooks) {
 
   function pintarHueco(i) {
     const hueco = huecos[i];
+    const retrato = hueco.querySelector('.cinta-hueco-retrato');
     const numero = hueco.querySelector('.cinta-hueco-num');
     const caja = colocacion[i];
-    numero.textContent = caja ?? i + 1;
+    if (caja != null) {
+      retrato.src = personajeUrl(caja);
+      numero.textContent = caja;
+    } else {
+      retrato.removeAttribute('src');
+      numero.textContent = i + 1;
+    }
     hueco.classList.toggle('ocupado', caja != null);
   }
 
@@ -182,9 +215,9 @@ export async function render(root, data, hooks) {
   function actualizarMensaje() {
     if (ganado) return;
     if (cajasDisponibles.size > 0) {
-      setStatus(ui.result, `Coloca las ${cajasDisponibles.size} caja${cajasDisponibles.size === 1 ? '' : 's'} que faltan.`, '');
+      setStatus(ui.result, `Coloca los ${cajasDisponibles.size} personaje${cajasDisponibles.size === 1 ? '' : 's'} que faltan.`, '');
     } else {
-      setStatus(ui.result, 'Cinta completa. Pulsa «Iniciar» para comprobar.', '');
+      setStatus(ui.result, 'Estación completa. Pulsa «Iniciar» para comprobar.', '');
     }
   }
 
@@ -196,7 +229,7 @@ export async function render(root, data, hooks) {
       pintarHueco(i);
     }
     seleccionada = null;
-    salidaWrap.innerHTML = '';
+    pintarSalidaSlots();
     huecos.forEach((h) => h.classList.remove('volteando', 'vaciado'));
     apuntarBrazo(0, { animar: false });
     pintarBandeja();
@@ -206,23 +239,23 @@ export async function render(root, data, hooks) {
   btnIniciar.addEventListener('click', async () => {
     if (ganado || corriendo) return;
     if (cajasDisponibles.size > 0) {
-      setStatus(ui.result, 'Completa la cinta antes de pulsar Iniciar', 'ko');
+      setStatus(ui.result, 'Completa la estación antes de pulsar Iniciar', 'ko');
       return;
     }
 
     corriendo = true;
     btnIniciar.disabled = true;
     btnReiniciar.disabled = true;
-    salidaWrap.innerHTML = '';
+    pintarSalidaSlots();
     huecos.forEach((h) => h.classList.remove('volteando', 'vaciado'));
-    setStatus(ui.result, 'La cinta está en marcha...', '');
+    setStatus(ui.result, 'La nave está en marcha...', '');
 
     // ordenEliminacion depende solo de n y m, no de qué caja hay en cada
     // hueco -- es el mismo recorrido circular que usa simulaSalida, así que
     // sirve para saber a qué hueco apuntar en cada paso de la animación.
     const posiciones = ordenEliminacion(nCajas, m);
     const salidaReal = [];
-    for (const posUno of posiciones) {
+    for (const [step, posUno] of posiciones.entries()) {
       const idx = posUno - 1;
       apuntarBrazo(idx);
       await esperar(RETRASO_ROTACION_MS);
@@ -230,7 +263,7 @@ export async function render(root, data, hooks) {
       huecos[idx].classList.add('volteando');
       const caja = colocacion[idx];
       salidaReal.push(caja);
-      volarFichaAlaSalida(huecos[idx], caja, salidaWrap);
+      volarFichaAlaSalida(huecos[idx], caja, salidaWrap.children[step], ordenObjetivo[step]);
       await esperar(RETRASO_PAUSA_MS);
 
       huecos[idx].classList.remove('volteando');
@@ -242,14 +275,14 @@ export async function render(root, data, hooks) {
 
     if (acierto) {
       ganado = true;
-      setStatus(ui.result, `¡Cinta perfecta en ${fallos} fallo${fallos === 1 ? '' : 's'}!`, 'ok');
-      celebrate({ ok: true, message: `Sacaste las ${nCajas} cajas en el orden pedido` });
+      setStatus(ui.result, `¡Ronda perfecta en ${fallos} fallo${fallos === 1 ? '' : 's'}!`, 'ok');
+      celebrate({ ok: true, message: `Entregaste a los ${nCajas} personajes en el orden pedido` });
       if (hooks && hooks.onSuccess) hooks.onSuccess({ fallos });
       btnIniciar.disabled = true;
       huecos.forEach((h) => { h.disabled = true; });
     } else {
       fallos++;
-      setStatus(ui.result, `Salió ${salidaReal.join(', ')}. No es el orden pedido -- reordena y prueba otra vez.`, 'ko');
+      setStatus(ui.result, `Llegaron en ${salidaReal.join(', ')}. No es el orden pedido -- reordena y prueba otra vez.`, 'ko');
       btnIniciar.disabled = false;
       btnReiniciar.disabled = false;
     }
@@ -258,6 +291,7 @@ export async function render(root, data, hooks) {
 
   pintarBandeja();
   huecos.forEach((_, i) => pintarHueco(i));
+  pintarSalidaSlots();
   setStatus(ui.status, 'Listo para colocar', 'ok');
   actualizarMensaje();
 }
@@ -266,22 +300,25 @@ function esperar(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Ficha "voladora": clona el hueco de origen y la caja de destino con
-// getBoundingClientRect y anima entre las dos con position:fixed -- FLIP
-// sencillo, sin librería. La ficha real se añade oculta a salidaWrap desde
-// el principio para reservar su hueco en el flujo (flex-wrap) y así saber
-// dónde aterriza el vuelo antes de que exista visualmente.
-function volarFichaAlaSalida(huecoEl, caja, salidaWrap) {
-  const ficha = createElement('span', { class: 'cinta-salida-ficha' });
-  ficha.textContent = caja;
-  ficha.style.visibility = 'hidden';
-  salidaWrap.appendChild(ficha);
+function revelarSlot(slotEl, caja, esperado) {
+  const img = slotEl.querySelector('img');
+  img.src = personajeUrl(caja);
+  img.classList.remove('cinta-salida-silueta');
+  img.classList.add('cinta-salida-real');
+  slotEl.classList.add(caja === esperado ? 'correcto' : 'incorrecto');
+}
 
+// Retrato "volador": vuela del hueco de origen al slot de silueta que le
+// corresponde (mismo índice de paso que ordenObjetivo) con getBoundingClientRect
+// y position:fixed -- FLIP sencillo, sin librería. Al llegar, revela ese slot
+// con revelarSlot (que decide si el personaje llegado coincide con la silueta).
+function volarFichaAlaSalida(huecoEl, caja, slotEl, esperado) {
   const origen = huecoEl.getBoundingClientRect();
-  const destino = ficha.getBoundingClientRect();
+  const destino = slotEl.getBoundingClientRect();
 
-  const volando = createElement('span', { class: 'cinta-salida-ficha cinta-ficha-volando' });
-  volando.textContent = caja;
+  const volando = createElement('img', { class: 'cinta-ficha-volando', src: personajeUrl(caja), alt: '' });
+  volando.style.width = `${destino.width}px`;
+  volando.style.height = `${destino.height}px`;
   volando.style.left = `${origen.left + origen.width / 2 - destino.width / 2}px`;
   volando.style.top = `${origen.top + origen.height / 2 - destino.height / 2}px`;
   document.body.appendChild(volando);
@@ -293,7 +330,7 @@ function volarFichaAlaSalida(huecoEl, caja, salidaWrap) {
 
   setTimeout(() => {
     volando.remove();
-    ficha.style.visibility = 'visible';
+    revelarSlot(slotEl, caja, esperado);
   }, RETRASO_VUELO_MS);
 }
 

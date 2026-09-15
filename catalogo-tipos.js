@@ -139,10 +139,10 @@ export const TIPOS = [
   },
   {
     tipo: 'cinta-transportadora',
-    nombre: 'La Cinta Sin Fin',
+    nombre: 'La Ronda Espacial',
     grupo: 'Secuencias y estados',
     icono: 'assets/icono-cinta-transportadora.svg',
-    resumen: 'Coloca las cajas en la cinta circular para que el brazo, volteando una y saltándose otras siempre igual, las saque en el orden que se pide.',
+    resumen: 'Coloca a los personajes en la estación orbital para que la nave, recogiendo uno y saltándose otros siempre igual, los entregue en el orden que se pide.',
     generado: true,
     // Pendiente de decidir el lanzamiento: alcanzable solo desde debug.html.
     oculto: true
