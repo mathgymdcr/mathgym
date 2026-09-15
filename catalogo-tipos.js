@@ -119,6 +119,17 @@ export const TIPOS = [
     generado: true
   },
   {
+    tipo: 'codigo-secreto',
+    nombre: 'Código Secreto',
+    grupo: 'Deducción',
+    icono: 'assets/icono-codigo-secreto.svg',
+    resumen: 'Propón una combinación de colores y usa los aciertos exactos y de color de cada intento para acorralar el código oculto.',
+    generado: true,
+    // Pendiente de decidir el lanzamiento (campaña de redes): alcanzable
+    // solo desde debug.html.
+    oculto: true
+  },
+  {
     tipo: 'laser-triangular',
     nombre: 'Laberinto Láser',
     grupo: 'Visión espacial',

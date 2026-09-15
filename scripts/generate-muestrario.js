@@ -74,7 +74,11 @@ const SEMILLAS = {
   // que la vitrina enseñe la mecánica sin abrumar con demasiadas pistas.
   'senal-perdida': 0,
   // 5x5: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
-  'trazo-perimetral': 2
+  'trazo-perimetral': 2,
+  // 4-4-con-repeticion: la variante más simple (4 posiciones, solo 4
+  // colores, con repetición permitida) para que el ejemplo enseñe la
+  // mecánica sin la carga de una combinación de 6 colores sin repetir.
+  'codigo-secreto': 7
 };
 
 async function main() {

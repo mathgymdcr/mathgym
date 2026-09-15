@@ -23,6 +23,7 @@ import { cuentaCruces } from './red-logic.js';
 import { contarSolucionesModelo as contarAndroidesModelo, contarSolucionesClase as contarAndroidesClase } from './androides-logic.js';
 import { contarSoluciones as contarSenal, cumplePista as cumplePistaSenal } from './senal-logic.js';
 import { contarSoluciones as contarTrazo, pistaDeCelda as pistaDeCeldaTrazo } from './trazo-logic.js';
+import { PALETA, comparaCombinacion } from './codigo-secreto-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -194,6 +195,10 @@ class RetoValidator {
 
       case 'trazo-perimetral':
         await this.validateTrazoData(reto);
+        break;
+
+      case 'codigo-secreto':
+        await this.validateCodigoSecretoData(reto);
         break;
     }
   }
@@ -1674,6 +1679,48 @@ class RetoValidator {
     }
     if (JSON.stringify(primera) !== JSON.stringify(data.solucion)) {
       throw new Error('Trazo-perimetral la solución publicada no coincide con la que el solver encuentra');
+    }
+  }
+
+  async validateCodigoSecretoData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Codigo-secreto reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    if (!Number.isInteger(data.longitud) || data.longitud < 3 || data.longitud > 8) {
+      throw new Error(`Codigo-secreto longitud inválida: ${data.longitud}`);
+    }
+    if (!Number.isInteger(data.colores_disponibles) || data.colores_disponibles < 1 || data.colores_disponibles > PALETA.length) {
+      throw new Error(`Codigo-secreto colores_disponibles inválido: ${data.colores_disponibles}`);
+    }
+    if (typeof data.permite_repeticion !== 'boolean') {
+      throw new Error('Codigo-secreto sin permite_repeticion (debe ser booleano)');
+    }
+
+    const paletaValida = new Set(PALETA.slice(0, data.colores_disponibles));
+    if (!Array.isArray(data.solucion) || data.solucion.length !== data.longitud) {
+      throw new Error(`Codigo-secreto solucion debe tener ${data.longitud} colores`);
+    }
+    for (const color of data.solucion) {
+      if (!paletaValida.has(color)) {
+        throw new Error(`Codigo-secreto solucion con color fuera de la paleta disponible: ${color}`);
+      }
+    }
+    if (!data.permite_repeticion && new Set(data.solucion).size !== data.solucion.length) {
+      throw new Error('Codigo-secreto sin repeticion pero la solucion repite color');
+    }
+
+    // No hay solvencia que comprobar (cualquier combinación es un reto
+    // válido), pero sí que la comparación de un intento perfecto marque el
+    // máximo de exactos -- si esto fallara, el reto sería infinitamente
+    // irresoluble sin que ningún otro chequeo lo detecte.
+    const { exactos } = comparaCombinacion(data.solucion, data.solucion);
+    if (exactos !== data.longitud) {
+      throw new Error('Codigo-secreto: comparaCombinacion no reconoce la propia solucion como acierto total');
     }
   }
 

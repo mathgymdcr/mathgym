@@ -29,7 +29,8 @@ window.Templates = (function() {
     'desenreda-la-red': () => import('./red_enredada.js'),
     'androides-en-la-fabrica': () => import('./androides_fabrica.js'),
     'senal-perdida': () => import('./senal_perdida.js'),
-    'trazo-perimetral': () => import('./trazo_perimetral.js')
+    'trazo-perimetral': () => import('./trazo_perimetral.js'),
+    'codigo-secreto': () => import('./codigo_secreto.js')       // ✅ NUEVA PLANTILLA
   };
 
   // --- Función principal para renderizar plantillas ---

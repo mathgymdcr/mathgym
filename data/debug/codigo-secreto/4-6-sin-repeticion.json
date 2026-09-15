@@ -1,0 +1,11 @@
+{
+  "longitud": 4,
+  "colores_disponibles": 6,
+  "permite_repeticion": false,
+  "solucion": [
+    "naranja",
+    "verde",
+    "azul",
+    "amarillo"
+  ]
+}

@@ -20,6 +20,9 @@ function minimoDe(objectives) {
   if (Number.isFinite(objectives.maxWeighingsFor3Stars)) {
     return { valor: objectives.maxWeighingsFor3Stars, unidad: 'pesadas' };
   }
+  if (Number.isFinite(objectives.parIntentos)) {
+    return { valor: objectives.parIntentos, unidad: 'intentos' };
+  }
   if (Number.isFinite(objectives.parMoves)) {
     return { valor: objectives.parMoves, unidad: 'movimientos' };
   }
