@@ -1,0 +1,255 @@
+{
+  "alfabeto": [
+    "A",
+    "S",
+    "T",
+    "E",
+    "R",
+    "O",
+    "I",
+    "D"
+  ],
+  "tablero": {
+    "ancho": 8,
+    "alto": 8
+  },
+  "solucion": {
+    "A": [
+      0,
+      3
+    ],
+    "S": [
+      4,
+      6
+    ],
+    "T": [
+      7,
+      2
+    ],
+    "E": [
+      6,
+      1
+    ],
+    "R": [
+      6,
+      7
+    ],
+    "O": [
+      1,
+      1
+    ],
+    "I": [
+      1,
+      4
+    ],
+    "D": [
+      7,
+      0
+    ]
+  },
+  "mensaje_cifrado": [
+    [
+      0,
+      3
+    ],
+    [
+      4,
+      6
+    ],
+    [
+      7,
+      2
+    ],
+    [
+      6,
+      1
+    ],
+    [
+      6,
+      7
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      7,
+      0
+    ],
+    [
+      6,
+      1
+    ]
+  ],
+  "pistas": [
+    {
+      "tipo": "orden_y",
+      "a": "A",
+      "b": "I",
+      "valor": true
+    },
+    {
+      "tipo": "consecutivos_x",
+      "a": "A",
+      "b": "I",
+      "valor": true
+    },
+    {
+      "tipo": "orden_y",
+      "a": "R",
+      "b": "S",
+      "valor": false
+    },
+    {
+      "tipo": "orden_y",
+      "a": "I",
+      "b": "S",
+      "valor": true
+    },
+    {
+      "tipo": "consecutivos_x",
+      "a": "I",
+      "b": "S",
+      "valor": false
+    },
+    {
+      "tipo": "consecutivos_x",
+      "a": "D",
+      "b": "S",
+      "valor": false
+    },
+    {
+      "tipo": "mismo_x",
+      "a": "D",
+      "b": "T",
+      "valor": true
+    },
+    {
+      "tipo": "consecutivos_x",
+      "a": "D",
+      "b": "E",
+      "valor": true
+    },
+    {
+      "tipo": "consecutivos_x",
+      "a": "D",
+      "b": "R",
+      "valor": true
+    },
+    {
+      "tipo": "orden_y",
+      "a": "D",
+      "b": "I",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "A",
+      "valor": "impar"
+    },
+    {
+      "tipo": "primo_y",
+      "a": "A",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_x",
+      "a": "A",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "S",
+      "valor": "par"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "S",
+      "valor": "par"
+    },
+    {
+      "tipo": "cuadrado_x",
+      "a": "S",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "T",
+      "valor": "par"
+    },
+    {
+      "tipo": "primo_y",
+      "a": "T",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "E",
+      "valor": "impar"
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "E",
+      "valor": true
+    },
+    {
+      "tipo": "primo_y",
+      "a": "R",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "O",
+      "valor": "impar"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "O",
+      "valor": "impar"
+    },
+    {
+      "tipo": "cuadrado_x",
+      "a": "O",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "O",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "I",
+      "valor": "impar"
+    },
+    {
+      "tipo": "cuadrado_x",
+      "a": "I",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "I",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "D",
+      "valor": "impar"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "D",
+      "valor": "par"
+    },
+    {
+      "tipo": "primo_x",
+      "a": "D",
+      "valor": true
+    }
+  ]
+}

@@ -27,7 +27,8 @@ window.Templates = (function() {
     'ruta-del-dron': () => import('./ruta_dron.js'),
     'cubo-transportista': () => import('./cubo_transportista.js'),
     'desenreda-la-red': () => import('./red_enredada.js'),
-    'androides-en-la-fabrica': () => import('./androides_fabrica.js')
+    'androides-en-la-fabrica': () => import('./androides_fabrica.js'),
+    'senal-perdida': () => import('./senal_perdida.js')
   };
 
   // --- Función principal para renderizar plantillas ---

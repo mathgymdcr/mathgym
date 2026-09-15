@@ -1,0 +1,168 @@
+{
+  "alfabeto": [
+    "B",
+    "A",
+    "L",
+    "N",
+    "Z"
+  ],
+  "tablero": {
+    "ancho": 6,
+    "alto": 6
+  },
+  "solucion": {
+    "B": [
+      3,
+      1
+    ],
+    "A": [
+      5,
+      4
+    ],
+    "L": [
+      2,
+      4
+    ],
+    "N": [
+      1,
+      3
+    ],
+    "Z": [
+      5,
+      3
+    ]
+  },
+  "mensaje_cifrado": [
+    [
+      3,
+      1
+    ],
+    [
+      5,
+      4
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      5,
+      4
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      5,
+      3
+    ],
+    [
+      5,
+      4
+    ]
+  ],
+  "pistas": [
+    {
+      "tipo": "mismo_x",
+      "a": "A",
+      "b": "B",
+      "valor": false
+    },
+    {
+      "tipo": "orden_x",
+      "a": "A",
+      "b": "Z",
+      "valor": false
+    },
+    {
+      "tipo": "orden_y",
+      "a": "A",
+      "b": "Z",
+      "valor": false
+    },
+    {
+      "tipo": "orden_y",
+      "a": "L",
+      "b": "Z",
+      "valor": false
+    },
+    {
+      "tipo": "consecutivos_x",
+      "a": "L",
+      "b": "Z",
+      "valor": false
+    },
+    {
+      "tipo": "mismo_y",
+      "a": "N",
+      "b": "Z",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "B",
+      "valor": "impar"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "B",
+      "valor": "impar"
+    },
+    {
+      "tipo": "primo_x",
+      "a": "B",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "B",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "A",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "L",
+      "valor": "par"
+    },
+    {
+      "tipo": "primo_x",
+      "a": "L",
+      "valor": true
+    },
+    {
+      "tipo": "cuadrado_y",
+      "a": "L",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "N",
+      "valor": "impar"
+    },
+    {
+      "tipo": "cuadrado_x",
+      "a": "N",
+      "valor": true
+    },
+    {
+      "tipo": "paridad_x",
+      "a": "Z",
+      "valor": "impar"
+    },
+    {
+      "tipo": "paridad_y",
+      "a": "Z",
+      "valor": "impar"
+    },
+    {
+      "tipo": "primo_y",
+      "a": "Z",
+      "valor": true
+    }
+  ]
+}

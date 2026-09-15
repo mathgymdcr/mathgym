@@ -27,6 +27,7 @@ import { buildDronPuzzle } from './dron-logic.js';
 import { buildCuboPuzzle } from './cubo-logic.js';
 import { buildRedPuzzle } from './red-logic.js';
 import { buildAndroidesPuzzle } from './androides-logic.js';
+import { buildSenalPuzzle } from './senal-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -67,7 +68,8 @@ class MathGymGenerator {
       'ruta-del-dron': this.generateDron.bind(this),
       'cubo-transportista': this.generateCubo.bind(this),
       'desenreda-la-red': this.generateRed.bind(this),
-      'androides-en-la-fabrica': this.generateAndroides.bind(this)
+      'androides-en-la-fabrica': this.generateAndroides.bind(this),
+      'senal-perdida': this.generateSenal.bind(this)
     };
   }
 
@@ -1000,6 +1002,41 @@ class MathGymGenerator {
         maxErrorsFor3Stars: 0,
         maxErrorsFor2Stars: 2
       },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateSenal(seed, fecha) {
+    // Letras ancladas a coordenadas (x,y); pistas parciales sobre paridad,
+    // primo, cuadrado perfecto, suma, orden y contacto. La unicidad y el
+    // recorte de pistas ya salen del propio generador (scripts/senal-logic.js).
+    const puzzle = buildSenalPuzzle(seed);
+    const { palabra, alfabeto, tablero, solucion, mensajeCifrado, pistas, dificultad } = puzzle;
+
+    const payload = {
+      alfabeto,
+      tablero,
+      solucion,
+      mensaje_cifrado: mensajeCifrado,
+      pistas
+    };
+
+    const dataFileName = `senal-perdida_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-senal-perdida-001`,
+      tipo: 'senal-perdida',
+      variant: palabra.toLowerCase(),
+      dificultad,
+      categorias: ['logica', 'deduccion'],
+      // Sin par de movimientos: es deduccion pura, no hay "numero minimo de
+      // intentos" bien definido -- mismo patron que desenreda-la-red.
+      objectives: { winCondition: 'todas_las_letras_colocadas' },
       data: { json_url: `data/${dataFileName}` }
     };
   }

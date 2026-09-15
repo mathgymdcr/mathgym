@@ -4540,3 +4540,115 @@ section.groups { margin-top: 52px; }
 .red-nodo:disabled {
   cursor: default;
 }
+
+/* ===== Señal Perdida ===== */
+.senal-pistas {
+  background: var(--surface-2, #212b3b);
+  border: 1px solid var(--card-b);
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin: 0 auto 14px;
+  max-width: min(460px, 90vw);
+}
+
+.senal-pistas h4 {
+  margin: 4px 0 6px;
+  font-size: .9rem;
+  color: var(--muted);
+}
+
+.senal-pistas ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: .85rem;
+  line-height: 1.5;
+}
+
+.senal-mensaje {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin: 0 auto 16px;
+}
+
+.senal-mensaje-letra {
+  width: 32px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 3px solid var(--brand);
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--fg);
+}
+
+.senal-tablero {
+  display: grid;
+  gap: 2px;
+  max-width: min(420px, 90vw);
+  aspect-ratio: 1;
+  margin: 0 auto 18px;
+  background: var(--card-b);
+  border: 2px solid var(--card-b);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.senal-celda {
+  position: relative;
+  background: var(--surface-2, #212b3b);
+  border: none;
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  aspect-ratio: 1;
+}
+
+.senal-celda.ocupada {
+  background: rgba(209, 99, 204, .22);
+}
+
+.senal-celda:disabled {
+  cursor: default;
+}
+
+.senal-bandeja {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.senal-letra {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--card-b);
+  background: var(--surface-2, #212b3b);
+  color: var(--fg);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.senal-letra:hover {
+  border-color: var(--accent);
+}
+
+.senal-letra.seleccionada {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(209, 99, 204, .35);
+}
+
+.senal-letra.colocada {
+  opacity: .4;
+  cursor: default;
+}
