@@ -52,12 +52,11 @@ export async function render(root, data, hooks) {
       <p><strong>Objetivo:</strong> coloca los ${nCajas} personajes en las cápsulas de la estación para que la nave los entregue en el orden que marca la fila de siluetas bajo la estación.</p>
       <ul>
         <li>La nave gira en sentido horario (como las agujas del reloj).</li>
-        <li>Empieza apuntando a la cápsula 1.</li>
-        <li>En cada parada recoge al personaje de esa cápsula.</li>
-        <li>Después salta ${patronSalto} cápsula${patronSalto === 1 ? '' : 's'} con personaje sin recogerlo${patronSalto === 1 ? '' : 's'}.</li>
+        <li>Empieza apuntando a la cápsula 1, sin recogerla todavía.</li>
+        <li>Salta ${patronSalto} cápsula${patronSalto === 1 ? '' : 's'} con personaje sin recogerlo${patronSalto === 1 ? '' : 's'}.</li>
         <li>Una cápsula ya vaciada no cuenta para ese salto.</li>
         <li>Para en la siguiente cápsula con personaje y lo recoge.</li>
-        <li>Repite hasta recogerlos todos.</li>
+        <li>Repite el salto y la recogida hasta recogerlos todos.</li>
         <li>Toca un personaje de la bandeja y luego una cápsula vacía para colocarlo.</li>
         <li>Toca una cápsula ya ocupada para devolver ese personaje a la bandeja.</li>
         <li>Pulsa «Iniciar» cuando la estación esté completa.</li>
