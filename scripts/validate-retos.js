@@ -20,6 +20,7 @@ import { contarSoluciones as contarRadar, cuentaVecinos } from './radar-logic.js
 import { evaluaTablero } from './dron-logic.js';
 import { bfsDesde as bfsCubo } from './cubo-logic.js';
 import { cuentaCruces } from './red-logic.js';
+import { contarSolucionesModelo as contarAndroidesModelo, contarSolucionesClase as contarAndroidesClase } from './androides-logic.js';
 import { TIPOS, tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -179,6 +180,10 @@ class RetoValidator {
 
       case 'desenreda-la-red':
         await this.validateRedData(reto);
+        break;
+
+      case 'androides-en-la-fabrica':
+        await this.validateAndroidesData(reto);
         break;
     }
   }
@@ -1405,6 +1410,118 @@ class RetoValidator {
     const cruces = cuentaCruces(data.posiciones_iniciales, data.aristas);
     if (cruces < 1) {
       throw new Error('Desenreda-la-red reto trivial: las posiciones iniciales no tienen ningún cruce');
+    }
+  }
+
+  async validateAndroidesData(reto) {
+    if (!reto.data.json_url) {
+      throw new Error('Androides-en-la-fabrica reto missing json_url');
+    }
+
+    const dataPath = reto.data.json_url;
+    const dataContent = await fs.readFile(dataPath, 'utf8');
+    const data = JSON.parse(dataContent);
+
+    const n = data.tablero && data.tablero.ancho;
+    if (![3, 4].includes(n) || (data.tablero && data.tablero.alto) !== n) {
+      throw new Error(`Androides-en-la-fabrica tablero inválido: ${JSON.stringify(data.tablero)}`);
+    }
+    if (data.numClases !== n) {
+      throw new Error(`Androides-en-la-fabrica numClases inválido: ${data.numClases} (se esperaba ${n})`);
+    }
+
+    // Capa modelo: cuadrado latino.
+    if (!Array.isArray(data.solucionModelo) || data.solucionModelo.length !== n) {
+      throw new Error('Androides-en-la-fabrica solucionModelo inválida');
+    }
+    for (const fila of data.solucionModelo) {
+      if (!Array.isArray(fila) || fila.length !== n || new Set(fila).size !== n) {
+        throw new Error('Androides-en-la-fabrica solucionModelo no es un cuadrado latino válido (fila repetida)');
+      }
+      for (const v of fila) {
+        if (!Number.isInteger(v) || v < 1 || v > n) {
+          throw new Error(`Androides-en-la-fabrica valor de modelo fuera de rango: ${v}`);
+        }
+      }
+    }
+    for (let c = 0; c < n; c++) {
+      const columna = data.solucionModelo.map((fila) => fila[c]);
+      if (new Set(columna).size !== n) {
+        throw new Error(`Androides-en-la-fabrica solucionModelo no es un cuadrado latino válido (columna ${c} repetida)`);
+      }
+    }
+
+    // Capa clase: rejilla libre de 0..numClases-1.
+    if (!Array.isArray(data.solucionClase) || data.solucionClase.length !== n) {
+      throw new Error('Androides-en-la-fabrica solucionClase inválida');
+    }
+    for (const fila of data.solucionClase) {
+      if (!Array.isArray(fila) || fila.length !== n) {
+        throw new Error('Androides-en-la-fabrica solucionClase con fila inválida');
+      }
+      for (const v of fila) {
+        if (!Number.isInteger(v) || v < 0 || v >= n) {
+          throw new Error(`Androides-en-la-fabrica valor de clase fuera de rango: ${v}`);
+        }
+      }
+    }
+
+    if (!Array.isArray(data.dadosModelo) || !Array.isArray(data.dadosClase) || !Array.isArray(data.pistasPares)) {
+      throw new Error('Androides-en-la-fabrica reto sin dados/pistas');
+    }
+
+    const dadosModeloMap = new Map();
+    for (const { f, c, valor } of data.dadosModelo) {
+      if (!Number.isInteger(f) || !Number.isInteger(c) || f < 0 || f >= n || c < 0 || c >= n) {
+        throw new Error(`Androides-en-la-fabrica dado de modelo fuera de tablero: [${f},${c}]`);
+      }
+      if (data.solucionModelo[f][c] !== valor) {
+        throw new Error(`Androides-en-la-fabrica dado de modelo [${f},${c}]=${valor} no coincide con la solución`);
+      }
+      dadosModeloMap.set(`${f},${c}`, valor);
+    }
+
+    const dadosClaseMap = new Map();
+    for (const { f, c, valor } of data.dadosClase) {
+      if (!Number.isInteger(f) || !Number.isInteger(c) || f < 0 || f >= n || c < 0 || c >= n) {
+        throw new Error(`Androides-en-la-fabrica dado de clase fuera de tablero: [${f},${c}]`);
+      }
+      if (data.solucionClase[f][c] !== valor) {
+        throw new Error(`Androides-en-la-fabrica dado de clase [${f},${c}]=${valor} no coincide con la solución`);
+      }
+      dadosClaseMap.set(`${f},${c}`, valor);
+    }
+
+    for (const p of data.pistasPares) {
+      const [fa, ca] = p.a;
+      const [fb, cb] = p.b;
+      const adyacentes = (fa === fb && Math.abs(ca - cb) === 1) || (ca === cb && Math.abs(fa - fb) === 1);
+      if (!adyacentes) {
+        throw new Error(`Androides-en-la-fabrica pista de par no adyacente: ${JSON.stringify(p)}`);
+      }
+      const iguales = data.solucionClase[fa][ca] === data.solucionClase[fb][cb];
+      if (iguales !== p.misma) {
+        throw new Error(`Androides-en-la-fabrica pista de par [${JSON.stringify(p)}] no coincide con la solución`);
+      }
+    }
+
+    // Solvencia y unicidad de las DOS capas, recalculadas sobre el
+    // payload publicado -- no se confía en que la generación siga siendo
+    // única (mismo patrón que fabrica-de-bloques/hashi/nonograma/riego).
+    const { soluciones: solsModelo, primera: primModelo } = contarAndroidesModelo(n, dadosModeloMap, { tope: 2 });
+    if (solsModelo !== 1) {
+      throw new Error(`Androides-en-la-fabrica capa modelo sin solución única: ${solsModelo} solucion(es)`);
+    }
+    if (JSON.stringify(primModelo) !== JSON.stringify(data.solucionModelo)) {
+      throw new Error('Androides-en-la-fabrica la solucionModelo publicada no coincide con la que el solver encuentra');
+    }
+
+    const { soluciones: solsClase, primera: primClase } = contarAndroidesClase(n, n, dadosClaseMap, data.pistasPares, { tope: 2 });
+    if (solsClase !== 1) {
+      throw new Error(`Androides-en-la-fabrica capa clase sin solución única: ${solsClase} solucion(es)`);
+    }
+    if (JSON.stringify(primClase) !== JSON.stringify(data.solucionClase)) {
+      throw new Error('Androides-en-la-fabrica la solucionClase publicada no coincide con la que el solver encuentra');
     }
   }
 

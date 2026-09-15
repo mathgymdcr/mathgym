@@ -66,7 +66,10 @@ const SEMILLAS = {
   // 5x5: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
   'cubo-transportista': 2,
   // 8 nodos: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
-  'desenreda-la-red': 2
+  'desenreda-la-red': 2,
+  // 3x3/3 clases: el tamaño más pequeño de las dos variantes, para que la
+  // vitrina enseñe las dos capas (modelo + clase) sin abrumar.
+  'androides-en-la-fabrica': 0
 };
 
 async function main() {

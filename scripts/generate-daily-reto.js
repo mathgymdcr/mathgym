@@ -26,6 +26,7 @@ import { buildRadarPuzzle } from './radar-logic.js';
 import { buildDronPuzzle } from './dron-logic.js';
 import { buildCuboPuzzle } from './cubo-logic.js';
 import { buildRedPuzzle } from './red-logic.js';
+import { buildAndroidesPuzzle } from './androides-logic.js';
 import { tipoInfo } from '../catalogo-tipos.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -65,7 +66,8 @@ class MathGymGenerator {
       'radar-asteroides': this.generateRadar.bind(this),
       'ruta-del-dron': this.generateDron.bind(this),
       'cubo-transportista': this.generateCubo.bind(this),
-      'desenreda-la-red': this.generateRed.bind(this)
+      'desenreda-la-red': this.generateRed.bind(this),
+      'androides-en-la-fabrica': this.generateAndroides.bind(this)
     };
   }
 
@@ -969,6 +971,35 @@ class MathGymGenerator {
       // optimizacion -- cualquier disposicion final sin cruces vale, asi
       // que no hay "numero minimo de arrastres" que medir.
       objectives: { winCondition: 'no_crossings' },
+      data: { json_url: `data/${dataFileName}` }
+    };
+  }
+
+  async generateAndroides(seed, fecha) {
+    // Cuadrado latino (modelo) + clases con pistas de adyacencia, dos
+    // capas independientes. La unicidad de ambas se recomprueba dentro
+    // del propio generador antes de devolver el puzzle.
+    const puzzle = buildAndroidesPuzzle(seed);
+    const { variant, dificultad, payload } = puzzle;
+
+    const dataFileName = `androides-en-la-fabrica_${fecha}.json`;
+    await fs.mkdir('data', { recursive: true });
+    await fs.writeFile(
+      path.join('data', dataFileName),
+      JSON.stringify(payload, null, 2)
+    );
+
+    return {
+      id: `${fecha}-androides-en-la-fabrica-001`,
+      tipo: 'androides-en-la-fabrica',
+      variant,
+      dificultad,
+      categorias: ['logica', 'espacial'],
+      objectives: {
+        winCondition: 'grid_matches_solution',
+        maxErrorsFor3Stars: 0,
+        maxErrorsFor2Stars: 2
+      },
       data: { json_url: `data/${dataFileName}` }
     };
   }
