@@ -128,7 +128,12 @@ async function mostrarEjemplo(tipo) {
   if (!cont) return;
 
   cont.innerHTML = '<div class="skeleton">Cargando ejemplo…</div>';
-  const nombre = tipoInfo(tipo).nombre;
+  const ficha = tipoInfo(tipo);
+  // Un tipo `oculto` (ver catalogo-tipos.js) no se publica todavía: mismo
+  // trato que un tipo inexistente, para que ?tipo= no sea la puerta trasera
+  // que sí es debug.html a propósito (con su contraseña).
+  if (ficha.oculto) throw new Error(`Tipo desconocido en el catálogo: ${tipo}`);
+  const nombre = ficha.nombre;
 
   const barra = document.createElement('div');
   barra.className = 'aviso-ejemplo';
