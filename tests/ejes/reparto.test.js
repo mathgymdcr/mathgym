@@ -6,7 +6,6 @@ import * as laser from '../../scripts/laser-triangular-logic.js'
 import * as nonograma from '../../scripts/nonograma-logic.js'
 import * as hashi from '../../scripts/hashi-logic.js'
 import * as riego from '../../scripts/riego-logic.js'
-import * as codigoSecreto from '../../scripts/codigo-secreto-logic.js'
 
 // El fallo que este test existe para impedir:
 //
@@ -20,14 +19,20 @@ import * as codigoSecreto from '../../scripts/codigo-secreto-logic.js'
 // Los seeds sinteticos NO lo ven: recorren todos los residuos. Hay que
 // barrer las fechas que de verdad le tocan a cada tipo.
 
+// codigo-secreto queda fuera de este mapa a propósito: sigue `oculto: true`
+// en catalogo-tipos.js (lanzamiento pendiente de campaña de redes), así que
+// `selectTemplate` lo excluye de la rotación diaria y seedsRealesDe() no le
+// encuentra ninguna fecha real -- por diseño, no por el bug de seed%12 que
+// este archivo vigila. Sus 18 variantes ya se comprueban sobre seeds
+// sintéticos en tests/codigo-secreto/logica.test.js. Cuando se publique
+// (se le quite oculto), hay que volver a añadirlo aquí.
 const MODULOS = {
   'anillas-encadenadas': anillas,
   'cajas-apiladas': cajas,
   'laser-triangular': laser,
   'nonograma': nonograma,
   'puentes-hashi': hashi,
-  'riego-plantas': riego,
-  'codigo-secreto': codigoSecreto
+  'riego-plantas': riego
 }
 
 // Cuantas variantes distintas tiene que publicar cada tipo. nonograma tiene
@@ -37,16 +42,14 @@ const MODULOS = {
 // cuenta como eje aparte: no la sortea el generador, sale sola del ruido de
 // la ventana (ver tests/riego/generador.test.js), asi que no tiene una
 // varianteDeSeed que verificar aqui. puentes-hashi tiene dos ejes (tamano y
-// formas de chip). codigo-secreto tiene tres (longitud, colores disponibles
-// y repeticion) y los 18 salen sobre 111 dias reales en 4 anios.
+// formas de chip).
 const ESPERADAS = {
   'anillas-encadenadas': 3,
   'cajas-apiladas': 3,
   'laser-triangular': 8,
   'nonograma': 5,
   'puentes-hashi': 4,
-  'riego-plantas': 6,
-  'codigo-secreto': 18
+  'riego-plantas': 6
 }
 
 function seedsRealesDe(tipo, dias = 1460) {
