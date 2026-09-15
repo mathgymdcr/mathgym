@@ -1,0 +1,26 @@
+{
+  "id": "2026-09-14-puentes-hashi-001",
+  "tipo": "puentes-hashi",
+  "variant": "pequeno",
+  "dificultad": 2,
+  "categorias": [
+    "logica",
+    "grafos"
+  ],
+  "hints": [
+    "Empieza por el chip de 4 de la fila 3, columna 4: solo tiene 2 vecinos alineados, así que necesita el máximo con todos ellos y sus cables son dobles sin más que mirarlo.",
+    "En total hay que tender 12 cables, de los cuales 4 son dobles. Cuando dudes, mira los cruces: si un cable vertical tapa el paso a uno horizontal, uno de los dos sobra, y muchas veces eso decide el otro.",
+    "Que cuadren todos los números no basta: al final todos los chips tienen que quedar unidos en una sola red. Si te salen dos grupos separados con las cuentas correctas, hay que deshacer algún cable doble y repartirlo hacia el otro grupo."
+  ],
+  "objectives": {
+    "winCondition": "all_islands_connected",
+    "parMoves": 12,
+    "maxMovesFor3Stars": 12,
+    "maxMovesFor2Stars": 16
+  },
+  "data": {
+    "json_url": "data/hashi_2026-09-14.json"
+  },
+  "titulo": "Conecta los Chips",
+  "fecha": "2026-09-14"
+}

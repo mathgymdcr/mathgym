@@ -1,0 +1,26 @@
+{
+  "id": "2026-09-13-relojes-arena-001",
+  "tipo": "relojes-arena",
+  "variant": "clasico",
+  "dificultad": 4,
+  "categorias": [
+    "logica",
+    "tiempo"
+  ],
+  "hints": [
+    "Tienes relojes de 2 min, 11 min y 12 min. La clave es que un reloj parado a medias sirve como otro reloj distinto: si el de 12 min se para con 4 min de arena arriba y lo volteas, mide 8 min.",
+    "Pulsa \"Empezar tiempo\" antes de la primera vuelta: el objetivo (8 min) se cuenta desde ahí.",
+    "La solución mínima son 3 vueltas de arena: 2 + 2 + 4 = 8 min."
+  ],
+  "objectives": {
+    "winCondition": "measure_target_time",
+    "parMoves": 3,
+    "maxMovesFor3Stars": 3,
+    "maxMovesFor2Stars": 5
+  },
+  "data": {
+    "json_url": "data/relojes_2026-09-13.json"
+  },
+  "titulo": "Relojes de Arena",
+  "fecha": "2026-09-13"
+}

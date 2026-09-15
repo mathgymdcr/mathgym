@@ -215,5 +215,32 @@
       "logica",
       "tablero"
     ]
+  },
+  {
+    "fecha": "2026-09-13",
+    "titulo": "Relojes de Arena",
+    "dificultad": 4,
+    "categorias": [
+      "logica",
+      "tiempo"
+    ]
+  },
+  {
+    "fecha": "2026-09-14",
+    "titulo": "Conecta los Chips",
+    "dificultad": 2,
+    "categorias": [
+      "logica",
+      "grafos"
+    ]
+  },
+  {
+    "fecha": "2026-09-15",
+    "titulo": "Objeto Oculto",
+    "dificultad": 4,
+    "categorias": [
+      "logica",
+      "deduccion"
+    ]
   }
 ]

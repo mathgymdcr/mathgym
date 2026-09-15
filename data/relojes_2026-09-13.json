@@ -1,0 +1,11 @@
+{
+  "variant": "clasico",
+  "glasses": [
+    2,
+    11,
+    12
+  ],
+  "target": 8,
+  "tolerance": 0.25,
+  "min_rondas": 3
+}
