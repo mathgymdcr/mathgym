@@ -215,6 +215,16 @@ export const TIPOS = [
     generado: true,
     // En desarrollo: sin merge a producción todavía.
     oculto: true
+  },
+  {
+    tipo: 'trazo-perimetral',
+    nombre: 'El Trazo Perimetral',
+    grupo: 'Deducción',
+    icono: 'assets/icono-trazo-perimetral.svg',
+    resumen: 'Traza un único circuito cerrado que cumpla, en cada celda numerada, cuántos de sus lados forman parte de él.',
+    generado: true,
+    // En desarrollo: sin merge a producción todavía.
+    oculto: true
   }
 ];
 

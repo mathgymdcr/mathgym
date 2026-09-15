@@ -72,7 +72,9 @@ const SEMILLAS = {
   'androides-en-la-fabrica': 0,
   // ENIGMA (6 letras, rejilla 6x6): la palabra más corta del banco, para
   // que la vitrina enseñe la mecánica sin abrumar con demasiadas pistas.
-  'senal-perdida': 0
+  'senal-perdida': 0,
+  // 5x5: el tamaño más pequeño, para que la vitrina se lea de un vistazo.
+  'trazo-perimetral': 2
 };
 
 async function main() {

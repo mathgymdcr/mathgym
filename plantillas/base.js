@@ -28,7 +28,8 @@ window.Templates = (function() {
     'cubo-transportista': () => import('./cubo_transportista.js'),
     'desenreda-la-red': () => import('./red_enredada.js'),
     'androides-en-la-fabrica': () => import('./androides_fabrica.js'),
-    'senal-perdida': () => import('./senal_perdida.js')
+    'senal-perdida': () => import('./senal_perdida.js'),
+    'trazo-perimetral': () => import('./trazo_perimetral.js')
   };
 
   // --- Función principal para renderizar plantillas ---
