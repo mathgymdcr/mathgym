@@ -196,15 +196,16 @@ export async function render(root, data, hooks) {
       ? `¡Resuelto en el mínimo de ${state.moves} movimientos!`
       : `Resuelto en ${state.moves} movimientos (el mínimo era ${minMoves}).`;
     setStatus(ui.status, message, 'ok');
-    // Igual que en cajas.js: primero se registra la victoria y después se
-    // celebra, envuelto, para que un fallo del confeti (que pinta en un
-    // <canvas>) no se lleve por delante el progreso del jugador.
-    if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.moves });
+    // celebrate() primero: pinta el overlay donde onSuccess (vía
+    // pintarEstrellas/pintarCompartir en script.js) necesita insertar las
+    // estrellas y el botón de compartir. Al revés, esos dos no encuentran
+    // `.celebration-overlay` todavía y no se pintan.
     try {
       celebrate({ ok: perfect, message });
     } catch (err) {
       console.warn('No se pudo pintar la celebración:', err);
     }
+    if (hooks && hooks.onSuccess) hooks.onSuccess({ movimientos: state.moves });
   }
 
   function refresh() {
