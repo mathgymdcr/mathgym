@@ -311,5 +311,23 @@
       3
     ]
   ],
-  "caso": "festival-de-entradas-falsas"
+  "caso": "festival-de-entradas-falsas",
+  "sospechosos": [
+    {
+      "fila": 2,
+      "columna": 5,
+      "valorAfirmado": 1
+    },
+    {
+      "fila": 5,
+      "columna": 3,
+      "valorAfirmado": 6
+    },
+    {
+      "fila": 1,
+      "columna": 4,
+      "valorAfirmado": 2
+    }
+  ],
+  "culpable": 0
 }

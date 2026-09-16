@@ -212,5 +212,23 @@
       5
     ]
   ],
-  "caso": "distribuidora-farmaceutica"
+  "caso": "distribuidora-farmaceutica",
+  "sospechosos": [
+    {
+      "fila": 3,
+      "columna": 2,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 3,
+      "columna": 3,
+      "valorAfirmado": 5
+    },
+    {
+      "fila": 0,
+      "columna": 3,
+      "valorAfirmado": 1
+    }
+  ],
+  "culpable": 2
 }

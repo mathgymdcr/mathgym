@@ -4054,6 +4054,69 @@ section.groups { margin-top: 52px; }
   font-size: .8rem;
 }
 
+.fabrica-esquina,
+.fabrica-cab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: .7rem;
+  font-weight: 700;
+}
+
+.fabrica-sospechosos {
+  max-width: min(420px, 90vw);
+  margin: 0 auto 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fabrica-sospechosos-titulo {
+  text-align: center;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.fabrica-sospechoso {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--card-b);
+  background: var(--surface-2, #212b3b);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.fabrica-sospechoso:hover {
+  border-color: var(--accent);
+}
+
+.fabrica-sospechoso-nombre {
+  font-weight: 700;
+}
+
+.fabrica-sospechoso-coartada {
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.fabrica-sospechoso.culpable {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 2px rgba(209, 99, 204, .35);
+}
+
+.fabrica-sospechoso.descartado {
+  opacity: .55;
+}
+
+.fabrica-sospechoso:disabled {
+  cursor: default;
+}
+
 /* ===== Androides en la Fábrica ===== */
 .androides-info {
   color: var(--muted);

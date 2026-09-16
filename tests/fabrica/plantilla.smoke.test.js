@@ -25,7 +25,14 @@ describe('plantillas/fabrica_bloques.js con el payload del generador', () => {
 
     const root = document.createElement('div');
     let exito = null;
-    await mod.render(root, { tablero: payload.tablero, regiones: payload.regiones, solucion: payload.solucion, caso: payload.caso }, {
+    await mod.render(root, {
+      tablero: payload.tablero,
+      regiones: payload.regiones,
+      solucion: payload.solucion,
+      caso: payload.caso,
+      sospechosos: payload.sospechosos,
+      culpable: payload.culpable
+    }, {
       onSuccess: (info) => { exito = info; }
     });
 
@@ -69,6 +76,13 @@ describe('plantillas/fabrica_bloques.js con el payload del generador', () => {
     const botones = [...root.querySelectorAll('button')];
     const btnComprobar = botones.find((b) => b.textContent === 'Cerrar expediente');
     btnComprobar.click();
+
+    // Rejilla correcta desbloquea a los 3 sospechosos, pero el caso no se
+    // celebra hasta que se acusa al que de verdad mintió.
+    expect(exito).toBeNull();
+    const sospechosos = [...root.querySelectorAll('.fabrica-sospechoso')];
+    expect(sospechosos).toHaveLength(3);
+    sospechosos[payload.culpable].click();
 
     expect(exito).toEqual({ fallos: 0 });
     expect(root.querySelector('.feedback.ok')).toBeTruthy();

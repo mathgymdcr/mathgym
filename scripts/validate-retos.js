@@ -14,7 +14,7 @@ import { resuelto as laserResuelto, piezasMinimas, crearPiezas, normalizaConfig,
 import { contarSoluciones as contarRiegos, combinacionesPlanta, MARGEN_MINIMO } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { simulaSalida } from './cinta-transportadora-logic.js';
-import { contarSoluciones as contarFabrica, CASO_IDS as FABRICA_CASO_IDS } from './fabrica-logic.js';
+import { contarSoluciones as contarFabrica, culpableIndex as culpableIndexFabrica, CASO_IDS as FABRICA_CASO_IDS } from './fabrica-logic.js';
 import { contarSoluciones as contarInvernadero } from './invernadero-logic.js';
 import { contarSoluciones as contarRadar, cuentaVecinos } from './radar-logic.js';
 import { evaluaTablero } from './dron-logic.js';
@@ -1135,6 +1135,29 @@ class RetoValidator {
     }
     if (JSON.stringify(primera) !== JSON.stringify(data.solucion)) {
       throw new Error('Fabrica-de-bloques la solución publicada no coincide con la que el solver encuentra');
+    }
+
+    if (!Array.isArray(data.sospechosos) || data.sospechosos.length !== 3) {
+      throw new Error('Fabrica-de-bloques reto sin los 3 sospechosos');
+    }
+    for (const s of data.sospechosos) {
+      if (!Number.isInteger(s.fila) || s.fila < 0 || s.fila >= n) {
+        throw new Error(`Fabrica-de-bloques sospechoso con fila fuera de tablero: ${s.fila}`);
+      }
+      if (!Number.isInteger(s.columna) || s.columna < 0 || s.columna >= n) {
+        throw new Error(`Fabrica-de-bloques sospechoso con columna fuera de tablero: ${s.columna}`);
+      }
+      if (!Number.isInteger(s.valorAfirmado) || s.valorAfirmado < 1 || s.valorAfirmado > n) {
+        throw new Error(`Fabrica-de-bloques sospechoso con valorAfirmado fuera de rango: ${s.valorAfirmado}`);
+      }
+    }
+    // Recalcula quién miente sobre el payload publicado, mismo patron que
+    // la solvencia: no se confía en que `culpable` siga siendo correcto.
+    const culpableRecalculado = culpableIndexFabrica(data.solucion, data.sospechosos);
+    if (culpableRecalculado !== data.culpable) {
+      throw new Error(
+        `Fabrica-de-bloques culpable publicado (${data.culpable}) no coincide con el recalculado (${culpableRecalculado})`
+      );
     }
   }
 

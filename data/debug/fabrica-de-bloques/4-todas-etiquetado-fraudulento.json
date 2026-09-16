@@ -130,5 +130,23 @@
       3
     ]
   ],
-  "caso": "etiquetado-fraudulento"
+  "caso": "etiquetado-fraudulento",
+  "sospechosos": [
+    {
+      "fila": 1,
+      "columna": 2,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 2,
+      "columna": 2,
+      "valorAfirmado": 1
+    },
+    {
+      "fila": 2,
+      "columna": 1,
+      "valorAfirmado": 2
+    }
+  ],
+  "culpable": 2
 }

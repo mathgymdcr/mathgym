@@ -311,5 +311,23 @@
       4
     ]
   ],
-  "caso": "museo-de-la-pieza-falsa"
+  "caso": "museo-de-la-pieza-falsa",
+  "sospechosos": [
+    {
+      "fila": 1,
+      "columna": 2,
+      "valorAfirmado": 1
+    },
+    {
+      "fila": 1,
+      "columna": 3,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 2,
+      "columna": 4,
+      "valorAfirmado": 5
+    }
+  ],
+  "culpable": 0
 }

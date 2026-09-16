@@ -226,5 +226,23 @@
       1
     ]
   ],
-  "caso": "correo-interceptado"
+  "caso": "correo-interceptado",
+  "sospechosos": [
+    {
+      "fila": 4,
+      "columna": 3,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 1,
+      "columna": 2,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 3,
+      "columna": 4,
+      "valorAfirmado": 1
+    }
+  ],
+  "culpable": 2
 }

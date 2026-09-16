@@ -137,5 +137,23 @@
       4
     ]
   ],
-  "caso": "amano-deportivo"
+  "caso": "amano-deportivo",
+  "sospechosos": [
+    {
+      "fila": 2,
+      "columna": 0,
+      "valorAfirmado": 3
+    },
+    {
+      "fila": 3,
+      "columna": 2,
+      "valorAfirmado": 3
+    },
+    {
+      "fila": 0,
+      "columna": 2,
+      "valorAfirmado": 4
+    }
+  ],
+  "culpable": 0
 }

@@ -318,5 +318,23 @@
       5
     ]
   ],
-  "caso": "cargamento-fantasma"
+  "caso": "cargamento-fantasma",
+  "sospechosos": [
+    {
+      "fila": 2,
+      "columna": 0,
+      "valorAfirmado": 4
+    },
+    {
+      "fila": 3,
+      "columna": 2,
+      "valorAfirmado": 6
+    },
+    {
+      "fila": 1,
+      "columna": 2,
+      "valorAfirmado": 5
+    }
+  ],
+  "culpable": 0
 }

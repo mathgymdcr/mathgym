@@ -151,5 +151,23 @@
       2
     ]
   ],
-  "caso": "joyeria-del-mar"
+  "caso": "joyeria-del-mar",
+  "sospechosos": [
+    {
+      "fila": 2,
+      "columna": 0,
+      "valorAfirmado": 1
+    },
+    {
+      "fila": 2,
+      "columna": 1,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 2,
+      "columna": 3,
+      "valorAfirmado": 1
+    }
+  ],
+  "culpable": 0
 }

@@ -304,5 +304,23 @@
       5
     ]
   ],
-  "caso": "examen-filtrado"
+  "caso": "examen-filtrado",
+  "sospechosos": [
+    {
+      "fila": 2,
+      "columna": 2,
+      "valorAfirmado": 1
+    },
+    {
+      "fila": 5,
+      "columna": 0,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 3,
+      "columna": 4,
+      "valorAfirmado": 2
+    }
+  ],
+  "culpable": 1
 }

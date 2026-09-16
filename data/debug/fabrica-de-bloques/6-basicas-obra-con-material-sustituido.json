@@ -304,5 +304,23 @@
       4
     ]
   ],
-  "caso": "obra-con-material-sustituido"
+  "caso": "obra-con-material-sustituido",
+  "sospechosos": [
+    {
+      "fila": 4,
+      "columna": 4,
+      "valorAfirmado": 5
+    },
+    {
+      "fila": 3,
+      "columna": 5,
+      "valorAfirmado": 6
+    },
+    {
+      "fila": 3,
+      "columna": 2,
+      "valorAfirmado": 5
+    }
+  ],
+  "culpable": 0
 }

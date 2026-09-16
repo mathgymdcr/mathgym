@@ -297,5 +297,23 @@
       1
     ]
   ],
-  "caso": "distribuidora-farmaceutica"
+  "caso": "distribuidora-farmaceutica",
+  "sospechosos": [
+    {
+      "fila": 1,
+      "columna": 3,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 0,
+      "columna": 0,
+      "valorAfirmado": 4
+    },
+    {
+      "fila": 1,
+      "columna": 5,
+      "valorAfirmado": 3
+    }
+  ],
+  "culpable": 1
 }

@@ -219,5 +219,23 @@
       3
     ]
   ],
-  "caso": "laboratorio-manipulado"
+  "caso": "laboratorio-manipulado",
+  "sospechosos": [
+    {
+      "fila": 4,
+      "columna": 1,
+      "valorAfirmado": 3
+    },
+    {
+      "fila": 1,
+      "columna": 4,
+      "valorAfirmado": 5
+    },
+    {
+      "fila": 0,
+      "columna": 1,
+      "valorAfirmado": 3
+    }
+  ],
+  "culpable": 0
 }

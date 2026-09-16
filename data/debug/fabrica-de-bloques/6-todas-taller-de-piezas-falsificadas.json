@@ -311,5 +311,23 @@
       3
     ]
   ],
-  "caso": "taller-de-piezas-falsificadas"
+  "caso": "taller-de-piezas-falsificadas",
+  "sospechosos": [
+    {
+      "fila": 2,
+      "columna": 3,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 1,
+      "columna": 5,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 0,
+      "columna": 4,
+      "valorAfirmado": 2
+    }
+  ],
+  "culpable": 1
 }

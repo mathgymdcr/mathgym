@@ -212,5 +212,23 @@
       2
     ]
   ],
-  "caso": "examen-filtrado"
+  "caso": "examen-filtrado",
+  "sospechosos": [
+    {
+      "fila": 0,
+      "columna": 0,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 2,
+      "columna": 2,
+      "valorAfirmado": 2
+    },
+    {
+      "fila": 2,
+      "columna": 1,
+      "valorAfirmado": 1
+    }
+  ],
+  "culpable": 0
 }

@@ -255,6 +255,59 @@ function dificultadDe(tamano, operacionesCompletas) {
   return Math.min(5, base + (operacionesCompletas ? 1 : 0));
 }
 
+// Acusación final: 3 sospechosos, cada uno afirma "yo hice el indicio X en
+// esa franja/zona" -- dos de ellos dicen la verdad (su valor coincide con
+// `solucion`), uno miente. Las celdas, quién miente y el valor falso se
+// sortean con mascara propia sobre el SEED (mismo patron que ejesDeSeed),
+// no sobre el rng de construccion del tablero: asi no depende de cuantos
+// intentos hizo falta para cerrar el reparto de regiones.
+const N_SOSPECHOSOS = 3;
+
+function eligeCeldasSospechosos(n, seed) {
+  const rng = mulberry32((seed ^ 0x7fa3c19d) >>> 0);
+  const vistas = new Set();
+  const celdas = [];
+  while (celdas.length < N_SOSPECHOSOS) {
+    const f = Math.floor(rng() * n);
+    const c = Math.floor(rng() * n);
+    const clave = `${f},${c}`;
+    if (vistas.has(clave)) continue;
+    vistas.add(clave);
+    celdas.push([f, c]);
+  }
+  return celdas;
+}
+
+export function generaSospechosos(solucion, n, seed) {
+  const celdas = eligeCeldasSospechosos(n, seed);
+  const mentiroso = Math.floor(mulberry32((seed ^ 0x2b6e5d81) >>> 0)() * N_SOSPECHOSOS);
+  const rngValorFalso = mulberry32((seed ^ 0x468f1a2c) >>> 0);
+
+  return celdas.map(([f, c], i) => {
+    const real = solucion[f][c];
+    if (i !== mentiroso) return { fila: f, columna: c, valorAfirmado: real };
+    const alternativas = Array.from({ length: n }, (_, v) => v + 1).filter((v) => v !== real);
+    const falso = alternativas[Math.floor(rngValorFalso() * alternativas.length)];
+    return { fila: f, columna: c, valorAfirmado: falso };
+  });
+}
+
+// Recalcula quién miente a partir de la solucion y las coartadas ya
+// publicadas -- una sola implementacion que usan generador y validador,
+// para no repetir el bug de `incompatibles` en riego (dos reconstrucciones
+// independientes que se desincronizaron).
+export function culpableIndex(solucion, sospechosos) {
+  const mentirosos = sospechosos
+    .map((s, i) => (s.valorAfirmado !== solucion[s.fila][s.columna] ? i : -1))
+    .filter((i) => i !== -1);
+  if (mentirosos.length !== 1) {
+    throw new Error(
+      `culpableIndex: se esperaba exactamente un sospechoso mintiendo, hay ${mentirosos.length}`
+    );
+  }
+  return mentirosos[0];
+}
+
 // Reintenta con reparto de regiones distinto (misma solucion) hasta que
 // cierra con exactamente una solucion, igual que hashi/nonograma/riego:
 // generar y volver a comprobar es mas simple y mas robusto que intentar
@@ -276,6 +329,7 @@ export function buildFabricaPuzzle(seed) {
 
     const { soluciones } = contarSoluciones(tamano, regiones, { tope: 2 });
     if (soluciones === 1) {
+      const sospechosos = generaSospechosos(solucion, tamano, seed);
       return {
         variant: varianteDeSeed(seed),
         dificultad: dificultadDe(tamano, operacionesCompletas),
@@ -283,7 +337,9 @@ export function buildFabricaPuzzle(seed) {
           tablero: { ancho: tamano, alto: tamano },
           regiones,
           solucion,
-          caso
+          caso,
+          sospechosos,
+          culpable: culpableIndex(solucion, sospechosos)
         }
       };
     }

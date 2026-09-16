@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ejesDeSeed, varianteDeSeed, generaCuadradoLatino, construyeRegiones, calculaOperacion, contarSoluciones, buildFabricaPuzzle, CASO_IDS } from '../../scripts/fabrica-logic.js';
+import { ejesDeSeed, varianteDeSeed, generaCuadradoLatino, construyeRegiones, calculaOperacion, contarSoluciones, buildFabricaPuzzle, generaSospechosos, culpableIndex, CASO_IDS } from '../../scripts/fabrica-logic.js';
 import { CASOS } from '../../plantillas/fabrica_bloques.js';
 
 function mulberry32(seed) {
@@ -54,6 +54,69 @@ describe('CASOS de plantillas/fabrica_bloques.js', () => {
       expect(caso.brief.length).toBeGreaterThan(0);
       expect(caso.resolucion.length).toBeGreaterThan(0);
     }
+  });
+
+  it('cada caso trae exactamente 3 sospechosos con nombre no vacío', () => {
+    for (const id of CASO_IDS) {
+      const { sospechosos } = CASOS[id];
+      expect(sospechosos).toHaveLength(3);
+      for (const s of sospechosos) {
+        expect(s.nombre.length).toBeGreaterThan(0);
+      }
+    }
+  });
+});
+
+describe('generaSospechosos / culpableIndex', () => {
+  it('siempre hay exactamente un mentiroso entre los 3 sospechosos, para muchas semillas y tamaños', () => {
+    for (const n of [4, 5, 6]) {
+      const rng = mulberry32(n * 131 + 7);
+      const solucion = generaCuadradoLatino(n, rng);
+      for (let seed = 0; seed < 200; seed++) {
+        const sospechosos = generaSospechosos(solucion, n, seed);
+        expect(sospechosos).toHaveLength(3);
+        for (const s of sospechosos) {
+          expect(s.fila).toBeGreaterThanOrEqual(0);
+          expect(s.fila).toBeLessThan(n);
+          expect(s.columna).toBeGreaterThanOrEqual(0);
+          expect(s.columna).toBeLessThan(n);
+          expect(s.valorAfirmado).toBeGreaterThanOrEqual(1);
+          expect(s.valorAfirmado).toBeLessThanOrEqual(n);
+        }
+        // No lanza: hay exactamente un mentiroso, culpableIndex no revienta.
+        const culpable = culpableIndex(solucion, sospechosos);
+        expect(culpable).toBeGreaterThanOrEqual(0);
+        expect(culpable).toBeLessThan(3);
+      }
+    }
+  });
+
+  it('las 3 celdas de los sospechosos son siempre distintas entre sí', () => {
+    const rng = mulberry32(999);
+    const n = 5;
+    const solucion = generaCuadradoLatino(n, rng);
+    for (let seed = 0; seed < 100; seed++) {
+      const sospechosos = generaSospechosos(solucion, n, seed);
+      const claves = new Set(sospechosos.map((s) => `${s.fila},${s.columna}`));
+      expect(claves.size).toBe(3);
+    }
+  });
+
+  it('culpableIndex revienta si no hay exactamente un mentiroso', () => {
+    const solucion = [[1, 2], [2, 1]];
+    const sinMentirosos = [
+      { fila: 0, columna: 0, valorAfirmado: 1 },
+      { fila: 0, columna: 1, valorAfirmado: 2 },
+      { fila: 1, columna: 0, valorAfirmado: 2 }
+    ];
+    expect(() => culpableIndex(solucion, sinMentirosos)).toThrow();
+
+    const dosMentirosos = [
+      { fila: 0, columna: 0, valorAfirmado: 2 },
+      { fila: 0, columna: 1, valorAfirmado: 1 },
+      { fila: 1, columna: 0, valorAfirmado: 2 }
+    ];
+    expect(() => culpableIndex(solucion, dosMentirosos)).toThrow();
   });
 });
 
@@ -190,6 +253,9 @@ describe('buildFabricaPuzzle', () => {
       const { soluciones, primera } = contarSoluciones(n, payload.regiones, { tope: 2 });
       expect(soluciones).toBe(1);
       expect(primera).toEqual(payload.solucion);
+
+      expect(payload.sospechosos).toHaveLength(3);
+      expect(culpableIndex(payload.solucion, payload.sospechosos)).toBe(payload.culpable);
     }
   });
 });
