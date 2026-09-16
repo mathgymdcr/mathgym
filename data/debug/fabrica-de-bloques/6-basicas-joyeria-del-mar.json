@@ -1,0 +1,301 @@
+{
+  "tablero": {
+    "ancho": 6,
+    "alto": 6
+  },
+  "regiones": [
+    {
+      "id": 1,
+      "celdas": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 9
+    },
+    {
+      "id": 2,
+      "celdas": [
+        [
+          0,
+          2
+        ]
+      ],
+      "operacion": null,
+      "objetivo": 2
+    },
+    {
+      "id": 3,
+      "celdas": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 13
+    },
+    {
+      "id": 4,
+      "celdas": [
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 13
+    },
+    {
+      "id": 5,
+      "celdas": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          0
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 15
+    },
+    {
+      "id": 6,
+      "celdas": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 16
+    },
+    {
+      "id": 7,
+      "celdas": [
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "operacion": "resta",
+      "objetivo": 3
+    },
+    {
+      "id": 8,
+      "celdas": [
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 6
+    },
+    {
+      "id": 9,
+      "celdas": [
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          3
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 14
+    },
+    {
+      "id": 10,
+      "celdas": [
+        [
+          4,
+          0
+        ]
+      ],
+      "operacion": null,
+      "objetivo": 1
+    },
+    {
+      "id": 11,
+      "celdas": [
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ]
+      ],
+      "operacion": "resta",
+      "objetivo": 1
+    },
+    {
+      "id": 12,
+      "celdas": [
+        [
+          5,
+          0
+        ]
+      ],
+      "operacion": null,
+      "objetivo": 6
+    },
+    {
+      "id": 13,
+      "celdas": [
+        [
+          5,
+          1
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 11
+    },
+    {
+      "id": 14,
+      "celdas": [
+        [
+          5,
+          5
+        ]
+      ],
+      "operacion": null,
+      "objetivo": 4
+    }
+  ],
+  "solucion": [
+    [
+      5,
+      1,
+      2,
+      4,
+      3,
+      6
+    ],
+    [
+      4,
+      3,
+      1,
+      6,
+      2,
+      5
+    ],
+    [
+      3,
+      6,
+      4,
+      2,
+      5,
+      1
+    ],
+    [
+      2,
+      5,
+      6,
+      1,
+      4,
+      3
+    ],
+    [
+      1,
+      4,
+      5,
+      3,
+      6,
+      2
+    ],
+    [
+      6,
+      2,
+      3,
+      5,
+      1,
+      4
+    ]
+  ],
+  "caso": "joyeria-del-mar"
+}

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { ejesDeSeed, varianteDeSeed, generaCuadradoLatino, construyeRegiones, calculaOperacion, contarSoluciones, buildFabricaPuzzle } from '../../scripts/fabrica-logic.js';
+import { ejesDeSeed, varianteDeSeed, generaCuadradoLatino, construyeRegiones, calculaOperacion, contarSoluciones, buildFabricaPuzzle, CASO_IDS } from '../../scripts/fabrica-logic.js';
+import { CASOS } from '../../plantillas/fabrica_bloques.js';
 
 function mulberry32(seed) {
   let a = seed >>> 0;
@@ -30,6 +31,29 @@ describe('ejesDeSeed / varianteDeSeed', () => {
     const v2 = varianteDeSeed(1);
     expect(v1).toBe(v2);
     expect(typeof v1).toBe('string');
+  });
+
+  it('el caso cae siempre en uno de CASO_IDS', () => {
+    for (let seed = 0; seed < 200; seed++) {
+      const { caso } = ejesDeSeed(seed);
+      expect(CASO_IDS).toContain(caso);
+    }
+  });
+});
+
+describe('CASOS de plantillas/fabrica_bloques.js', () => {
+  it('tiene exactamente las mismas claves que CASO_IDS -- ni de más ni de menos', () => {
+    expect(new Set(Object.keys(CASOS))).toEqual(new Set(CASO_IDS));
+    expect(Object.keys(CASOS)).toHaveLength(CASO_IDS.length);
+  });
+
+  it('cada caso trae titular, brief y resolucion no vacíos', () => {
+    for (const id of CASO_IDS) {
+      const caso = CASOS[id];
+      expect(caso.titular.length).toBeGreaterThan(0);
+      expect(caso.brief.length).toBeGreaterThan(0);
+      expect(caso.resolucion.length).toBeGreaterThan(0);
+    }
   });
 });
 

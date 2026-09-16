@@ -1049,7 +1049,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "8-salto2-descendente",
     "seed": 0,
     "dificultad": 4,
@@ -1057,7 +1057,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "10-salto2-descendente",
     "seed": 1,
     "dificultad": 5,
@@ -1065,7 +1065,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "10-salto2-intercalado",
     "seed": 3,
     "dificultad": 5,
@@ -1073,7 +1073,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "10-salto2-ascendente",
     "seed": 4,
     "dificultad": 5,
@@ -1081,7 +1081,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "10-salto1-ascendente",
     "seed": 5,
     "dificultad": 4,
@@ -1089,7 +1089,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "6-salto2-ascendente",
     "seed": 7,
     "dificultad": 3,
@@ -1097,7 +1097,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "8-salto2-ascendente",
     "seed": 10,
     "dificultad": 4,
@@ -1105,7 +1105,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "10-salto1-descendente",
     "seed": 11,
     "dificultad": 4,
@@ -1113,7 +1113,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "6-salto1-descendente",
     "seed": 13,
     "dificultad": 2,
@@ -1121,7 +1121,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "8-salto2-intercalado",
     "seed": 14,
     "dificultad": 5,
@@ -1129,7 +1129,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "6-salto1-intercalado",
     "seed": 16,
     "dificultad": 3,
@@ -1137,7 +1137,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "8-salto1-intercalado",
     "seed": 18,
     "dificultad": 4,
@@ -1145,7 +1145,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "6-salto2-descendente",
     "seed": 22,
     "dificultad": 3,
@@ -1153,7 +1153,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "6-salto1-ascendente",
     "seed": 26,
     "dificultad": 2,
@@ -1161,7 +1161,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "8-salto1-descendente",
     "seed": 28,
     "dificultad": 3,
@@ -1169,7 +1169,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "6-salto2-intercalado",
     "seed": 33,
     "dificultad": 4,
@@ -1177,7 +1177,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "8-salto1-ascendente",
     "seed": 41,
     "dificultad": 3,
@@ -1185,7 +1185,7 @@
   },
   {
     "tipo": "cinta-transportadora",
-    "titulo": "La Cinta Sin Fin",
+    "titulo": "La Ronda Espacial",
     "variant": "10-salto1-intercalado",
     "seed": 51,
     "dificultad": 5,
@@ -1193,51 +1193,483 @@
   },
   {
     "tipo": "fabrica-de-bloques",
-    "titulo": "Fábrica de Bloques",
-    "variant": "6-basicas",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-laboratorio-manipulado",
     "seed": 0,
     "dificultad": 4,
-    "json_url": "data/debug/fabrica-de-bloques/6-basicas.json"
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-laboratorio-manipulado.json"
   },
   {
     "tipo": "fabrica-de-bloques",
-    "titulo": "Fábrica de Bloques",
-    "variant": "4-todas",
+    "titulo": "Expediente 6x6",
+    "variant": "4-todas-distribuidora-farmaceutica",
     "seed": 1,
     "dificultad": 3,
-    "json_url": "data/debug/fabrica-de-bloques/4-todas.json"
+    "json_url": "data/debug/fabrica-de-bloques/4-todas-distribuidora-farmaceutica.json"
   },
   {
     "tipo": "fabrica-de-bloques",
-    "titulo": "Fábrica de Bloques",
-    "variant": "5-todas",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-joyeria-del-mar",
+    "seed": 2,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-joyeria-del-mar.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-etiquetado-fraudulento",
     "seed": 3,
     "dificultad": 4,
-    "json_url": "data/debug/fabrica-de-bloques/5-todas.json"
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-etiquetado-fraudulento.json"
   },
   {
     "tipo": "fabrica-de-bloques",
-    "titulo": "Fábrica de Bloques",
-    "variant": "5-basicas",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-etiquetado-fraudulento",
+    "seed": 4,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-etiquetado-fraudulento.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-basicas-taller-de-piezas-falsificadas",
     "seed": 5,
     "dificultad": 3,
-    "json_url": "data/debug/fabrica-de-bloques/5-basicas.json"
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas-taller-de-piezas-falsificadas.json"
   },
   {
     "tipo": "fabrica-de-bloques",
-    "titulo": "Fábrica de Bloques",
-    "variant": "6-todas",
+    "titulo": "Expediente 6x6",
+    "variant": "6-todas-distribuidora-farmaceutica",
     "seed": 6,
     "dificultad": 5,
-    "json_url": "data/debug/fabrica-de-bloques/6-todas.json"
+    "json_url": "data/debug/fabrica-de-bloques/6-todas-distribuidora-farmaceutica.json"
   },
   {
     "tipo": "fabrica-de-bloques",
-    "titulo": "Fábrica de Bloques",
-    "variant": "4-basicas",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-museo-de-la-pieza-falsa",
+    "seed": 7,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-museo-de-la-pieza-falsa.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-cargamento-fantasma",
+    "seed": 8,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-cargamento-fantasma.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-examen-filtrado",
     "seed": 9,
     "dificultad": 2,
-    "json_url": "data/debug/fabrica-de-bloques/4-basicas.json"
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-examen-filtrado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-distribuidora-farmaceutica",
+    "seed": 10,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-distribuidora-farmaceutica.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-basicas-laboratorio-manipulado",
+    "seed": 11,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas-laboratorio-manipulado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-taller-de-piezas-falsificadas",
+    "seed": 12,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-taller-de-piezas-falsificadas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-etiquetado-fraudulento",
+    "seed": 13,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-etiquetado-fraudulento.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-cargamento-fantasma",
+    "seed": 14,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-cargamento-fantasma.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-laboratorio-manipulado",
+    "seed": 16,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-laboratorio-manipulado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-todas-laboratorio-manipulado",
+    "seed": 17,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/4-todas-laboratorio-manipulado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-todas-correo-interceptado",
+    "seed": 18,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/4-todas-correo-interceptado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-correo-interceptado",
+    "seed": 19,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-correo-interceptado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-amano-deportivo",
+    "seed": 21,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-amano-deportivo.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-todas-taller-de-piezas-falsificadas",
+    "seed": 22,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/4-todas-taller-de-piezas-falsificadas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-todas-joyeria-del-mar",
+    "seed": 23,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/4-todas-joyeria-del-mar.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-museo-de-la-pieza-falsa",
+    "seed": 24,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-museo-de-la-pieza-falsa.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-todas-amano-deportivo",
+    "seed": 25,
+    "dificultad": 5,
+    "json_url": "data/debug/fabrica-de-bloques/6-todas-amano-deportivo.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-cargamento-fantasma",
+    "seed": 26,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-cargamento-fantasma.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-laboratorio-manipulado",
+    "seed": 30,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-laboratorio-manipulado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-basicas-amano-deportivo",
+    "seed": 31,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas-amano-deportivo.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-distribuidora-farmaceutica",
+    "seed": 33,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-distribuidora-farmaceutica.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-amano-deportivo",
+    "seed": 35,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-amano-deportivo.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-joyeria-del-mar",
+    "seed": 36,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-joyeria-del-mar.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-basicas-correo-interceptado",
+    "seed": 37,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas-correo-interceptado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-basicas-etiquetado-fraudulento",
+    "seed": 38,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas-etiquetado-fraudulento.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-examen-filtrado",
+    "seed": 39,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-examen-filtrado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-basicas-museo-de-la-pieza-falsa",
+    "seed": 40,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas-museo-de-la-pieza-falsa.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-obra-con-material-sustituido",
+    "seed": 43,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-obra-con-material-sustituido.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-correo-interceptado",
+    "seed": 44,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-correo-interceptado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-examen-filtrado",
+    "seed": 45,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-examen-filtrado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-todas-obra-con-material-sustituido",
+    "seed": 48,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/4-todas-obra-con-material-sustituido.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-distribuidora-farmaceutica",
+    "seed": 49,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-distribuidora-farmaceutica.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-todas-joyeria-del-mar",
+    "seed": 50,
+    "dificultad": 5,
+    "json_url": "data/debug/fabrica-de-bloques/6-todas-joyeria-del-mar.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-todas-taller-de-piezas-falsificadas",
+    "seed": 53,
+    "dificultad": 5,
+    "json_url": "data/debug/fabrica-de-bloques/6-todas-taller-de-piezas-falsificadas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-todas-correo-interceptado",
+    "seed": 57,
+    "dificultad": 5,
+    "json_url": "data/debug/fabrica-de-bloques/6-todas-correo-interceptado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-todas-etiquetado-fraudulento",
+    "seed": 62,
+    "dificultad": 5,
+    "json_url": "data/debug/fabrica-de-bloques/6-todas-etiquetado-fraudulento.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-festival-de-entradas-falsas",
+    "seed": 64,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-festival-de-entradas-falsas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-todas-festival-de-entradas-falsas",
+    "seed": 72,
+    "dificultad": 5,
+    "json_url": "data/debug/fabrica-de-bloques/6-todas-festival-de-entradas-falsas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-amano-deportivo",
+    "seed": 74,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-amano-deportivo.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-correo-interceptado",
+    "seed": 76,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-correo-interceptado.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-basicas-obra-con-material-sustituido",
+    "seed": 77,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas-obra-con-material-sustituido.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-taller-de-piezas-falsificadas",
+    "seed": 79,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-taller-de-piezas-falsificadas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-todas-obra-con-material-sustituido",
+    "seed": 81,
+    "dificultad": 5,
+    "json_url": "data/debug/fabrica-de-bloques/6-todas-obra-con-material-sustituido.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-todas-etiquetado-fraudulento",
+    "seed": 89,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/4-todas-etiquetado-fraudulento.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-festival-de-entradas-falsas",
+    "seed": 97,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-festival-de-entradas-falsas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-todas-museo-de-la-pieza-falsa",
+    "seed": 100,
+    "dificultad": 5,
+    "json_url": "data/debug/fabrica-de-bloques/6-todas-museo-de-la-pieza-falsa.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-todas-cargamento-fantasma",
+    "seed": 104,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/4-todas-cargamento-fantasma.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-todas-obra-con-material-sustituido",
+    "seed": 106,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/5-todas-obra-con-material-sustituido.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-basicas-distribuidora-farmaceutica",
+    "seed": 109,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas-distribuidora-farmaceutica.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "6-basicas-festival-de-entradas-falsas",
+    "seed": 111,
+    "dificultad": 4,
+    "json_url": "data/debug/fabrica-de-bloques/6-basicas-festival-de-entradas-falsas.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-basicas-obra-con-material-sustituido",
+    "seed": 112,
+    "dificultad": 2,
+    "json_url": "data/debug/fabrica-de-bloques/4-basicas-obra-con-material-sustituido.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "5-basicas-cargamento-fantasma",
+    "seed": 115,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/5-basicas-cargamento-fantasma.json"
+  },
+  {
+    "tipo": "fabrica-de-bloques",
+    "titulo": "Expediente 6x6",
+    "variant": "4-todas-amano-deportivo",
+    "seed": 128,
+    "dificultad": 3,
+    "json_url": "data/debug/fabrica-de-bloques/4-todas-amano-deportivo.json"
   },
   {
     "tipo": "planos-del-invernadero",
@@ -1334,6 +1766,22 @@
     "seed": 2,
     "dificultad": 2,
     "json_url": "data/debug/desenreda-la-red/8.json"
+  },
+  {
+    "tipo": "androides-en-la-fabrica",
+    "titulo": "Androides en la Fábrica",
+    "variant": "3",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/androides-en-la-fabrica/3.json"
+  },
+  {
+    "tipo": "androides-en-la-fabrica",
+    "titulo": "Androides en la Fábrica",
+    "variant": "4",
+    "seed": 2,
+    "dificultad": 4,
+    "json_url": "data/debug/androides-en-la-fabrica/4.json"
   },
   {
     "tipo": "senal-perdida",
@@ -1446,5 +1894,29 @@
     "seed": 26,
     "dificultad": 3,
     "json_url": "data/debug/senal-perdida/circuito.json"
+  },
+  {
+    "tipo": "trazo-perimetral",
+    "titulo": "El Trazo Perimetral",
+    "variant": "6",
+    "seed": 0,
+    "dificultad": 3,
+    "json_url": "data/debug/trazo-perimetral/6.json"
+  },
+  {
+    "tipo": "trazo-perimetral",
+    "titulo": "El Trazo Perimetral",
+    "variant": "7",
+    "seed": 1,
+    "dificultad": 4,
+    "json_url": "data/debug/trazo-perimetral/7.json"
+  },
+  {
+    "tipo": "trazo-perimetral",
+    "titulo": "El Trazo Perimetral",
+    "variant": "5",
+    "seed": 2,
+    "dificultad": 2,
+    "json_url": "data/debug/trazo-perimetral/5.json"
   }
 ]

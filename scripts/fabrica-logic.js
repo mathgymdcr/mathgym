@@ -23,16 +23,37 @@ function eligeEje(opciones, seed, mascara) {
 const TAMANO_OPCIONES = [4, 5, 6];
 const OPERACIONES_COMPLETAS_OPCIONES = [false, true];
 
+// Ids de los expedientes de "Expediente 6x6" -- el texto (titular, brief,
+// resolucion) vive en plantillas/fabrica_bloques.js, no aqui: la logica solo
+// necesita saber qué ids existen para sortear uno y para que el validador
+// compruebe que el publicado es uno de ellos. Un test cruza que las claves
+// del mapa de texto y esta lista coincidan exactamente.
+export const CASO_IDS = [
+  'joyeria-del-mar',
+  'cargamento-fantasma',
+  'correo-interceptado',
+  'examen-filtrado',
+  'amano-deportivo',
+  'etiquetado-fraudulento',
+  'obra-con-material-sustituido',
+  'taller-de-piezas-falsificadas',
+  'laboratorio-manipulado',
+  'festival-de-entradas-falsas',
+  'distribuidora-farmaceutica',
+  'museo-de-la-pieza-falsa'
+];
+
 export function ejesDeSeed(seed) {
   return {
     tamano: eligeEje(TAMANO_OPCIONES, seed, 0x5a17c3e2),
-    operacionesCompletas: eligeEje(OPERACIONES_COMPLETAS_OPCIONES, seed, 0x2d84f97b)
+    operacionesCompletas: eligeEje(OPERACIONES_COMPLETAS_OPCIONES, seed, 0x2d84f97b),
+    caso: eligeEje(CASO_IDS, seed, 0x9c1e7a4f)
   };
 }
 
 export function varianteDeSeed(seed) {
-  const { tamano, operacionesCompletas } = ejesDeSeed(seed);
-  return `${tamano}-${operacionesCompletas ? 'todas' : 'basicas'}`;
+  const { tamano, operacionesCompletas, caso } = ejesDeSeed(seed);
+  return `${tamano}-${operacionesCompletas ? 'todas' : 'basicas'}-${caso}`;
 }
 
 function baraja(array, rng) {
@@ -239,7 +260,7 @@ function dificultadDe(tamano, operacionesCompletas) {
 // generar y volver a comprobar es mas simple y mas robusto que intentar
 // construir la unicidad a mano region a region.
 export function buildFabricaPuzzle(seed) {
-  const { tamano, operacionesCompletas } = ejesDeSeed(seed);
+  const { tamano, operacionesCompletas, caso } = ejesDeSeed(seed);
   const rng = mulberry32(seed);
 
   const solucion = generaCuadradoLatino(tamano, rng);
@@ -261,7 +282,8 @@ export function buildFabricaPuzzle(seed) {
         payload: {
           tablero: { ancho: tamano, alto: tamano },
           regiones,
-          solucion
+          solucion,
+          caso
         }
       };
     }

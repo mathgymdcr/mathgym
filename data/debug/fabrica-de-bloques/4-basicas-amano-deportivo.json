@@ -16,79 +16,11 @@
           1
         ],
         [
-          1,
-          1
-        ]
-      ],
-      "operacion": "suma",
-      "objetivo": 8
-    },
-    {
-      "id": 2,
-      "celdas": [
-        [
           0,
           2
         ],
         [
-          0,
-          3
-        ]
-      ],
-      "operacion": "suma",
-      "objetivo": 6
-    },
-    {
-      "id": 3,
-      "celdas": [
-        [
           1,
-          0
-        ],
-        [
-          2,
-          0
-        ]
-      ],
-      "operacion": "resta",
-      "objetivo": 1
-    },
-    {
-      "id": 4,
-      "celdas": [
-        [
-          1,
-          2
-        ],
-        [
-          2,
-          2
-        ],
-        [
-          2,
-          1
-        ]
-      ],
-      "operacion": "suma",
-      "objetivo": 7
-    },
-    {
-      "id": 5,
-      "celdas": [
-        [
-          1,
-          3
-        ],
-        [
-          2,
-          3
-        ],
-        [
-          3,
-          3
-        ],
-        [
-          3,
           2
         ]
       ],
@@ -96,11 +28,71 @@
       "objetivo": 9
     },
     {
-      "id": 6,
+      "id": 2,
       "celdas": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 9
+    },
+    {
+      "id": 3,
+      "celdas": [
+        [
+          1,
+          0
+        ]
+      ],
+      "operacion": null,
+      "objetivo": 3
+    },
+    {
+      "id": 4,
+      "celdas": [
+        [
+          1,
+          1
+        ]
+      ],
+      "operacion": null,
+      "objetivo": 2
+    },
+    {
+      "id": 5,
+      "celdas": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
         [
           3,
           0
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 7
+    },
+    {
+      "id": 6,
+      "celdas": [
+        [
+          2,
+          2
         ]
       ],
       "operacion": null,
@@ -115,34 +107,49 @@
         ]
       ],
       "operacion": null,
+      "objetivo": 3
+    },
+    {
+      "id": 8,
+      "celdas": [
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "operacion": "resta",
       "objetivo": 1
     }
   ],
   "solucion": [
     [
       1,
+      4,
+      3,
+      2
+    ],
+    [
       3,
       2,
+      1,
       4
     ],
     [
       2,
-      4,
       1,
+      4,
       3
     ],
     [
+      4,
       3,
       2,
-      4,
       1
-    ],
-    [
-      4,
-      1,
-      3,
-      2
     ]
   ],
-  "caso": "examen-filtrado"
+  "caso": "amano-deportivo"
 }

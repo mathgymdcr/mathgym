@@ -149,10 +149,10 @@ export const TIPOS = [
   },
   {
     tipo: 'fabrica-de-bloques',
-    nombre: 'Fábrica de Bloques',
+    nombre: 'Expediente 6x6',
     grupo: 'Medida y cálculo',
     icono: 'assets/icono-fabrica-de-bloques.svg',
-    resumen: 'Rellena la rejilla sin repetir dígito en fila ni columna, cerrando la operación que pide cada región.',
+    resumen: 'Reconstruye la escena del crimen: rellena la rejilla sin repetir indicio en franja horaria ni zona, cerrando el informe pericial de cada sector.',
     generado: true,
     // Pendiente de decidir el lanzamiento: alcanzable solo desde debug.html.
     oculto: true

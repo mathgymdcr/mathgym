@@ -12,16 +12,20 @@
           0
         ],
         [
-          0,
-          1
+          1,
+          0
         ],
         [
-          1,
+          2,
+          0
+        ],
+        [
+          0,
           1
         ]
       ],
-      "operacion": "suma",
-      "objetivo": 8
+      "operacion": "multiplicacion",
+      "objetivo": 24
     },
     {
       "id": 2,
@@ -31,38 +35,30 @@
           2
         ],
         [
-          0,
-          3
+          1,
+          2
         ]
       ],
-      "operacion": "suma",
-      "objetivo": 6
+      "operacion": "multiplicacion",
+      "objetivo": 3
     },
     {
       "id": 3,
       "celdas": [
         [
-          1,
-          0
-        ],
-        [
-          2,
-          0
+          0,
+          3
         ]
       ],
-      "operacion": "resta",
-      "objetivo": 1
+      "operacion": null,
+      "objetivo": 4
     },
     {
       "id": 4,
       "celdas": [
         [
           1,
-          2
-        ],
-        [
-          2,
-          2
+          1
         ],
         [
           2,
@@ -70,7 +66,7 @@
         ]
       ],
       "operacion": "suma",
-      "objetivo": 7
+      "objetivo": 3
     },
     {
       "id": 5,
@@ -82,21 +78,28 @@
         [
           2,
           3
-        ],
+        ]
+      ],
+      "operacion": "multiplicacion",
+      "objetivo": 6
+    },
+    {
+      "id": 6,
+      "celdas": [
         [
-          3,
-          3
+          2,
+          2
         ],
         [
           3,
           2
         ]
       ],
-      "operacion": "suma",
-      "objetivo": 9
+      "operacion": "resta",
+      "objetivo": 2
     },
     {
-      "id": 6,
+      "id": 7,
       "celdas": [
         [
           3,
@@ -104,14 +107,25 @@
         ]
       ],
       "operacion": null,
-      "objetivo": 4
+      "objetivo": 3
     },
     {
-      "id": 7,
+      "id": 8,
       "celdas": [
         [
           3,
           1
+        ]
+      ],
+      "operacion": null,
+      "objetivo": 4
+    },
+    {
+      "id": 9,
+      "celdas": [
+        [
+          3,
+          3
         ]
       ],
       "operacion": null,
@@ -120,29 +134,29 @@
   ],
   "solucion": [
     [
-      1,
-      3,
       2,
+      3,
+      1,
       4
-    ],
-    [
-      2,
-      4,
-      1,
-      3
-    ],
-    [
-      3,
-      2,
-      4,
-      1
     ],
     [
       4,
       1,
       3,
       2
+    ],
+    [
+      1,
+      2,
+      4,
+      3
+    ],
+    [
+      3,
+      4,
+      2,
+      1
     ]
   ],
-  "caso": "examen-filtrado"
+  "caso": "distribuidora-farmaceutica"
 }

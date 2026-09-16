@@ -14,14 +14,10 @@
         [
           0,
           1
-        ],
-        [
-          1,
-          1
         ]
       ],
-      "operacion": "suma",
-      "objetivo": 8
+      "operacion": "resta",
+      "objetivo": 1
     },
     {
       "id": 2,
@@ -36,7 +32,7 @@
         ]
       ],
       "operacion": "suma",
-      "objetivo": 6
+      "objetivo": 3
     },
     {
       "id": 3,
@@ -44,25 +40,17 @@
         [
           1,
           0
-        ],
-        [
-          2,
-          0
         ]
       ],
-      "operacion": "resta",
-      "objetivo": 1
+      "operacion": null,
+      "objetivo": 3
     },
     {
       "id": 4,
       "celdas": [
         [
           1,
-          2
-        ],
-        [
-          2,
-          2
+          1
         ],
         [
           2,
@@ -70,22 +58,18 @@
         ]
       ],
       "operacion": "suma",
-      "objetivo": 7
+      "objetivo": 3
     },
     {
       "id": 5,
       "celdas": [
         [
           1,
-          3
+          2
         ],
         [
           2,
-          3
-        ],
-        [
-          3,
-          3
+          2
         ],
         [
           3,
@@ -93,14 +77,14 @@
         ]
       ],
       "operacion": "suma",
-      "objetivo": 9
+      "objetivo": 8
     },
     {
       "id": 6,
       "celdas": [
         [
-          3,
-          0
+          1,
+          3
         ]
       ],
       "operacion": null,
@@ -110,39 +94,76 @@
       "id": 7,
       "celdas": [
         [
+          2,
+          0
+        ]
+      ],
+      "operacion": null,
+      "objetivo": 2
+    },
+    {
+      "id": 8,
+      "celdas": [
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "operacion": "suma",
+      "objetivo": 5
+    },
+    {
+      "id": 9,
+      "celdas": [
+        [
+          3,
+          0
+        ]
+      ],
+      "operacion": null,
+      "objetivo": 1
+    },
+    {
+      "id": 10,
+      "celdas": [
+        [
           3,
           1
         ]
       ],
       "operacion": null,
-      "objetivo": 1
+      "objetivo": 4
     }
   ],
   "solucion": [
     [
-      1,
+      4,
       3,
       2,
+      1
+    ],
+    [
+      3,
+      2,
+      1,
       4
     ],
     [
       2,
-      4,
       1,
+      4,
       3
     ],
     [
-      3,
-      2,
-      4,
-      1
-    ],
-    [
-      4,
       1,
+      4,
       3,
       2
     ]
   ],
-  "caso": "examen-filtrado"
+  "caso": "etiquetado-fraudulento"
 }

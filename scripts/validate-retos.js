@@ -14,7 +14,7 @@ import { resuelto as laserResuelto, piezasMinimas, crearPiezas, normalizaConfig,
 import { contarSoluciones as contarRiegos, combinacionesPlanta, MARGEN_MINIMO } from './riego-logic.js';
 import { contarSolucionesDesdePistas } from './einstein-logic.js';
 import { simulaSalida } from './cinta-transportadora-logic.js';
-import { contarSoluciones as contarFabrica } from './fabrica-logic.js';
+import { contarSoluciones as contarFabrica, CASO_IDS as FABRICA_CASO_IDS } from './fabrica-logic.js';
 import { contarSoluciones as contarInvernadero } from './invernadero-logic.js';
 import { contarSoluciones as contarRadar, cuentaVecinos } from './radar-logic.js';
 import { evaluaTablero } from './dron-logic.js';
@@ -1073,6 +1073,10 @@ class RetoValidator {
     const n = data.tablero && data.tablero.ancho;
     if (![4, 5, 6].includes(n) || (data.tablero && data.tablero.alto) !== n) {
       throw new Error(`Fabrica-de-bloques tablero inválido: ${JSON.stringify(data.tablero)}`);
+    }
+
+    if (!FABRICA_CASO_IDS.includes(data.caso)) {
+      throw new Error(`Fabrica-de-bloques caso desconocido: ${data.caso}`);
     }
 
     if (!Array.isArray(data.solucion) || data.solucion.length !== n) {

@@ -25,7 +25,7 @@ describe('plantillas/fabrica_bloques.js con el payload del generador', () => {
 
     const root = document.createElement('div');
     let exito = null;
-    await mod.render(root, { tablero: payload.tablero, regiones: payload.regiones, solucion: payload.solucion }, {
+    await mod.render(root, { tablero: payload.tablero, regiones: payload.regiones, solucion: payload.solucion, caso: payload.caso }, {
       onSuccess: (info) => { exito = info; }
     });
 
@@ -67,7 +67,7 @@ describe('plantillas/fabrica_bloques.js con el payload del generador', () => {
     }
 
     const botones = [...root.querySelectorAll('button')];
-    const btnComprobar = botones.find((b) => b.textContent === 'Comprobar');
+    const btnComprobar = botones.find((b) => b.textContent === 'Cerrar expediente');
     btnComprobar.click();
 
     expect(exito).toEqual({ fallos: 0 });
