@@ -82,7 +82,12 @@ function pintarMeta(cont, reto) {
 // --- RETO ---
 async function mostrarReto(fecha) {
   const reto = await loadReto(fecha);
-  const esRetoDeHoy = !fecha;
+  // `fecha` solo dice cómo se llegó (sala vs. `?fecha=`), no si ES hoy: el
+  // archivo enlaza también el reto de hoy en cuanto existe, con su propio
+  // `?fecha=`, y por ahí se perdían racha y compartir en un reto que sí era
+  // de hoy. Comparamos contra el `fecha` que trae reto.json, que es quien de
+  // verdad decide qué reto es "hoy".
+  const esRetoDeHoy = !fecha || fecha === (await loadReto(null)).fecha;
   const cont = mostrarZonaDeJuego(true);
   if (!cont) {
     console.error('❌ Falta #contenedor-interactivo en el HTML');

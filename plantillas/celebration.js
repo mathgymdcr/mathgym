@@ -9,7 +9,7 @@ const SVG_ESTRELLA = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2
 // Antes el titulo era siempre "¡Excelente trabajo!", ganaras con 1 estrella o
 // con 3 -- no distinguia nada.
 const TITULO_POR_ESTRELLAS = {
-  3: '¡Perfecto! No hace falta nada más.',
+  3: '¡Perfecto! Máxima puntuación.',
   2: '¡Muy bien! Estás cerca de las tres estrellas.',
   1: '¡Resuelto! Con un poco más de práctica, mejorarás la marca.'
 };
