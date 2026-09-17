@@ -23,7 +23,7 @@ function eligeEje(opciones, seed, mascara) {
 const TAMANO_OPCIONES = [4, 5, 6];
 const OPERACIONES_COMPLETAS_OPCIONES = [false, true];
 
-// Ids de los expedientes de "Expediente 6x6" -- el texto (titular, brief,
+// Ids de los expedientes de "Bajo Sospecha" -- el texto (titular, brief,
 // resolucion) vive en plantillas/fabrica_bloques.js, no aqui: la logica solo
 // necesita saber qué ids existen para sortear uno y para que el validador
 // compruebe que el publicado es uno de ellos. Un test cruza que las claves

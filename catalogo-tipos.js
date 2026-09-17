@@ -149,7 +149,7 @@ export const TIPOS = [
   },
   {
     tipo: 'fabrica-de-bloques',
-    nombre: 'Expediente 6x6',
+    nombre: 'Bajo Sospecha',
     grupo: 'Medida y cálculo',
     icono: 'assets/icono-fabrica-de-bloques.svg',
     resumen: 'Reconstruye la escena del crimen: rellena la rejilla sin repetir indicio en franja horaria ni zona, cerrando el informe pericial de cada sector.',

@@ -3959,6 +3959,12 @@ section.groups { margin-top: 52px; }
 
 .fabrica-celda {
   position: relative;
+  /* Sin esto, aspect-ratio:1 se cuela como ancho mínimo del grid item y
+     empuja la columna más allá de lo que le toca en cuanto la columna de
+     cabecera dejó de ser "auto" -- mismo problema que .fabrica-cab más
+     abajo, misma solución. */
+  min-width: 0;
+  min-height: 0;
   /* El color de region lo fija cada celda por JS (style.backgroundColor);
      esta capa oscura semitransparente encima es lo que de verdad se ve --
      así el color queda como una tinta suave sobre el fondo oscuro del
@@ -4060,19 +4066,48 @@ section.groups { margin-top: 52px; }
   align-items: center;
   justify-content: center;
   color: var(--muted);
-  font-size: .7rem;
+  font-size: .62rem;
   font-weight: 700;
+  text-align: center;
+  line-height: 1.05;
+  padding: 2px;
+  overflow-wrap: break-word;
+  /* Sin esto, un grid item no encoge por debajo del ancho de su contenido
+     (min-width:auto por defecto) aunque la columna sea minmax(...,64px) --
+     una palabra larga ("Sala profesores") se saldría del tablero entero. */
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Mientras se juega, fila y columna no llevan cabecera: la celda "auto"
+   del grid colapsa a 0 al no tener contenido ni relleno. Se revela sola
+   (contenido + padding) en cuanto se le quita esta clase, al cerrar el
+   expediente. */
+.fabrica-cab.oculta {
+  padding: 0;
+  font-size: 0;
+}
+
+.fabrica-celda-valor--texto {
+  font-size: .62rem;
+  font-weight: 700;
+  line-height: 1.05;
+  text-align: center;
+  overflow-wrap: break-word;
+  max-width: 90%;
 }
 
 .fabrica-sospechosos {
-  max-width: min(420px, 90vw);
+  max-width: min(480px, 92vw);
   margin: 0 auto 18px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
 .fabrica-sospechosos-titulo {
+  flex-basis: 100%;
   text-align: center;
   font-weight: 700;
   margin: 0 0 4px;
@@ -4081,10 +4116,12 @@ section.groups { margin-top: 52px; }
 .fabrica-sospechoso {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  text-align: left;
-  padding: 10px 14px;
-  border-radius: 10px;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  width: 140px;
+  padding: 10px 10px 12px;
+  border-radius: 12px;
   border: 1px solid var(--card-b);
   background: var(--surface-2, #212b3b);
   color: var(--fg);
@@ -4095,13 +4132,31 @@ section.groups { margin-top: 52px; }
   border-color: var(--accent);
 }
 
+.fabrica-sospechoso-retrato {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .06);
+}
+
 .fabrica-sospechoso-nombre {
   font-weight: 700;
+  font-size: .85rem;
 }
 
 .fabrica-sospechoso-coartada {
-  font-size: .85rem;
+  font-size: .78rem;
   color: var(--muted);
+  font-style: italic;
+}
+
+.fabrica-sospechoso-coartada.oculta {
+  display: none;
+}
+
+.fabrica-sospechoso-pista {
+  font-size: .7rem;
+  color: var(--accent);
 }
 
 .fabrica-sospechoso.culpable {

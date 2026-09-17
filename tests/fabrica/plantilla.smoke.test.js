@@ -78,10 +78,13 @@ describe('plantillas/fabrica_bloques.js con el payload del generador', () => {
     btnComprobar.click();
 
     // Rejilla correcta desbloquea a los 3 sospechosos, pero el caso no se
-    // celebra hasta que se acusa al que de verdad mintió.
+    // celebra hasta que se acusa al que de verdad mintió -- y acusar hace
+    // falta dos toques: el primero solo revela la coartada.
     expect(exito).toBeNull();
     const sospechosos = [...root.querySelectorAll('.fabrica-sospechoso')];
     expect(sospechosos).toHaveLength(3);
+    sospechosos[payload.culpable].click();
+    expect(exito).toBeNull();
     sospechosos[payload.culpable].click();
 
     expect(exito).toEqual({ fallos: 0 });
