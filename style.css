@@ -3945,24 +3945,105 @@ section.groups { margin-top: 52px; }
   text-align: center;
 }
 
-.fabrica-tablero {
+.fabrica-mesa {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.fabrica-columna-tablero {
+  flex: 0 1 420px;
+  min-width: 0;
+}
+
+/* En pantalla estrecha las columnas de sospechosos caen debajo por el
+   propio flex-wrap -- pero sin esto, la de la izquierda quedaría flotando
+   ANTES que el propio tablero. Con el tablero en orden -1 va siempre
+   primero en la pila, y las dos columnas de sospechosos le siguen. */
+@media (max-width: 700px) {
+  .fabrica-columna-tablero {
+    order: -1;
+  }
+}
+
+/* Envoltura de 2x2: esquina + cabecera de columnas arriba, cabecera de
+   filas + tablero abajo. Las pistas "auto" de fila/columna 1 miden 0
+   mientras esos elementos están `oculta` (display:none, sin contenido que
+   medir) -- así el margen de cabecera aparece solo al revelar, sin que
+   nadie tenga que tocar el grid-template a mano. El propio `.fabrica-tablero`
+   (la rejilla n×n) vive siempre en la pista "1fr" y no cambia de plantilla
+   nunca: por eso revelar cabeceras no reencoge sus celdas de golpe (ver
+   comentario en fabrica_bloques.js). */
+.fabrica-tablero-envoltura {
   display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
   gap: 2px;
   max-width: min(420px, 90vw);
   aspect-ratio: 1;
   margin: 0 auto 18px;
+}
+
+.fabrica-cabs-zona {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  gap: 2px;
+  /* Alto fijo, igual al ancho fijo de `.fabrica-cabs-franja` -- si cada
+     pista "auto" midiera lo que le pide su propio contenido (texto ancho
+     vs. texto alto), rara vez saldrían iguales, y como la envoltura entera
+     está forzada a aspect-ratio:1, la diferencia se la come el tablero: le
+     queda más alto que ancho (o al revés) y sus celdas dejan de ser
+     cuadradas -- el "descuadre" al revelar. Con las dos pistas iguales, lo
+     que se resta es lo mismo en ambos ejes y el tablero se queda cuadrado. */
+  height: 46px;
+}
+
+.fabrica-cabs-zona.oculta,
+.fabrica-cabs-franja.oculta {
+  display: none;
+}
+
+.fabrica-cabs-zona .fabrica-cab {
+  flex: 1 1 0;
+}
+
+.fabrica-cabs-franja {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 46px;
+}
+
+.fabrica-cabs-franja .fabrica-cab {
+  flex: 1 1 0;
+}
+
+.fabrica-esquina {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.fabrica-tablero {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  gap: 2px;
   background: var(--card-b);
-  border: 2px solid var(--card-b);
+  /* Misma raya simple que separa las regiones por dentro (rgba blanco),
+     ahora también en el borde exterior -- antes era del color oscuro de la
+     tarjeta y el tablero parecía flotar sin marco. */
+  border: 2px solid rgba(255, 255, 255, .55);
   border-radius: 6px;
   overflow: hidden;
 }
 
 .fabrica-celda {
   position: relative;
-  /* Sin esto, aspect-ratio:1 se cuela como ancho mínimo del grid item y
-     empuja la columna más allá de lo que le toca en cuanto la columna de
-     cabecera dejó de ser "auto" -- mismo problema que .fabrica-cab más
-     abajo, misma solución. */
   min-width: 0;
   min-height: 0;
   /* El color de region lo fija cada celda por JS (style.backgroundColor);
@@ -3982,10 +4063,8 @@ section.groups { margin-top: 52px; }
   aspect-ratio: 1;
 }
 
-.fabrica-celda.borde-izq { border-left: 3px solid var(--fg); }
-.fabrica-celda.borde-der { border-right: 3px solid var(--fg); }
-.fabrica-celda.borde-arriba { border-top: 3px solid var(--fg); }
-.fabrica-celda.borde-abajo { border-bottom: 3px solid var(--fg); }
+.fabrica-celda.raya-der { border-right: 2px solid rgba(255, 255, 255, .55); }
+.fabrica-celda.raya-abajo { border-bottom: 2px solid rgba(255, 255, 255, .55); }
 
 .fabrica-celda-pista {
   position: absolute;
@@ -4072,20 +4151,21 @@ section.groups { margin-top: 52px; }
   line-height: 1.05;
   padding: 2px;
   overflow-wrap: break-word;
-  /* Sin esto, un grid item no encoge por debajo del ancho de su contenido
-     (min-width:auto por defecto) aunque la columna sea minmax(...,64px) --
-     una palabra larga ("Sala profesores") se saldría del tablero entero. */
+  /* Sin esto, un item flex no encoge por debajo del ancho de su contenido
+     (min-width:auto por defecto) -- una palabra larga ("Sala profesores")
+     se saldría de su hueco en vez de partirse en dos líneas. */
   min-width: 0;
   min-height: 0;
 }
 
-/* Mientras se juega, fila y columna no llevan cabecera: la celda "auto"
-   del grid colapsa a 0 al no tener contenido ni relleno. Se revela sola
-   (contenido + padding) en cuanto se le quita esta clase, al cerrar el
-   expediente. */
-.fabrica-cab.oculta {
-  padding: 0;
-  font-size: 0;
+/* Mientras se juega, la esquina y las dos tiras de cabecera (`.fabrica-cabs-zona`,
+   `.fabrica-cabs-franja`, ver más arriba) llevan esta clase: `display:none`
+   les quita hasta el contenido que medir, así que la pista "auto" de la
+   envoltura colapsa sola a 0 -- no queda ningún margen fantasma al lado del
+   tablero. Se revelan (contenido + layout normal) en cuanto se les quita
+   esta clase, al cerrar el expediente. */
+.fabrica-esquina.oculta {
+  display: none;
 }
 
 .fabrica-celda-valor--texto {
@@ -4097,20 +4177,24 @@ section.groups { margin-top: 52px; }
   max-width: 90%;
 }
 
+.fabrica-celda-icono {
+  width: 62%;
+  height: 62%;
+  object-fit: contain;
+}
+
 .fabrica-sospechosos {
-  max-width: min(480px, 92vw);
-  margin: 0 auto 18px;
+  flex: 0 1 180px;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .fabrica-sospechosos-titulo {
-  flex-basis: 100%;
   text-align: center;
   font-weight: 700;
-  margin: 0 0 4px;
+  margin: 0 0 10px;
 }
 
 .fabrica-sospechoso {
@@ -4119,24 +4203,51 @@ section.groups { margin-top: 52px; }
   align-items: center;
   text-align: center;
   gap: 4px;
-  width: 140px;
+  width: 100%;
+  max-width: 160px;
   padding: 10px 10px 12px;
   border-radius: 12px;
   border: 1px solid var(--card-b);
   background: var(--surface-2, #212b3b);
   color: var(--fg);
+}
+
+.fabrica-sospechoso-retrato-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
   cursor: pointer;
 }
 
-.fabrica-sospechoso:hover {
-  border-color: var(--accent);
+.fabrica-sospechoso-retrato-btn:not(:disabled):hover .fabrica-sospechoso-retrato {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.fabrica-sospechoso-retrato-btn:disabled {
+  cursor: default;
+  opacity: .5;
 }
 
 .fabrica-sospechoso-retrato {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, .06);
+  object-fit: cover;
+  /* Los retratos PNG llevan el fondo quitado (transparente): sin un fondo
+     propio detrás, el hueco transparente deja ver el fondo oscuro de la
+     tarjeta a través del círculo y el recorte queda descuadrado y sin
+     contraste. Un disco claro detrás -- como el papel sobre el que están
+     dibujados -- lo soluciona para PNG y no cambia nada en los avatares
+     SVG de DiceBear, que ya son opacos. */
+  background: #efe7d8;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .12);
 }
 
 .fabrica-sospechoso-nombre {
@@ -4144,19 +4255,20 @@ section.groups { margin-top: 52px; }
   font-size: .85rem;
 }
 
-.fabrica-sospechoso-coartada {
-  font-size: .78rem;
-  color: var(--muted);
-  font-style: italic;
-}
-
-.fabrica-sospechoso-coartada.oculta {
-  display: none;
-}
-
 .fabrica-sospechoso-pista {
   font-size: .7rem;
   color: var(--accent);
+}
+
+.fabrica-sospechoso-acusar {
+  margin-top: 2px;
+  padding: 6px 16px;
+  font-size: .78rem;
+}
+
+.fabrica-sospechoso-acusar:disabled {
+  opacity: .5;
+  cursor: default;
 }
 
 .fabrica-sospechoso.culpable {
@@ -4168,8 +4280,49 @@ section.groups { margin-top: 52px; }
   opacity: .55;
 }
 
-.fabrica-sospechoso:disabled {
-  cursor: default;
+/* Popup de coartada -- mismo patrón que .celebration-overlay: overlay a
+   pantalla completa, cursor de mano, se cierra tocando en cualquier parte
+   (por eso no hace falta un botón de cerrar aparte). */
+.fabrica-popup-coartada {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, .75);
+  cursor: pointer;
+}
+
+.fabrica-popup-coartada.oculta {
+  display: none;
+}
+
+.fabrica-popup-coartada-card {
+  width: min(360px, 90vw);
+  padding: 20px 22px;
+  border-radius: 16px;
+  background: var(--surface-2, #212b3b);
+  border: 1px solid var(--card-b);
+  text-align: center;
+  color: var(--fg);
+}
+
+.fabrica-popup-coartada-nombre {
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.fabrica-popup-coartada-texto {
+  font-style: italic;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+
+.fabrica-popup-coartada-cierra {
+  font-size: .72rem;
+  color: var(--accent);
+  margin: 0;
 }
 
 /* ===== Androides en la Fábrica ===== */

@@ -59,27 +59,27 @@ const FRASE_POR_OPERACION = {
 export const CASOS = {
   'joyeria-del-mar': {
     titular: 'Robo en la Joyería Del Mar: el vigilante jura que no vio nada.',
-    brief: 'Faltan tres relojes de la vitrina central y la alarma nunca sonó. El vigilante dice que estuvo despierto toda la noche. Los indicios dicen otra cosa.',
+    brief: 'La alarma nunca sonó. El registro nocturno anota qué joya se vio en cada rincón de la tienda y en qué momento -- el vigilante jura que estuvo despierto toda la noche, pero su declaración no cuadra con ese registro.',
     resolucion: 'El peso de las pisadas no engaña. El vigilante estaba en la trastienda justo cuando la alarma se desconectó.',
     objetos: ['Reloj', 'Anillo', 'Collar', 'Pulsera', 'Broche', 'Zafiro'],
     horarios: ['Apertura', 'Mañana', 'Mediodía', 'Tarde', 'Cierre', 'Madrugada'],
     localizaciones: ['Vitrina', 'Trastienda', 'Entrada', 'Caja', 'Escaparate', 'Almacén'],
     sospechosos: [
-      { nombre: 'El vigilante nocturno', retrato: 'assets/sospechosos/joyeria-vigilante.svg' },
+      { nombre: 'El vigilante nocturno', retrato: 'assets/sospechosos/joyeria-vigilante.png' },
       { nombre: 'La dependienta', retrato: 'assets/sospechosos/joyeria-dependienta.svg' },
       { nombre: 'El técnico', retrato: 'assets/sospechosos/joyeria-tecnico.svg' }
     ]
   },
   'cargamento-fantasma': {
-    titular: 'Desaparece un cargamento entero sin abrir ninguna puerta.',
-    brief: 'El almacén estaba cerrado y las cámaras no grabaron nada raro. Pero alguien movió cajas que pesaban más de lo que decía el registro.',
+    titular: 'El cargamento no cuadra sin que nadie haya tocado el almacén.',
+    brief: 'El almacén estaba cerrado y las cámaras no grabaron nada raro, pero el registro de qué caja pasó por cada zona y a qué hora no coincide con lo que debería.',
     resolucion: 'Los números del inventario estaban maquillados desde el turno de tarde. El responsable de logística llevaba semanas robando por partes.',
     objetos: ['Caja', 'Palé', 'Etiqueta', 'Precinto', 'Albarán', 'Bulto'],
     horarios: ['Mañana', 'Mediodía', 'Tarde', 'Relevo', 'Cierre', 'Madrugada'],
     localizaciones: ['Muelle', 'Nave', 'Oficina', 'Rampa', 'Pasillo', 'Patio'],
     sospechosos: [
-      { nombre: 'El jefe de turno', retrato: 'assets/sospechosos/cargamento-jefeturno.svg' },
-      { nombre: 'El conductor', retrato: 'assets/sospechosos/cargamento-conductor.svg' },
+      { nombre: 'El jefe de turno', retrato: 'assets/sospechosos/cargamento-jefeturno.png' },
+      { nombre: 'El conductor', retrato: 'assets/sospechosos/cargamento-conductor.png' },
       { nombre: 'La encargada de inventario', retrato: 'assets/sospechosos/cargamento-encargada.svg' }
     ]
   },
@@ -91,8 +91,8 @@ export const CASOS = {
     horarios: ['Mañana', 'Mediodía', 'Tarde', 'Reunión', 'Cierre', 'Madrugada'],
     localizaciones: ['Despacho', 'Sala juntas', 'Recepción', 'Archivo', 'Pasillo', 'Sótano'],
     sospechosos: [
-      { nombre: 'La becaria', retrato: 'assets/sospechosos/correo-becaria.svg' },
-      { nombre: 'El jefe de ventas', retrato: 'assets/sospechosos/correo-jefeventas.svg' },
+      { nombre: 'La becaria', retrato: 'assets/sospechosos/correo-becaria.png' },
+      { nombre: 'El jefe de ventas', retrato: 'assets/sospechosos/correo-jefeventas.png' },
       { nombre: 'El consultor externo', retrato: 'assets/sospechosos/correo-consultor.svg' }
     ]
   },
@@ -104,9 +104,9 @@ export const CASOS = {
     horarios: ['Mañana', 'Recreo', 'Mediodía', 'Tarde', 'Guardia', 'Madrugada'],
     localizaciones: ['Aula', 'Secretaría', 'Sala profesores', 'Pasillo', 'Servidor', 'Conserjería'],
     sospechosos: [
-      { nombre: 'El conserje', retrato: 'assets/sospechosos/examen-conserje.svg' },
-      { nombre: 'La profesora de guardia', retrato: 'assets/sospechosos/examen-profesora.svg' },
-      { nombre: 'El informático', retrato: 'assets/sospechosos/examen-informatico.svg' }
+      { nombre: 'El conserje', retrato: 'assets/sospechosos/examen-conserje.png' },
+      { nombre: 'La profesora de guardia', retrato: 'assets/sospechosos/examen-profesora.png' },
+      { nombre: 'El informático', retrato: 'assets/sospechosos/examen-informatico.png' }
     ]
   },
   'amano-deportivo': {
@@ -117,7 +117,7 @@ export const CASOS = {
     horarios: ['Previa', 'Calentamiento', 'Descanso', 'Pitido', 'Prórroga', 'Post-partido'],
     localizaciones: ['Campo', 'Vestuarios', 'Banquillo', 'Grada', 'Túnel', 'Palco'],
     sospechosos: [
-      { nombre: 'El árbitro', retrato: 'assets/sospechosos/amano-arbitro.svg' },
+      { nombre: 'El árbitro', retrato: 'assets/sospechosos/amano-arbitro.png' },
       { nombre: 'El capitán del equipo', retrato: 'assets/sospechosos/amano-capitan.svg' },
       { nombre: 'El delegado de campo', retrato: 'assets/sospechosos/amano-delegado.svg' }
     ]
@@ -143,7 +143,7 @@ export const CASOS = {
     horarios: ['Mañana', 'Mediodía', 'Tarde', 'Relevo', 'Cierre', 'Madrugada'],
     localizaciones: ['Obra', 'Almacén', 'Oficina', 'Andamio', 'Cimientos', 'Acceso'],
     sospechosos: [
-      { nombre: 'El jefe de obra', retrato: 'assets/sospechosos/obra-jefeobra.svg' },
+      { nombre: 'El jefe de obra', retrato: 'assets/sospechosos/obra-jefeobra.png' },
       { nombre: 'El proveedor', retrato: 'assets/sospechosos/obra-proveedor.svg' },
       { nombre: 'El aparejador', retrato: 'assets/sospechosos/obra-aparejador.svg' }
     ]
@@ -156,7 +156,7 @@ export const CASOS = {
     horarios: ['Apertura', 'Mañana', 'Mediodía', 'Tarde', 'Cierre', 'Madrugada'],
     localizaciones: ['Taller', 'Recepción', 'Almacén', 'Elevador', 'Patio', 'Oficina'],
     sospechosos: [
-      { nombre: 'El dueño del taller', retrato: 'assets/sospechosos/taller-dueno.svg' },
+      { nombre: 'El dueño del taller', retrato: 'assets/sospechosos/taller-dueno.png' },
       { nombre: 'El mecánico de turno', retrato: 'assets/sospechosos/taller-mecanico.svg' },
       { nombre: 'El proveedor', retrato: 'assets/sospechosos/taller-proveedor.svg' }
     ]
@@ -169,8 +169,8 @@ export const CASOS = {
     horarios: ['Mañana', 'Mediodía', 'Tarde', 'Turno noche', 'Cierre', 'Madrugada'],
     localizaciones: ['Laboratorio', 'Despacho', 'Archivo', 'Sala blanca', 'Recepción', 'Almacén'],
     sospechosos: [
-      { nombre: 'El técnico de laboratorio', retrato: 'assets/sospechosos/laboratorio-tecnico.svg' },
-      { nombre: 'La directora del laboratorio', retrato: 'assets/sospechosos/laboratorio-directora.svg' },
+      { nombre: 'El técnico de laboratorio', retrato: 'assets/sospechosos/laboratorio-tecnico.png' },
+      { nombre: 'La directora del laboratorio', retrato: 'assets/sospechosos/laboratorio-directora.png' },
       { nombre: 'El comercial de certificaciones', retrato: 'assets/sospechosos/laboratorio-comercial.svg' }
     ]
   },
@@ -182,20 +182,20 @@ export const CASOS = {
     horarios: ['Apertura', 'Tarde', 'Concierto', 'Cierre', 'Recuento', 'Madrugada'],
     localizaciones: ['Taquilla', 'Puerta', 'Escenario', 'Backstage', 'Oficina', 'Aparcamiento'],
     sospechosos: [
-      { nombre: 'El jefe de taquilla', retrato: 'assets/sospechosos/festival-jefetaquilla.svg' },
+      { nombre: 'El jefe de taquilla', retrato: 'assets/sospechosos/festival-jefetaquilla.png' },
       { nombre: 'La informática', retrato: 'assets/sospechosos/festival-informatica.svg' },
-      { nombre: 'El encargado de puertas', retrato: 'assets/sospechosos/festival-puertas.svg' }
+      { nombre: 'El encargado de puertas', retrato: 'assets/sospechosos/festival-puertas.png' }
     ]
   },
   'distribuidora-farmaceutica': {
-    titular: 'Faltan cajas de medicamentos entre el almacén y la farmacia.',
-    brief: 'El papeleo dice que todo llegó completo. El recuento físico dice lo contrario, y las cantidades que faltan no son aleatorias.',
+    titular: 'El recuento de cajas entre el almacén y la farmacia no sale.',
+    brief: 'El papeleo dice que todo llegó completo, pero el recuento físico no cuadra -- y el registro de qué caja pasó por cada zona y turno tampoco.',
     resolucion: 'Las cantidades desviadas coincidían siempre con pedidos de una misma farmacia asociada. El transportista llevaba un año haciendo dos entregas por una.',
     objetos: ['Caja', 'Albarán', 'Lote', 'Receta', 'Etiqueta', 'Furgoneta'],
     horarios: ['Mañana', 'Mediodía', 'Tarde', 'Reparto', 'Cierre', 'Madrugada'],
     localizaciones: ['Almacén', 'Farmacia', 'Muelle', 'Ruta', 'Oficina', 'Recepción'],
     sospechosos: [
-      { nombre: 'El transportista', retrato: 'assets/sospechosos/distribuidora-transportista.svg' },
+      { nombre: 'El transportista', retrato: 'assets/sospechosos/distribuidora-transportista.png' },
       { nombre: 'El empleado de farmacia', retrato: 'assets/sospechosos/distribuidora-empleado.svg' },
       { nombre: 'El encargado de almacén', retrato: 'assets/sospechosos/distribuidora-encargado.svg' }
     ]
@@ -209,11 +209,82 @@ export const CASOS = {
     localizaciones: ['Sala', 'Vitrina', 'Restauro', 'Archivo', 'Recepción', 'Almacén'],
     sospechosos: [
       { nombre: 'El restaurador', retrato: 'assets/sospechosos/museo-restaurador.svg' },
-      { nombre: 'El comisario de la exposición', retrato: 'assets/sospechosos/museo-comisario.svg' },
-      { nombre: 'El tasador del seguro', retrato: 'assets/sospechosos/museo-tasador.svg' }
+      { nombre: 'El comisario de la exposición', retrato: 'assets/sospechosos/museo-comisario.png' },
+      { nombre: 'El tasador del seguro', retrato: 'assets/sospechosos/museo-tasador.png' }
     ]
   }
 };
+
+// Un icono por objeto de indicio -- solo cubre, de momento, el caso de
+// muestra (joyería) mientras se valida el estilo; los objetos sin entrada
+// aquí siguen mostrándose como texto (fallback deliberado, ver el
+// comentario de cabecera del archivo).
+const ICONO_OBJETO = {
+  Reloj: 'assets/objetos-sospecha/reloj.svg',
+  Anillo: 'assets/objetos-sospecha/anillo.svg',
+  Collar: 'assets/objetos-sospecha/collar.svg',
+  Pulsera: 'assets/objetos-sospecha/pulsera.svg',
+  Broche: 'assets/objetos-sospecha/broche.svg',
+  Zafiro: 'assets/objetos-sospecha/zafiro.svg'
+};
+
+// Artículo de cada objeto/localización/horario que aparece en algún CASO,
+// para que la coartada suene a frase de verdad ("vi el collar en la
+// vitrina") y no a etiquetas sueltas ("vi collar en vitrina"). El género no
+// se puede adivinar de forma fiable con una regla ("tarde" es femenino,
+// "mediodía" es masculino pese a acabar en A) -- por eso es un diccionario
+// a mano y no un heurístico, con ese heurístico solo de red de seguridad
+// por si algún caso futuro añade una palabra que se quede sin entrada aquí.
+const ARTICULO = {
+  Acceso: 'el acceso', Albarán: 'el albarán', Almacén: 'el almacén', Andamio: 'el andamio',
+  Anillo: 'el anillo', Aparcamiento: 'el aparcamiento', Apertura: 'la apertura', Apuesta: 'la apuesta',
+  Archivo: 'el archivo', Aula: 'el aula', Backstage: 'el backstage', Balanza: 'la balanza',
+  Balón: 'el balón', Banquillo: 'el banquillo', Barra: 'la barra', Broche: 'el broche',
+  Bulto: 'el bulto', Caja: 'la caja', Calentamiento: 'el calentamiento', Camiseta: 'la camiseta',
+  Campo: 'el campo', Cemento: 'el cemento', Cenas: 'las cenas', Certificado: 'el certificado',
+  Cierre: 'el cierre', Cimientos: 'los cimientos', Clave: 'la clave', Cocina: 'la cocina',
+  Collar: 'el collar', Comedor: 'el comedor', Comidas: 'las comidas', Concierto: 'el concierto',
+  Congelador: 'el congelador', Conserjería: 'la conserjería', Copia: 'la copia', Correo: 'el correo',
+  Crono: 'el crono', Cuenta: 'la cuenta', Descanso: 'el descanso', Despacho: 'el despacho',
+  Elevador: 'el elevador', Entrada: 'la entrada', Escaparate: 'el escaparate', Escenario: 'el escenario',
+  Etiqueta: 'la etiqueta', Examen: 'el examen', Factura: 'la factura', Farmacia: 'la farmacia',
+  Foto: 'la foto', Furgoneta: 'la furgoneta', Grada: 'la grada', Guardia: 'la guardia',
+  Hormigón: 'el hormigón', Informe: 'el informe', Laboratorio: 'el laboratorio', Ladrillo: 'el ladrillo',
+  Lote: 'el lote', Madrugada: 'la madrugada', Mañana: 'la mañana', Mediodía: 'el mediodía',
+  Menú: 'el menú', Motor: 'el motor', Muelle: 'el muelle', Muestra: 'la muestra',
+  Nave: 'la nave', Nevera: 'la nevera', Obra: 'la obra', Oficina: 'la oficina',
+  Ordenador: 'el ordenador', Palco: 'el palco', Palé: 'el palé', Papel: 'el papel',
+  Pasillo: 'el pasillo', Patio: 'el patio', Pescado: 'el pescado', Pieza: 'la pieza',
+  Pitido: 'el pitido', Portátil: 'el portátil', 'Post-partido': 'el post-partido', Precinto: 'el precinto',
+  Previa: 'la previa', Probeta: 'la probeta', Prórroga: 'la prórroga', Pulsera: 'la pulsera',
+  Puerta: 'la puerta', Rampa: 'la rampa', Recambio: 'el recambio', Recepción: 'la recepción',
+  Receta: 'la receta', Recibo: 'el recibo', Recreo: 'el recreo', Recuento: 'el recuento',
+  Relevo: 'el relevo', Reloj: 'el reloj', Reparto: 'el reparto', Restauro: 'el restauro',
+  Resultado: 'el resultado', Reunión: 'la reunión', Ruta: 'la ruta', Sala: 'la sala',
+  'Sala blanca': 'la sala blanca', 'Sala juntas': 'la sala juntas', 'Sala profesores': 'la sala profesores',
+  Secretaría: 'la secretaría', Seguro: 'el seguro', Sello: 'el sello', Serie: 'la serie',
+  Servidor: 'el servidor', Silbato: 'el silbato', Sobremesa: 'la sobremesa', Sótano: 'el sótano',
+  Taller: 'el taller', Taquilla: 'la taquilla', Tarde: 'la tarde', Tarjeta: 'la tarjeta',
+  Terminal: 'la terminal', Ticket: 'el ticket', Trastienda: 'la trastienda', Túnel: 'el túnel',
+  'Turno noche': 'el turno noche', USB: 'el USB', Vestuarios: 'los vestuarios', Viga: 'la viga',
+  Vitrina: 'la vitrina', Zafiro: 'el zafiro'
+};
+
+function conArticulo(palabra) {
+  if (ARTICULO[palabra]) return ARTICULO[palabra];
+  const minuscula = palabra.toLowerCase();
+  return (minuscula.endsWith('a') ? 'la ' : 'el ') + minuscula;
+}
+
+// Tres formas distintas de contar lo mismo, para que las tres tarjetas de
+// un mismo caso no suenen a la misma frase con las palabras cambiadas -- un
+// testigo real no narra con la misma estructura que el de al lado. Cada
+// una recibe (objeto, localizacion, horario) ya con su artículo puesto.
+const FRASES_COARTADA = [
+  (obj, loc, hor) => `Yo vi ${obj} en ${loc}, durante ${hor}.`,
+  (obj, loc, hor) => `Cuando llegué, durante ${hor}, ${obj} estaba en ${loc}.`,
+  (obj, loc, hor) => `Recuerdo perfectamente: ${obj} estaba en ${loc} durante ${hor}.`
+];
 
 export async function render(root, data, hooks) {
   root.innerHTML = '';
@@ -242,8 +313,11 @@ export async function render(root, data, hooks) {
   const horarios = caso.horarios.slice(0, n);
   const localizaciones = caso.localizaciones.slice(0, n);
 
-  // Region de cada celda (por referencia de objeto, para saber cuándo dos
-  // celdas vecinas pertenecen a la misma región al pintar los bordes).
+  // Region de cada celda (por referencia de objeto), para saber de qué
+  // color pintar cada una -- el color ya distingue las regiones entre sí,
+  // así que no hace falta además un borde grueso en cada frontera (antes
+  // salía doblado: las dos celdas de cada lado de la frontera pintaban su
+  // propio borde grueso, uno junto al otro).
   const regionDeCelda = Array.from({ length: n }, () => Array(n).fill(null));
   regiones.forEach((region) => {
     region.celdas.forEach(([f, c]) => { regionDeCelda[f][c] = region; });
@@ -289,8 +363,8 @@ export async function render(root, data, hooks) {
         <li>Toca la misma celda otra vez para borrar la anotación.</li>
         <li>Pulsa «Cerrar expediente» cuando la rejilla esté completa.</li>
         <li>Al cerrar bien el expediente se revela dónde y cuándo pasó todo.</li>
-        <li>Toca a un sospechoso para oír su coartada.</li>
-        <li>Tócalo otra vez para acusarlo.</li>
+        <li>Toca el retrato de un sospechoso para oír su coartada.</li>
+        <li>Pulsa «Acusar» en su tarjeta para acusarlo.</li>
       </ul>
     `
   });
@@ -302,23 +376,33 @@ export async function render(root, data, hooks) {
 
   // Cabeceras: vacías mientras se juega a propósito -- fila y columna no se
   // rotulan como localización/horario hasta cerrar el expediente, para no
-  // regalar esa lectura antes de tiempo. La celda sigue ahí (columna/fila
-  // "auto" del grid) pero con la clase `oculta`, que la colapsa a 0.
-  const tablero = createElement('div', { class: 'fabrica-tablero' });
-  // La columna de localización lleva ancho fijo (no "auto"): un nombre
-  // largo ("Sala profesores") en "auto" empuja el resto de columnas fuera
-  // del ancho máximo del tablero -- con un tope, el texto envuelve dentro
-  // de su hueco en vez de desbordar la rejilla entera.
-  tablero.style.gridTemplateColumns = `minmax(46px, 64px) repeat(${n}, 1fr)`;
-  tablero.style.gridTemplateRows = `auto repeat(${n}, 1fr)`;
+  // regalar esa lectura antes de tiempo. Viven en una envoltura APARTE del
+  // propio tablero (grid de 2x2: esquina+cabecera-de-columnas arriba,
+  // cabecera-de-filas+tablero abajo) para que el tablero, la rejilla n×n en
+  // sí, no cambie NUNCA de plantilla -- si el tablero mismo ganara una
+  // columna/fila extra al revelar (como hacía antes), las n columnas ya
+  // dibujadas se reparten de golpe entre n+1 huecos y todas las celdas se
+  // desplazan/reencogen a la vez, un salto muy visible ("se ve descuadrado").
+  // Aquí en cambio solo crece la pista "auto" de la envoltura; el tablero
+  // interior conserva siempre el mismo `repeat(n,1fr)` en sus dos ejes.
+  const envoltura = createElement('div', { class: 'fabrica-tablero-envoltura' });
+  const esquina = createElement('div', { class: 'fabrica-esquina oculta' });
+  envoltura.appendChild(esquina);
 
-  tablero.appendChild(createElement('div', { class: 'fabrica-esquina' }));
+  const filaCabsZona = createElement('div', { class: 'fabrica-cabs-zona oculta' });
   const cabsZona = [];
   for (let c = 0; c < n; c++) {
-    const cabZona = createElement('div', { class: 'fabrica-cab oculta' });
-    tablero.appendChild(cabZona);
+    const cabZona = createElement('div', { class: 'fabrica-cab' });
+    filaCabsZona.appendChild(cabZona);
     cabsZona.push(cabZona);
   }
+  envoltura.appendChild(filaCabsZona);
+
+  const colCabsFranja = createElement('div', { class: 'fabrica-cabs-franja oculta' });
+
+  const tablero = createElement('div', { class: 'fabrica-tablero' });
+  tablero.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+  tablero.style.gridTemplateRows = `repeat(${n}, 1fr)`;
 
   const valores = Array.from({ length: n }, () => Array(n).fill(0));
   const fijadas = Array.from({ length: n }, () => Array(n).fill(false));
@@ -339,18 +423,21 @@ export async function render(root, data, hooks) {
   const cabsFranja = [];
 
   for (let f = 0; f < n; f++) {
-    const cabFranja = createElement('div', { class: 'fabrica-cab oculta' });
-    tablero.appendChild(cabFranja);
+    const cabFranja = createElement('div', { class: 'fabrica-cab' });
+    colCabsFranja.appendChild(cabFranja);
     cabsFranja.push(cabFranja);
 
     for (let c = 0; c < n; c++) {
       const celda = createElement('button', { class: 'fabrica-celda', type: 'button' });
       const region = regionDeCelda[f][c];
       celda.style.backgroundColor = colorDeRegion.get(region);
-      if (c === 0 || regionDeCelda[f][c - 1] !== region) celda.classList.add('borde-izq');
-      if (c === n - 1 || regionDeCelda[f][c + 1] !== region) celda.classList.add('borde-der');
-      if (f === 0 || regionDeCelda[f - 1][c] !== region) celda.classList.add('borde-arriba');
-      if (f === n - 1 || regionDeCelda[f + 1][c] !== region) celda.classList.add('borde-abajo');
+      // Una raya simple en la frontera entre regiones, dibujada solo por la
+      // celda de la izquierda/arriba -- si la dibujara también la vecina de
+      // la derecha/abajo saldría doblada (dos rayas pegadas en el mismo
+      // sitio, que es justo lo que había antes con el borde grueso en las
+      // cuatro direcciones).
+      if (c < n - 1 && regionDeCelda[f][c + 1] !== region) celda.classList.add('raya-der');
+      if (f < n - 1 && regionDeCelda[f + 1][c] !== region) celda.classList.add('raya-abajo');
 
       const etiqueta = etiquetaDeCelda.get(`${f},${c}`);
       if (etiqueta) {
@@ -383,7 +470,15 @@ export async function render(root, data, hooks) {
       celdas[f][c] = { celda, valorSpan };
     }
   }
-  ui.box.appendChild(tablero);
+
+  envoltura.appendChild(colCabsFranja);
+  envoltura.appendChild(tablero);
+
+  // El tablero y sus controles van en una columna; los sospechosos se
+  // reparten a los dos lados (`.fabrica-mesa`, ver style.css) para que la
+  // columna central no quede desequilibrada y el tablero se vea cuadrado.
+  const columnaTablero = createElement('div', { class: 'fabrica-columna-tablero' });
+  columnaTablero.appendChild(envoltura);
 
   const numpad = createElement('div', { class: 'fabrica-numpad' });
   const botonesHerramienta = [];
@@ -408,7 +503,7 @@ export async function render(root, data, hooks) {
   btnBorrar.addEventListener('click', () => seleccionaHerramienta('borrar', btnBorrar));
   numpad.appendChild(btnBorrar);
   botonesHerramienta.push({ boton: btnBorrar, valor: 'borrar' });
-  ui.box.appendChild(numpad);
+  columnaTablero.appendChild(numpad);
 
   const btnComprobar = createElement('button', { class: 'btn' });
   btnComprobar.textContent = 'Cerrar expediente';
@@ -417,7 +512,7 @@ export async function render(root, data, hooks) {
   const controles = createElement('div', { class: 'panel-controls' });
   controles.appendChild(btnComprobar);
   controles.appendChild(btnReiniciar);
-  ui.box.appendChild(controles);
+  columnaTablero.appendChild(controles);
 
   let rejillaCerrada = false;
 
@@ -445,48 +540,79 @@ export async function render(root, data, hooks) {
     }
   }
 
-  // Con la rejilla cerrada, el veredicto sobre quién miente sale de comparar
-  // la coartada de cada sospechoso con lo que el propio jugador anotó en esa
-  // localización/horario -- la prueba es el tablero ya resuelto, no un dato
-  // aparte. Cada retrato necesita dos toques: el primero revela la
-  // coartada (nadie se acusa a ciegas), el segundo acusa.
-  const panelSospechosos = createElement('div', { class: 'fabrica-sospechosos' });
+  // El panel de sospechosos se ve desde el principio, al lado del tablero
+  // -- pero inerte: ni el retrato ni «Acusar» hacen nada hasta cerrar bien
+  // el expediente. Con la rejilla cerrada, el veredicto sobre quién miente
+  // sale de comparar la coartada de cada sospechoso con lo que el propio
+  // jugador anotó en esa localización/horario -- la prueba es el tablero ya
+  // resuelto, no un dato aparte. Tocar el retrato solo alterna mostrar/
+  // ocultar la coartada, sin riesgo; acusar es una acción aparte, el botón
+  // «Acusar», para que nadie acuse por accidente al tocar una cara.
   const tituloSospechosos = createElement('p', { class: 'fabrica-sospechosos-titulo' });
   tituloSospechosos.textContent = '¿Quién mintió en su coartada?';
-  panelSospechosos.appendChild(tituloSospechosos);
-  panelSospechosos.hidden = true;
 
-  const revelado = sospechosos.map(() => false);
+  // Popup compartido (mismo patrón que celebration.js: overlay a pantalla
+  // completa, se cierra tocando en cualquier parte) -- una sola instancia
+  // que cada tarjeta reutiliza en vez de un cuadro de texto propio.
+  const popup = createElement('div', { class: 'fabrica-popup-coartada oculta' });
+  const popupTarjeta = createElement('div', { class: 'fabrica-popup-coartada-card' });
+  const popupNombre = createElement('p', { class: 'fabrica-popup-coartada-nombre' });
+  const popupTexto = createElement('p', { class: 'fabrica-popup-coartada-texto' });
+  const popupCierra = createElement('p', { class: 'fabrica-popup-coartada-cierra' });
+  popupCierra.textContent = 'Toca para cerrar.';
+  popupTarjeta.appendChild(popupNombre);
+  popupTarjeta.appendChild(popupTexto);
+  popupTarjeta.appendChild(popupCierra);
+  popup.appendChild(popupTarjeta);
+  popup.addEventListener('click', () => popup.classList.add('oculta'));
+
+  function mostrarCoartada(nombre, texto) {
+    popupNombre.textContent = nombre;
+    popupTexto.textContent = texto;
+    popup.classList.remove('oculta');
+  }
+
+  const tarjetasSospechoso = [];
 
   sospechosos.forEach((s, i) => {
     const perfil = caso.sospechosos[i];
-    const tarjeta = createElement('button', { class: 'fabrica-sospechoso', type: 'button' });
+    const tarjeta = createElement('div', { class: 'fabrica-sospechoso' });
 
+    const btnRetrato = createElement('button', { class: 'fabrica-sospechoso-retrato-btn', type: 'button' });
+    btnRetrato.disabled = true;
     const retratoImg = createElement('img', { class: 'fabrica-sospechoso-retrato', alt: '' });
     retratoImg.src = perfil.retrato;
-    tarjeta.appendChild(retratoImg);
-
+    btnRetrato.appendChild(retratoImg);
     const nombreSpan = createElement('span', { class: 'fabrica-sospechoso-nombre' });
     nombreSpan.textContent = perfil.nombre;
-    tarjeta.appendChild(nombreSpan);
-
-    const coartadaSpan = createElement('span', { class: 'fabrica-sospechoso-coartada oculta' });
-    coartadaSpan.textContent = `«Vi ${objetos[s.valorAfirmado - 1].toLowerCase()} en ${localizaciones[s.fila].toLowerCase()}, durante ${horarios[s.columna].toLowerCase()}.»`;
-    tarjeta.appendChild(coartadaSpan);
+    btnRetrato.appendChild(nombreSpan);
+    tarjeta.appendChild(btnRetrato);
 
     const pista = createElement('span', { class: 'fabrica-sospechoso-pista' });
-    pista.textContent = 'Toca para oír su coartada';
     tarjeta.appendChild(pista);
 
-    tarjeta.addEventListener('click', () => {
-      if (ganado || tarjeta.disabled) return;
+    const btnAcusar = createElement('button', { class: 'btn btn-secondary fabrica-sospechoso-acusar', type: 'button' });
+    btnAcusar.textContent = 'Acusar';
+    btnAcusar.disabled = true;
+    tarjeta.appendChild(btnAcusar);
 
-      if (!revelado[i]) {
-        revelado[i] = true;
-        coartadaSpan.classList.remove('oculta');
-        pista.textContent = 'Toca de nuevo para acusar';
-        return;
-      }
+    // Frase en el lenguaje más natural que da el propio dato: con artículo
+    // (el/la/los/las según toque, ver ARTICULO) y con la construcción de la
+    // frase variando por sospechoso (FRASES_COARTADA) para que no suene a
+    // las tres tarjetas rellenando el mismo hueco de texto.
+    const textoCoartada = FRASES_COARTADA[i % FRASES_COARTADA.length](
+      conArticulo(objetos[s.valorAfirmado - 1]),
+      conArticulo(localizaciones[s.fila]),
+      conArticulo(horarios[s.columna])
+    );
+
+    btnRetrato.addEventListener('click', () => {
+      if (ganado || btnRetrato.disabled) return;
+      mostrarCoartada(perfil.nombre, textoCoartada);
+    });
+
+    btnAcusar.addEventListener('click', () => {
+      if (ganado || btnAcusar.disabled) return;
 
       if (i === culpable) {
         ganado = true;
@@ -497,19 +623,35 @@ export async function render(root, data, hooks) {
         );
         celebrate({ ok: true, message: caso.resolucion });
         if (hooks && hooks.onSuccess) hooks.onSuccess({ fallos });
-        panelSospechosos.querySelectorAll('.fabrica-sospechoso').forEach((t) => { t.disabled = true; });
+        tarjetasSospechoso.forEach(({ btnRetrato: br, btnAcusar: ba }) => { br.disabled = true; ba.disabled = true; });
         tarjeta.classList.add('culpable');
       } else {
         fallosAcusacion++;
-        tarjeta.disabled = true;
+        btnAcusar.disabled = true;
         tarjeta.classList.add('descartado');
         pista.textContent = 'Coartada confirmada. No es tu sospechoso.';
       }
     });
 
-    panelSospechosos.appendChild(tarjeta);
+    tarjetasSospechoso.push({ tarjeta, btnRetrato, btnAcusar, pista });
   });
-  ui.box.appendChild(panelSospechosos);
+
+  // Los sospechosos se reparten a los dos lados del tablero (mitad a cada
+  // uno) para que la columna central no quede tan alta y desequilibrada.
+  const colIzquierda = createElement('div', { class: 'fabrica-sospechosos' });
+  const colDerecha = createElement('div', { class: 'fabrica-sospechosos' });
+  const mitad = Math.ceil(tarjetasSospechoso.length / 2);
+  tarjetasSospechoso.forEach(({ tarjeta }, i) => {
+    (i < mitad ? colIzquierda : colDerecha).appendChild(tarjeta);
+  });
+
+  ui.box.appendChild(tituloSospechosos);
+  const mesa = createElement('div', { class: 'fabrica-mesa' });
+  mesa.appendChild(colIzquierda);
+  mesa.appendChild(columnaTablero);
+  mesa.appendChild(colDerecha);
+  ui.box.appendChild(mesa);
+  ui.box.appendChild(popup);
 
   btnComprobar.addEventListener('click', () => {
     if (rejillaCerrada) return;
@@ -525,26 +667,37 @@ export async function render(root, data, hooks) {
       rejillaCerrada = true;
       setStatus(ui.result, 'Rejilla cerrada. Ahora, ¿quién miente?', 'ok');
 
-      cabsZona.forEach((cab, c) => {
-        cab.textContent = horarios[c];
-        cab.classList.remove('oculta');
-      });
-      cabsFranja.forEach((cab, f) => {
-        cab.textContent = localizaciones[f];
-        cab.classList.remove('oculta');
-      });
+      esquina.classList.remove('oculta');
+      filaCabsZona.classList.remove('oculta');
+      colCabsFranja.classList.remove('oculta');
+      cabsZona.forEach((cab, c) => { cab.textContent = horarios[c]; });
+      cabsFranja.forEach((cab, f) => { cab.textContent = localizaciones[f]; });
       for (let f = 0; f < n; f++) {
         for (let c = 0; c < n; c++) {
           const { celda, valorSpan } = celdas[f][c];
           celda.disabled = true;
-          valorSpan.textContent = objetos[valores[f][c] - 1];
-          valorSpan.classList.add('fabrica-celda-valor--texto');
+          const nombreObjeto = objetos[valores[f][c] - 1];
+          const iconoUrl = ICONO_OBJETO[nombreObjeto];
+          valorSpan.textContent = '';
+          if (iconoUrl) {
+            const icono = createElement('img', { class: 'fabrica-celda-icono', alt: nombreObjeto });
+            icono.src = iconoUrl;
+            valorSpan.appendChild(icono);
+          } else {
+            valorSpan.textContent = nombreObjeto;
+            valorSpan.classList.add('fabrica-celda-valor--texto');
+          }
         }
       }
 
       btnComprobar.disabled = true;
       btnReiniciar.disabled = true;
-      panelSospechosos.hidden = false;
+      // Cómo tocar el retrato ya está en las instrucciones -- no hace falta
+      // repetirlo aquí debajo de cada tarjeta.
+      tarjetasSospechoso.forEach(({ btnRetrato, btnAcusar }) => {
+        btnRetrato.disabled = false;
+        btnAcusar.disabled = false;
+      });
     } else {
       fallos++;
       setStatus(ui.result, 'Algo no cuadra en el informe. Revisa los indicios.', 'ko');

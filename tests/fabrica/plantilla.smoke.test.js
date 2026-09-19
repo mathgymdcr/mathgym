@@ -58,6 +58,12 @@ describe('plantillas/fabrica_bloques.js con el payload del generador', () => {
     });
     expect(dadas).toBeGreaterThan(0);
 
+    // Los sospechosos se ven desde el arranque, al lado del tablero, pero
+    // inertes: ni el retrato ni «Acusar» hacen nada hasta cerrar el
+    // expediente.
+    [...root.querySelectorAll('.fabrica-sospechoso-retrato-btn')].forEach((b) => expect(b.disabled).toBe(true));
+    [...root.querySelectorAll('.fabrica-sospechoso-acusar')].forEach((b) => expect(b.disabled).toBe(true));
+
     const numpad = [...root.querySelectorAll('.fabrica-num')].filter((b) => !b.classList.contains('fabrica-num-borrar'));
     expect(numpad).toHaveLength(n);
 
@@ -77,15 +83,16 @@ describe('plantillas/fabrica_bloques.js con el payload del generador', () => {
     const btnComprobar = botones.find((b) => b.textContent === 'Cerrar expediente');
     btnComprobar.click();
 
-    // Rejilla correcta desbloquea a los 3 sospechosos, pero el caso no se
-    // celebra hasta que se acusa al que de verdad mintió -- y acusar hace
-    // falta dos toques: el primero solo revela la coartada.
+    // Rejilla correcta desbloquea a los 3 sospechosos (el botón «Acusar» de
+    // cada tarjeta deja de estar disabled), pero el caso no se celebra hasta
+    // que se acusa al que de verdad mintió.
     expect(exito).toBeNull();
     const sospechosos = [...root.querySelectorAll('.fabrica-sospechoso')];
     expect(sospechosos).toHaveLength(3);
-    sospechosos[payload.culpable].click();
-    expect(exito).toBeNull();
-    sospechosos[payload.culpable].click();
+    const botonesAcusar = [...root.querySelectorAll('.fabrica-sospechoso-acusar')];
+    expect(botonesAcusar).toHaveLength(3);
+    botonesAcusar.forEach((b) => expect(b.disabled).toBe(false));
+    botonesAcusar[payload.culpable].click();
 
     expect(exito).toEqual({ fallos: 0 });
     expect(root.querySelector('.feedback.ok')).toBeTruthy();
