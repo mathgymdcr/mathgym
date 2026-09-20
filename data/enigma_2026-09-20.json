@@ -1,0 +1,163 @@
+{
+  "categories": {
+    "Persona": [
+      "María",
+      "Pedro",
+      "Sofía",
+      "Miguel",
+      "Rubén"
+    ],
+    "País": [
+      "Japón",
+      "Brasil",
+      "Egipto",
+      "Noruega",
+      "Canadá"
+    ],
+    "Transporte": [
+      "Bicicleta",
+      "Metro",
+      "Patinete",
+      "Tranvía",
+      "Autobús"
+    ],
+    "Camiseta": [
+      "Roja",
+      "Azul",
+      "Verde",
+      "Amarilla",
+      "Negra"
+    ]
+  },
+  "clues": [
+    "Sofía viajó a Japón.",
+    "Quien viajó a Canadá viste camiseta amarilla.",
+    "Quien se mueve en bicicleta viste camiseta roja.",
+    "Rubén viste camiseta roja.",
+    "Quien viajó a Noruega se mueve en metro.",
+    "María viste camiseta azul.",
+    "Sofía no viste camiseta verde.",
+    "Miguel no viajó a Canadá.",
+    "Quien viajó a Noruega viste camiseta azul.",
+    "Quien viajó a Japón se mueve en patinete.",
+    "Quien viajó a Brasil se mueve en tranvía."
+  ],
+  "solution": {
+    "María": {
+      "País": "Noruega",
+      "Transporte": "Metro",
+      "Camiseta": "Azul"
+    },
+    "Pedro": {
+      "País": "Canadá",
+      "Transporte": "Autobús",
+      "Camiseta": "Amarilla"
+    },
+    "Sofía": {
+      "País": "Japón",
+      "Transporte": "Patinete",
+      "Camiseta": "Negra"
+    },
+    "Miguel": {
+      "País": "Brasil",
+      "Transporte": "Tranvía",
+      "Camiseta": "Verde"
+    },
+    "Rubén": {
+      "País": "Egipto",
+      "Transporte": "Bicicleta",
+      "Camiseta": "Roja"
+    }
+  },
+  "meta": {
+    "tamano": "4x5",
+    "forma": {
+      "filas": 4,
+      "casas": 5
+    },
+    "categoriasElegidas": [
+      "País",
+      "Transporte",
+      "Camiseta"
+    ],
+    "pistasEstructuradas": [
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 1,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 4,
+        "cB": 3,
+        "vB": 3,
+        "positiva": true
+      },
+      {
+        "cA": 2,
+        "vA": 0,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 4,
+        "cB": 3,
+        "vB": 0,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 2,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 0,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 0,
+        "vA": 2,
+        "cB": 3,
+        "vB": 2,
+        "positiva": false
+      },
+      {
+        "cA": 0,
+        "vA": 3,
+        "cB": 1,
+        "vB": 4,
+        "positiva": false
+      },
+      {
+        "cA": 1,
+        "vA": 3,
+        "cB": 3,
+        "vB": 1,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 0,
+        "cB": 2,
+        "vB": 2,
+        "positiva": true
+      },
+      {
+        "cA": 1,
+        "vA": 1,
+        "cB": 2,
+        "vB": 3,
+        "positiva": true
+      }
+    ]
+  }
+}
