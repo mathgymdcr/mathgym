@@ -289,5 +289,14 @@
       "deduccion",
       "logica"
     ]
+  },
+  {
+    "fecha": "2026-09-21",
+    "titulo": "Descubre el impostor",
+    "dificultad": 3,
+    "categorias": [
+      "logica",
+      "optimizacion"
+    ]
   }
 ]
