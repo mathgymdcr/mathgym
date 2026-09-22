@@ -298,5 +298,13 @@
       "logica",
       "optimizacion"
     ]
+  },
+  {
+    "fecha": "2026-09-22",
+    "titulo": "Construye el polígono",
+    "dificultad": 4,
+    "categorias": [
+      "geometria"
+    ]
   }
 ]
