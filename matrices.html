@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Práctica: Matrices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --chalk-bg: #1e3a30;
+    --chalk-bg-2: #16302a;
+    --chalk-line: rgba(245,245,240,0.12);
+    --chalk: #f2efe4;
+    --chalk-dim: #b9c9bf;
+    --ok: #8fd66b;
+    --bad: #e8746a;
+    --accent: #e8c547;
+    --accent-2: #6bb5d6;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100%;
+    background-image:
+      linear-gradient(var(--chalk-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--chalk-line) 1px, transparent 1px),
+      radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.03), transparent 60%),
+      var(--chalk-bg);
+    background-size: 100% 42px, 42px 100%, auto, auto;
+    color:var(--chalk);
+    font-family:'JetBrains Mono', monospace;
+    display:flex;
+    justify-content:center;
+    padding: 32px 16px 64px;
+  }
+  .sheet{ width:100%; max-width:680px; }
+  h1{
+    font-family:'Patrick Hand', cursive;
+    font-weight:400;
+    font-size:2.1rem;
+    letter-spacing:0.5px;
+    margin:0 0 4px;
+  }
+  .subtitle{
+    color:var(--chalk-dim);
+    font-size:0.85rem;
+    margin-bottom:22px;
+    line-height:1.5;
+  }
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:20px;
+  }
+  .tab-btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.8rem;
+    background:transparent;
+    color:var(--chalk-dim);
+    border:1px solid var(--chalk-line);
+    border-radius:5px;
+    padding:9px 14px;
+    cursor:pointer;
+  }
+  .tab-btn.active{
+    background:var(--chalk-bg-2);
+    color:var(--accent);
+    border-color:var(--accent-2);
+  }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  .panel{
+    background: rgba(0,0,0,0.15);
+    border:1px solid var(--chalk-line);
+    border-radius:6px;
+    padding:20px;
+    margin-bottom:20px;
+  }
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .controls label{
+    font-size:0.75rem;
+    color:var(--chalk-dim);
+    margin-right:4px;
+  }
+  select, button{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.85rem;
+    background:var(--chalk-bg-2);
+    color:var(--chalk);
+    border:1px solid var(--chalk-line);
+    border-radius:4px;
+    padding:8px 12px;
+    cursor:pointer;
+  }
+  select:hover, button:hover{ border-color: var(--accent-2); }
+  button.primary{
+    background: var(--accent);
+    color:#1e3a30;
+    border:none;
+    font-weight:700;
+  }
+  button.primary:hover{ filter:brightness(1.08); }
+  button:disabled{ opacity:0.4; cursor:default; }
+
+  .stats{
+    display:flex;
+    gap:20px;
+    font-size:0.8rem;
+    color:var(--chalk-dim);
+    margin-top:8px;
+  }
+  .stats b{ color:var(--accent); font-size:0.95rem; }
+
+  .board{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+    margin: 24px 0 8px;
+  }
+  .system{ display:flex; flex-direction:column; gap:18px; align-items:center; margin:24px 0 8px; }
+  .equation{ display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; }
+  .term{
+    font-family:'Patrick Hand', cursive;
+    font-size:1.6rem;
+    color:var(--chalk);
+    padding-bottom:6px;
+  }
+
+  .matrix{
+    display:inline-grid;
+    gap:6px;
+    padding: 10px 14px;
+    position:relative;
+  }
+  .matrix::before, .matrix::after{
+    content:"";
+    position:absolute;
+    top:4px; bottom:4px;
+    width:6px;
+    border:2px solid var(--chalk-dim);
+  }
+  .matrix::before{ left:0; border-right:none; }
+  .matrix::after{ right:0; border-left:none; }
+  .cell{
+    width:46px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.95rem;
+  }
+  .op{
+    font-family:'Patrick Hand', cursive;
+    font-size:1.8rem;
+    color:var(--chalk-dim);
+    padding-bottom:6px;
+  }
+  input.cell-input{
+    width:46px;
+    height:40px;
+    text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.95rem;
+    background: rgba(255,255,255,0.04);
+    border:1px solid var(--chalk-line);
+    border-radius:4px;
+    color:var(--chalk);
+    transition: border-color .15s, background .15s;
+  }
+  input.cell-input:focus{ outline:none; border-color:var(--accent-2); }
+  input.cell-input.ok{
+    border-color:var(--ok);
+    background: rgba(143,214,107,0.12);
+    color:var(--ok);
+  }
+  input.cell-input.bad{
+    border-color:var(--bad);
+    background: rgba(232,116,106,0.12);
+    color:var(--bad);
+  }
+  input.cell-input::-webkit-outer-spin-button,
+  input.cell-input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  input.cell-input[type=number]{ -moz-appearance:textfield; }
+
+  .unknown-block{ display:flex; align-items:center; gap:12px; }
+  .unknown-label{
+    font-family:'Patrick Hand', cursive;
+    font-size:1.6rem;
+    color:var(--accent-2);
+    min-width:22px;
+  }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin-top:24px;
+    flex-wrap:wrap;
+  }
+  .feedback{
+    text-align:center;
+    min-height:24px;
+    margin-top:14px;
+    font-size:0.9rem;
+  }
+  .feedback.ok{ color:var(--ok); }
+  .feedback.bad{ color:var(--bad); }
+  .hint{
+    text-align:center;
+    color:var(--chalk-dim);
+    font-size:0.75rem;
+    margin-top:6px;
+  }
+  footer{
+    text-align:center;
+    color:var(--chalk-dim);
+    font-size:0.7rem;
+    margin-top:32px;
+    opacity:0.6;
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>Práctica: Matrices</h1>
+  <div class="subtitle">Práctica interna — no forma parte del catálogo de MathGym.</div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="producto">Producto A×B</button>
+    <button class="tab-btn" data-tab="sistema">Sistema matricial (X, Y)</button>
+    <button class="tab-btn" data-tab="potencias">Potencias Aⁿ</button>
+  </div>
+
+  <!-- ===== TAB 1: PRODUCTO DE MATRICES ===== -->
+  <div class="view active" id="view-producto">
+    <div class="panel">
+      <div class="controls">
+        <div>
+          <label for="p-difficulty">Dificultad</label>
+          <select id="p-difficulty">
+            <option value="0">2×2 · 2×2</option>
+            <option value="1" selected>2×3 · 3×2</option>
+            <option value="2">3×3 · 3×3</option>
+            <option value="3">3×4 · 4×2</option>
+          </select>
+        </div>
+        <div>
+          <label for="p-range">Rango</label>
+          <select id="p-range">
+            <option value="5">-5 a 5</option>
+            <option value="9" selected>-9 a 9</option>
+            <option value="12">-12 a 12</option>
+          </select>
+        </div>
+        <button id="p-newBtn">🔄 Nuevo reto</button>
+      </div>
+      <div class="stats">
+        <span>Racha: <b id="p-streak">0</b></span>
+        <span>Resueltos: <b id="p-solved">0</b></span>
+        <span>Mejor racha: <b id="p-best">0</b></span>
+      </div>
+    </div>
+
+    <div class="board" id="p-board"></div>
+
+    <div class="feedback" id="p-feedback"></div>
+    <div class="hint" id="p-hint"></div>
+
+    <div class="actions">
+      <button id="p-checkBtn" class="primary">Comprobar</button>
+      <button id="p-revealBtn">Ver solución</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB 2: SISTEMA MATRICIAL ===== -->
+  <div class="view" id="view-sistema">
+    <div class="panel">
+      <div class="controls">
+        <div>
+          <label for="s-difficulty">Tamaño</label>
+          <select id="s-difficulty">
+            <option value="0" selected>2×2</option>
+            <option value="1">2×3</option>
+          </select>
+        </div>
+        <div>
+          <label for="s-range">Rango X, Y</label>
+          <select id="s-range">
+            <option value="4">-4 a 4</option>
+            <option value="6" selected>-6 a 6</option>
+            <option value="9">-9 a 9</option>
+          </select>
+        </div>
+        <button id="s-newBtn">🔄 Nuevo reto</button>
+      </div>
+      <div class="stats">
+        <span>Racha: <b id="s-streak">0</b></span>
+        <span>Resueltos: <b id="s-solved">0</b></span>
+        <span>Mejor racha: <b id="s-best">0</b></span>
+      </div>
+    </div>
+
+    <div class="system" id="s-system"></div>
+
+    <div class="board" id="s-board"></div>
+
+    <div class="feedback" id="s-feedback"></div>
+    <div class="hint" id="s-hint"></div>
+
+    <div class="actions">
+      <button id="s-checkBtn" class="primary">Comprobar</button>
+      <button id="s-revealBtn">Ver solución</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB 3: POTENCIAS DE UNA MATRIZ ===== -->
+  <div class="view" id="view-potencias">
+    <div class="panel">
+      <div class="controls">
+        <div>
+          <label for="pw-difficulty">Tamaño</label>
+          <select id="pw-difficulty">
+            <option value="2" selected>2×2</option>
+            <option value="3">3×3</option>
+          </select>
+        </div>
+        <div>
+          <label for="pw-range">Valor</label>
+          <select id="pw-range">
+            <option value="3">1 a 3</option>
+            <option value="4" selected>1 a 4</option>
+            <option value="6">1 a 6</option>
+          </select>
+        </div>
+        <div>
+          <label for="pw-type">Tipo</label>
+          <select id="pw-type">
+            <option value="aleatorio" selected>Aleatorio</option>
+            <option value="progresivo">Progresivo (I+N)</option>
+            <option value="periodico">Periódico (cíclico)</option>
+          </select>
+        </div>
+        <button id="pw-newBtn">🔄 Nuevo reto</button>
+      </div>
+      <div class="stats">
+        <span>Racha: <b id="pw-streak">0</b></span>
+        <span>Resueltos: <b id="pw-solved">0</b></span>
+        <span>Mejor racha: <b id="pw-best">0</b></span>
+      </div>
+    </div>
+
+    <div class="equation" id="pw-a-row" style="margin:24px 0;">
+      <div class="term">A =</div>
+    </div>
+
+    <div class="board" id="pw-board" style="flex-direction:column; gap:18px;"></div>
+
+    <div class="feedback" id="pw-feedback"></div>
+    <div class="hint" id="pw-hint">Calcula A², A³ y A⁴, busca el patrón (crece siempre igual o se repite en ciclo) y aplícalo para hallar Aⁿ.</div>
+
+    <div class="actions">
+      <button id="pw-checkBtn" class="primary">Comprobar</button>
+      <button id="pw-revealBtn">Ver solución</button>
+    </div>
+  </div>
+
+  <footer>practica-matrices.html · genera y evalúa localmente, sin backend</footer>
+</div>
+
+<script>
+(function(){
+  // ---------- utilidades comunes ----------
+  function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function buildMatrix(rows, cols, range){
+    const m = [];
+    for(let i=0;i<rows;i++){
+      const row = [];
+      for(let j=0;j<cols;j++) row.push(randInt(-range, range));
+      m.push(row);
+    }
+    return m;
+  }
+  function renderMatrixStatic(m){
+    const rows = m.length, cols = m[0].length;
+    const wrap = document.createElement('div');
+    wrap.className = 'matrix';
+    wrap.style.gridTemplateColumns = `repeat(${cols}, 46px)`;
+    wrap.style.gridTemplateRows = `repeat(${rows}, 40px)`;
+    m.forEach(row => row.forEach(v => {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      c.textContent = v;
+      wrap.appendChild(c);
+    }));
+    return wrap;
+  }
+  function renderMatrixInputs(rows, cols){
+    const wrap = document.createElement('div');
+    wrap.className = 'matrix';
+    wrap.style.gridTemplateColumns = `repeat(${cols}, 46px)`;
+    wrap.style.gridTemplateRows = `repeat(${rows}, 40px)`;
+    const inputs = [];
+    for(let i=0;i<rows;i++){
+      const rowInputs = [];
+      for(let j=0;j<cols;j++){
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.className = 'cell-input';
+        wrap.appendChild(inp);
+        rowInputs.push(inp);
+      }
+      inputs.push(rowInputs);
+    }
+    return {wrap, inputs};
+  }
+  function markInputs(inputs, target){
+    let allFilled = true, allCorrect = true;
+    for(let i=0;i<target.length;i++){
+      for(let j=0;j<target[0].length;j++){
+        const inp = inputs[i][j];
+        const raw = inp.value.trim();
+        inp.classList.remove('ok','bad');
+        if(raw === ''){ allFilled = false; continue; }
+        const val = parseInt(raw, 10);
+        if(val === target[i][j]){ inp.classList.add('ok'); }
+        else { inp.classList.add('bad'); allCorrect = false; }
+      }
+    }
+    return {allFilled, allCorrect};
+  }
+  function revealInputs(inputs, target){
+    for(let i=0;i<target.length;i++){
+      for(let j=0;j<target[0].length;j++){
+        inputs[i][j].value = target[i][j];
+        inputs[i][j].classList.remove('bad');
+        inputs[i][j].classList.add('ok');
+      }
+    }
+  }
+
+  // ---------- stats compartidas (una entrada por modo) ----------
+  const STORAGE_KEY = "mm_practice_stats_v2";
+  function loadAllStats(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      return JSON.parse(raw);
+    }catch(e){ return {}; }
+  }
+  function saveAllStats(all){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(all)); }catch(e){}
+  }
+  const allStats = loadAllStats();
+  function getStats(mode){
+    if(!allStats[mode]) allStats[mode] = {streak:0, solved:0, best:0};
+    return allStats[mode];
+  }
+  function persist(){ saveAllStats(allStats); }
+
+  // ==================================================
+  // TAB 1: PRODUCTO DE MATRICES
+  // ==================================================
+  (function(){
+    const els = {
+      difficulty: document.getElementById('p-difficulty'),
+      range: document.getElementById('p-range'),
+      newBtn: document.getElementById('p-newBtn'),
+      board: document.getElementById('p-board'),
+      feedback: document.getElementById('p-feedback'),
+      hint: document.getElementById('p-hint'),
+      checkBtn: document.getElementById('p-checkBtn'),
+      revealBtn: document.getElementById('p-revealBtn'),
+      streak: document.getElementById('p-streak'),
+      solved: document.getElementById('p-solved'),
+      best: document.getElementById('p-best'),
+    };
+    const DIMS = [
+      {a:[2,2], b:[2,2]},
+      {a:[2,3], b:[3,2]},
+      {a:[3,3], b:[3,3]},
+      {a:[3,4], b:[4,2]},
+    ];
+    const stats = getStats('producto');
+    function renderStats(){
+      els.streak.textContent = stats.streak;
+      els.solved.textContent = stats.solved;
+      els.best.textContent = stats.best;
+    }
+    renderStats();
+
+    function multiply(A, B){
+      const rows = A.length, inner = B.length, cols = B[0].length;
+      const R = [];
+      for(let i=0;i<rows;i++){
+        const row = [];
+        for(let j=0;j<cols;j++){
+          let sum = 0;
+          for(let k=0;k<inner;k++) sum += A[i][k]*B[k][j];
+          row.push(sum);
+        }
+        R.push(row);
+      }
+      return R;
+    }
+
+    let state = null;
+    function newChallenge(){
+      const dims = DIMS[parseInt(els.difficulty.value, 10)];
+      const range = parseInt(els.range.value, 10);
+      const A = buildMatrix(dims.a[0], dims.a[1], range);
+      const B = buildMatrix(dims.b[0], dims.b[1], range);
+      const R = multiply(A, B);
+
+      els.board.innerHTML = '';
+      els.feedback.textContent = ''; els.feedback.className = 'feedback';
+      els.hint.textContent = '';
+      els.checkBtn.disabled = false;
+
+      const opX = document.createElement('div'); opX.className='op'; opX.textContent='×';
+      const opEq = document.createElement('div'); opEq.className='op'; opEq.textContent='=';
+      const {wrap: matR, inputs} = renderMatrixInputs(R.length, R[0].length);
+
+      els.board.append(renderMatrixStatic(A), opX, renderMatrixStatic(B), opEq, matR);
+      state = {R, inputs};
+      inputs[0][0].focus();
+    }
+
+    function checkAnswer(){
+      if(!state) return;
+      const {allFilled, allCorrect} = markInputs(state.inputs, state.R);
+      if(!allFilled){
+        els.feedback.textContent = 'Rellena todas las celdas antes de comprobar.';
+        els.feedback.className = 'feedback';
+        return;
+      }
+      if(allCorrect){
+        els.feedback.textContent = '✔ Correcto';
+        els.feedback.className = 'feedback ok';
+        stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
+        persist(); renderStats();
+        els.checkBtn.disabled = true;
+        setTimeout(newChallenge, 900);
+      } else {
+        els.feedback.textContent = '✘ Hay celdas incorrectas (en rojo)';
+        els.feedback.className = 'feedback bad';
+        stats.streak = 0; persist(); renderStats();
+      }
+    }
+    function reveal(){
+      if(!state) return;
+      revealInputs(state.inputs, state.R);
+      els.feedback.textContent = 'Solución revelada';
+      els.feedback.className = 'feedback';
+      stats.streak = 0; persist(); renderStats();
+    }
+
+    els.newBtn.addEventListener('click', newChallenge);
+    els.checkBtn.addEventListener('click', checkAnswer);
+    els.revealBtn.addEventListener('click', reveal);
+    els.difficulty.addEventListener('change', newChallenge);
+    els.range.addEventListener('change', newChallenge);
+
+    window.__mmProducto = {newChallenge};
+    newChallenge();
+  })();
+
+  // ==================================================
+  // TAB 2: SISTEMA MATRICIAL (X, Y)
+  // ==================================================
+  (function(){
+    const els = {
+      difficulty: document.getElementById('s-difficulty'),
+      range: document.getElementById('s-range'),
+      newBtn: document.getElementById('s-newBtn'),
+      system: document.getElementById('s-system'),
+      board: document.getElementById('s-board'),
+      feedback: document.getElementById('s-feedback'),
+      hint: document.getElementById('s-hint'),
+      checkBtn: document.getElementById('s-checkBtn'),
+      revealBtn: document.getElementById('s-revealBtn'),
+      streak: document.getElementById('s-streak'),
+      solved: document.getElementById('s-solved'),
+      best: document.getElementById('s-best'),
+    };
+    const SIZES = [ [2,2], [2,3] ];
+    const COEFFS = [-3,-2,-1,1,2,3];
+    const stats = getStats('sistema');
+    function renderStats(){
+      els.streak.textContent = stats.streak;
+      els.solved.textContent = stats.solved;
+      els.best.textContent = stats.best;
+    }
+    renderStats();
+
+    function scaleAdd(p, M, q, N){
+      // p*M + q*N, elemento a elemento
+      const rows = M.length, cols = M[0].length;
+      const R = [];
+      for(let i=0;i<rows;i++){
+        const row = [];
+        for(let j=0;j<cols;j++) row.push(p*M[i][j] + q*N[i][j]);
+        R.push(row);
+      }
+      return R;
+    }
+    function pickCoeffs(){
+      // busca p1,q1,p2,q2 con determinante != 0 (sistema con solución única)
+      let p1,q1,p2,q2, det;
+      do{
+        p1 = COEFFS[randInt(0, COEFFS.length-1)];
+        q1 = COEFFS[randInt(0, COEFFS.length-1)];
+        p2 = COEFFS[randInt(0, COEFFS.length-1)];
+        q2 = COEFFS[randInt(0, COEFFS.length-1)];
+        det = p1*q2 - p2*q1;
+      } while(det === 0);
+      return {p1,q1,p2,q2};
+    }
+    function formatTerm(coeff, letter, isFirst){
+      const sign = coeff < 0 ? '-' : (isFirst ? '' : '+');
+      const abs = Math.abs(coeff);
+      const num = abs === 1 ? '' : String(abs);
+      return `${sign}${num}${letter}`;
+    }
+
+    let state = null;
+    function newChallenge(){
+      const [rows, cols] = SIZES[parseInt(els.difficulty.value, 10)];
+      const range = parseInt(els.range.value, 10);
+      const X = buildMatrix(rows, cols, range);
+      const Y = buildMatrix(rows, cols, range);
+      const {p1,q1,p2,q2} = pickCoeffs();
+      const M1 = scaleAdd(p1, X, q1, Y);
+      const M2 = scaleAdd(p2, X, q2, Y);
+
+      els.system.innerHTML = '';
+      els.board.innerHTML = '';
+      els.feedback.textContent = ''; els.feedback.className = 'feedback';
+      els.hint.textContent = '';
+      els.checkBtn.disabled = false;
+
+      function buildEquationRow(pc, qc, M){
+        const row = document.createElement('div');
+        row.className = 'equation';
+        const t1 = document.createElement('div'); t1.className='term'; t1.textContent = formatTerm(pc, 'X', true);
+        const t2 = document.createElement('div'); t2.className='term'; t2.textContent = formatTerm(qc, 'Y', false);
+        const eq = document.createElement('div'); eq.className='op'; eq.textContent = '=';
+        row.append(t1, t2, eq, renderMatrixStatic(M));
+        return row;
+      }
+      els.system.append(buildEquationRow(p1, q1, M1), buildEquationRow(p2, q2, M2));
+
+      const {wrap: wrapX, inputs: inputsX} = renderMatrixInputs(rows, cols);
+      const {wrap: wrapY, inputs: inputsY} = renderMatrixInputs(rows, cols);
+      const blockX = document.createElement('div'); blockX.className='unknown-block';
+      const labelX = document.createElement('div'); labelX.className='unknown-label'; labelX.textContent = 'X =';
+      blockX.append(labelX, wrapX);
+      const blockY = document.createElement('div'); blockY.className='unknown-block';
+      const labelY = document.createElement('div'); labelY.className='unknown-label'; labelY.textContent = 'Y =';
+      blockY.append(labelY, wrapY);
+      els.board.append(blockX, blockY);
+
+      state = {X, Y, inputsX, inputsY};
+      inputsX[0][0].focus();
+    }
+
+    function checkAnswer(){
+      if(!state) return;
+      const rX = markInputs(state.inputsX, state.X);
+      const rY = markInputs(state.inputsY, state.Y);
+      if(!rX.allFilled || !rY.allFilled){
+        els.feedback.textContent = 'Rellena todas las celdas de X e Y antes de comprobar.';
+        els.feedback.className = 'feedback';
+        return;
+      }
+      if(rX.allCorrect && rY.allCorrect){
+        els.feedback.textContent = '✔ Correcto';
+        els.feedback.className = 'feedback ok';
+        stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
+        persist(); renderStats();
+        els.checkBtn.disabled = true;
+        setTimeout(newChallenge, 900);
+      } else {
+        els.feedback.textContent = '✘ Hay celdas incorrectas (en rojo)';
+        els.feedback.className = 'feedback bad';
+        stats.streak = 0; persist(); renderStats();
+      }
+    }
+    function reveal(){
+      if(!state) return;
+      revealInputs(state.inputsX, state.X);
+      revealInputs(state.inputsY, state.Y);
+      els.feedback.textContent = 'Solución revelada';
+      els.feedback.className = 'feedback';
+      stats.streak = 0; persist(); renderStats();
+    }
+
+    els.newBtn.addEventListener('click', newChallenge);
+    els.checkBtn.addEventListener('click', checkAnswer);
+    els.revealBtn.addEventListener('click', reveal);
+    els.difficulty.addEventListener('change', newChallenge);
+    els.range.addEventListener('change', newChallenge);
+
+    window.__mmSistema = {newChallenge};
+    newChallenge();
+  })();
+
+  // ==================================================
+  // TAB 3: POTENCIAS DE UNA MATRIZ (Aⁿ)
+  // ==================================================
+  (function(){
+    const els = {
+      difficulty: document.getElementById('pw-difficulty'),
+      range: document.getElementById('pw-range'),
+      type: document.getElementById('pw-type'),
+      newBtn: document.getElementById('pw-newBtn'),
+      aRow: document.getElementById('pw-a-row'),
+      board: document.getElementById('pw-board'),
+      feedback: document.getElementById('pw-feedback'),
+      hint: document.getElementById('pw-hint'),
+      checkBtn: document.getElementById('pw-checkBtn'),
+      revealBtn: document.getElementById('pw-revealBtn'),
+      streak: document.getElementById('pw-streak'),
+      solved: document.getElementById('pw-solved'),
+      best: document.getElementById('pw-best'),
+    };
+    const stats = getStats('potencias');
+    function renderStats(){
+      els.streak.textContent = stats.streak;
+      els.solved.textContent = stats.solved;
+      els.best.textContent = stats.best;
+    }
+    renderStats();
+
+    function identity(size){
+      const I = [];
+      for(let i=0;i<size;i++){
+        const row = [];
+        for(let j=0;j<size;j++) row.push(i===j ? 1 : 0);
+        I.push(row);
+      }
+      return I;
+    }
+    function matMul(A, B){
+      const n = A.length, m = B[0].length, inner = B.length;
+      const R = [];
+      for(let i=0;i<n;i++){
+        const row = [];
+        for(let j=0;j<m;j++){
+          let sum = 0;
+          for(let k=0;k<inner;k++) sum += A[i][k]*B[k][j];
+          row.push(sum);
+        }
+        R.push(row);
+      }
+      return R;
+    }
+    function matPow(A, k){
+      let result = identity(A.length);
+      let base = A;
+      let e = k;
+      while(e > 0){
+        if(e & 1) result = matMul(result, base);
+        base = matMul(base, base);
+        e >>= 1;
+      }
+      return result;
+    }
+
+    // catálogo de matrices "periódicas" (permutaciones / rotaciones): A^periodo = I
+    const PERIODIC = {
+      2: [
+        {M: [[0,1],[1,0]], period: 2},                // permutación (swap)
+        {M: [[0,-1],[1,0]], period: 4},                // rotación 90°
+        {M: [[-1,0],[0,1]], period: 2},                // reflexión
+      ],
+      3: [
+        {M: [[0,1,0],[0,0,1],[1,0,0]], period: 3},     // ciclo (1 2 3)
+        {M: [[0,0,1],[1,0,0],[0,1,0]], period: 3},     // ciclo inverso
+        {M: [[1,0,0],[0,0,1],[0,1,0]], period: 2},     // transposición, fija un eje
+        {M: [[0,-1,0],[1,0,0],[0,0,1]], period: 4},    // rotación 90° + eje fijo
+      ],
+    };
+
+    let state = null;
+    function buildProgresivo(size, range){
+      const I = identity(size);
+      let i, j;
+      do{ i = randInt(0, size-1); j = randInt(0, size-1); } while(i === j);
+      const v = randInt(1, range) * (Math.random() < 0.5 ? -1 : 1);
+      const N = [];
+      for(let r=0;r<size;r++){ N.push(new Array(size).fill(0)); }
+      N[i][j] = v;
+      const A = matMul(I, I); // clone I
+      for(let r=0;r<size;r++) for(let c=0;c<size;c++) A[r][c] = I[r][c] + N[r][c];
+      return A;
+    }
+    function buildPeriodico(size){
+      const options = PERIODIC[size];
+      const pick = options[randInt(0, options.length-1)];
+      return pick.M.map(row => row.slice());
+    }
+
+    function newChallenge(){
+      const size = parseInt(els.difficulty.value, 10);
+      const range = parseInt(els.range.value, 10);
+      let type = els.type.value;
+      if(type === 'aleatorio') type = Math.random() < 0.5 ? 'progresivo' : 'periodico';
+      els.range.disabled = (type === 'periodico');
+
+      const A = (type === 'progresivo') ? buildProgresivo(size, range) : buildPeriodico(size);
+      const A2 = matPow(A, 2);
+      const A3 = matPow(A, 3);
+      const A4 = matPow(A, 4);
+      const n = randInt(9, 70);
+      const An = matPow(A, n);
+
+      els.aRow.querySelectorAll('.matrix').forEach(el => el.remove());
+      els.aRow.appendChild(renderMatrixStatic(A));
+
+      els.board.innerHTML = '';
+      els.feedback.textContent = ''; els.feedback.className = 'feedback';
+      els.checkBtn.disabled = false;
+
+      function powerRow(labelHtml, size){
+        const block = document.createElement('div');
+        block.className = 'unknown-block';
+        const label = document.createElement('div');
+        label.className = 'unknown-label';
+        label.innerHTML = labelHtml;
+        const {wrap, inputs} = renderMatrixInputs(size, size);
+        block.append(label, wrap);
+        return {block, inputs};
+      }
+
+      const r2 = powerRow('A² =', size);
+      const r3 = powerRow('A³ =', size);
+      const r4 = powerRow('A⁴ =', size);
+      const rn = powerRow(`A<sup>${n}</sup> =`, size);
+      els.board.append(r2.block, r3.block, r4.block, rn.block);
+
+      state = {
+        targets: [A2, A3, A4, An],
+        inputsList: [r2.inputs, r3.inputs, r4.inputs, rn.inputs],
+      };
+      r2.inputs[0][0].focus();
+    }
+
+    function checkAnswer(){
+      if(!state) return;
+      let allFilled = true, allCorrect = true;
+      state.targets.forEach((target, idx) => {
+        const res = markInputs(state.inputsList[idx], target);
+        if(!res.allFilled) allFilled = false;
+        if(!res.allCorrect) allCorrect = false;
+      });
+      if(!allFilled){
+        els.feedback.textContent = 'Rellena todas las celdas antes de comprobar.';
+        els.feedback.className = 'feedback';
+        return;
+      }
+      if(allCorrect){
+        els.feedback.textContent = '✔ Correcto';
+        els.feedback.className = 'feedback ok';
+        stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
+        persist(); renderStats();
+        els.checkBtn.disabled = true;
+        setTimeout(newChallenge, 1100);
+      } else {
+        els.feedback.textContent = '✘ Hay celdas incorrectas (en rojo)';
+        els.feedback.className = 'feedback bad';
+        stats.streak = 0; persist(); renderStats();
+      }
+    }
+    function reveal(){
+      if(!state) return;
+      state.targets.forEach((target, idx) => revealInputs(state.inputsList[idx], target));
+      els.feedback.textContent = 'Solución revelada';
+      els.feedback.className = 'feedback';
+      stats.streak = 0; persist(); renderStats();
+    }
+
+    els.newBtn.addEventListener('click', newChallenge);
+    els.checkBtn.addEventListener('click', checkAnswer);
+    els.revealBtn.addEventListener('click', reveal);
+    els.difficulty.addEventListener('change', newChallenge);
+    els.range.addEventListener('change', newChallenge);
+    els.type.addEventListener('change', newChallenge);
+
+    window.__mmPotencias = {newChallenge};
+    newChallenge();
+  })();
+
+  // ---------- tabs ----------
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('view-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Enter') return;
+    const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+    e.preventDefault();
+    if(activeTab === 'producto') document.getElementById('p-checkBtn').click();
+    else if(activeTab === 'sistema') document.getElementById('s-checkBtn').click();
+    else document.getElementById('pw-checkBtn').click();
+  });
+})();
+</script>
+</body>
+</html>
