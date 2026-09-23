@@ -240,6 +240,9 @@
     <button class="tab-btn active" data-tab="producto">Producto A×B</button>
     <button class="tab-btn" data-tab="sistema">Sistema matricial (X, Y)</button>
     <button class="tab-btn" data-tab="potencias">Potencias Aⁿ</button>
+    <button class="tab-btn" data-tab="determinante">Determinante</button>
+    <button class="tab-btn" data-tab="inversa">Matriz inversa</button>
+    <button class="tab-btn" data-tab="rango">Rango</button>
   </div>
 
   <!-- ===== TAB 1: PRODUCTO DE MATRICES ===== -->
@@ -375,6 +378,141 @@
     </div>
   </div>
 
+  <!-- ===== TAB 4: DETERMINANTE ===== -->
+  <div class="view" id="view-determinante">
+    <div class="panel">
+      <div class="controls">
+        <div>
+          <label for="d-size">Tamaño</label>
+          <select id="d-size">
+            <option value="2">2×2</option>
+            <option value="3" selected>3×3</option>
+            <option value="4">4×4</option>
+            <option value="aleatorio">Aleatorio</option>
+          </select>
+        </div>
+        <div>
+          <label for="d-zeros">Ceros en fila/col</label>
+          <select id="d-zeros">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="aleatorio">Aleatorio</option>
+          </select>
+        </div>
+        <div>
+          <label for="d-range">Rango</label>
+          <select id="d-range">
+            <option value="4">-4 a 4</option>
+            <option value="6" selected>-6 a 6</option>
+            <option value="9">-9 a 9</option>
+          </select>
+        </div>
+        <button id="d-newBtn">🔄 Nuevo reto</button>
+      </div>
+      <div class="stats">
+        <span>Racha: <b id="d-streak">0</b></span>
+        <span>Resueltos: <b id="d-solved">0</b></span>
+        <span>Mejor racha: <b id="d-best">0</b></span>
+      </div>
+    </div>
+
+    <div class="board" id="d-board"></div>
+
+    <div class="feedback" id="d-feedback"></div>
+    <div class="hint" id="d-hint">Elige la fila o columna con más ceros y desarrolla por ella (adjuntos/cofactores).</div>
+
+    <div class="actions">
+      <button id="d-checkBtn" class="primary">Comprobar</button>
+      <button id="d-revealBtn">Ver solución</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB 5: MATRIZ INVERSA ===== -->
+  <div class="view" id="view-inversa">
+    <div class="panel">
+      <div class="controls">
+        <div>
+          <label for="i-size">Tamaño</label>
+          <select id="i-size">
+            <option value="2" selected>2×2</option>
+            <option value="3">3×3</option>
+            <option value="aleatorio">Aleatorio</option>
+          </select>
+        </div>
+        <div>
+          <label for="i-steps">Dificultad</label>
+          <select id="i-steps">
+            <option value="4">Sencilla</option>
+            <option value="7" selected>Media</option>
+            <option value="10">Compleja</option>
+          </select>
+        </div>
+        <button id="i-newBtn">🔄 Nuevo reto</button>
+      </div>
+      <div class="stats">
+        <span>Racha: <b id="i-streak">0</b></span>
+        <span>Resueltos: <b id="i-solved">0</b></span>
+        <span>Mejor racha: <b id="i-best">0</b></span>
+      </div>
+    </div>
+
+    <div class="board" id="i-board"></div>
+
+    <div class="feedback" id="i-feedback"></div>
+    <div class="hint" id="i-hint">A⁻¹ siempre sale con números enteros en este reto: det(A) = ±1.</div>
+
+    <div class="actions">
+      <button id="i-checkBtn" class="primary">Comprobar</button>
+      <button id="i-revealBtn">Ver solución</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB 6: RANGO ===== -->
+  <div class="view" id="view-rango">
+    <div class="panel">
+      <div class="controls">
+        <div>
+          <label for="r-size">Tamaño</label>
+          <select id="r-size">
+            <option value="0">2×2</option>
+            <option value="1" selected>2×3</option>
+            <option value="2">3×3</option>
+            <option value="3">3×4</option>
+            <option value="4">4×4</option>
+            <option value="5">5×3</option>
+            <option value="aleatorio">Aleatorio</option>
+          </select>
+        </div>
+        <div>
+          <label for="r-range">Rango de valores</label>
+          <select id="r-range">
+            <option value="4">-4 a 4</option>
+            <option value="6" selected>-6 a 6</option>
+            <option value="9">-9 a 9</option>
+          </select>
+        </div>
+        <button id="r-newBtn">🔄 Nuevo reto</button>
+      </div>
+      <div class="stats">
+        <span>Racha: <b id="r-streak">0</b></span>
+        <span>Resueltos: <b id="r-solved">0</b></span>
+        <span>Mejor racha: <b id="r-best">0</b></span>
+      </div>
+    </div>
+
+    <div class="board" id="r-board"></div>
+
+    <div class="feedback" id="r-feedback"></div>
+    <div class="hint" id="r-hint">Reduce por filas y cuenta las filas no nulas de la forma escalonada.</div>
+
+    <div class="actions">
+      <button id="r-checkBtn" class="primary">Comprobar</button>
+      <button id="r-revealBtn">Ver solución</button>
+    </div>
+  </div>
+
   <footer>practica-matrices.html · genera y evalúa localmente, sin backend</footer>
 </div>
 
@@ -447,6 +585,32 @@
         inputs[i][j].classList.add('ok');
       }
     }
+  }
+  function renderValueInput(){
+    const wrap = document.createElement('div');
+    wrap.className = 'matrix';
+    wrap.style.gridTemplateColumns = '64px';
+    wrap.style.gridTemplateRows = '40px';
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'cell-input';
+    inp.style.width = '64px';
+    wrap.appendChild(inp);
+    return {wrap, input: inp};
+  }
+  function markValue(input, target){
+    const raw = input.value.trim();
+    input.classList.remove('ok','bad');
+    if(raw === '') return {filled:false, correct:false};
+    const val = parseInt(raw, 10);
+    const correct = val === target;
+    input.classList.add(correct ? 'ok' : 'bad');
+    return {filled:true, correct};
+  }
+  function revealValue(input, target){
+    input.value = target;
+    input.classList.remove('bad');
+    input.classList.add('ok');
   }
 
   // ---------- stats compartidas (una entrada por modo) ----------
@@ -562,6 +726,7 @@
       revealInputs(state.inputs, state.R);
       els.feedback.textContent = 'Solución revelada';
       els.feedback.className = 'feedback';
+      els.checkBtn.disabled = true;
       stats.streak = 0; persist(); renderStats();
     }
 
@@ -702,6 +867,7 @@
       revealInputs(state.inputsY, state.Y);
       els.feedback.textContent = 'Solución revelada';
       els.feedback.className = 'feedback';
+      els.checkBtn.disabled = true;
       stats.streak = 0; persist(); renderStats();
     }
 
@@ -887,6 +1053,7 @@
       state.targets.forEach((target, idx) => revealInputs(state.inputsList[idx], target));
       els.feedback.textContent = 'Solución revelada';
       els.feedback.className = 'feedback';
+      els.checkBtn.disabled = true;
       stats.streak = 0; persist(); renderStats();
     }
 
@@ -898,6 +1065,422 @@
     els.type.addEventListener('change', newChallenge);
 
     window.__mmPotencias = {newChallenge};
+    newChallenge();
+  })();
+
+  // ==================================================
+  // TAB 4: DETERMINANTE
+  // ==================================================
+  (function(){
+    const els = {
+      size: document.getElementById('d-size'),
+      zeros: document.getElementById('d-zeros'),
+      range: document.getElementById('d-range'),
+      newBtn: document.getElementById('d-newBtn'),
+      board: document.getElementById('d-board'),
+      feedback: document.getElementById('d-feedback'),
+      checkBtn: document.getElementById('d-checkBtn'),
+      revealBtn: document.getElementById('d-revealBtn'),
+      streak: document.getElementById('d-streak'),
+      solved: document.getElementById('d-solved'),
+      best: document.getElementById('d-best'),
+    };
+    const SIZES = [2,3,4];
+    const stats = getStats('determinante');
+    function renderStats(){
+      els.streak.textContent = stats.streak;
+      els.solved.textContent = stats.solved;
+      els.best.textContent = stats.best;
+    }
+    renderStats();
+
+    function nonZeroRand(range){
+      let v;
+      do{ v = randInt(-range, range); } while(v === 0);
+      return v;
+    }
+    function buildDetMatrix(n, range, zerosTarget){
+      const isRow = Math.random() < 0.5;
+      const idx = randInt(0, n-1);
+      const zeroPos = new Set();
+      while(zeroPos.size < zerosTarget) zeroPos.add(randInt(0, n-1));
+      const M = [];
+      for(let i=0;i<n;i++){
+        const row = [];
+        for(let j=0;j<n;j++){
+          const onLine = isRow ? (i === idx) : (j === idx);
+          const posInLine = isRow ? j : i;
+          if(onLine && zeroPos.has(posInLine)) row.push(0);
+          else if(onLine) row.push(nonZeroRand(range));
+          else row.push(randInt(-range, range));
+        }
+        M.push(row);
+      }
+      return M;
+    }
+    function determinant(M){
+      const n = M.length;
+      if(n === 1) return M[0][0];
+      if(n === 2) return M[0][0]*M[1][1] - M[0][1]*M[1][0];
+      let det = 0, sign = 1;
+      for(let j=0;j<n;j++){
+        if(M[0][j] !== 0){
+          const minor = M.slice(1).map(row => row.filter((_,c) => c !== j));
+          det += sign * M[0][j] * determinant(minor);
+        }
+        sign = -sign;
+      }
+      return det;
+    }
+
+    let state = null;
+    function newChallenge(){
+      const n = els.size.value === 'aleatorio' ? SIZES[randInt(0, SIZES.length-1)] : parseInt(els.size.value, 10);
+      const range = parseInt(els.range.value, 10);
+      const maxZeros = n - 1;
+      const zerosTarget = els.zeros.value === 'aleatorio' ? randInt(0, Math.min(3, maxZeros)) : Math.min(parseInt(els.zeros.value, 10), maxZeros);
+      const M = buildDetMatrix(n, range, zerosTarget);
+      const det = determinant(M);
+
+      els.board.innerHTML = '';
+      els.feedback.textContent = ''; els.feedback.className = 'feedback';
+      els.checkBtn.disabled = false;
+
+      const label = document.createElement('div'); label.className = 'term'; label.textContent = 'det(A) =';
+      const {wrap: valWrap, input: valInput} = renderValueInput();
+      els.board.append(renderMatrixStatic(M), label, valWrap);
+      state = {det, input: valInput};
+      valInput.focus();
+    }
+
+    function checkAnswer(){
+      if(!state) return;
+      const {filled, correct} = markValue(state.input, state.det);
+      if(!filled){
+        els.feedback.textContent = 'Escribe el determinante antes de comprobar.';
+        els.feedback.className = 'feedback';
+        return;
+      }
+      if(correct){
+        els.feedback.textContent = '✔ Correcto';
+        els.feedback.className = 'feedback ok';
+        stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
+        persist(); renderStats();
+        els.checkBtn.disabled = true;
+        setTimeout(newChallenge, 900);
+      } else {
+        els.feedback.textContent = '✘ Incorrecto';
+        els.feedback.className = 'feedback bad';
+        stats.streak = 0; persist(); renderStats();
+      }
+    }
+    function reveal(){
+      if(!state) return;
+      revealValue(state.input, state.det);
+      els.feedback.textContent = 'Solución revelada';
+      els.feedback.className = 'feedback';
+      els.checkBtn.disabled = true;
+      stats.streak = 0; persist(); renderStats();
+    }
+
+    els.newBtn.addEventListener('click', newChallenge);
+    els.checkBtn.addEventListener('click', checkAnswer);
+    els.revealBtn.addEventListener('click', reveal);
+    els.size.addEventListener('change', newChallenge);
+    els.zeros.addEventListener('change', newChallenge);
+    els.range.addEventListener('change', newChallenge);
+
+    window.__mmDeterminante = {newChallenge};
+    newChallenge();
+  })();
+
+  // ==================================================
+  // TAB 5: MATRIZ INVERSA (resultado siempre entero)
+  // ==================================================
+  (function(){
+    const els = {
+      size: document.getElementById('i-size'),
+      steps: document.getElementById('i-steps'),
+      newBtn: document.getElementById('i-newBtn'),
+      board: document.getElementById('i-board'),
+      feedback: document.getElementById('i-feedback'),
+      checkBtn: document.getElementById('i-checkBtn'),
+      revealBtn: document.getElementById('i-revealBtn'),
+      streak: document.getElementById('i-streak'),
+      solved: document.getElementById('i-solved'),
+      best: document.getElementById('i-best'),
+    };
+    const SIZES = [2,3];
+    const MAX_ENTRY = 30;
+    const stats = getStats('inversa');
+    function renderStats(){
+      els.streak.textContent = stats.streak;
+      els.solved.textContent = stats.solved;
+      els.best.textContent = stats.best;
+    }
+    renderStats();
+
+    function identity(n){
+      const I = [];
+      for(let i=0;i<n;i++){ const row=[]; for(let j=0;j<n;j++) row.push(i===j?1:0); I.push(row); }
+      return I;
+    }
+    function maxAbs(M){
+      let m = 0;
+      M.forEach(row => row.forEach(v => { if(Math.abs(v) > m) m = Math.abs(v); }));
+      return m;
+    }
+    function randomUnimodular(n, steps){
+      let M = identity(n);
+      for(let s=0;s<steps;s++){
+        const type = randInt(0,2);
+        if(type === 0){
+          let r1 = randInt(0,n-1), r2;
+          do{ r2 = randInt(0,n-1); }while(r2 === r1);
+          [M[r1], M[r2]] = [M[r2], M[r1]];
+        } else if(type === 1){
+          const r = randInt(0,n-1);
+          M[r] = M[r].map(v => -v);
+        } else {
+          let rA = randInt(0,n-1), rB;
+          do{ rB = randInt(0,n-1); }while(rB === rA);
+          let k; do{ k = randInt(-3,3); }while(k === 0);
+          M[rB] = M[rB].map((v,c) => v + k*M[rA][c]);
+        }
+      }
+      return M;
+    }
+    function minorOf(M, ri, ci){ return M.filter((_,r) => r !== ri).map(row => row.filter((_,c) => c !== ci)); }
+    function determinant(M){
+      const n = M.length;
+      if(n === 1) return M[0][0];
+      if(n === 2) return M[0][0]*M[1][1] - M[0][1]*M[1][0];
+      let det = 0, sign = 1;
+      for(let j=0;j<n;j++){
+        if(M[0][j] !== 0) det += sign * M[0][j] * determinant(minorOf(M,0,j));
+        sign = -sign;
+      }
+      return det;
+    }
+    function invert(M){
+      const n = M.length, det = determinant(M);
+      const cof = [];
+      for(let i=0;i<n;i++){
+        const row = [];
+        for(let j=0;j<n;j++) row.push(((i+j)%2===0?1:-1) * determinant(minorOf(M,i,j)));
+        cof.push(row);
+      }
+      const inv = [];
+      for(let i=0;i<n;i++){
+        const row = [];
+        for(let j=0;j<n;j++) row.push(cof[j][i] / det);
+        inv.push(row);
+      }
+      return inv;
+    }
+
+    let state = null;
+    function newChallenge(){
+      const n = els.size.value === 'aleatorio' ? SIZES[randInt(0, SIZES.length-1)] : parseInt(els.size.value, 10);
+      const steps = parseInt(els.steps.value, 10);
+      let A;
+      do{ A = randomUnimodular(n, steps); } while(maxAbs(A) > MAX_ENTRY);
+      const inv = invert(A);
+
+      els.board.innerHTML = '';
+      els.feedback.textContent = ''; els.feedback.className = 'feedback';
+      els.checkBtn.disabled = false;
+
+      const labelA = document.createElement('div'); labelA.className = 'term'; labelA.textContent = 'A =';
+      const labelInv = document.createElement('div'); labelInv.className = 'term'; labelInv.textContent = 'A⁻¹ =';
+      const {wrap: invWrap, inputs} = renderMatrixInputs(n, n);
+      els.board.append(labelA, renderMatrixStatic(A), labelInv, invWrap);
+      state = {inv, inputs};
+      inputs[0][0].focus();
+    }
+
+    function checkAnswer(){
+      if(!state) return;
+      const {allFilled, allCorrect} = markInputs(state.inputs, state.inv);
+      if(!allFilled){
+        els.feedback.textContent = 'Rellena todas las celdas antes de comprobar.';
+        els.feedback.className = 'feedback';
+        return;
+      }
+      if(allCorrect){
+        els.feedback.textContent = '✔ Correcto';
+        els.feedback.className = 'feedback ok';
+        stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
+        persist(); renderStats();
+        els.checkBtn.disabled = true;
+        setTimeout(newChallenge, 900);
+      } else {
+        els.feedback.textContent = '✘ Hay celdas incorrectas (en rojo)';
+        els.feedback.className = 'feedback bad';
+        stats.streak = 0; persist(); renderStats();
+      }
+    }
+    function reveal(){
+      if(!state) return;
+      revealInputs(state.inputs, state.inv);
+      els.feedback.textContent = 'Solución revelada';
+      els.feedback.className = 'feedback';
+      els.checkBtn.disabled = true;
+      stats.streak = 0; persist(); renderStats();
+    }
+
+    els.newBtn.addEventListener('click', newChallenge);
+    els.checkBtn.addEventListener('click', checkAnswer);
+    els.revealBtn.addEventListener('click', reveal);
+    els.size.addEventListener('change', newChallenge);
+    els.steps.addEventListener('change', newChallenge);
+
+    window.__mmInversa = {newChallenge};
+    newChallenge();
+  })();
+
+  // ==================================================
+  // TAB 6: RANGO DE UNA MATRIZ
+  // ==================================================
+  (function(){
+    const els = {
+      size: document.getElementById('r-size'),
+      range: document.getElementById('r-range'),
+      newBtn: document.getElementById('r-newBtn'),
+      board: document.getElementById('r-board'),
+      feedback: document.getElementById('r-feedback'),
+      checkBtn: document.getElementById('r-checkBtn'),
+      revealBtn: document.getElementById('r-revealBtn'),
+      streak: document.getElementById('r-streak'),
+      solved: document.getElementById('r-solved'),
+      best: document.getElementById('r-best'),
+    };
+    const SIZES = [ [2,2], [2,3], [3,3], [3,4], [4,4], [5,3] ];
+    const stats = getStats('rango');
+    function renderStats(){
+      els.streak.textContent = stats.streak;
+      els.solved.textContent = stats.solved;
+      els.best.textContent = stats.best;
+    }
+    renderStats();
+
+    // ---- aritmética racional exacta, para no arrastrar error de coma flotante ----
+    function gcdInt(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a || 1; }
+    function frac(n,d){
+      if(d < 0){ n = -n; d = -d; }
+      const g = gcdInt(n,d) || 1;
+      return [n/g, d/g];
+    }
+    function fsub(a,b){ return frac(a[0]*b[1] - b[0]*a[1], a[1]*b[1]); }
+    function fmul(a,b){ return frac(a[0]*b[0], a[1]*b[1]); }
+    function fdiv(a,b){ return frac(a[0]*b[1], a[1]*b[0]); }
+    function fzero(a){ return a[0] === 0; }
+
+    function computeRank(M){
+      const rows = M.length, cols = M[0].length;
+      const A = M.map(row => row.map(v => [v,1]));
+      let rank = 0;
+      for(let col=0; col<cols && rank<rows; col++){
+        let pivot = -1;
+        for(let r=rank; r<rows; r++){ if(!fzero(A[r][col])){ pivot = r; break; } }
+        if(pivot === -1) continue;
+        [A[rank], A[pivot]] = [A[pivot], A[rank]];
+        for(let r=0; r<rows; r++){
+          if(r === rank || fzero(A[r][col])) continue;
+          const factor = fdiv(A[r][col], A[rank][col]);
+          for(let c=col; c<cols; c++) A[r][c] = fsub(A[r][c], fmul(factor, A[rank][c]));
+        }
+        rank++;
+      }
+      return rank;
+    }
+
+    function buildRankMatrix(rows, cols, range){
+      const maxRank = Math.min(rows, cols);
+      const k = randInt(1, maxRank);
+      let base;
+      let attempts = 0;
+      do{
+        base = [];
+        for(let i=0;i<k;i++){
+          let row;
+          do{ row = Array.from({length:cols}, () => randInt(-range, range)); } while(row.every(v => v === 0));
+          base.push(row);
+        }
+        attempts++;
+      } while(computeRank(base) !== k && attempts < 50);
+
+      const rowsOut = base.map(r => r.slice());
+      for(let i=0;i<rows-k;i++){
+        const coeffs = Array.from({length:k}, () => randInt(-2, 2));
+        const extra = new Array(cols).fill(0);
+        for(let c=0;c<cols;c++){
+          for(let b=0;b<k;b++) extra[c] += coeffs[b]*base[b][c];
+        }
+        rowsOut.push(extra);
+      }
+      for(let i=rowsOut.length-1; i>0; i--){
+        const j = randInt(0,i);
+        [rowsOut[i], rowsOut[j]] = [rowsOut[j], rowsOut[i]];
+      }
+      return rowsOut;
+    }
+
+    let state = null;
+    function newChallenge(){
+      const dims = els.size.value === 'aleatorio' ? SIZES[randInt(0, SIZES.length-1)] : SIZES[parseInt(els.size.value, 10)];
+      const range = parseInt(els.range.value, 10);
+      const M = buildRankMatrix(dims[0], dims[1], range);
+      const rank = computeRank(M);
+
+      els.board.innerHTML = '';
+      els.feedback.textContent = ''; els.feedback.className = 'feedback';
+      els.checkBtn.disabled = false;
+
+      const label = document.createElement('div'); label.className = 'term'; label.textContent = 'rango(A) =';
+      const {wrap: valWrap, input: valInput} = renderValueInput();
+      els.board.append(renderMatrixStatic(M), label, valWrap);
+      state = {rank, input: valInput};
+      valInput.focus();
+    }
+
+    function checkAnswer(){
+      if(!state) return;
+      const {filled, correct} = markValue(state.input, state.rank);
+      if(!filled){
+        els.feedback.textContent = 'Escribe el rango antes de comprobar.';
+        els.feedback.className = 'feedback';
+        return;
+      }
+      if(correct){
+        els.feedback.textContent = '✔ Correcto';
+        els.feedback.className = 'feedback ok';
+        stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
+        persist(); renderStats();
+        els.checkBtn.disabled = true;
+        setTimeout(newChallenge, 900);
+      } else {
+        els.feedback.textContent = '✘ Incorrecto';
+        els.feedback.className = 'feedback bad';
+        stats.streak = 0; persist(); renderStats();
+      }
+    }
+    function reveal(){
+      if(!state) return;
+      revealValue(state.input, state.rank);
+      els.feedback.textContent = 'Solución revelada';
+      els.feedback.className = 'feedback';
+      els.checkBtn.disabled = true;
+      stats.streak = 0; persist(); renderStats();
+    }
+
+    els.newBtn.addEventListener('click', newChallenge);
+    els.checkBtn.addEventListener('click', checkAnswer);
+    els.revealBtn.addEventListener('click', reveal);
+    els.size.addEventListener('change', newChallenge);
+    els.range.addEventListener('change', newChallenge);
+
+    window.__mmRango = {newChallenge};
     newChallenge();
   })();
 
@@ -917,7 +1500,10 @@
     e.preventDefault();
     if(activeTab === 'producto') document.getElementById('p-checkBtn').click();
     else if(activeTab === 'sistema') document.getElementById('s-checkBtn').click();
-    else document.getElementById('pw-checkBtn').click();
+    else if(activeTab === 'potencias') document.getElementById('pw-checkBtn').click();
+    else if(activeTab === 'determinante') document.getElementById('d-checkBtn').click();
+    else if(activeTab === 'inversa') document.getElementById('i-checkBtn').click();
+    else document.getElementById('r-checkBtn').click();
   });
 })();
 </script>
