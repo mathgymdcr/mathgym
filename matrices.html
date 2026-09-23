@@ -51,6 +51,7 @@
   }
   .tabs{
     display:flex;
+    flex-wrap:wrap;
     gap:8px;
     margin-bottom:20px;
   }
@@ -153,7 +154,7 @@
   .matrix::before{ left:0; border-right:none; }
   .matrix::after{ right:0; border-left:none; }
   .cell{
-    width:46px;
+    width:56px;
     height:40px;
     display:flex;
     align-items:center;
@@ -167,7 +168,7 @@
     padding-bottom:6px;
   }
   input.cell-input{
-    width:46px;
+    width:56px;
     height:40px;
     text-align:center;
     font-family:'JetBrains Mono', monospace;
@@ -222,6 +223,65 @@
     font-size:0.75rem;
     margin-top:6px;
   }
+  /* ---- pestaña Propiedades de determinantes ---- */
+  .matrix.det::before, .matrix.det::after{
+    width:0;
+    border-top:none;
+    border-bottom:none;
+  }
+  .matrix.det{ gap:4px; padding:10px 18px; }
+  .matrix.det .cell{ width:auto; min-width:150px; white-space:nowrap; font-family:'Patrick Hand', cursive; font-size:1.25rem; }
+  .statement{
+    text-align:center;
+    font-size:0.85rem;
+    line-height:1.7;
+    color:var(--chalk-dim);
+    margin-top:22px;
+  }
+  .statement b{ color:var(--chalk); }
+  .expr{
+    font-family:'Patrick Hand', cursive;
+    font-size:1.7rem;
+    color:var(--chalk);
+    padding-bottom:6px;
+  }
+  .help-box{
+    margin-top:18px;
+    padding:14px 16px;
+    border:1px dashed var(--accent);
+    border-radius:6px;
+    background:rgba(248,200,24,0.06);
+    font-size:0.8rem;
+    line-height:1.55;
+  }
+  .help-box[hidden]{ display:none; }
+  .help-box h3{
+    margin:0 0 8px;
+    font-family:'Patrick Hand', cursive;
+    font-weight:400;
+    font-size:1.2rem;
+    color:var(--accent);
+  }
+  .help-box ul{ margin:0; padding-left:18px; }
+  .help-box li{ margin-bottom:6px; }
+  .help-box li b{ color:var(--accent-2); }
+  .help-box details{ margin-top:10px; color:var(--chalk-dim); }
+  .help-box summary{ cursor:pointer; color:var(--chalk); }
+  .explain{
+    margin-top:12px;
+    padding:10px 14px;
+    border-left:3px solid var(--ok);
+    background:rgba(16,185,129,0.07);
+    font-size:0.8rem;
+    line-height:1.6;
+    text-align:left;
+  }
+  .explain[hidden]{ display:none; }
+  .explain ol{ margin:6px 0 0; padding-left:20px; }
+  .explain li{ margin-bottom:4px; }
+  /* Modo clase: todo el ejercicio a mayor tamaño para proyectar */
+  #pr-stage{ zoom:1; }
+  #view-propiedades.class-mode #pr-stage{ zoom:1.4; }
   footer{
     text-align:center;
     color:var(--chalk-dim);
@@ -241,6 +301,7 @@
     <button class="tab-btn" data-tab="sistema">Sistema matricial (X, Y)</button>
     <button class="tab-btn" data-tab="potencias">Potencias Aⁿ</button>
     <button class="tab-btn" data-tab="determinante">Determinante</button>
+    <button class="tab-btn" data-tab="propiedades">Propiedades det.</button>
     <button class="tab-btn" data-tab="inversa">Matriz inversa</button>
     <button class="tab-btn" data-tab="rango">Rango</button>
   </div>
@@ -509,7 +570,50 @@
     </div>
   </div>
 
-  <footer>practica-matrices.html · genera y evalúa localmente, sin backend</footer>
+  <!-- ===== TAB: PROPIEDADES DE LOS DETERMINANTES ===== -->
+  <div class="view" id="view-propiedades">
+    <div class="panel">
+      <div class="controls">
+        <div>
+          <label for="pr-type">Tipo</label>
+          <select id="pr-type">
+            <option value="todos" selected>Todos</option>
+            <option value="filas">Operaciones con filas</option>
+            <option value="suma">Fila que es una suma</option>
+            <option value="formulas">Producto, traspuesta, inversa, k·A</option>
+          </select>
+        </div>
+        <button id="pr-newBtn">🔄 Nuevo reto</button>
+        <button id="pr-classBtn" aria-pressed="false">🖥 Modo clase</button>
+      </div>
+      <div class="stats">
+        <span>Racha: <b id="pr-streak">0</b></span>
+        <span>Resueltos: <b id="pr-solved">0</b></span>
+        <span>Mejor racha: <b id="pr-best">0</b></span>
+      </div>
+    </div>
+
+    <div id="pr-stage">
+      <div class="statement" id="pr-statement"></div>
+      <div class="board" id="pr-board"></div>
+
+      <div class="feedback" id="pr-feedback"></div>
+      <div class="hint" id="pr-hint">Usa las propiedades de los determinantes: no hace falta calcular ninguna matriz.</div>
+
+      <div class="help-box" id="pr-help" hidden></div>
+      <div class="explain" id="pr-explain" hidden></div>
+
+      <div class="actions">
+        <button id="pr-checkBtn" class="primary">Comprobar</button>
+        <button id="pr-helpBtn">💡 Ayuda</button>
+        <button id="pr-revealBtn">Ver solución</button>
+        <button id="pr-explainBtn" hidden>📝 Ver resolución</button>
+        <button id="pr-nextBtn" class="primary" hidden>Siguiente ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>matrices.html · genera y evalúa localmente, sin backend</footer>
 </div>
 
 <script>
@@ -525,11 +629,16 @@
     }
     return m;
   }
+  // Solo enteros: "2.7" ya no se lee como 2.
+  function parseIntStrict(raw){
+    const v = Number(raw);
+    return Number.isInteger(v) ? v : NaN;
+  }
   function renderMatrixStatic(m){
     const rows = m.length, cols = m[0].length;
     const wrap = document.createElement('div');
     wrap.className = 'matrix';
-    wrap.style.gridTemplateColumns = `repeat(${cols}, 46px)`;
+    wrap.style.gridTemplateColumns = `repeat(${cols}, 56px)`;
     wrap.style.gridTemplateRows = `repeat(${rows}, 40px)`;
     m.forEach(row => row.forEach(v => {
       const c = document.createElement('div');
@@ -542,7 +651,7 @@
   function renderMatrixInputs(rows, cols){
     const wrap = document.createElement('div');
     wrap.className = 'matrix';
-    wrap.style.gridTemplateColumns = `repeat(${cols}, 46px)`;
+    wrap.style.gridTemplateColumns = `repeat(${cols}, 56px)`;
     wrap.style.gridTemplateRows = `repeat(${rows}, 40px)`;
     const inputs = [];
     for(let i=0;i<rows;i++){
@@ -551,6 +660,7 @@
         const inp = document.createElement('input');
         inp.type = 'number';
         inp.className = 'cell-input';
+        inp.setAttribute('aria-label', `fila ${i+1}, columna ${j+1}`);
         wrap.appendChild(inp);
         rowInputs.push(inp);
       }
@@ -566,7 +676,7 @@
         const raw = inp.value.trim();
         inp.classList.remove('ok','bad');
         if(raw === ''){ allFilled = false; continue; }
-        const val = parseInt(raw, 10);
+        const val = parseIntStrict(raw);
         if(val === target[i][j]){ inp.classList.add('ok'); }
         else { inp.classList.add('bad'); allCorrect = false; }
       }
@@ -590,6 +700,7 @@
     const inp = document.createElement('input');
     inp.type = 'number';
     inp.className = 'cell-input';
+    inp.setAttribute('aria-label', 'respuesta');
     inp.style.width = '64px';
     wrap.appendChild(inp);
     return {wrap, input: inp};
@@ -598,7 +709,7 @@
     const raw = input.value.trim();
     input.classList.remove('ok','bad');
     if(raw === '') return {filled:false, correct:false};
-    const val = parseInt(raw, 10);
+    const val = parseIntStrict(raw);
     const correct = val === target;
     input.classList.add(correct ? 'ok' : 'bad');
     return {filled:true, correct};
@@ -972,9 +1083,7 @@
       const N = [];
       for(let r=0;r<size;r++){ N.push(new Array(size).fill(0)); }
       N[i][j] = v;
-      const A = matMul(I, I); // clone I
-      for(let r=0;r<size;r++) for(let c=0;c<size;c++) A[r][c] = I[r][c] + N[r][c];
-      return A;
+      return I.map((row, r) => row.map((v, c) => v + N[r][c]));
     }
     function buildPeriodico(size){
       const options = PERIODIC[size];
@@ -1501,6 +1610,404 @@
     newChallenge();
   })();
 
+  // ==================================================
+  // TAB: PROPIEDADES DE LOS DETERMINANTES
+  // ==================================================
+  (function(){
+    const els = {
+      type: document.getElementById('pr-type'),
+      newBtn: document.getElementById('pr-newBtn'),
+      statement: document.getElementById('pr-statement'),
+      board: document.getElementById('pr-board'),
+      feedback: document.getElementById('pr-feedback'),
+      help: document.getElementById('pr-help'),
+      explain: document.getElementById('pr-explain'),
+      explainBtn: document.getElementById('pr-explainBtn'),
+      classBtn: document.getElementById('pr-classBtn'),
+      view: document.getElementById('view-propiedades'),
+      checkBtn: document.getElementById('pr-checkBtn'),
+      helpBtn: document.getElementById('pr-helpBtn'),
+      revealBtn: document.getElementById('pr-revealBtn'),
+      nextBtn: document.getElementById('pr-nextBtn'),
+      streak: document.getElementById('pr-streak'),
+      solved: document.getElementById('pr-solved'),
+      best: document.getElementById('pr-best'),
+    };
+    const stats = getStats('propiedades');
+    function renderStats(){
+      els.streak.textContent = stats.streak;
+      els.solved.textContent = stats.solved;
+      els.best.textContent = stats.best;
+    }
+    renderStats();
+
+    // ---- catálogo de propiedades (lo que muestra el botón Ayuda) ----
+    const PROPS = {
+      swap:   {t:'Cambio de filas',
+               d:'Si intercambias dos filas (o columnas), el determinante <b>cambia de signo</b>.'},
+      fila:   {t:'Factor común en una fila',
+               d:'Si una fila está multiplicada por k, puedes sacar k fuera: |…, k·F, …| = k·|…, F, …|. Con toda la fila multiplicada por k el determinante queda multiplicado por k.'},
+      add:    {t:'Sumar un múltiplo de otra fila',
+               d:'Cambiar Fᵢ por Fᵢ + k·Fⱼ <b>no cambia</b> el determinante.'},
+      cero:   {t:'Filas dependientes',
+               d:'Si una fila es igual, proporcional o combinación lineal de las otras, el determinante vale <b>0</b>.'},
+      suma:   {t:'Fila descompuesta en suma',
+               d:'Si una fila es suma de dos, el determinante se separa en dos: |F₁+G, F₂, F₃| = |F₁, F₂, F₃| + |G, F₂, F₃|.'},
+      transp: {t:'Traspuesta', d:'|Aᵗ| = |A|.'},
+      prod:   {t:'Producto', d:'|A·B| = |A|·|B|.'},
+      inv:    {t:'Inversa', d:'|A⁻¹| = 1 / |A|  (si |A| ≠ 0).'},
+      pot:    {t:'Potencia', d:'|Aᵐ| = |A|ᵐ.'},
+      esc:    {t:'Matriz por un número', d:'|k·A| = kⁿ·|A| si A es de orden n (cada una de las n filas queda multiplicada por k).'},
+    };
+    const PROP_ORDER = ['swap','fila','add','cero','suma','transp','prod','inv','pot','esc'];
+    function propItem(id){ return `<li><b>${PROPS[id].t}.</b> ${PROPS[id].d}</li>`; }
+
+    // ---- utilidades ----
+    const fmt = v => v < 0 ? '−' + (-v) : String(v);
+    const par = v => v < 0 ? `(${fmt(v)})` : String(v);
+    function nonZero(min, max){ let v; do{ v = randInt(min, max); }while(v === 0); return v; }
+    function pick(list){ return list[randInt(0, list.length-1)]; }
+    function det3(M){
+      return M[0][0]*(M[1][1]*M[2][2] - M[1][2]*M[2][1])
+           - M[0][1]*(M[1][0]*M[2][2] - M[1][2]*M[2][0])
+           + M[0][2]*(M[1][0]*M[2][1] - M[1][1]*M[2][0]);
+    }
+    function gcd(a, b){ a = Math.abs(a); b = Math.abs(b); while(b){ [a,b] = [b, a%b]; } return a || 1; }
+    // "2F₁ − F₂ + 3F₃" a partir de [[coef, 'F<sub>1</sub>'], ...]
+    function combo(terms){
+      let out = '';
+      terms.forEach(([c, name]) => {
+        if(c === 0) return;
+        const abs = Math.abs(c);
+        const body = (abs === 1 ? '' : abs) + name;
+        if(out === '') out = (c < 0 ? '−' : '') + body;
+        else out += (c < 0 ? ' − ' : ' + ') + body;
+      });
+      return out || '0';
+    }
+    // "2·(fila 1) − (fila 3)" a partir de [[coef, etiqueta], ...]
+    function lin(terms){
+      let out = '';
+      terms.forEach(([c, label]) => {
+        if(c === 0) return;
+        const abs = Math.abs(c);
+        const body = (abs === 1 ? '' : abs + '·') + label;
+        out += out === '' ? (c < 0 ? '−' : '') + body : (c < 0 ? ' − ' : ' + ') + body;
+      });
+      return out || '0';
+    }
+    const cf = c => c === 1 ? '' : par(c) + '·';
+    const F = i => `F<sub>${i}</sub>`;
+    const rowHtml = row => combo(row.map((c, i) => [c, F(i+1)]));
+
+    function detBox(rowsHtml){
+      const wrap = document.createElement('div');
+      wrap.className = 'matrix det';
+      wrap.style.gridTemplateColumns = '1fr';
+      rowsHtml.forEach(h => {
+        const c = document.createElement('div');
+        c.className = 'cell';
+        c.innerHTML = h;
+        wrap.appendChild(c);
+      });
+      return wrap;
+    }
+
+    // ---- tipo 1: operaciones entre filas de |F₁, F₂, F₃| = d ----
+    function genFilas(){
+      const d = nonZero(-6, 6);
+      for(let guard = 0; guard < 500; guard++){
+        let C = [[1,0,0],[0,1,0],[0,0,1]];
+        const used = new Set();
+        const factors = [];
+        let swaps = 0;
+        const scales = [];
+        const nOps = randInt(2, 4);
+        for(let s = 0; s < nOps; s++){
+          const t = randInt(0, 2);
+          const i = randInt(0, 2);
+          let j; do{ j = randInt(0, 2); }while(j === i);
+          if(t === 0){
+            [C[i], C[j]] = [C[j], C[i]];
+            used.add('swap'); factors.push(-1); swaps++;
+          } else if(t === 1){
+            const k = pick([2, 3, -1, -2, -3]);
+            C[i] = C[i].map(v => v*k);
+            used.add('fila'); factors.push(k); scales.push(k);
+          } else {
+            const k = nonZero(-3, 3);
+            C[i] = C[i].map((v, c) => v + k*C[j][c]);
+            used.add('add');
+          }
+        }
+        let dep = false, depInfo = null;
+        if(Math.random() < 0.15){
+          const i = randInt(0, 2);
+          const [j, k] = [0,1,2].filter(x => x !== i);
+          const a = randInt(-2, 2), b = randInt(-2, 2);
+          if(a === 0 && b === 0) continue;
+          C[i] = C[j].map((v, c) => a*v + b*C[k][c]);
+          dep = true; depInfo = {i, j, k, a, b};
+        }
+        if(C.some(r => r.every(v => v === 0))) continue;
+        if(C.some(r => r.some(v => Math.abs(v) > 9))) continue;
+        if(!dep && !(used.has('swap') || used.has('fila'))) continue;
+        const dc = det3(C);
+        if(dep !== (dc === 0)) continue;
+        if(dc === 1) continue; // operaciones que se cancelan: reto sin gracia
+        const answer = dc * d;
+        let props, steps;
+        if(dep){
+          props = ['cero'];
+          const {i, j, k, a, b} = depInfo;
+          steps = [
+            `Mira las filas: la fila ${i+1} es ${lin([[a, `(fila ${j+1})`], [b, `(fila ${k+1})`]])}.`,
+            'Una fila que es combinación lineal de las otras hace que el determinante valga 0.',
+            `Resultado: <b>0</b>.`,
+          ];
+        } else {
+          props = PROP_ORDER.filter(p => used.has(p));
+          steps = [];
+          if(swaps) steps.push(`Cambio de filas: ${swaps} ${swaps === 1 ? 'vez' : 'veces'}, cada una multiplica por (−1). Factor: ${par((-1) ** swaps)}.`);
+          if(scales.length) steps.push(`Factor común en filas: ${scales.map(par).join(' · ')}${scales.length > 1 ? ' = ' + par(scales.reduce((x, y) => x*y, 1)) : ''}.`);
+          if(used.has('add')) steps.push('Sumar a una fila un múltiplo de otra no cambia el determinante (factor 1).');
+          steps.push(`Multiplica por |A| = ${fmt(d)}: ${factors.map(par).concat([par(d)]).join(' · ')} = <b>${fmt(answer)}</b>.`);
+        }
+        return {
+          statement: `Sea A una matriz de orden 3 con filas ${F(1)}, ${F(2)}, ${F(3)} y <b>|A| = ${fmt(d)}</b>.<br>Calcula:`,
+          exprHtml: null,
+          rowsHtml: C.map(rowHtml),
+          answer, props, steps, dbg: {C, d},
+        };
+      }
+      throw new Error('genFilas: sin resultado');
+    }
+
+    // ---- tipo 2: fila que es una suma, con dos determinantes dados ----
+    function genSuma(){
+      const p = nonZero(-4, 4), q = nonZero(-4, 4);
+      const a = pick([1, 1, 2, -1, 3]);
+      const b = pick([1, -1, 2, -2, 3]);
+      const c = pick([1, 1, 2, -1]);
+      const m = pick([0, 0, 1, -2, 3]);
+      const s = pick([1, 1, 2, -1, 3]);
+      const answer = c * s * (a*p + b*q);
+      const row1 = combo([[a, F(1)], [b, 'G']]);
+      const row2 = combo([[c, F(2)], [m, F(3)]]);
+      const row3 = combo([[s, F(3)]]);
+      const props = ['suma'];
+      if(a !== 1 || b !== 1 || c !== 1 || s !== 1) props.push('fila');
+      if(m !== 0) props.push('add');
+      const steps = [
+        `La 1.ª fila es una suma: sepárala en dos determinantes. |${row1}, …| = ${cf(a)}|${F(1)}, …| + ${cf(b)}|G, …| = ${cf(a)}${par(p)} + ${cf(b)}${par(q)}.`,
+      ];
+      if(m !== 0) steps.push(`En la 2.ª fila, ${combo([[m, F(3)]])} es proporcional a la 3.ª fila: sumarlo no cambia el determinante.`);
+      if(c !== 1 || s !== 1) steps.push(`Factores comunes: ${c !== 1 ? `${par(c)} en la 2.ª fila` : ''}${c !== 1 && s !== 1 ? ' y ' : ''}${s !== 1 ? `${par(s)} en la 3.ª` : ''}. Multiplican por ${par(c * s)}.`);
+      steps.push(`Resultado: ${c * s === 1 ? '' : par(c * s) + ' · '}(${cf(a)}${par(p)} + ${cf(b)}${par(q)}) = <b>${fmt(answer)}</b>.`);
+      return {
+        statement: `Se sabe que <b>|${F(1)}, ${F(2)}, ${F(3)}| = ${fmt(p)}</b> y <b>|G, ${F(2)}, ${F(3)}| = ${fmt(q)}</b>,<br>donde ${F(1)}, ${F(2)}, ${F(3)}, G son filas de 3 elementos. Calcula:`,
+        exprHtml: null,
+        rowsHtml: [row1, row2, row3],
+        answer, props, steps, dbg: {p, q, a, b, c, m, s},
+      };
+    }
+
+    // ---- tipo 3: |k·A|, |Aᵗ|, |A·B|, |A⁻¹|... con |A| y |B| dados ----
+    const FORMULAS = [
+      {h: k => `${fmt(k)}·A`, B:false, K:true,  props:['esc'],
+       v: (a,b,n,k) => [k**n*a, 1],
+       s: `|k·A| = k<sup>n</sup>·|A|`,
+       e: (a,b,n,k,r) => `${par(k)}<sup>${n}</sup>·${par(a)} = <b>${fmt(r)}</b>`},
+      {h: () => `A<sup>t</sup>·B`, B:true, K:false, props:['transp','prod'],
+       v: (a,b) => [a*b, 1],
+       s: `|A<sup>t</sup>·B| = |A<sup>t</sup>|·|B| = |A|·|B|`,
+       e: (a,b,n,k,r) => `${par(a)}·${par(b)} = <b>${fmt(r)}</b>`},
+      {h: () => `A·B`, B:true, K:false, props:['prod'],
+       v: (a,b) => [a*b, 1],
+       s: `|A·B| = |A|·|B|`,
+       e: (a,b,n,k,r) => `${par(a)}·${par(b)} = <b>${fmt(r)}</b>`},
+      {h: () => `A<sup>2</sup>`, B:false, K:false, props:['pot'],
+       v: (a) => [a*a, 1],
+       s: `|A<sup>2</sup>| = |A|<sup>2</sup>`,
+       e: (a,b,n,k,r) => `${par(a)}<sup>2</sup> = <b>${fmt(r)}</b>`},
+      {h: () => `A<sup>3</sup>·B`, B:true, K:false, props:['pot','prod'],
+       v: (a,b) => [a**3*b, 1],
+       s: `|A<sup>3</sup>·B| = |A|<sup>3</sup>·|B|`,
+       e: (a,b,n,k,r) => `${par(a)}<sup>3</sup>·${par(b)} = <b>${fmt(r)}</b>`},
+      {h: k => `${fmt(k)}·A·B`, B:true, K:true, props:['esc','prod'],
+       v: (a,b,n,k) => [k**n*a*b, 1],
+       s: `|k·A·B| = k<sup>n</sup>·|A|·|B|`,
+       e: (a,b,n,k,r) => `${par(k)}<sup>${n}</sup>·${par(a)}·${par(b)} = <b>${fmt(r)}</b>`},
+      {h: k => `${fmt(k)}·A<sup>−1</sup>`, B:false, K:true, props:['esc','inv'],
+       v: (a,b,n,k) => [k**n, a],
+       s: `|k·A<sup>−1</sup>| = k<sup>n</sup>·|A<sup>−1</sup>| = k<sup>n</sup> / |A|`,
+       e: (a,b,n,k,r) => `${par(k)}<sup>${n}</sup> · 1/${par(a)} = <b>${fmt(r)}</b>`},
+      {h: () => `A<sup>−1</sup>·B`, B:true, K:false, props:['prod','inv'],
+       v: (a,b) => [b, a],
+       s: `|A<sup>−1</sup>·B| = |A<sup>−1</sup>|·|B| = |B| / |A|`,
+       e: (a,b,n,k,r) => `${par(b)} / ${par(a)} = <b>${fmt(r)}</b>`},
+      {h: () => `A·B<sup>−1</sup>`, B:true, K:false, props:['prod','inv'],
+       v: (a,b) => [a, b],
+       s: `|A·B<sup>−1</sup>| = |A|·|B<sup>−1</sup>| = |A| / |B|`,
+       e: (a,b,n,k,r) => `${par(a)} / ${par(b)} = <b>${fmt(r)}</b>`},
+      {h: () => `(A·B)<sup>−1</sup>`, B:true, K:false, props:['inv','prod'],
+       v: (a,b) => [1, a*b],
+       s: `|(A·B)<sup>−1</sup>| = 1 / |A·B| = 1 / (|A|·|B|)`,
+       e: (a,b,n,k,r) => `1 / (${par(a)}·${par(b)}) = <b>${fmt(r)}</b>`},
+      {h: () => `A<sup>2</sup>·B<sup>−1</sup>`, B:true, K:false, props:['pot','prod','inv'],
+       v: (a,b) => [a*a, b],
+       s: `|A<sup>2</sup>·B<sup>−1</sup>| = |A|<sup>2</sup> / |B|`,
+       e: (a,b,n,k,r) => `${par(a)}<sup>2</sup> / ${par(b)} = <b>${fmt(r)}</b>`},
+      {h: k => `${fmt(k)}·A<sup>t</sup>·B<sup>−1</sup>`, B:true, K:true, props:['esc','transp','prod','inv'],
+       v: (a,b,n,k) => [k**n*a, b],
+       s: `|k·A<sup>t</sup>·B<sup>−1</sup>| = k<sup>n</sup>·|A<sup>t</sup>|·|B<sup>−1</sup>| = k<sup>n</sup>·|A| / |B|`,
+       e: (a,b,n,k,r) => `${par(k)}<sup>${n}</sup>·${par(a)} / ${par(b)} = <b>${fmt(r)}</b>`},
+    ];
+    function genFormulas(){
+      for(let guard = 0; guard < 1000; guard++){
+        const f = pick(FORMULAS);
+        const a = nonZero(-4, 4), b = nonZero(-4, 4);
+        const n = pick([2, 3, 4]);
+        const k = pick([2, 3, -1, -2]);
+        let [num, den] = f.v(a, b, n, k);
+        const g = gcd(num, den);
+        num /= g; den /= g;
+        if(den < 0){ num = -num; den = -den; }
+        if(den !== 1 || Math.abs(num) > 600) continue;
+        const known = f.B ? `<b>|A| = ${fmt(a)}</b> y <b>|B| = ${fmt(b)}</b>` : `<b>|A| = ${fmt(a)}</b>`;
+        return {
+          statement: `Sean ${f.B ? 'A y B matrices cuadradas' : 'A una matriz cuadrada'} de orden <b>${n}</b>, con ${known}.<br>Calcula:`,
+          exprHtml: `|${f.h(k)}|`,
+          rowsHtml: null,
+          answer: num,
+          props: f.props,
+          steps: [`Aplica las propiedades: ${f.s}.`, `Sustituye los datos: ${f.e(a, b, n, k, num)}.`],
+        };
+      }
+      throw new Error('genFormulas: sin resultado');
+    }
+
+    // ---- ciclo del reto ----
+    let state = null;
+    function newChallenge(){
+      let type = els.type.value;
+      if(type === 'todos') type = pick(['filas', 'filas', 'suma', 'formulas', 'formulas']);
+      const ch = type === 'filas' ? genFilas() : (type === 'suma' ? genSuma() : genFormulas());
+
+      els.statement.innerHTML = ch.statement;
+      els.board.innerHTML = '';
+      els.feedback.textContent = ''; els.feedback.className = 'feedback';
+      helpLevel = 0; els.help.hidden = true; els.help.innerHTML = '';
+      els.helpBtn.textContent = '💡 Ayuda';
+      els.explain.hidden = true; els.explain.innerHTML = '';
+      els.explainBtn.hidden = true; els.explainBtn.textContent = '📝 Ver resolución';
+      els.checkBtn.disabled = false;
+      els.nextBtn.hidden = true;
+
+      const eq = document.createElement('div'); eq.className = 'op'; eq.textContent = '=';
+      const {wrap: valWrap, input} = renderValueInput();
+      if(ch.rowsHtml){
+        els.board.append(detBox(ch.rowsHtml), eq, valWrap);
+      } else {
+        const left = document.createElement('div'); left.className = 'expr'; left.innerHTML = ch.exprHtml;
+        els.board.append(left, eq, valWrap);
+      }
+      state = {answer: ch.answer, props: ch.props, steps: ch.steps, input};
+      input.focus();
+    }
+
+    function showExplain(){
+      els.explain.innerHTML = '<b>Resolución paso a paso</b><ol>' + state.steps.map(t => `<li>${t}</li>`).join('') + '</ol>';
+      els.explainBtn.hidden = false;
+    }
+    function toggleExplain(){
+      if(!state) return;
+      els.explain.hidden = !els.explain.hidden;
+      els.explainBtn.textContent = els.explain.hidden ? '📝 Ver resolución' : '📝 Ocultar resolución';
+    }
+    // Ayuda en 3 estados: 0 oculta · 1 solo nombres (pista) · 2 nombres + fórmulas
+    let helpLevel = 0;
+    function renderHelp(){
+      if(helpLevel === 0){
+        els.help.hidden = true; els.help.innerHTML = '';
+        els.helpBtn.textContent = '💡 Ayuda';
+        return;
+      }
+      let html = '<h3>Propiedades que necesitas</h3><ul>';
+      if(helpLevel === 1){
+        html += state.props.map(id => `<li><b>${PROPS[id].t}</b></li>`).join('') + '</ul>';
+        els.helpBtn.textContent = '💡 Ver fórmulas';
+      } else {
+        const others = PROP_ORDER.filter(p => !state.props.includes(p));
+        html += state.props.map(propItem).join('') + '</ul>'
+          + '<details><summary>Ver todas las propiedades</summary><ul>' + others.map(propItem).join('') + '</ul></details>';
+        els.helpBtn.textContent = '💡 Ocultar ayuda';
+      }
+      els.help.innerHTML = html;
+      els.help.hidden = false;
+    }
+    function toggleHelp(){
+      if(!state) return;
+      helpLevel = (helpLevel + 1) % 3;
+      renderHelp();
+    }
+    function checkAnswer(){
+      if(!state) return;
+      const {filled, correct} = markValue(state.input, state.answer);
+      if(!filled){
+        els.feedback.textContent = 'Escribe el valor del determinante antes de comprobar.';
+        els.feedback.className = 'feedback';
+        return;
+      }
+      if(correct){
+        els.feedback.textContent = '✔ Correcto';
+        els.feedback.className = 'feedback ok';
+        stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
+        persist(); renderStats();
+        showExplain();
+        els.checkBtn.disabled = true;
+        els.nextBtn.hidden = false;
+        els.nextBtn.focus();
+      } else {
+        els.feedback.textContent = '✘ Incorrecto. Prueba con el botón Ayuda.';
+        els.feedback.className = 'feedback bad';
+        stats.streak = 0; persist(); renderStats();
+      }
+    }
+    function reveal(){
+      if(!state) return;
+      revealValue(state.input, state.answer);
+      els.feedback.textContent = 'Solución revelada';
+      els.feedback.className = 'feedback';
+      showExplain();
+      els.checkBtn.disabled = true;
+      els.nextBtn.hidden = false;
+      stats.streak = 0; persist(); renderStats();
+    }
+
+    els.newBtn.addEventListener('click', newChallenge);
+    els.checkBtn.addEventListener('click', checkAnswer);
+    els.helpBtn.addEventListener('click', toggleHelp);
+    els.explainBtn.addEventListener('click', toggleExplain);
+    els.revealBtn.addEventListener('click', reveal);
+    els.nextBtn.addEventListener('click', newChallenge);
+    els.type.addEventListener('change', newChallenge);
+
+    // Modo clase (se recuerda, solo de esta pestaña)
+    const CLASS_KEY = 'mm_class_mode_v1';
+    function setClassMode(on, save){
+      els.view.classList.toggle('class-mode', on);
+      els.classBtn.setAttribute('aria-pressed', String(on));
+      els.classBtn.textContent = on ? '🖥 Salir de modo clase' : '🖥 Modo clase';
+      if(save){ try{ localStorage.setItem(CLASS_KEY, on ? '1' : '0'); }catch(e){} }
+    }
+    els.classBtn.addEventListener('click', () => setClassMode(!els.view.classList.contains('class-mode'), true));
+    try{ if(localStorage.getItem(CLASS_KEY) === '1') setClassMode(true, false); }catch(e){}
+
+    window.__mmPropiedades = {newChallenge, genFilas, genSuma, genFormulas};
+    newChallenge();
+  })();
+
   // ---------- tabs ----------
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1513,9 +2020,12 @@
 
   document.addEventListener('keydown', (e) => {
     if(e.key !== 'Enter') return;
+    // En botones y selects, Enter conserva su comportamiento normal.
+    const tag = e.target && e.target.tagName;
+    if(tag === 'BUTTON' || tag === 'SELECT' || tag === 'SUMMARY') return;
     const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
     e.preventDefault();
-    const prefix = {producto:'p', sistema:'s', potencias:'pw', determinante:'d', inversa:'i', rango:'r'}[activeTab];
+    const prefix = {producto:'p', sistema:'s', potencias:'pw', determinante:'d', propiedades:'pr', inversa:'i', rango:'r'}[activeTab];
     const nextBtn = document.getElementById(`${prefix}-nextBtn`);
     if(nextBtn && !nextBtn.hidden) nextBtn.click();
     else document.getElementById(`${prefix}-checkBtn`).click();
