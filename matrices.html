@@ -283,6 +283,7 @@
     <div class="actions">
       <button id="p-checkBtn" class="primary">Comprobar</button>
       <button id="p-revealBtn">Ver solución</button>
+      <button id="p-nextBtn" class="primary" hidden>Siguiente ▶</button>
     </div>
   </div>
 
@@ -324,6 +325,7 @@
     <div class="actions">
       <button id="s-checkBtn" class="primary">Comprobar</button>
       <button id="s-revealBtn">Ver solución</button>
+      <button id="s-nextBtn" class="primary" hidden>Siguiente ▶</button>
     </div>
   </div>
 
@@ -375,6 +377,7 @@
     <div class="actions">
       <button id="pw-checkBtn" class="primary">Comprobar</button>
       <button id="pw-revealBtn">Ver solución</button>
+      <button id="pw-nextBtn" class="primary" hidden>Siguiente ▶</button>
     </div>
   </div>
 
@@ -394,7 +397,6 @@
         <div>
           <label for="d-zeros">Ceros en fila/col</label>
           <select id="d-zeros">
-            <option value="0">0</option>
             <option value="1">1</option>
             <option value="2" selected>2</option>
             <option value="3">3</option>
@@ -426,6 +428,7 @@
     <div class="actions">
       <button id="d-checkBtn" class="primary">Comprobar</button>
       <button id="d-revealBtn">Ver solución</button>
+      <button id="d-nextBtn" class="primary" hidden>Siguiente ▶</button>
     </div>
   </div>
 
@@ -466,6 +469,7 @@
     <div class="actions">
       <button id="i-checkBtn" class="primary">Comprobar</button>
       <button id="i-revealBtn">Ver solución</button>
+      <button id="i-nextBtn" class="primary" hidden>Siguiente ▶</button>
     </div>
   </div>
 
@@ -510,6 +514,7 @@
     <div class="actions">
       <button id="r-checkBtn" class="primary">Comprobar</button>
       <button id="r-revealBtn">Ver solución</button>
+      <button id="r-nextBtn" class="primary" hidden>Siguiente ▶</button>
     </div>
   </div>
 
@@ -645,6 +650,7 @@
       hint: document.getElementById('p-hint'),
       checkBtn: document.getElementById('p-checkBtn'),
       revealBtn: document.getElementById('p-revealBtn'),
+      nextBtn: document.getElementById('p-nextBtn'),
       streak: document.getElementById('p-streak'),
       solved: document.getElementById('p-solved'),
       best: document.getElementById('p-best'),
@@ -690,6 +696,7 @@
       els.feedback.textContent = ''; els.feedback.className = 'feedback';
       els.hint.textContent = '';
       els.checkBtn.disabled = false;
+      els.nextBtn.hidden = true;
 
       const opX = document.createElement('div'); opX.className='op'; opX.textContent='×';
       const opEq = document.createElement('div'); opEq.className='op'; opEq.textContent='=';
@@ -714,7 +721,8 @@
         stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
         persist(); renderStats();
         els.checkBtn.disabled = true;
-        setTimeout(newChallenge, 900);
+        els.nextBtn.hidden = false;
+        els.nextBtn.focus();
       } else {
         els.feedback.textContent = '✘ Hay celdas incorrectas (en rojo)';
         els.feedback.className = 'feedback bad';
@@ -733,6 +741,7 @@
     els.newBtn.addEventListener('click', newChallenge);
     els.checkBtn.addEventListener('click', checkAnswer);
     els.revealBtn.addEventListener('click', reveal);
+    els.nextBtn.addEventListener('click', newChallenge);
     els.difficulty.addEventListener('change', newChallenge);
     els.range.addEventListener('change', newChallenge);
 
@@ -754,6 +763,7 @@
       hint: document.getElementById('s-hint'),
       checkBtn: document.getElementById('s-checkBtn'),
       revealBtn: document.getElementById('s-revealBtn'),
+      nextBtn: document.getElementById('s-nextBtn'),
       streak: document.getElementById('s-streak'),
       solved: document.getElementById('s-solved'),
       best: document.getElementById('s-best'),
@@ -813,6 +823,7 @@
       els.feedback.textContent = ''; els.feedback.className = 'feedback';
       els.hint.textContent = '';
       els.checkBtn.disabled = false;
+      els.nextBtn.hidden = true;
 
       function buildEquationRow(pc, qc, M){
         const row = document.createElement('div');
@@ -854,7 +865,8 @@
         stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
         persist(); renderStats();
         els.checkBtn.disabled = true;
-        setTimeout(newChallenge, 900);
+        els.nextBtn.hidden = false;
+        els.nextBtn.focus();
       } else {
         els.feedback.textContent = '✘ Hay celdas incorrectas (en rojo)';
         els.feedback.className = 'feedback bad';
@@ -874,6 +886,7 @@
     els.newBtn.addEventListener('click', newChallenge);
     els.checkBtn.addEventListener('click', checkAnswer);
     els.revealBtn.addEventListener('click', reveal);
+    els.nextBtn.addEventListener('click', newChallenge);
     els.difficulty.addEventListener('change', newChallenge);
     els.range.addEventListener('change', newChallenge);
 
@@ -896,6 +909,7 @@
       hint: document.getElementById('pw-hint'),
       checkBtn: document.getElementById('pw-checkBtn'),
       revealBtn: document.getElementById('pw-revealBtn'),
+      nextBtn: document.getElementById('pw-nextBtn'),
       streak: document.getElementById('pw-streak'),
       solved: document.getElementById('pw-solved'),
       best: document.getElementById('pw-best'),
@@ -997,6 +1011,7 @@
       els.board.innerHTML = '';
       els.feedback.textContent = ''; els.feedback.className = 'feedback';
       els.checkBtn.disabled = false;
+      els.nextBtn.hidden = true;
 
       function powerRow(labelHtml, size){
         const block = document.createElement('div');
@@ -1041,7 +1056,8 @@
         stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
         persist(); renderStats();
         els.checkBtn.disabled = true;
-        setTimeout(newChallenge, 1100);
+        els.nextBtn.hidden = false;
+        els.nextBtn.focus();
       } else {
         els.feedback.textContent = '✘ Hay celdas incorrectas (en rojo)';
         els.feedback.className = 'feedback bad';
@@ -1060,6 +1076,7 @@
     els.newBtn.addEventListener('click', newChallenge);
     els.checkBtn.addEventListener('click', checkAnswer);
     els.revealBtn.addEventListener('click', reveal);
+    els.nextBtn.addEventListener('click', newChallenge);
     els.difficulty.addEventListener('change', newChallenge);
     els.range.addEventListener('change', newChallenge);
     els.type.addEventListener('change', newChallenge);
@@ -1081,6 +1098,7 @@
       feedback: document.getElementById('d-feedback'),
       checkBtn: document.getElementById('d-checkBtn'),
       revealBtn: document.getElementById('d-revealBtn'),
+      nextBtn: document.getElementById('d-nextBtn'),
       streak: document.getElementById('d-streak'),
       solved: document.getElementById('d-solved'),
       best: document.getElementById('d-best'),
@@ -1138,13 +1156,16 @@
       const n = els.size.value === 'aleatorio' ? SIZES[randInt(0, SIZES.length-1)] : parseInt(els.size.value, 10);
       const range = parseInt(els.range.value, 10);
       const maxZeros = n - 1;
-      const zerosTarget = els.zeros.value === 'aleatorio' ? randInt(0, Math.min(3, maxZeros)) : Math.min(parseInt(els.zeros.value, 10), maxZeros);
+      const zerosTarget = n === 4 ? randInt(2, 3)
+        : els.zeros.value === 'aleatorio' ? randInt(1, Math.min(3, maxZeros))
+        : Math.min(parseInt(els.zeros.value, 10), maxZeros);
       const M = buildDetMatrix(n, range, zerosTarget);
       const det = determinant(M);
 
       els.board.innerHTML = '';
       els.feedback.textContent = ''; els.feedback.className = 'feedback';
       els.checkBtn.disabled = false;
+      els.nextBtn.hidden = true;
 
       const label = document.createElement('div'); label.className = 'term'; label.textContent = 'det(A) =';
       const {wrap: valWrap, input: valInput} = renderValueInput();
@@ -1167,7 +1188,8 @@
         stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
         persist(); renderStats();
         els.checkBtn.disabled = true;
-        setTimeout(newChallenge, 900);
+        els.nextBtn.hidden = false;
+        els.nextBtn.focus();
       } else {
         els.feedback.textContent = '✘ Incorrecto';
         els.feedback.className = 'feedback bad';
@@ -1186,6 +1208,7 @@
     els.newBtn.addEventListener('click', newChallenge);
     els.checkBtn.addEventListener('click', checkAnswer);
     els.revealBtn.addEventListener('click', reveal);
+    els.nextBtn.addEventListener('click', newChallenge);
     els.size.addEventListener('change', newChallenge);
     els.zeros.addEventListener('change', newChallenge);
     els.range.addEventListener('change', newChallenge);
@@ -1206,6 +1229,7 @@
       feedback: document.getElementById('i-feedback'),
       checkBtn: document.getElementById('i-checkBtn'),
       revealBtn: document.getElementById('i-revealBtn'),
+      nextBtn: document.getElementById('i-nextBtn'),
       streak: document.getElementById('i-streak'),
       solved: document.getElementById('i-solved'),
       best: document.getElementById('i-best'),
@@ -1290,6 +1314,7 @@
       els.board.innerHTML = '';
       els.feedback.textContent = ''; els.feedback.className = 'feedback';
       els.checkBtn.disabled = false;
+      els.nextBtn.hidden = true;
 
       const labelA = document.createElement('div'); labelA.className = 'term'; labelA.textContent = 'A =';
       const labelInv = document.createElement('div'); labelInv.className = 'term'; labelInv.textContent = 'A⁻¹ =';
@@ -1313,7 +1338,8 @@
         stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
         persist(); renderStats();
         els.checkBtn.disabled = true;
-        setTimeout(newChallenge, 900);
+        els.nextBtn.hidden = false;
+        els.nextBtn.focus();
       } else {
         els.feedback.textContent = '✘ Hay celdas incorrectas (en rojo)';
         els.feedback.className = 'feedback bad';
@@ -1332,6 +1358,7 @@
     els.newBtn.addEventListener('click', newChallenge);
     els.checkBtn.addEventListener('click', checkAnswer);
     els.revealBtn.addEventListener('click', reveal);
+    els.nextBtn.addEventListener('click', newChallenge);
     els.size.addEventListener('change', newChallenge);
     els.steps.addEventListener('change', newChallenge);
 
@@ -1351,6 +1378,7 @@
       feedback: document.getElementById('r-feedback'),
       checkBtn: document.getElementById('r-checkBtn'),
       revealBtn: document.getElementById('r-revealBtn'),
+      nextBtn: document.getElementById('r-nextBtn'),
       streak: document.getElementById('r-streak'),
       solved: document.getElementById('r-solved'),
       best: document.getElementById('r-best'),
@@ -1436,6 +1464,7 @@
       els.board.innerHTML = '';
       els.feedback.textContent = ''; els.feedback.className = 'feedback';
       els.checkBtn.disabled = false;
+      els.nextBtn.hidden = true;
 
       const label = document.createElement('div'); label.className = 'term'; label.textContent = 'rango(A) =';
       const {wrap: valWrap, input: valInput} = renderValueInput();
@@ -1458,7 +1487,8 @@
         stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
         persist(); renderStats();
         els.checkBtn.disabled = true;
-        setTimeout(newChallenge, 900);
+        els.nextBtn.hidden = false;
+        els.nextBtn.focus();
       } else {
         els.feedback.textContent = '✘ Incorrecto';
         els.feedback.className = 'feedback bad';
@@ -1477,6 +1507,7 @@
     els.newBtn.addEventListener('click', newChallenge);
     els.checkBtn.addEventListener('click', checkAnswer);
     els.revealBtn.addEventListener('click', reveal);
+    els.nextBtn.addEventListener('click', newChallenge);
     els.size.addEventListener('change', newChallenge);
     els.range.addEventListener('change', newChallenge);
 
@@ -1498,12 +1529,10 @@
     if(e.key !== 'Enter') return;
     const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
     e.preventDefault();
-    if(activeTab === 'producto') document.getElementById('p-checkBtn').click();
-    else if(activeTab === 'sistema') document.getElementById('s-checkBtn').click();
-    else if(activeTab === 'potencias') document.getElementById('pw-checkBtn').click();
-    else if(activeTab === 'determinante') document.getElementById('d-checkBtn').click();
-    else if(activeTab === 'inversa') document.getElementById('i-checkBtn').click();
-    else document.getElementById('r-checkBtn').click();
+    const prefix = {producto:'p', sistema:'s', potencias:'pw', determinante:'d', inversa:'i', rango:'r'}[activeTab];
+    const nextBtn = document.getElementById(`${prefix}-nextBtn`);
+    if(nextBtn && !nextBtn.hidden) nextBtn.click();
+    else document.getElementById(`${prefix}-checkBtn`).click();
   });
 })();
 </script>
