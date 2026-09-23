@@ -395,15 +395,6 @@
           </select>
         </div>
         <div>
-          <label for="d-zeros">Ceros en fila/col</label>
-          <select id="d-zeros">
-            <option value="1">1</option>
-            <option value="2" selected>2</option>
-            <option value="3">3</option>
-            <option value="aleatorio">Aleatorio</option>
-          </select>
-        </div>
-        <div>
           <label for="d-range">Rango</label>
           <select id="d-range">
             <option value="4">-4 a 4</option>
@@ -1091,7 +1082,6 @@
   (function(){
     const els = {
       size: document.getElementById('d-size'),
-      zeros: document.getElementById('d-zeros'),
       range: document.getElementById('d-range'),
       newBtn: document.getElementById('d-newBtn'),
       board: document.getElementById('d-board'),
@@ -1129,8 +1119,7 @@
           const onLine = isRow ? (i === idx) : (j === idx);
           const posInLine = isRow ? j : i;
           if(onLine && zeroPos.has(posInLine)) row.push(0);
-          else if(onLine) row.push(nonZeroRand(range));
-          else row.push(randInt(-range, range));
+          else row.push(nonZeroRand(range));
         }
         M.push(row);
       }
@@ -1156,9 +1145,7 @@
       const n = els.size.value === 'aleatorio' ? SIZES[randInt(0, SIZES.length-1)] : parseInt(els.size.value, 10);
       const range = parseInt(els.range.value, 10);
       const maxZeros = n - 1;
-      const zerosTarget = n === 4 ? randInt(2, 3)
-        : els.zeros.value === 'aleatorio' ? randInt(1, Math.min(3, maxZeros))
-        : Math.min(parseInt(els.zeros.value, 10), maxZeros);
+      const zerosTarget = n === 4 ? randInt(2, 3) : randInt(1, maxZeros);
       const M = buildDetMatrix(n, range, zerosTarget);
       const det = determinant(M);
 
@@ -1210,7 +1197,6 @@
     els.revealBtn.addEventListener('click', reveal);
     els.nextBtn.addEventListener('click', newChallenge);
     els.size.addEventListener('change', newChallenge);
-    els.zeros.addEventListener('change', newChallenge);
     els.range.addEventListener('change', newChallenge);
 
     window.__mmDeterminante = {newChallenge};
