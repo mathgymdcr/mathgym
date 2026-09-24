@@ -315,5 +315,14 @@
       "volumen",
       "movimiento"
     ]
+  },
+  {
+    "fecha": "2026-09-24",
+    "titulo": "Los Cuadrados Luminosos",
+    "dificultad": 4,
+    "categorias": [
+      "logica",
+      "tablero"
+    ]
   }
 ]
