@@ -286,6 +286,17 @@
   }
   .scalar-block{ display:flex; align-items:center; gap:10px; }
   .scalar-block .term{ font-size:1.1rem; }
+  .matrix.inline{
+    vertical-align:middle;
+    margin:0 4px;
+    padding:6px 12px;
+    gap:4px;
+  }
+  .matrix.inline .cell{
+    width:32px;
+    height:28px;
+    font-size:0.85rem;
+  }
   /* Modo clase: todo el ejercicio a mayor tamaño para proyectar */
   #pr-stage, #rp-stage, #ec-stage{ zoom:1; }
   #view-propiedades.class-mode #pr-stage{ zoom:1.4; }
@@ -2598,7 +2609,11 @@
       }
       return inv;
     }
-    function matText(M){ return M.map(r => '(' + r.join(', ') + ')').join(' ; '); }
+    function matHtml(M){
+      const rows = M.length, cols = M[0].length;
+      const cells = M.map(row => row.map(v => `<span class="cell">${v}</span>`).join('')).join('');
+      return `<span class="matrix inline" style="grid-template-columns:repeat(${cols},32px);grid-template-rows:repeat(${rows},28px)">${cells}</span>`;
+    }
 
     const METHODS = {
       directo:     {t:'Multiplicar por la inversa', d:'Multiplica los dos lados por A⁻¹ por la izquierda: A⁻¹·A·X = A⁻¹·B, luego X = A⁻¹·B.'},
@@ -2623,8 +2638,8 @@
         given: [{label:'A =', M:A}, {label:'B =', M:B}],
         steps: [
           'Multiplica ambos lados por A⁻¹ por la izquierda: A⁻¹·A·X = A⁻¹·B → X = A⁻¹·B.',
-          `A⁻¹ = ${matText(Ainv)}.`,
-          `X = A⁻¹·B = ${matText(X)}.`,
+          `A⁻¹ = ${matHtml(Ainv)}.`,
+          `X = A⁻¹·B = ${matHtml(X)}.`,
         ],
       };
     }
@@ -2644,8 +2659,8 @@
         given: [{label:'A =', M:A}, {label:'B =', M:B}, {label:'C =', M:C}],
         steps: [
           'Multiplica por A⁻¹ por la izquierda y por B⁻¹ por la derecha: X = A⁻¹·C·B⁻¹.',
-          `A⁻¹ = ${matText(Ainv)}, B⁻¹ = ${matText(Binv)}.`,
-          `X = A⁻¹·C·B⁻¹ = ${matText(X)}.`,
+          `A⁻¹ = ${matHtml(Ainv)}, B⁻¹ = ${matHtml(Binv)}.`,
+          `X = A⁻¹·C·B⁻¹ = ${matHtml(X)}.`,
         ],
       };
     }
@@ -2669,14 +2684,14 @@
         given: [{label:'A =', M:A}, {label:'B =', M:B}],
         steps: left ? [
           'Saca factor común X: A·X + X = (A + I)·X = B.',
-          `A + I = ${matText(U)}.`,
-          `(A + I)⁻¹ = ${matText(Uinv)}.`,
-          `X = (A + I)⁻¹·B = ${matText(X)}.`,
+          `A + I = ${matHtml(U)}.`,
+          `(A + I)⁻¹ = ${matHtml(Uinv)}.`,
+          `X = (A + I)⁻¹·B = ${matHtml(X)}.`,
         ] : [
           'Saca factor común X: X·A + X = X·(A + I) = B.',
-          `A + I = ${matText(U)}.`,
-          `(A + I)⁻¹ = ${matText(Uinv)}.`,
-          `X = B·(A + I)⁻¹ = ${matText(X)}.`,
+          `A + I = ${matHtml(U)}.`,
+          `(A + I)⁻¹ = ${matHtml(Uinv)}.`,
+          `X = B·(A + I)⁻¹ = ${matHtml(X)}.`,
         ],
       };
     }
