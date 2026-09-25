@@ -680,7 +680,8 @@
       <div class="explain" id="rp-explain" hidden></div>
 
       <div class="actions">
-        <button id="rp-checkBtn" class="primary">Comprobar</button>
+        <button id="rp-answerBtn" class="primary">✍️ Responder</button>
+        <button id="rp-checkBtn" class="primary" hidden>Comprobar</button>
         <button id="rp-helpBtn">💡 Ayuda</button>
         <button id="rp-revealBtn">Ver solución</button>
         <button id="rp-explainBtn" hidden>📝 Ver resolución</button>
@@ -2304,6 +2305,7 @@
       explainBtn: document.getElementById('rp-explainBtn'),
       classBtn: document.getElementById('rp-classBtn'),
       view: document.getElementById('view-rangoparam'),
+      answerBtn: document.getElementById('rp-answerBtn'),
       checkBtn: document.getElementById('rp-checkBtn'),
       helpBtn: document.getElementById('rp-helpBtn'),
       revealBtn: document.getElementById('rp-revealBtn'),
@@ -2791,6 +2793,9 @@
       els.explain.hidden = true; els.explain.innerHTML = '';
       els.explainBtn.hidden = true; els.explainBtn.textContent = '📝 Ver resolución';
       els.checkBtn.disabled = false;
+      els.checkBtn.hidden = true;
+      els.answerBtn.hidden = false;
+      els.answers.style.display = 'none';
       els.nextBtn.hidden = true;
 
       if(ch.kind === 'matriz'){
@@ -2813,7 +2818,14 @@
       });
 
       state = {fields: ch.fields, inputs, steps: ch.steps};
-      inputs[ch.fields[0].key].focus();
+    }
+
+    function showAnswerBoxes(){
+      if(!state) return;
+      els.answers.style.display = '';
+      els.checkBtn.hidden = false;
+      els.answerBtn.hidden = true;
+      state.inputs[state.fields[0].key].focus();
     }
 
     function showExplain(){
@@ -2880,6 +2892,7 @@
     }
     function reveal(){
       if(!state) return;
+      showAnswerBoxes();
       state.fields.forEach(f => revealValue(state.inputs[f.key], f.value));
       els.feedback.textContent = 'Solución revelada';
       els.feedback.className = 'feedback';
@@ -2890,6 +2903,7 @@
     }
 
     els.newBtn.addEventListener('click', newChallenge);
+    els.answerBtn.addEventListener('click', showAnswerBoxes);
     els.checkBtn.addEventListener('click', checkAnswer);
     els.helpBtn.addEventListener('click', toggleHelp);
     els.explainBtn.addEventListener('click', toggleExplain);
