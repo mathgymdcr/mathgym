@@ -526,6 +526,11 @@
             <option value="10">Compleja</option>
           </select>
         </div>
+        <div>
+          <label for="i-fracToggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-top:14px;">
+            <input type="checkbox" id="i-fracToggle"> Permitir fracciones
+          </label>
+        </div>
         <button id="i-newBtn">🔄 Nuevo reto</button>
       </div>
       <div class="stats">
@@ -540,9 +545,12 @@
     <div class="feedback" id="i-feedback"></div>
     <div class="hint" id="i-hint">A⁻¹ siempre sale con números enteros en este reto: det(A) = ±1.</div>
 
+    <div class="explain" id="i-explain" hidden></div>
+
     <div class="actions">
       <button id="i-checkBtn" class="primary">Comprobar</button>
       <button id="i-revealBtn">Ver solución</button>
+      <button id="i-explainBtn" hidden>📝 Ver resolución</button>
       <button id="i-nextBtn" class="primary" hidden>Siguiente ▶</button>
     </div>
   </div>
@@ -1432,9 +1440,13 @@
     const els = {
       size: document.getElementById('i-size'),
       steps: document.getElementById('i-steps'),
+      fracToggle: document.getElementById('i-fracToggle'),
       newBtn: document.getElementById('i-newBtn'),
       board: document.getElementById('i-board'),
       feedback: document.getElementById('i-feedback'),
+      hint: document.getElementById('i-hint'),
+      explain: document.getElementById('i-explain'),
+      explainBtn: document.getElementById('i-explainBtn'),
       checkBtn: document.getElementById('i-checkBtn'),
       revealBtn: document.getElementById('i-revealBtn'),
       nextBtn: document.getElementById('i-nextBtn'),
@@ -1451,6 +1463,9 @@
       els.best.textContent = stats.best;
     }
     renderStats();
+
+    const FRAC_KEY = 'mm_frac_mode_i_v1';
+    try{ els.fracToggle.checked = localStorage.getItem(FRAC_KEY) === '1'; }catch(e){}
 
     function identity(n){
       const I = [];
@@ -1488,6 +1503,36 @@
       } while(isIdentity(M));
       return M;
     }
+    // Como randomUnimodular, pero admite un cuarto tipo de paso (escalar una fila por k≠±1),
+    // que multiplica el determinante por k: así |A| ya no queda forzado a ±1. Sigue siendo
+    // invertible siempre (cada paso es una operación elemental, nunca singular por construcción).
+    function randomGeneral(n, steps){
+      let M;
+      do{
+        M = identity(n);
+        for(let s=0;s<steps;s++){
+          const type = randInt(0,3);
+          if(type === 0){
+            let r1 = randInt(0,n-1), r2;
+            do{ r2 = randInt(0,n-1); }while(r2 === r1);
+            [M[r1], M[r2]] = [M[r2], M[r1]];
+          } else if(type === 1){
+            const r = randInt(0,n-1);
+            M[r] = M[r].map(v => -v);
+          } else if(type === 2){
+            let rA = randInt(0,n-1), rB;
+            do{ rB = randInt(0,n-1); }while(rB === rA);
+            let k; do{ k = randInt(-3,3); }while(k === 0);
+            M[rB] = M[rB].map((v,c) => v + k*M[rA][c]);
+          } else {
+            const r = randInt(0,n-1);
+            let k; do{ k = randInt(-3,3); }while(k === 0 || k === 1 || k === -1);
+            M[r] = M[r].map(v => v*k);
+          }
+        }
+      } while(isIdentity(M));
+      return M;
+    }
     function minorOf(M, ri, ci){ return M.filter((_,r) => r !== ri).map(row => row.filter((_,c) => c !== ci)); }
     function determinant(M){
       const n = M.length;
@@ -1500,47 +1545,150 @@
       }
       return det;
     }
-    function invert(M){
-      const n = M.length, det = determinant(M);
-      const cof = [];
+    function cofactorMatrix(M){
+      const n = M.length, cof = [];
       for(let i=0;i<n;i++){
         const row = [];
         for(let j=0;j<n;j++) row.push(((i+j)%2===0?1:-1) * determinant(minorOf(M,i,j)));
         cof.push(row);
       }
-      const inv = [];
-      for(let i=0;i<n;i++){
-        const row = [];
-        for(let j=0;j<n;j++) row.push(cof[j][i] / det);
-        inv.push(row);
+      return cof;
+    }
+    function transpose(M){
+      const n = M.length, m = M[0].length, T = [];
+      for(let j=0;j<m;j++){ const row=[]; for(let i=0;i<n;i++) row.push(M[i][j]); T.push(row); }
+      return T;
+    }
+    function gcdInt(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a || 1; }
+    function fracReduce(n,d){ if(d<0){ n=-n; d=-d; } const g=gcdInt(n,d)||1; return [n/g, d/g]; }
+    // Inversa exacta, sin coma flotante: A⁻¹ = (traspuesta de la matriz de cofactores) / det(A).
+    function invertFrac(M){
+      const det = determinant(M);
+      const adjT = transpose(cofactorMatrix(M));
+      return adjT.map(row => row.map(v => fracReduce(v, det)));
+    }
+    function fracText([n,d]){ return d === 1 ? String(n) : `${n}/${d}`; }
+    function matHtml(M){
+      const rows = M.length, cols = M[0].length;
+      const cells = M.map(row => row.map(v => `<span class="cell">${Array.isArray(v) ? fracText(v) : v}</span>`).join('')).join('');
+      return `<span class="matrix inline" style="grid-template-columns:repeat(${cols},32px);grid-template-rows:repeat(${rows},28px)">${cells}</span>`;
+    }
+
+    // ---- inputs de fracción (solo cuando el toggle está activo) ----
+    function renderMatrixInputsFrac(rows, cols){
+      const wrap = document.createElement('div');
+      wrap.className = 'matrix';
+      wrap.style.gridTemplateColumns = `repeat(${cols}, 56px)`;
+      wrap.style.gridTemplateRows = `repeat(${rows}, 40px)`;
+      const inputs = [];
+      for(let i=0;i<rows;i++){
+        const rowInputs = [];
+        for(let j=0;j<cols;j++){
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.className = 'cell-input';
+          inp.placeholder = 'a/b';
+          inp.setAttribute('aria-label', `fila ${i+1}, columna ${j+1}`);
+          wrap.appendChild(inp);
+          rowInputs.push(inp);
+        }
+        inputs.push(rowInputs);
       }
-      return inv;
+      return {wrap, inputs};
+    }
+    // Acepta "3", "-3", "3/2", "-3/2", "3/-2"; rechaza denominador 0 o formato no numérico.
+    function parseFracStrict(raw){
+      const s = raw.replace(/\s+/g, '');
+      if(!/^-?\d+(\/-?\d+)?$/.test(s)) return null;
+      const parts = s.split('/');
+      const num = parseInt(parts[0], 10);
+      const den = parts.length === 2 ? parseInt(parts[1], 10) : 1;
+      if(den === 0) return null;
+      return fracReduce(num, den);
+    }
+    function markInputsFrac(inputs, target){
+      let allFilled = true, allCorrect = true;
+      for(let i=0;i<target.length;i++){
+        for(let j=0;j<target[0].length;j++){
+          const inp = inputs[i][j];
+          const raw = inp.value.trim();
+          inp.classList.remove('ok','bad');
+          if(raw === ''){ allFilled = false; continue; }
+          const parsed = parseFracStrict(raw);
+          const [tn, td] = target[i][j];
+          const correct = parsed !== null && parsed[0] === tn && parsed[1] === td;
+          if(correct){ inp.classList.add('ok'); } else { inp.classList.add('bad'); allCorrect = false; }
+        }
+      }
+      return {allFilled, allCorrect};
+    }
+    function revealInputsFrac(inputs, target){
+      for(let i=0;i<target.length;i++){
+        for(let j=0;j<target[0].length;j++){
+          inputs[i][j].value = fracText(target[i][j]);
+          inputs[i][j].classList.remove('bad');
+          inputs[i][j].classList.add('ok');
+        }
+      }
     }
 
     let state = null;
     function newChallenge(){
       const n = els.size.value === 'aleatorio' ? SIZES[randInt(0, SIZES.length-1)] : parseInt(els.size.value, 10);
       const steps = parseInt(els.steps.value, 10);
+      const fracMode = els.fracToggle.checked;
       let A;
-      do{ A = randomUnimodular(n, steps); } while(maxAbs(A) > MAX_ENTRY);
-      const inv = invert(A);
+      if(fracMode){
+        do{ A = randomGeneral(n, steps); } while(maxAbs(A) > MAX_ENTRY);
+      } else {
+        do{ A = randomUnimodular(n, steps); } while(maxAbs(A) > MAX_ENTRY);
+      }
+      const cof = cofactorMatrix(A);
+      const adjT = transpose(cof);
+      const det = determinant(A);
+      const invF = invertFrac(A);
+      const invInt = invF.map(row => row.map(([num]) => num)); // válido solo si fracMode===false (den siempre 1)
 
       els.board.innerHTML = '';
       els.feedback.textContent = ''; els.feedback.className = 'feedback';
+      els.hint.textContent = fracMode
+        ? 'A⁻¹ puede salir con fracciones: escribe cada celda como entero o como a/b.'
+        : 'A⁻¹ siempre sale con números enteros en este reto: det(A) = ±1.';
+      els.explain.hidden = true; els.explain.innerHTML = '';
+      els.explainBtn.hidden = true; els.explainBtn.textContent = '📝 Ver resolución';
       els.checkBtn.disabled = false;
       els.nextBtn.hidden = true;
 
       const labelA = document.createElement('div'); labelA.className = 'term'; labelA.textContent = 'A =';
       const labelInv = document.createElement('div'); labelInv.className = 'term'; labelInv.textContent = 'A⁻¹ =';
-      const {wrap: invWrap, inputs} = renderMatrixInputs(n, n);
+      const {wrap: invWrap, inputs} = fracMode ? renderMatrixInputsFrac(n, n) : renderMatrixInputs(n, n);
       els.board.append(labelA, renderMatrixStatic(A), labelInv, invWrap);
-      state = {inv, inputs};
+
+      const stepsList = [
+        `Matriz de cofactores (adjunta) de A: ${matHtml(cof)}.`,
+        `Traspuesta de la adjunta: ${matHtml(adjT)}.`,
+        `det(A) = ${det}, así que A⁻¹ = (1/${det})·${matHtml(adjT)} = ${matHtml(invF)}.`,
+      ];
+
+      state = {invF, invInt, inputs, fracMode, steps: stepsList};
       inputs[0][0].focus();
+    }
+
+    function showExplain(){
+      els.explain.innerHTML = '<b>Resolución paso a paso</b><ol>' + state.steps.map(t => `<li>${t}</li>`).join('') + '</ol>';
+      els.explainBtn.hidden = false;
+    }
+    function toggleExplain(){
+      if(!state) return;
+      els.explain.hidden = !els.explain.hidden;
+      els.explainBtn.textContent = els.explain.hidden ? '📝 Ver resolución' : '📝 Ocultar resolución';
     }
 
     function checkAnswer(){
       if(!state) return;
-      const {allFilled, allCorrect} = markInputs(state.inputs, state.inv);
+      const {allFilled, allCorrect} = state.fracMode
+        ? markInputsFrac(state.inputs, state.invF)
+        : markInputs(state.inputs, state.invInt);
       if(!allFilled){
         els.feedback.textContent = 'Rellena todas las celdas antes de comprobar.';
         els.feedback.className = 'feedback';
@@ -1551,6 +1699,7 @@
         els.feedback.className = 'feedback ok';
         stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
         persist(); renderStats();
+        showExplain();
         els.checkBtn.disabled = true;
         els.nextBtn.hidden = false;
         els.nextBtn.focus();
@@ -1562,9 +1711,11 @@
     }
     function reveal(){
       if(!state) return;
-      revealInputs(state.inputs, state.inv);
+      if(state.fracMode) revealInputsFrac(state.inputs, state.invF);
+      else revealInputs(state.inputs, state.invInt);
       els.feedback.textContent = 'Solución revelada';
       els.feedback.className = 'feedback';
+      showExplain();
       els.checkBtn.disabled = true;
       els.nextBtn.hidden = false;
       stats.streak = 0; persist(); renderStats();
@@ -1573,9 +1724,14 @@
     els.newBtn.addEventListener('click', newChallenge);
     els.checkBtn.addEventListener('click', checkAnswer);
     els.revealBtn.addEventListener('click', reveal);
+    els.explainBtn.addEventListener('click', toggleExplain);
     els.nextBtn.addEventListener('click', newChallenge);
     els.size.addEventListener('change', newChallenge);
     els.steps.addEventListener('change', newChallenge);
+    els.fracToggle.addEventListener('change', () => {
+      try{ localStorage.setItem(FRAC_KEY, els.fracToggle.checked ? '1' : '0'); }catch(e){}
+      newChallenge();
+    });
 
     window.__mmInversa = {newChallenge};
     newChallenge();
@@ -2248,8 +2404,8 @@
       return {block, input};
     }
 
-    // ---- tipo 1: matriz 3x3 con la fila 3 lineal en m ----
-    function genMatriz(){
+    // ---- tipo 1a: matriz 3x3 con la fila 3 lineal en m (grado 1, rango crítico 2) ----
+    function genMatrizGrado1(){
       const RANGE = 3;
       let u, v;
       for(let guard=0; guard<200; guard++){
@@ -2291,6 +2447,111 @@
           `Para m ≠ ${fmt(m0)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
         ],
       };
+    }
+
+    // ---- tipo 1b: matriz 3x3, filas 2 y 3 comparten base r y dependen de m (grado 2, rango crítico 1) ----
+    // Filas: r, r+t·p, r+t·q con t = m-m0. Restar la fila 1 a las otras 2 no cambia el determinante:
+    // det = det(r, t·p, t·q) = t²·det(r,p,q), grado 2 con raíz doble en m0. Ahí las tres filas son
+    // iguales a r (rango 1); fuera de m0 el rango es 3 si r,p,q son independientes.
+    function genMatrizGrado2(){
+      const RANGE = 3;
+      let r, p, q, D2;
+      for(let guard=0; guard<400; guard++){
+        r = [randInt(-RANGE,RANGE), randInt(-RANGE,RANGE), randInt(-RANGE,RANGE)];
+        p = [randInt(-2,2), randInt(-2,2), randInt(-2,2)];
+        q = [randInt(-2,2), randInt(-2,2), randInt(-2,2)];
+        D2 = det3([r,p,q]);
+        if(D2 !== 0) break;
+      }
+      const m0 = randInt(-3, 3);
+      const row2 = [0,1,2].map(i => r[i] - m0*p[i]);
+      const row3 = [0,1,2].map(i => r[i] - m0*q[i]);
+      const rows = [
+        r.map(x => String(x)),
+        row2.map((c,i) => linTerm(p[i], c)),
+        row3.map((c,i) => linTerm(q[i], c)),
+      ];
+      return {
+        kind: 'matriz',
+        statement: `Considera la matriz A, de orden 3, cuyas filas 2 y 3 dependen de un parámetro <b>m</b>:`,
+        matrixRowsHtml: rows,
+        fields: [
+          {key:'m0', label:'Valor crítico m =', value: m0},
+          {key:'rc', label:'rango(A) si m = crítico =', value: 1},
+          {key:'rr', label:'rango(A) si m ≠ crítico =', value: 3},
+        ],
+        steps: [
+          `El determinante de A es cuadrático en m (dos filas dependen de m): |A(m)| = ${fmt(D2)}·(m − (${fmt(m0)}))².`,
+          `Se anula, con raíz doble, solo en m = <b>${fmt(m0)}</b>.`,
+          `Para m = ${fmt(m0)}: las tres filas son iguales, luego rango(A) = <b>1</b>.`,
+          `Para m ≠ ${fmt(m0)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
+        ],
+      };
+    }
+
+    // ---- tipo 1c: matriz 3x3, las tres filas dependen de m (grado 3, rango crítico 2) ----
+    // A(m) = M0 + (m-m0)·D, con M0 de rango 2 (fila3 = fila1+fila2) y D genérica. Por construcción
+    // det(m0)=det(M0)=0 siempre; el resto del polinomio (grado 3, coeficientes c1,c2,c3 con c3=det(D))
+    // se despeja exactamente con 2 muestras y se exige que el factor cuadrático c1+c2t+c3t² no tenga
+    // raíces reales (discriminante negativo), así m0 queda como única raíz real.
+    function genMatrizGrado3(){
+      const RANGE = 2;
+      for(let guard=0; guard<600; guard++){
+        let x, y;
+        for(let g2=0; g2<50; g2++){
+          x = [randInt(-RANGE,RANGE), randInt(-RANGE,RANGE), randInt(-RANGE,RANGE)];
+          y = [randInt(-RANGE,RANGE), randInt(-RANGE,RANGE), randInt(-RANGE,RANGE)];
+          if(rowIndependent(x,y)) break;
+        }
+        if(!rowIndependent(x,y)) continue;
+        const M0 = [x, y, [0,1,2].map(i => x[i]+y[i])];
+        const D = [
+          [randInt(-2,2), randInt(-2,2), randInt(-2,2)],
+          [randInt(-2,2), randInt(-2,2), randInt(-2,2)],
+          [randInt(-2,2), randInt(-2,2), randInt(-2,2)],
+        ];
+        const detD = det3(D);
+        if(detD === 0) continue;
+        const m0 = randInt(-2, 2);
+        const Mat = t => M0.map((row,i) => row.map((v,j) => v + t*D[i][j]));
+        const p1 = det3(Mat(1)), p2 = det3(Mat(2)), p3 = det3(Mat(3));
+        const c3 = detD;
+        const c2 = (p2 - 2*p1 - 6*c3) / 2;
+        if(!Number.isInteger(c2)) continue; // debiera ser siempre entero; red de seguridad
+        const c1 = p1 - c2 - c3;
+        if(c1*3 + c2*9 + c3*27 !== p3) continue; // comprobación defensiva del despeje
+        const disc = c2*c2 - 4*c3*c1;
+        if(disc >= 0) continue; // exige raíz real única (t=0); si no, se descarta y se reintenta
+        if([-3,-2,2,3,5,-5].some(t => det3(Mat(t)) === 0)) continue;
+
+        const constMat = M0.map((row,i) => row.map((v,j) => v - m0*D[i][j]));
+        if(Math.max(...constMat.flat().map(Math.abs)) > 20) continue;
+        const rows = M0.map((row,i) => row.map((v,j) => linTerm(D[i][j], constMat[i][j])));
+
+        return {
+          kind: 'matriz',
+          statement: `Considera la matriz A, de orden 3, cuyas tres filas dependen de un parámetro <b>m</b>:`,
+          matrixRowsHtml: rows,
+          fields: [
+            {key:'m0', label:'Valor crítico m =', value: m0},
+            {key:'rc', label:'rango(A) si m = crítico =', value: 2},
+            {key:'rr', label:'rango(A) si m ≠ crítico =', value: 3},
+          ],
+          steps: [
+            `El determinante de A es cúbico en m (las tres filas dependen de m): tiene una única raíz real, m = <b>${fmt(m0)}</b> (las otras dos son complejas).`,
+            `Para m = ${fmt(m0)}: la fila 3 es la suma de las filas 1 y 2, así que rango(A) ≤ 2; las filas 1 y 2 son independientes, luego rango(A) = <b>2</b>.`,
+            `Para m ≠ ${fmt(m0)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
+          ],
+        };
+      }
+      throw new Error('genMatrizGrado3: sin resultado');
+    }
+
+    function genMatriz(){
+      const variant = pick(['g1','g2','g3']);
+      if(variant === 'g1') return genMatrizGrado1();
+      if(variant === 'g2') return genMatrizGrado2();
+      return genMatrizGrado3();
     }
 
     // ---- tipo 2: producto A(m)·B, B fija 3×2 (bloque superior unimodular), A(m) 2×3 con la fila 2 lineal en m ----
@@ -2492,7 +2753,7 @@
     els.classBtn.addEventListener('click', () => setClassMode(!els.view.classList.contains('class-mode'), true));
     try{ if(localStorage.getItem(CLASS_KEY) === '1') setClassMode(true, false); }catch(e){}
 
-    window.__mmRangoParam = {newChallenge, genMatriz, genProducto};
+    window.__mmRangoParam = {newChallenge, genMatriz, genMatrizGrado1, genMatrizGrado2, genMatrizGrado3, genProducto};
     newChallenge();
   })();
 
