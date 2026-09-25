@@ -2657,11 +2657,48 @@
       throw new Error('genMatrizGrado3c: sin resultado');
     }
 
+    // ---- tipo 1f: matriz 3x3, columnas escaladas por (m − raíz) (grado 3, raíz triple, 1 punto crítico) ----
+    // Misma construcción que genMatrizGrado3b/c con r1=r2=r3=r: en m=r se anulan las TRES columnas a
+    // la vez, así que A(m0) es la matriz nula ⇒ rango 0. Distinto del otro caso de "1 punto crítico"
+    // (genMatrizGrado3, raíz real única + par complejo, rango 2 ahí): aquí la raíz es real y triple.
+    function genMatrizGrado3Triple(){
+      const RANGE = 3;
+      for(let guard=0; guard<300; guard++){
+        const C = randomUnimodular3();
+        const detC = det3(C);
+        if(Math.abs(detC) !== 1) continue;
+        const r = randInt(-RANGE, RANGE);
+        const constMat = C.map(row => row.map(c => -c*r));
+        const maxE = Math.max(...C.flat().map(Math.abs), ...constMat.flat().map(Math.abs));
+        if(maxE > 20) continue;
+        const rows = C.map((row,i) => row.map((c,j) => linTerm(c, constMat[i][j])));
+
+        return {
+          kind: 'matriz',
+          statement: `Considera la matriz A, de orden 3, cuyas columnas dependen de un parámetro <b>m</b>:`,
+          matrixRowsHtml: rows,
+          fields: [
+            {key:'m0', label:'Valor crítico m =', value: r},
+            {key:'rc', label:'rango(A) si m = crítico =', value: 0},
+            {key:'rr', label:'rango(A) si m ≠ crítico =', value: 3},
+          ],
+          steps: [
+            `Cada columna de A es una columna fija multiplicada por (m − ${fmt(r)}): escalar una columna escala el determinante por ese mismo factor.`,
+            `|A(m)| = ${fmt(detC)}·(m − (${fmt(r)}))³: raíz triple en m = <b>${fmt(r)}</b>, único punto crítico.`,
+            `Para m = ${fmt(r)}: se anulan las TRES columnas a la vez ⇒ A(m) es la matriz nula ⇒ rango(A) = <b>0</b>.`,
+            `Para m ≠ ${fmt(r)}: ninguna columna se anula y la matriz de partida es invertible ⇒ rango(A) = <b>3</b> (máximo).`,
+          ],
+        };
+      }
+      throw new Error('genMatrizGrado3Triple: sin resultado');
+    }
+
     function genMatriz(){
-      const variant = pick(['g1','g2','g3','g3b','g3c']);
+      const variant = pick(['g1','g2','g3','g3t','g3b','g3c']);
       if(variant === 'g1') return genMatrizGrado1();
       if(variant === 'g2') return genMatrizGrado2();
       if(variant === 'g3') return genMatrizGrado3();
+      if(variant === 'g3t') return genMatrizGrado3Triple();
       if(variant === 'g3b') return genMatrizGrado3b();
       return genMatrizGrado3c();
     }
@@ -2740,7 +2777,7 @@
       if(type === 'todos') type = pick(['matriz','matriz','producto']);
       let ch;
       if(type === 'matriz') ch = genMatriz();
-      else if(type === 'matriz-g3-1') ch = genMatrizGrado3();
+      else if(type === 'matriz-g3-1') ch = pick([genMatrizGrado3, genMatrizGrado3Triple])();
       else if(type === 'matriz-g3-2') ch = genMatrizGrado3b();
       else if(type === 'matriz-g3-3') ch = genMatrizGrado3c();
       else ch = genProducto();
@@ -2870,7 +2907,7 @@
     els.classBtn.addEventListener('click', () => setClassMode(!els.view.classList.contains('class-mode'), true));
     try{ if(localStorage.getItem(CLASS_KEY) === '1') setClassMode(true, false); }catch(e){}
 
-    window.__mmRangoParam = {newChallenge, genMatriz, genMatrizGrado1, genMatrizGrado2, genMatrizGrado3, genMatrizGrado3b, genMatrizGrado3c, genProducto};
+    window.__mmRangoParam = {newChallenge, genMatriz, genMatrizGrado1, genMatrizGrado2, genMatrizGrado3, genMatrizGrado3Triple, genMatrizGrado3b, genMatrizGrado3c, genProducto};
     newChallenge();
   })();
 
