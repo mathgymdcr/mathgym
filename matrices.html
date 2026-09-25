@@ -3068,6 +3068,7 @@
       const X = buildMatrix(n, n, 3);
       const C = matMul(matMul(A, X), B);
       const Ainv = invert(A), Binv = invert(B);
+      const D = matMul(Ainv, C); // producto intermedio A⁻¹·C, para comprobar antes del último paso
       return {
         method: 'ambos', n, X,
         statement: `Dadas las matrices A, B y C, calcula la matriz X que verifica <b>A·X·B = C</b>.`,
@@ -3075,7 +3076,8 @@
         steps: [
           'Multiplica por A⁻¹ por la izquierda y por B⁻¹ por la derecha: X = A⁻¹·C·B⁻¹.',
           `A⁻¹ = ${matHtml(Ainv)}, B⁻¹ = ${matHtml(Binv)}.`,
-          `X = A⁻¹·C·B⁻¹ = ${matHtml(X)}.`,
+          `A⁻¹·C = ${matHtml(D)}.`,
+          `X = (A⁻¹·C)·B⁻¹ = ${matHtml(D)}·${matHtml(Binv)} = ${matHtml(X)}.`,
         ],
       };
     }
