@@ -652,6 +652,9 @@
           <select id="rp-type">
             <option value="todos" selected>Todos</option>
             <option value="matriz">Matriz con parámetro</option>
+            <option value="matriz-g3-1">Matriz, grado 3 — 1 punto crítico</option>
+            <option value="matriz-g3-2">Matriz, grado 3 — 2 puntos críticos</option>
+            <option value="matriz-g3-3">Matriz, grado 3 — 3 puntos críticos</option>
             <option value="producto">Producto A·B(m)</option>
           </select>
         </div>
@@ -2547,11 +2550,120 @@
       throw new Error('genMatrizGrado3: sin resultado');
     }
 
+    // matriz entera invertible (det = ±1), vía operaciones elementales desde la identidad
+    function randomUnimodular3(){
+      let C = [[1,0,0],[0,1,0],[0,0,1]];
+      const n = randInt(3,6);
+      for(let s=0; s<n; s++){
+        const t = randInt(0,2);
+        if(t===0){
+          const i = randInt(0,2); let j; do{ j = randInt(0,2); }while(j===i);
+          [C[i],C[j]] = [C[j],C[i]];
+        } else if(t===1){
+          const i = randInt(0,2);
+          C[i] = C[i].map(x => -x);
+        } else {
+          const i = randInt(0,2); let j; do{ j = randInt(0,2); }while(j===i);
+          let k; do{ k = randInt(-2,2); }while(k===0);
+          C[i] = C[i].map((x,c) => x + k*C[j][c]);
+        }
+      }
+      return C;
+    }
+
+    // ---- tipo 1d: matriz 3x3, columnas escaladas por (m − raíz) (grado 3, raíz doble + simple, 2 puntos críticos) ----
+    // Columna j de A(m) = (columna j de C fija) · (m − r_j). Por multilinealidad del determinante en
+    // columnas, |A(m)| = det(C)·(m−r1)(m−r2)(m−r3). Con r1=r2=r (doble) y r3=s (simple): en m=r se
+    // anulan DOS columnas a la vez ⇒ rango 1; en m=s se anula solo una ⇒ rango 2; fuera, rango 3 (C invertible).
+    function genMatrizGrado3b(){
+      const RANGE = 3;
+      for(let guard=0; guard<300; guard++){
+        const C = randomUnimodular3();
+        const detC = det3(C);
+        if(Math.abs(detC) !== 1) continue;
+        const r = randInt(-RANGE, RANGE);
+        let s; do{ s = randInt(-RANGE, RANGE); }while(s === r);
+        const roots = [r, r, s];
+        const constMat = C.map((row,i) => row.map((c,j) => -c*roots[j]));
+        const maxE = Math.max(...C.flat().map(Math.abs), ...constMat.flat().map(Math.abs));
+        if(maxE > 20) continue;
+        const rows = C.map((row,i) => row.map((c,j) => linTerm(c, constMat[i][j])));
+
+        return {
+          kind: 'matriz',
+          statement: `Considera la matriz A, de orden 3, cuyas columnas dependen de un parámetro <b>m</b>:`,
+          matrixRowsHtml: rows,
+          fields: [
+            {key:'rd', label:'Valor crítico doble m =', value: r},
+            {key:'rdrank', label:'rango(A) si m = crítico doble =', value: 1},
+            {key:'rs', label:'Valor crítico simple m =', value: s},
+            {key:'rsrank', label:'rango(A) si m = crítico simple =', value: 2},
+            {key:'rr', label:'rango(A) en cualquier otro caso =', value: 3},
+          ],
+          steps: [
+            `Cada columna de A es una columna fija multiplicada por (m − valor): escalar una columna escala el determinante por ese mismo factor.`,
+            `|A(m)| = ${fmt(detC)}·(m − (${fmt(r)}))²·(m − (${fmt(s)})): raíz doble en m = <b>${fmt(r)}</b>, raíz simple en m = <b>${fmt(s)}</b>.`,
+            `Para m = ${fmt(r)}: se anulan a la vez las dos columnas que comparten esa raíz; solo queda una columna no nula ⇒ rango(A) = <b>1</b>.`,
+            `Para m = ${fmt(s)}: se anula una sola columna; las otras dos siguen siendo independientes ⇒ rango(A) = <b>2</b>.`,
+            `Para cualquier otro valor de m: ninguna columna se anula y la matriz de partida es invertible ⇒ rango(A) = <b>3</b> (máximo).`,
+          ],
+        };
+      }
+      throw new Error('genMatrizGrado3b: sin resultado');
+    }
+
+    // ---- tipo 1e: matriz 3x3, columnas escaladas por (m − raíz) (grado 3, tres raíces reales distintas, 3 puntos críticos) ----
+    // Misma construcción que genMatrizGrado3b con r1,r2,r3 distintos: en cada raíz se anula exactamente
+    // una columna ⇒ rango 2 en las tres; fuera de ellas, rango 3.
+    function genMatrizGrado3c(){
+      const RANGE = 3;
+      for(let guard=0; guard<300; guard++){
+        const C = randomUnimodular3();
+        const detC = det3(C);
+        if(Math.abs(detC) !== 1) continue;
+        const roots = [];
+        while(roots.length < 3){
+          const v = randInt(-RANGE, RANGE);
+          if(!roots.includes(v)) roots.push(v);
+        }
+        roots.sort((a,b) => a-b);
+        const [r1, r2, r3] = roots;
+        const constMat = C.map((row,i) => row.map((c,j) => -c*roots[j]));
+        const maxE = Math.max(...C.flat().map(Math.abs), ...constMat.flat().map(Math.abs));
+        if(maxE > 20) continue;
+        const rows = C.map((row,i) => row.map((c,j) => linTerm(c, constMat[i][j])));
+
+        return {
+          kind: 'matriz',
+          statement: `Considera la matriz A, de orden 3, cuyas columnas dependen de un parámetro <b>m</b>:`,
+          matrixRowsHtml: rows,
+          fields: [
+            {key:'r1', label:'Valor crítico menor m =', value: r1},
+            {key:'rank1', label:'rango(A) si m = crítico menor =', value: 2},
+            {key:'r2', label:'Valor crítico intermedio m =', value: r2},
+            {key:'rank2', label:'rango(A) si m = crítico intermedio =', value: 2},
+            {key:'r3', label:'Valor crítico mayor m =', value: r3},
+            {key:'rank3', label:'rango(A) si m = crítico mayor =', value: 2},
+            {key:'rr', label:'rango(A) en cualquier otro caso =', value: 3},
+          ],
+          steps: [
+            `Cada columna de A es una columna fija multiplicada por (m − valor): escalar una columna escala el determinante por ese mismo factor.`,
+            `|A(m)| = ${fmt(detC)}·(m − (${fmt(r1)}))·(m − (${fmt(r2)}))·(m − (${fmt(r3)})): tres raíces reales distintas.`,
+            `En cada raíz se anula exactamente una columna y las otras dos siguen siendo independientes ⇒ rango(A) = <b>2</b> en m = ${fmt(r1)}, m = ${fmt(r2)} y m = ${fmt(r3)}.`,
+            `Para cualquier otro valor de m: ninguna columna se anula y la matriz de partida es invertible ⇒ rango(A) = <b>3</b> (máximo).`,
+          ],
+        };
+      }
+      throw new Error('genMatrizGrado3c: sin resultado');
+    }
+
     function genMatriz(){
-      const variant = pick(['g1','g2','g3']);
+      const variant = pick(['g1','g2','g3','g3b','g3c']);
       if(variant === 'g1') return genMatrizGrado1();
       if(variant === 'g2') return genMatrizGrado2();
-      return genMatrizGrado3();
+      if(variant === 'g3') return genMatrizGrado3();
+      if(variant === 'g3b') return genMatrizGrado3b();
+      return genMatrizGrado3c();
     }
 
     // ---- tipo 2: producto A(m)·B, B fija 3×2 (bloque superior unimodular), A(m) 2×3 con la fila 2 lineal en m ----
@@ -2626,7 +2738,12 @@
     function newChallenge(){
       let type = els.type.value;
       if(type === 'todos') type = pick(['matriz','matriz','producto']);
-      const ch = type === 'matriz' ? genMatriz() : genProducto();
+      let ch;
+      if(type === 'matriz') ch = genMatriz();
+      else if(type === 'matriz-g3-1') ch = genMatrizGrado3();
+      else if(type === 'matriz-g3-2') ch = genMatrizGrado3b();
+      else if(type === 'matriz-g3-3') ch = genMatrizGrado3c();
+      else ch = genProducto();
 
       els.statement.innerHTML = ch.statement;
       els.board.innerHTML = '';
@@ -2753,7 +2870,7 @@
     els.classBtn.addEventListener('click', () => setClassMode(!els.view.classList.contains('class-mode'), true));
     try{ if(localStorage.getItem(CLASS_KEY) === '1') setClassMode(true, false); }catch(e){}
 
-    window.__mmRangoParam = {newChallenge, genMatriz, genMatrizGrado1, genMatrizGrado2, genMatrizGrado3, genProducto};
+    window.__mmRangoParam = {newChallenge, genMatriz, genMatrizGrado1, genMatrizGrado2, genMatrizGrado3, genMatrizGrado3b, genMatrizGrado3c, genProducto};
     newChallenge();
   })();
 
