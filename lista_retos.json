@@ -351,5 +351,15 @@
       "logica",
       "deduccion"
     ]
+  },
+  {
+    "fecha": "2026-09-28",
+    "titulo": "Cajas Apiladas",
+    "dificultad": 2,
+    "categorias": [
+      "logica",
+      "movimiento",
+      "optimizacion"
+    ]
   }
 ]
