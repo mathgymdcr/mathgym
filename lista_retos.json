@@ -361,5 +361,15 @@
       "movimiento",
       "optimizacion"
     ]
+  },
+  {
+    "fecha": "2026-09-29",
+    "titulo": "Anillas Encadenadas",
+    "dificultad": 2,
+    "categorias": [
+      "logica",
+      "movimiento",
+      "optimizacion"
+    ]
   }
 ]
