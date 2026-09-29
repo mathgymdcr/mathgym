@@ -499,9 +499,12 @@
     <div class="feedback" id="d-feedback"></div>
     <div class="hint" id="d-hint">Elige la fila o columna con más ceros y desarrolla por ella (adjuntos/cofactores).</div>
 
+    <div class="explain" id="d-explain" hidden></div>
+
     <div class="actions">
       <button id="d-checkBtn" class="primary">Comprobar</button>
       <button id="d-revealBtn">Ver solución</button>
+      <button id="d-explainBtn" hidden>📝 Ver resolución</button>
       <button id="d-nextBtn" class="primary" hidden>Siguiente ▶</button>
     </div>
   </div>
@@ -1321,6 +1324,8 @@
       feedback: document.getElementById('d-feedback'),
       checkBtn: document.getElementById('d-checkBtn'),
       revealBtn: document.getElementById('d-revealBtn'),
+      explain: document.getElementById('d-explain'),
+      explainBtn: document.getElementById('d-explainBtn'),
       nextBtn: document.getElementById('d-nextBtn'),
       streak: document.getElementById('d-streak'),
       solved: document.getElementById('d-solved'),
@@ -1373,6 +1378,70 @@
       return det;
     }
 
+    const fmt = v => v < 0 ? '−' + (-v) : String(v);
+    function minorOf(M, r, c){
+      return M.filter((_,i) => i !== r).map(row => row.filter((_,j) => j !== c));
+    }
+    function chooseLine(M){
+      const n = M.length;
+      let best = null;
+      for(let i=0;i<n;i++){
+        const zeros = M[i].filter(v => v === 0).length;
+        if(!best || zeros > best.zeros) best = {isRow: true, idx: i, zeros};
+      }
+      for(let j=0;j<n;j++){
+        let zeros = 0; for(let i=0;i<n;i++) if(M[i][j] === 0) zeros++;
+        if(zeros > best.zeros) best = {isRow: false, idx: j, zeros};
+      }
+      return best;
+    }
+    function matHtml(M){
+      const rows = M.length, cols = M[0].length;
+      const cells = M.map(row => row.map(v => `<span class="cell">${fmt(v)}</span>`).join('')).join('');
+      return `<span class="matrix inline" style="grid-template-columns:repeat(${cols},32px);grid-template-rows:repeat(${rows},28px)">${cells}</span>`;
+    }
+    // Desarrollo por adjuntos a lo largo de la fila/columna con más ceros: es exactamente
+    // el método que sugiere el hint, así la resolución no introduce un camino distinto.
+    function buildDetSteps(M, det){
+      const n = M.length;
+      if(n === 2){
+        return [`det(A) = a11·a22 − a12·a21 = ${fmt(M[0][0])}·${fmt(M[1][1])} − ${fmt(M[0][1])}·${fmt(M[1][0])} = <b>${fmt(det)}</b>.`];
+      }
+      if(n === 3){
+        const [[a,b,c],[d,e,f],[g,h,i]] = M;
+        const pos = [a*e*i, b*f*g, c*d*h];
+        const neg = [c*e*g, a*f*h, b*d*i];
+        const sumPos = pos.reduce((s,v) => s+v, 0);
+        const sumNeg = neg.reduce((s,v) => s+v, 0);
+        return [
+          `Regla de Sarrus: det(A) = (a11·a22·a33 + a12·a23·a31 + a13·a21·a32) − (a13·a22·a31 + a11·a23·a32 + a12·a21·a33).`,
+          `Diagonales principales: ${fmt(a)}·${fmt(e)}·${fmt(i)} + ${fmt(b)}·${fmt(f)}·${fmt(g)} + ${fmt(c)}·${fmt(d)}·${fmt(h)} = <b>${fmt(sumPos)}</b>.`,
+          `Diagonales secundarias: ${fmt(c)}·${fmt(e)}·${fmt(g)} + ${fmt(a)}·${fmt(f)}·${fmt(h)} + ${fmt(b)}·${fmt(d)}·${fmt(i)} = <b>${fmt(sumNeg)}</b>.`,
+          `det(A) = ${fmt(sumPos)} − (${fmt(sumNeg)}) = <b>${fmt(det)}</b>.`,
+        ];
+      }
+      const line = chooseLine(M);
+      const label = line.isRow ? `fila ${line.idx+1}` : `columna ${line.idx+1}`;
+      const steps = [`La ${label} de A = ${matHtml(M)} tiene más ceros (${line.zeros} de ${n}): desarrollamos el determinante por ella.`];
+      const terms = [];
+      for(let k=0;k<n;k++){
+        const i = line.isRow ? line.idx : k;
+        const j = line.isRow ? k : line.idx;
+        const a = M[i][j];
+        if(a === 0) continue;
+        const sign = ((i+j) % 2 === 0) ? 1 : -1;
+        const minor = minorOf(M, i, j);
+        const minorDet = determinant(minor);
+        const cof = sign * minorDet;
+        const product = a * cof;
+        terms.push(product);
+        steps.push(`a${i+1}${j+1} = ${fmt(a)}, adjunto A${i+1}${j+1} = ${sign>0?'':'−'}${matHtml(minor)} = ${sign>0?'':'−'}(${fmt(minorDet)}) = ${fmt(cof)} → aporta ${fmt(a)}·${fmt(cof)} = <b>${fmt(product)}</b>.`);
+      }
+      const sumExpr = terms.map((t,idx) => idx === 0 ? fmt(t) : (t < 0 ? `− ${-t}` : `+ ${t}`)).join(' ');
+      steps.push(`det(A) = ${sumExpr} = <b>${fmt(det)}</b>.`);
+      return steps;
+    }
+
     let state = null;
     function newChallenge(){
       const n = els.size.value === 'aleatorio' ? SIZES[randInt(0, SIZES.length-1)] : parseInt(els.size.value, 10);
@@ -1384,14 +1453,26 @@
 
       els.board.innerHTML = '';
       els.feedback.textContent = ''; els.feedback.className = 'feedback';
+      els.explain.hidden = true; els.explain.innerHTML = '';
+      els.explainBtn.hidden = true; els.explainBtn.textContent = '📝 Ver resolución';
       els.checkBtn.disabled = false;
       els.nextBtn.hidden = true;
 
       const label = document.createElement('div'); label.className = 'term'; label.textContent = 'det(A) =';
       const {wrap: valWrap, input: valInput} = renderValueInput();
       els.board.append(renderMatrixStatic(M), label, valWrap);
-      state = {det, input: valInput};
+      state = {det, input: valInput, steps: buildDetSteps(M, det)};
       valInput.focus();
+    }
+
+    function showExplain(){
+      els.explain.innerHTML = '<b>Resolución paso a paso</b><ol>' + state.steps.map(t => `<li>${t}</li>`).join('') + '</ol>';
+      els.explainBtn.hidden = false;
+    }
+    function toggleExplain(){
+      if(!state) return;
+      els.explain.hidden = !els.explain.hidden;
+      els.explainBtn.textContent = els.explain.hidden ? '📝 Ver resolución' : '📝 Ocultar resolución';
     }
 
     function checkAnswer(){
@@ -1407,6 +1488,7 @@
         els.feedback.className = 'feedback ok';
         stats.streak++; stats.solved++; stats.best = Math.max(stats.best, stats.streak);
         persist(); renderStats();
+        showExplain();
         els.checkBtn.disabled = true;
         els.nextBtn.hidden = false;
         els.nextBtn.focus();
@@ -1421,6 +1503,7 @@
       revealValue(state.input, state.det);
       els.feedback.textContent = 'Solución revelada';
       els.feedback.className = 'feedback';
+      showExplain();
       els.checkBtn.disabled = true;
       els.nextBtn.hidden = false;
       stats.streak = 0; persist(); renderStats();
@@ -1429,6 +1512,7 @@
     els.newBtn.addEventListener('click', newChallenge);
     els.checkBtn.addEventListener('click', checkAnswer);
     els.revealBtn.addEventListener('click', reveal);
+    els.explainBtn.addEventListener('click', toggleExplain);
     els.nextBtn.addEventListener('click', newChallenge);
     els.size.addEventListener('change', newChallenge);
     els.range.addEventListener('change', newChallenge);
