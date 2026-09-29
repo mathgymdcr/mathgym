@@ -297,6 +297,8 @@
     height:28px;
     font-size:0.85rem;
   }
+  /* barras de determinante/menor ("| |") en vez de corchetes de matriz */
+  .matrix.bars::before, .matrix.bars::after{ border-top:none; border-bottom:none; }
   /* Modo clase: todo el ejercicio a mayor tamaño para proyectar */
   #pr-stage, #rp-stage, #ec-stage{ zoom:1; }
   #view-propiedades.class-mode #pr-stage{ zoom:1.4; }
@@ -2492,10 +2494,10 @@
       block.append(label, wrap);
       return {block, input};
     }
-    function matHtml(M){
+    function matHtml(M, cls=''){
       const rows = M.length, cols = M[0].length;
       const cells = M.map(row => row.map(v => `<span class="cell">${fmt(v)}</span>`).join('')).join('');
-      return `<span class="matrix inline" style="grid-template-columns:repeat(${cols},32px);grid-template-rows:repeat(${rows},28px)">${cells}</span>`;
+      return `<span class="matrix inline ${cls}" style="grid-template-columns:repeat(${cols},32px);grid-template-rows:repeat(${rows},28px)">${cells}</span>`;
     }
 
     // ---- álgebra simbólica en m, para explicar el cálculo del determinante paso a paso ----
@@ -2542,7 +2544,7 @@
       return null;
     }
     function minorText(M, i, j, c1, c2){
-      return `|${fmt(M[i][c1])} ${fmt(M[i][c2])}; ${fmt(M[j][c1])} ${fmt(M[j][c2])}|`;
+      return matHtml([[M[i][c1], M[i][c2]], [M[j][c1], M[j][c2]]], 'bars');
     }
     function findIndepCols(u, v){
       for(let i=0;i<u.length;i++) for(let j=i+1;j<u.length;j++){
@@ -2666,7 +2668,7 @@
           ...detSteps,
           ...eqSteps,
           `Sustituimos m = ${fmt(root)} en la fila 3: (${row3At.map(fmt).join(', ')}) → A(${fmt(root)}) = ${matHtml([u, v, row3At])}.`,
-          `Menor de las filas 1 y 2 en las columnas ${col.i+1} y ${col.j+1}: |${fmt(u[col.i])} ${fmt(u[col.j])}; ${fmt(v[col.i])} ${fmt(v[col.j])}| = ${fmt(col.d)} ≠ 0 (no depende de m) ⇒ esas dos filas son siempre independientes, así que rango(A) ≥ 2 para cualquier m.`,
+          `Menor de las filas 1 y 2 en las columnas ${col.i+1} y ${col.j+1}: ${matHtml([[u[col.i],u[col.j]],[v[col.i],v[col.j]]], 'bars')} = ${fmt(col.d)} ≠ 0 (no depende de m) ⇒ esas dos filas son siempre independientes, así que rango(A) ≥ 2 para cualquier m.`,
           `Para m = ${fmt(root)}: |A| = 0, luego rango(A) < 3 ⇒ rango(A) = <b>2</b>.`,
           `Para m ≠ ${fmt(root)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
         ],
@@ -2774,7 +2776,7 @@
             ...detSteps,
             ...eqSteps,
             `Sustituimos m = ${fmt(m0)}: A(${fmt(m0)}) = ${matHtml(M0)}, con la fila 3 igual a la suma de las filas 1 y 2.`,
-            `Menor de las filas 1 y 2 en las columnas ${col.i+1} y ${col.j+1}: |${fmt(x[col.i])} ${fmt(x[col.j])}; ${fmt(y[col.i])} ${fmt(y[col.j])}| = ${fmt(col.d)} ≠ 0 ⇒ las filas 1 y 2 son independientes, así que rango(A(${fmt(m0)})) ≥ 2; como la fila 3 es combinación de ellas, rango(A(${fmt(m0)})) = <b>2</b>.`,
+            `Menor de las filas 1 y 2 en las columnas ${col.i+1} y ${col.j+1}: ${matHtml([[x[col.i],x[col.j]],[y[col.i],y[col.j]]], 'bars')} = ${fmt(col.d)} ≠ 0 ⇒ las filas 1 y 2 son independientes, así que rango(A(${fmt(m0)})) ≥ 2; como la fila 3 es combinación de ellas, rango(A(${fmt(m0)})) = <b>2</b>.`,
             `Para m ≠ ${fmt(m0)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
           ],
         };
@@ -3034,7 +3036,7 @@
             ...detSteps,
             ...eqSteps,
             `Sustituimos m = ${fmt(root)} en A: A(${fmt(root)}) = ${matHtml(Am0)}, y A(${fmt(root)})·B = ${matHtml(ABm0)}, con determinante 0 ⇒ efectivamente A·B no tiene inversa ahí.`,
-            `Menor de las columnas ${kIdx+1} y 3 de A: |${fmt(uk)} 0; ${linTerm(dk,vk)} ${fmt(c3)}| = ${fmt(uk)}·${fmt(c3)} − 0·(${linTerm(dk,vk)}) = ${fmt(uk*c3)} ≠ 0 para cualquier m (el término con m se multiplica por 0) ⇒ rango(A) = <b>2</b> (máximo, A tiene 2 filas) sea cual sea m.`,
+            `Menor de las columnas ${kIdx+1} y 3 de A: ${matHtml([[uk,0],[linTerm(dk,vk),c3]], 'bars')} = ${fmt(uk)}·${fmt(c3)} − 0·(${linTerm(dk,vk)}) = ${fmt(uk*c3)} ≠ 0 para cualquier m (el término con m se multiplica por 0) ⇒ rango(A) = <b>2</b> (máximo, A tiene 2 filas) sea cual sea m.`,
             `B tiene rango 2 (sus columnas son independientes: el bloque de sus 2 primeras filas tiene determinante ±1).`,
             `Como B tiene rango máximo, rango(B·A) = rango(A) = <b>2</b> para cualquier valor de m.`,
           ],
