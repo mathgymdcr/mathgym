@@ -2492,6 +2492,134 @@
       block.append(label, wrap);
       return {block, input};
     }
+    function matHtml(M){
+      const rows = M.length, cols = M[0].length;
+      const cells = M.map(row => row.map(v => `<span class="cell">${fmt(v)}</span>`).join('')).join('');
+      return `<span class="matrix inline" style="grid-template-columns:repeat(${cols},32px);grid-template-rows:repeat(${rows},28px)">${cells}</span>`;
+    }
+
+    // ---- álgebra simbólica en m, para explicar el cálculo del determinante paso a paso ----
+    // un "par" [coefM, const] representa la entrada coefM·m + const, igual que recibe linTerm();
+    // sirve tanto para filas como para columnas que dependan de m, porque Sarrus no distingue el origen.
+    function pairToPoly(pair){ return [pair[1], pair[0]]; }
+    function polyMulPair(poly, pair){
+      const [k,c] = pair;
+      const r = new Array(poly.length+1).fill(0);
+      poly.forEach((coef,i) => { r[i] += coef*c; r[i+1] += coef*k; });
+      return r;
+    }
+    function polyAdd(...ps){
+      const len = Math.max(...ps.map(p => p.length));
+      const r = new Array(len).fill(0);
+      ps.forEach(p => p.forEach((c,i) => { r[i] += c; }));
+      return r;
+    }
+    function polySub(a,b){ return polyAdd(a, b.map(c => -c)); }
+    function polyTrim(p){ const r = p.slice(); while(r.length > 1 && r[r.length-1] === 0) r.pop(); return r; }
+    function polyEval(p, m){ return p.reduce((s,c,i) => s + c*Math.pow(m,i), 0); }
+    function polyText(poly){
+      const p = polyTrim(poly);
+      const terms = [];
+      for(let d = p.length-1; d >= 0; d--){
+        const coef = p[d];
+        if(coef === 0) continue;
+        const abs = Math.abs(coef);
+        const mPart = d === 0 ? '' : d === 1 ? 'm' : d === 2 ? 'm²' : 'm³';
+        const numPart = (abs === 1 && d > 0) ? '' : String(abs);
+        terms.push({neg: coef < 0, text: numPart + mPart});
+      }
+      if(terms.length === 0) return '0';
+      let s = (terms[0].neg ? '−' : '') + terms[0].text;
+      for(let i=1;i<terms.length;i++) s += ' ' + (terms[i].neg ? '−' : '+') + ' ' + terms[i].text;
+      return s;
+    }
+    function substituteMatrix(P, mVal){ return P.map(row => row.map(([k,c]) => k*mVal + c)); }
+    function firstNonzeroMinor2Cols(M, c1, c2){
+      for(let i=0;i<M.length;i++) for(let j=i+1;j<M.length;j++){
+        const d = M[i][c1]*M[j][c2] - M[i][c2]*M[j][c1];
+        if(d !== 0) return {i, j, d};
+      }
+      return null;
+    }
+    function minorText(M, i, j, c1, c2){
+      return `|${fmt(M[i][c1])} ${fmt(M[i][c2])}; ${fmt(M[j][c1])} ${fmt(M[j][c2])}|`;
+    }
+    function findIndepCols(u, v){
+      for(let i=0;i<u.length;i++) for(let j=i+1;j<u.length;j++){
+        const d = u[i]*v[j] - u[j]*v[i];
+        if(d !== 0) return {i, j, d};
+      }
+      return null;
+    }
+    // desarrollo de Sarrus sobre una matriz de pares [coefM,const]: exactamente el mismo método
+    // que usa la pestaña Determinante, pero simbólico en m en vez de con números sueltos.
+    function detParamSteps2(P){
+      const entryTxt = (i,j) => linTerm(P[i][j][0], P[i][j][1]);
+      const t1 = polyMulPair(pairToPoly(P[0][0]), P[1][1]);
+      const t2 = polyMulPair(pairToPoly(P[0][1]), P[1][0]);
+      const det = polySub(t1, t2);
+      return { det, steps: [
+        `det = a11·a22 − a12·a21 = (${entryTxt(0,0)})·(${entryTxt(1,1)}) − (${entryTxt(0,1)})·(${entryTxt(1,0)}) = (${polyText(t1)}) − (${polyText(t2)}) = <b>${polyText(det)}</b>.`,
+      ]};
+    }
+    function detParamSteps3(P){
+      const e = (i,j) => P[i][j];
+      const entryTxt = (i,j) => linTerm(e(i,j)[0], e(i,j)[1]);
+      const triple = (a,b,c) => polyMulPair(polyMulPair(pairToPoly(a), b), c);
+      const pos1 = triple(e(0,0),e(1,1),e(2,2)), pos2 = triple(e(0,1),e(1,2),e(2,0)), pos3 = triple(e(0,2),e(1,0),e(2,1));
+      const neg1 = triple(e(0,2),e(1,1),e(2,0)), neg2 = triple(e(0,0),e(1,2),e(2,1)), neg3 = triple(e(0,1),e(1,0),e(2,2));
+      const sumPos = polyAdd(pos1,pos2,pos3), sumNeg = polyAdd(neg1,neg2,neg3);
+      const det = polySub(sumPos, sumNeg);
+      return { det, steps: [
+        `Regla de Sarrus: |A(m)| = (a11·a22·a33 + a12·a23·a31 + a13·a21·a32) − (a13·a22·a31 + a11·a23·a32 + a12·a21·a33).`,
+        `Diagonales principales: (${entryTxt(0,0)})(${entryTxt(1,1)})(${entryTxt(2,2)}) + (${entryTxt(0,1)})(${entryTxt(1,2)})(${entryTxt(2,0)}) + (${entryTxt(0,2)})(${entryTxt(1,0)})(${entryTxt(2,1)}) = ${polyText(sumPos)}.`,
+        `Diagonales secundarias: (${entryTxt(0,2)})(${entryTxt(1,1)})(${entryTxt(2,0)}) + (${entryTxt(0,0)})(${entryTxt(1,2)})(${entryTxt(2,1)}) + (${entryTxt(0,1)})(${entryTxt(1,0)})(${entryTxt(2,2)}) = ${polyText(sumNeg)}.`,
+        `|A(m)| = (${polyText(sumPos)}) − (${polyText(sumNeg)}) = <b>${polyText(det)}</b>.`,
+      ]};
+    }
+    // resuelve |A(m)| = 0 con el método propio de su grado: lineal, cuadrática (fórmula general)
+    // o cúbica (probando la raíz ya conocida por construcción y dividiendo, sin fórmula de Cardano)
+    function solveLinearSteps(poly){
+      const p = polyTrim(poly);
+      const [c0,c1] = p;
+      const root = -c0/c1;
+      return { roots: [root], steps: [
+        `Igualamos a 0: ${polyText(p)} = 0.`,
+        `${fmt(c1)}·m = ${fmt(-c0)} ⇒ m = <b>${fmt(root)}</b>.`,
+      ]};
+    }
+    function solveQuadraticSteps(poly){
+      const p = polyTrim(poly);
+      const [c0,c1,c2] = p;
+      const disc = c1*c1 - 4*c2*c0;
+      const steps = [`Igualamos a 0: ${polyText(p)} = 0.`];
+      if(disc < 0){
+        steps.push(`Discriminante: b² − 4ac = (${fmt(c1)})² − 4·${fmt(c2)}·${fmt(c0)} = ${fmt(disc)} < 0 ⇒ no hay más raíces reales.`);
+        return { roots: [], steps };
+      }
+      if(disc === 0){
+        const root = -c1/(2*c2);
+        steps.push(`Discriminante: b² − 4ac = (${fmt(c1)})² − 4·${fmt(c2)}·${fmt(c0)} = 0 ⇒ raíz doble m = −b/(2a) = <b>${fmt(root)}</b>.`);
+        return { roots: [root, root], steps };
+      }
+      const sq = Math.sqrt(disc);
+      const r1 = (-c1-sq)/(2*c2), r2 = (-c1+sq)/(2*c2);
+      const lo = Math.min(r1,r2), hi = Math.max(r1,r2);
+      steps.push(`Discriminante: b² − 4ac = (${fmt(c1)})² − 4·${fmt(c2)}·${fmt(c0)} = ${fmt(disc)} ⇒ m = (−b ± √${fmt(disc)})/(2a) = <b>${fmt(lo)}</b> o <b>${fmt(hi)}</b>.`);
+      return { roots: [lo, hi], steps };
+    }
+    function solveCubicSteps(poly, knownRoot){
+      const p = polyTrim(poly);
+      const [c0,c1,c2,c3] = p;
+      const steps = [`Igualamos a 0: ${polyText(p)} = 0.`];
+      const check = polyEval(p, knownRoot);
+      steps.push(`Probamos m = ${fmt(knownRoot)} (raíz esperada por construcción): sustituyendo en el polinomio sale ${fmt(check)} ⇒ es raíz.`);
+      const A = c3, B = c2 + A*knownRoot, C = c1 + B*knownRoot;
+      steps.push(`Dividimos entre (m − (${fmt(knownRoot)})): el cociente es ${fmt(A)}m² ${B>=0?'+ '+fmt(B):'− '+fmt(-B)}m ${C>=0?'+ '+fmt(C):'− '+fmt(-C)}.`);
+      const {roots: qroots, steps: qsteps} = solveQuadraticSteps([C,B,A]);
+      steps.push(`Resolvemos esa cuadrática: ${qsteps.slice(1).join(' ')}`);
+      return { roots: [knownRoot, ...qroots], steps };
+    }
 
     // ---- tipo 1a: matriz 3x3 con la fila 3 lineal en m (grado 1, rango crítico 2) ----
     function genMatrizGrado1(){
@@ -2519,21 +2647,28 @@
         v.map(x => String(x)),
         w0.map((c,i) => linTerm(d[i], c)),
       ];
+      const P = [u.map(x => [0,x]), v.map(x => [0,x]), d.map((di,i) => [di, w0[i]])];
+      const {det, steps: detSteps} = detParamSteps3(P);
+      const {roots, steps: eqSteps} = solveLinearSteps(det);
+      const root = roots[0];
+      const row3At = d.map((di,i) => di*root + w0[i]);
+      const col = findIndepCols(u, v);
       return {
         kind: 'matriz',
         statement: `Considera la matriz A, de orden 3, cuya fila 3 depende de un parámetro <b>m</b>:`,
         matrixRowsHtml: rows,
         fields: [
-          {key:'m0', label:'Valor crítico m =', value: m0},
+          {key:'m0', label:'Valor crítico m =', value: root},
           {key:'rc', label:'rango(A) si m = crítico =', value: 2},
           {key:'rr', label:'rango(A) si m ≠ crítico =', value: 3},
         ],
         steps: [
-          `El determinante de A es lineal en m (solo la fila 3 depende de m): |A(m)| = ${fmt(D1)}·(m − (${fmt(m0)})).`,
-          `Se anula solo en m = <b>${fmt(m0)}</b>.`,
-          `Las filas 1 y 2 son independientes (no proporcionales), así que rango(A) ≥ 2 siempre.`,
-          `Para m = ${fmt(m0)}: |A| = 0, luego rango(A) = <b>2</b>.`,
-          `Para m ≠ ${fmt(m0)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
+          ...detSteps,
+          ...eqSteps,
+          `Sustituimos m = ${fmt(root)} en la fila 3: (${row3At.map(fmt).join(', ')}) → A(${fmt(root)}) = ${matHtml([u, v, row3At])}.`,
+          `Menor de las filas 1 y 2 en las columnas ${col.i+1} y ${col.j+1}: |${fmt(u[col.i])} ${fmt(u[col.j])}; ${fmt(v[col.i])} ${fmt(v[col.j])}| = ${fmt(col.d)} ≠ 0 (no depende de m) ⇒ esas dos filas son siempre independientes, así que rango(A) ≥ 2 para cualquier m.`,
+          `Para m = ${fmt(root)}: |A| = 0, luego rango(A) < 3 ⇒ rango(A) = <b>2</b>.`,
+          `Para m ≠ ${fmt(root)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
         ],
       };
     }
@@ -2560,20 +2695,25 @@
         row2.map((c,i) => linTerm(p[i], c)),
         row3.map((c,i) => linTerm(q[i], c)),
       ];
+      const P = [r.map(x => [0,x]), p.map((pi,i) => [pi, row2[i]]), q.map((qi,i) => [qi, row3[i]])];
+      const {det, steps: detSteps} = detParamSteps3(P);
+      const {roots, steps: eqSteps} = solveQuadraticSteps(det);
+      const root = roots[0];
       return {
         kind: 'matriz',
         statement: `Considera la matriz A, de orden 3, cuyas filas 2 y 3 dependen de un parámetro <b>m</b>:`,
         matrixRowsHtml: rows,
         fields: [
-          {key:'m0', label:'Valor crítico m =', value: m0},
+          {key:'m0', label:'Valor crítico m =', value: root},
           {key:'rc', label:'rango(A) si m = crítico =', value: 1},
           {key:'rr', label:'rango(A) si m ≠ crítico =', value: 3},
         ],
         steps: [
-          `El determinante de A es cuadrático en m (dos filas dependen de m): |A(m)| = ${fmt(D2)}·(m − (${fmt(m0)}))².`,
-          `Se anula, con raíz doble, solo en m = <b>${fmt(m0)}</b>.`,
-          `Para m = ${fmt(m0)}: las tres filas son iguales, luego rango(A) = <b>1</b>.`,
-          `Para m ≠ ${fmt(m0)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
+          ...detSteps,
+          ...eqSteps,
+          `Sustituimos m = ${fmt(root)} en las filas 2 y 3: A(${fmt(root)}) = ${matHtml([r,r,r])}, las tres filas iguales a r.`,
+          `Cualquier menor 2×2 de A(${fmt(root)}) es 0 (filas repetidas), pero la fila r no es nula ⇒ rango(A) = <b>1</b>.`,
+          `Para m ≠ ${fmt(root)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
         ],
       };
     }
@@ -2616,6 +2756,10 @@
         const constMat = M0.map((row,i) => row.map((v,j) => v - m0*D[i][j]));
         if(Math.max(...constMat.flat().map(Math.abs)) > 20) continue;
         const rows = M0.map((row,i) => row.map((v,j) => linTerm(D[i][j], constMat[i][j])));
+        const P = M0.map((row,i) => row.map((v,j) => [D[i][j], constMat[i][j]]));
+        const {det, steps: detSteps} = detParamSteps3(P);
+        const {steps: eqSteps} = solveCubicSteps(det, m0);
+        const col = findIndepCols(x, y);
 
         return {
           kind: 'matriz',
@@ -2627,8 +2771,10 @@
             {key:'rr', label:'rango(A) si m ≠ crítico =', value: 3},
           ],
           steps: [
-            `El determinante de A es cúbico en m (las tres filas dependen de m): tiene una única raíz real, m = <b>${fmt(m0)}</b> (las otras dos son complejas).`,
-            `Para m = ${fmt(m0)}: la fila 3 es la suma de las filas 1 y 2, así que rango(A) ≤ 2; las filas 1 y 2 son independientes, luego rango(A) = <b>2</b>.`,
+            ...detSteps,
+            ...eqSteps,
+            `Sustituimos m = ${fmt(m0)}: A(${fmt(m0)}) = ${matHtml(M0)}, con la fila 3 igual a la suma de las filas 1 y 2.`,
+            `Menor de las filas 1 y 2 en las columnas ${col.i+1} y ${col.j+1}: |${fmt(x[col.i])} ${fmt(x[col.j])}; ${fmt(y[col.i])} ${fmt(y[col.j])}| = ${fmt(col.d)} ≠ 0 ⇒ las filas 1 y 2 son independientes, así que rango(A(${fmt(m0)})) ≥ 2; como la fila 3 es combinación de ellas, rango(A(${fmt(m0)})) = <b>2</b>.`,
             `Para m ≠ ${fmt(m0)}: |A| ≠ 0, luego rango(A) = <b>3</b> (máximo posible, orden 3).`,
           ],
         };
@@ -2674,6 +2820,12 @@
         const maxE = Math.max(...C.flat().map(Math.abs), ...constMat.flat().map(Math.abs));
         if(maxE > 20) continue;
         const rows = C.map((row,i) => row.map((c,j) => linTerm(c, constMat[i][j])));
+        const P = C.map((row,i) => row.map((c,j) => [c, constMat[i][j]]));
+        const {det, steps: detSteps} = detParamSteps3(P);
+        const {steps: eqSteps} = solveCubicSteps(det, r);
+        const Ar = substituteMatrix(P, r);
+        const As = substituteMatrix(P, s);
+        const minorS = firstNonzeroMinor2Cols(As, 0, 1);
 
         return {
           kind: 'matriz',
@@ -2688,9 +2840,10 @@
           ],
           steps: [
             `Cada columna de A es una columna fija multiplicada por (m − valor): escalar una columna escala el determinante por ese mismo factor.`,
-            `|A(m)| = ${fmt(detC)}·(m − (${fmt(r)}))²·(m − (${fmt(s)})): raíz doble en m = <b>${fmt(r)}</b>, raíz simple en m = <b>${fmt(s)}</b>.`,
-            `Para m = ${fmt(r)}: se anulan a la vez las dos columnas que comparten esa raíz; solo queda una columna no nula ⇒ rango(A) = <b>1</b>.`,
-            `Para m = ${fmt(s)}: se anula una sola columna; las otras dos siguen siendo independientes ⇒ rango(A) = <b>2</b>.`,
+            ...detSteps,
+            ...eqSteps,
+            `Sustituimos m = ${fmt(r)}: se anulan las columnas 1 y 2 (comparten esa raíz) y A(${fmt(r)}) = ${matHtml(Ar)}: solo queda la columna 3, no nula ⇒ rango(A) = <b>1</b>.`,
+            `Sustituimos m = ${fmt(s)}: se anula la columna 3 y A(${fmt(s)}) = ${matHtml(As)}. Menor de las filas ${minorS.i+1} y ${minorS.j+1} en las columnas 1 y 2: ${minorText(As, minorS.i, minorS.j, 0, 1)} = ${fmt(minorS.d)} ≠ 0 ⇒ rango(A) = <b>2</b>.`,
             `Para cualquier otro valor de m: ninguna columna se anula y la matriz de partida es invertible ⇒ rango(A) = <b>3</b> (máximo).`,
           ],
         };
@@ -2718,6 +2871,16 @@
         const maxE = Math.max(...C.flat().map(Math.abs), ...constMat.flat().map(Math.abs));
         if(maxE > 20) continue;
         const rows = C.map((row,i) => row.map((c,j) => linTerm(c, constMat[i][j])));
+        const P = C.map((row,i) => row.map((c,j) => [c, constMat[i][j]]));
+        const {det, steps: detSteps} = detParamSteps3(P);
+        const {steps: eqSteps} = solveCubicSteps(det, r1);
+        const cols = [[1,2],[0,2],[0,1]]; // columnas que quedan cuando se anula la 1ª, 2ª o 3ª
+        const subSteps = [r1,r2,r3].map((root,k) => {
+          const Ak = substituteMatrix(P, root);
+          const [c1,c2] = cols[k];
+          const minor = firstNonzeroMinor2Cols(Ak, c1, c2);
+          return `Sustituimos m = ${fmt(root)}: se anula la columna ${k+1} y A(${fmt(root)}) = ${matHtml(Ak)}. Menor de las filas ${minor.i+1} y ${minor.j+1} en las columnas ${c1+1} y ${c2+1}: ${minorText(Ak, minor.i, minor.j, c1, c2)} = ${fmt(minor.d)} ≠ 0 ⇒ rango(A) = <b>2</b>.`;
+        });
 
         return {
           kind: 'matriz',
@@ -2734,8 +2897,9 @@
           ],
           steps: [
             `Cada columna de A es una columna fija multiplicada por (m − valor): escalar una columna escala el determinante por ese mismo factor.`,
-            `|A(m)| = ${fmt(detC)}·(m − (${fmt(r1)}))·(m − (${fmt(r2)}))·(m − (${fmt(r3)})): tres raíces reales distintas.`,
-            `En cada raíz se anula exactamente una columna y las otras dos siguen siendo independientes ⇒ rango(A) = <b>2</b> en m = ${fmt(r1)}, m = ${fmt(r2)} y m = ${fmt(r3)}.`,
+            ...detSteps,
+            ...eqSteps,
+            ...subSteps,
             `Para cualquier otro valor de m: ninguna columna se anula y la matriz de partida es invertible ⇒ rango(A) = <b>3</b> (máximo).`,
           ],
         };
@@ -2758,6 +2922,10 @@
         const maxE = Math.max(...C.flat().map(Math.abs), ...constMat.flat().map(Math.abs));
         if(maxE > 20) continue;
         const rows = C.map((row,i) => row.map((c,j) => linTerm(c, constMat[i][j])));
+        const P = C.map((row,i) => row.map((c,j) => [c, constMat[i][j]]));
+        const {det, steps: detSteps} = detParamSteps3(P);
+        const {steps: eqSteps} = solveCubicSteps(det, r);
+        const Ar = substituteMatrix(P, r);
 
         return {
           kind: 'matriz',
@@ -2770,8 +2938,9 @@
           ],
           steps: [
             `Cada columna de A es una columna fija multiplicada por (m − ${fmt(r)}): escalar una columna escala el determinante por ese mismo factor.`,
-            `|A(m)| = ${fmt(detC)}·(m − (${fmt(r)}))³: raíz triple en m = <b>${fmt(r)}</b>, único punto crítico.`,
-            `Para m = ${fmt(r)}: se anulan las TRES columnas a la vez ⇒ A(m) es la matriz nula ⇒ rango(A) = <b>0</b>.`,
+            ...detSteps,
+            ...eqSteps,
+            `Sustituimos m = ${fmt(r)}: las TRES columnas se anulan a la vez y A(${fmt(r)}) = ${matHtml(Ar)}: es la matriz nula ⇒ rango(A) = <b>0</b>.`,
             `Para m ≠ ${fmt(r)}: ninguna columna se anula y la matriz de partida es invertible ⇒ rango(A) = <b>3</b> (máximo).`,
           ],
         };
@@ -2837,18 +3006,36 @@
         if(det2(matMul(Aof(m0+1), B)) === 0) continue;
         if([0,1,-1,m0,m0+2].some(m => computeRank(matMul(B, Aof(m))) !== 2)) continue;
 
+        const ArowPairs = [[[0,u1],[0,u2],[0,0]], [[d1v,v1],[d2v,v2],[0,c3]]];
+        const ABPairs = ArowPairs.map(row => B[0].map((_,k) => {
+          let coef = 0, cst = 0;
+          for(let j=0;j<3;j++){ coef += row[j][0]*B[j][k]; cst += row[j][1]*B[j][k]; }
+          return [coef, cst];
+        }));
+        const {det: detAB, steps: detSteps} = detParamSteps2(ABPairs);
+        const {roots, steps: eqSteps} = solveLinearSteps(detAB);
+        const root = roots[0];
+        const Am0 = [[u1,u2,0], [v1+root*d1v, v2+root*d2v, c3]];
+        const ABm0 = matMul(Am0, B);
+        const kIdx = u1 !== 0 ? 0 : 1;
+        const uk = kIdx === 0 ? u1 : u2;
+        const dk = kIdx === 0 ? d1v : d2v, vk = kIdx === 0 ? v1 : v2;
+
         return {
           kind: 'producto',
           statement: `Considera la matriz B (fija) y la matriz A, cuya fila 2 depende de un parámetro <b>m</b>:`,
           B, u1, u2, v1, v2, c3, d1v, d2v,
           fields: [
-            {key:'m0', label:'m para que A·B no tenga inversa =', value: m0},
+            {key:'m0', label:'m para que A·B no tenga inversa =', value: root},
             {key:'rBA', label:'rango(B·A) (para cualquier m) =', value: 2},
           ],
           steps: [
-            `A·B es una matriz 2×2 cuyo determinante es lineal en m (solo la fila 2 de A depende de m): se anula en m = <b>${fmt(m0)}</b>.`,
+            `A·B es una matriz 2×2; calculamos su determinante paso a paso.`,
+            ...detSteps,
+            ...eqSteps,
+            `Sustituimos m = ${fmt(root)} en A: A(${fmt(root)}) = ${matHtml(Am0)}, y A(${fmt(root)})·B = ${matHtml(ABm0)}, con determinante 0 ⇒ efectivamente A·B no tiene inversa ahí.`,
+            `Menor de las columnas ${kIdx+1} y 3 de A: |${fmt(uk)} 0; ${linTerm(dk,vk)} ${fmt(c3)}| = ${fmt(uk)}·${fmt(c3)} − 0·(${linTerm(dk,vk)}) = ${fmt(uk*c3)} ≠ 0 para cualquier m (el término con m se multiplica por 0) ⇒ rango(A) = <b>2</b> (máximo, A tiene 2 filas) sea cual sea m.`,
             `B tiene rango 2 (sus columnas son independientes: el bloque de sus 2 primeras filas tiene determinante ±1).`,
-            `La fila 1 de A tiene un 0 en la 3ª posición y la fila 2 no, así que nunca son proporcionales: rango(A) = 2 para cualquier m.`,
             `Como B tiene rango máximo, rango(B·A) = rango(A) = <b>2</b> para cualquier valor de m.`,
           ],
         };
